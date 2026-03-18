@@ -9,3 +9,9 @@ email-validator
 requests
 python-multipart
 psycopg2-binary
+alembic
+slowapi
+bleach
+Pillow
+redis
+fastapi-cache2[redis]
