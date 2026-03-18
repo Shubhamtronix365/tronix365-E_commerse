@@ -1,10 +1,15 @@
-from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks, Request
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import func
+from sqlalchemy import func, or_, and_
 from database import engine, Base, get_db
-from models import Product, ProductDB, Order, OrderCreate, OrderDB, OrderItemDB, LoginRequest, ReviewDB, ReviewCreate, ReviewResponse, ProductCreate, ProductUpdate, ContactMessageDB
+from models import (
+    Product, ProductDB, Order, OrderCreate, OrderDB, OrderItemDB, LoginRequest, 
+    ReviewDB, ReviewCreate, ReviewResponse, ProductCreate, ProductUpdate, 
+    ContactMessageDB, WishlistItemDB, CartItemDB, WishlistCreate, WishlistResponse,
+    CartItemCreate, CartItemUpdate, CartItemResponse, CartMergeRequest
+)
 import requests
 import hashlib
 import os
@@ -14,6 +19,14 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import UploadFile, File
 import shutil
 from email_utils import send_order_confirmation_email
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from utils import sanitize_html, sanitize_description, process_image
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+from fastapi_cache.decorator import cache
+import redis
 
 # Ensure 'uploads' directory exists
 UPLOAD_DIR = "uploads"
@@ -23,7 +36,21 @@ if not os.path.exists(UPLOAD_DIR):
 # Create tables
 Base.metadata.create_all(bind=engine)
 
+# Initialize Limiter
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title="Tronix365 API", version="0.1.0")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+@app.on_event("startup")
+async def startup():
+    redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
+    try:
+        redis_client = redis.from_url(redis_url, encoding="utf8", decode_responses=True)
+        FastAPICache.init(RedisBackend(redis_client), prefix="fastapi-cache")
+        print(f"Redis cache initialized with URL: {redis_url}")
+    except Exception as e:
+        print(f"Failed to initialize Redis cache: {e}")
 
 # CORS Setup
 # CORS Setup - Hardcoded for Production Safety
@@ -70,6 +97,7 @@ async def health_check():
     return {"status": "ok"}
 
 @app.get("/products", response_model=List[Product])
+@cache(expire=3600)
 async def get_products(
     skip: int = 0,
     limit: int = 20,
@@ -110,7 +138,65 @@ async def get_products(
     products = query.offset(skip).limit(limit).all()
     return products
 
+@app.get("/products/search", response_model=List[Product])
+@cache(expire=300)
+async def search_products(q: str = "", db: Session = Depends(get_db)):
+    """
+    Search products by title, description, or category with fuzzy matching.
+    """
+    if not q:
+        return []
+    
+    # Split query into words for more flexible searching
+    words = q.strip().split()
+    if not words:
+        return []
+
+    # Build filters: Each word must appear in AT LEAST one of the fields
+    word_filters = []
+    for word in words:
+        search_term = f"%{word}%"
+        word_filters.append(
+            or_(
+                ProductDB.title.ilike(search_term),
+                ProductDB.description.ilike(search_term),
+                ProductDB.category.ilike(search_term)
+            )
+        )
+    
+    # Combine all word filters with AND (each word must match something)
+    products = db.query(ProductDB).filter(and_(*word_filters)).limit(15).all()
+    
+    return products
+
+@app.get("/products/recommendations/{product_id}", response_model=List[Product])
+@cache(expire=3600)
+async def get_recommendations(product_id: int, db: Session = Depends(get_db)):
+    """
+    Get related products based on category.
+    """
+    product = db.query(ProductDB).filter(ProductDB.id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    # Same category, excluding current product
+    recommendations = db.query(ProductDB).filter(
+        ProductDB.category == product.category,
+        ProductDB.id != product_id
+    ).limit(4).all()
+    
+    # Fill with top rated if not enough
+    if len(recommendations) < 4:
+        fill = db.query(ProductDB).filter(
+            ProductDB.id != product_id,
+            ProductDB.id.notin_([r.id for r in recommendations])
+        ).order_by(ProductDB.rating.desc()).limit(4 - len(recommendations)).all()
+        recommendations.extend(fill)
+        
+    return recommendations
+
 @app.get("/products/{product_id}", response_model=Product)
+@cache(expire=3600)
 async def get_product(product_id: int, db: Session = Depends(get_db)):
     product = db.query(ProductDB).filter(ProductDB.id == product_id).first()
     if not product:
@@ -279,7 +365,8 @@ from models import ContactMessageDB
 from fastapi import BackgroundTasks
 
 @app.post("/contact")
-async def send_contact_email(contact: ContactMessage, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+async def send_contact_email(request: Request, contact: ContactMessage, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     # 1. Save to Database
     try:
         new_msg = ContactMessageDB(
@@ -301,13 +388,13 @@ async def send_contact_email(contact: ContactMessage, background_tasks: Backgrou
 
 
 @app.post("/signup", response_model=Token)
-async def signup(user: UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+async def signup(request: Request, user: UserCreate, db: Session = Depends(get_db)):
     try:
         db_user = db.query(UserDB).filter(UserDB.email == user.email).first()
         if db_user:
             raise HTTPException(status_code=400, detail="Email already registered")
         
-        print(f"DEBUG: Password to hash: '{user.password}', Type: {type(user.password)}, Len: {len(user.password)}")
         hashed_password = get_password_hash(user.password)
         new_user = UserDB(
             email=user.email,
@@ -320,21 +407,37 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
         db.refresh(new_user)
         
         # Auto-login after signup
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = create_access_token(
-            data={"sub": new_user.email, "role": new_user.role}, expires_delta=access_token_expires
+        access_token = create_access_token(data={"sub": new_user.email, "role": new_user.role})
+        refresh_token = create_refresh_token(data={"sub": new_user.email})
+        
+        # Store Refresh Token in DB
+        from models import RefreshTokenDB
+        from auth import REFRESH_TOKEN_EXPIRE_DAYS
+        db_refresh_token = RefreshTokenDB(
+            user_id=new_user.id,
+            token=refresh_token,
+            expires_at=datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
         )
-        return {"access_token": access_token, "token_type": "bearer", "user_name": new_user.full_name, "role": new_user.role}
+        db.add(db_refresh_token)
+        db.commit()
+
+        return {
+            "access_token": access_token, 
+            "refresh_token": refresh_token,
+            "token_type": "bearer", 
+            "user_name": new_user.full_name, 
+            "role": new_user.role
+        }
     except HTTPException as e:
         raise e
     except Exception as e:
-        # msg = f"Signup Error: {str(e)} | Pwd Type: {type(user.password)} | Pwd Len: {len(user.password)}"
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Signup Error: {str(e)}")
 
 @app.post("/login", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(UserDB).filter(UserDB.email == form_data.username).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
@@ -349,14 +452,31 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
             detail="Admin credentials not allowed here. Please use Admin Login.",
         )
     
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.email, "role": user.role}, expires_delta=access_token_expires
+    access_token = create_access_token(data={"sub": user.email, "role": user.role})
+    refresh_token = create_refresh_token(data={"sub": user.email})
+    
+    # Store Refresh Token in DB
+    from models import RefreshTokenDB
+    from auth import REFRESH_TOKEN_EXPIRE_DAYS
+    db_refresh_token = RefreshTokenDB(
+        user_id=user.id,
+        token=refresh_token,
+        expires_at=datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     )
-    return {"access_token": access_token, "token_type": "bearer", "user_name": user.full_name, "role": user.role}
+    db.add(db_refresh_token)
+    db.commit()
+
+    return {
+        "access_token": access_token, 
+        "refresh_token": refresh_token,
+        "token_type": "bearer", 
+        "user_name": user.full_name, 
+        "role": user.role
+    }
 
 @app.post("/admin/login", response_model=Token)
-async def admin_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+async def admin_login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(UserDB).filter(UserDB.email == form_data.username).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
@@ -371,11 +491,72 @@ async def admin_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Sess
             detail="Access denied. Admin credentials required.",
         )
     
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.email, "role": user.role}, expires_delta=access_token_expires
+    access_token = create_access_token(data={"sub": user.email, "role": user.role})
+    refresh_token = create_refresh_token(data={"sub": user.email})
+    
+    # Store Refresh Token in DB
+    from models import RefreshTokenDB
+    from auth import REFRESH_TOKEN_EXPIRE_DAYS
+    db_refresh_token = RefreshTokenDB(
+        user_id=user.id,
+        token=refresh_token,
+        expires_at=datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     )
-    return {"access_token": access_token, "token_type": "bearer", "user_name": user.full_name, "role": user.role}
+    db.add(db_refresh_token)
+    db.commit()
+
+    return {
+        "access_token": access_token, 
+        "refresh_token": refresh_token,
+        "token_type": "bearer", 
+        "user_name": user.full_name, 
+        "role": user.role
+    }
+
+@app.post("/refresh", response_model=Token)
+async def refresh_token_endpoint(refresh_token: str, db: Session = Depends(get_db)):
+    from jose import JWTError, jwt
+    from auth import SECRET_KEY, ALGORITHM, create_access_token
+    from models import RefreshTokenDB, UserDB
+
+    try:
+        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        if payload.get("type") != "refresh":
+            raise HTTPException(status_code=401, detail="Invalid token type")
+        email: str = payload.get("sub")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+    # Check database for this token
+    db_token = db.query(RefreshTokenDB).filter(RefreshTokenDB.token == refresh_token).first()
+    if not db_token or db_token.expires_at < datetime.utcnow():
+        if db_token:
+            db.delete(db_token)
+            db.commit()
+        raise HTTPException(status_code=401, detail="Refresh token expired or invalid")
+
+    user = db.query(UserDB).filter(UserDB.id == db_token.user_id).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+
+    new_access_token = create_access_token(data={"sub": user.email, "role": user.role})
+    
+    return {
+        "access_token": new_access_token,
+        "refresh_token": refresh_token, # Send same refresh token back or rotate it
+        "token_type": "bearer",
+        "user_name": user.full_name,
+        "role": user.role
+    }
+
+@app.post("/logout")
+async def logout(refresh_token: str, db: Session = Depends(get_db)):
+    from models import RefreshTokenDB
+    db_token = db.query(RefreshTokenDB).filter(RefreshTokenDB.token == refresh_token).first()
+    if db_token:
+        db.delete(db_token)
+        db.commit()
+    return {"message": "Logged out successfully"}
 
 @app.get("/profile", response_model=UserResponse) 
 async def get_user_profile(current_user: UserDB = Depends(get_current_user)):
@@ -431,6 +612,115 @@ async def get_order_by_id(order_id: int, current_user: UserDB = Depends(get_curr
         raise HTTPException(status_code=403, detail="Not authorized to view this order")
         
     return order
+
+# Wishlist Endpoints
+@app.get("/wishlist", response_model=List[WishlistResponse])
+async def get_wishlist(current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
+    return db.query(WishlistItemDB).options(joinedload(WishlistItemDB.product)).filter(WishlistItemDB.user_id == current_user.id).all()
+
+@app.post("/wishlist", response_model=WishlistResponse)
+async def add_to_wishlist(wishlist: WishlistCreate, current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
+    # Check if already exists
+    existing = db.query(WishlistItemDB).filter(
+        WishlistItemDB.user_id == current_user.id,
+        WishlistItemDB.product_id == wishlist.product_id
+    ).first()
+    if existing:
+        return db.query(WishlistItemDB).options(joinedload(WishlistItemDB.product)).filter(WishlistItemDB.id == existing.id).first()
+    
+    new_item = WishlistItemDB(user_id=current_user.id, product_id=wishlist.product_id)
+    db.add(new_item)
+    db.commit()
+    db.refresh(new_item)
+    return db.query(WishlistItemDB).options(joinedload(WishlistItemDB.product)).filter(WishlistItemDB.id == new_item.id).first()
+
+@app.delete("/wishlist/{product_id}")
+async def remove_from_wishlist(product_id: int, current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
+    item = db.query(WishlistItemDB).filter(
+        WishlistItemDB.user_id == current_user.id,
+        WishlistItemDB.product_id == product_id
+    ).first()
+    if item:
+        db.delete(item)
+        db.commit()
+    return {"message": "Removed from wishlist"}
+
+# Cart Endpoints
+@app.get("/cart", response_model=List[CartItemResponse])
+async def get_cart(current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
+    return db.query(CartItemDB).options(joinedload(CartItemDB.product)).filter(CartItemDB.user_id == current_user.id).all()
+
+@app.post("/cart", response_model=CartItemResponse)
+async def add_to_cart(cart_item: CartItemCreate, current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
+    # Check if already in cart
+    existing = db.query(CartItemDB).filter(
+        CartItemDB.user_id == current_user.id,
+        CartItemDB.product_id == cart_item.product_id
+    ).first()
+    
+    if existing:
+        existing.quantity += cart_item.quantity
+        db.commit()
+        db.refresh(existing)
+        return db.query(CartItemDB).options(joinedload(CartItemDB.product)).filter(CartItemDB.id == existing.id).first()
+    
+    new_item = CartItemDB(
+        user_id=current_user.id,
+        product_id=cart_item.product_id,
+        quantity=cart_item.quantity,
+        selected=cart_item.selected
+    )
+    db.add(new_item)
+    db.commit()
+    db.refresh(new_item)
+    return db.query(CartItemDB).options(joinedload(CartItemDB.product)).filter(CartItemDB.id == new_item.id).first()
+
+@app.put("/cart/{item_id}", response_model=CartItemResponse)
+async def update_cart_item(item_id: int, item_update: CartItemUpdate, current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
+    db_item = db.query(CartItemDB).filter(CartItemDB.id == item_id, CartItemDB.user_id == current_user.id).first()
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Cart item not found")
+    
+    if item_update.quantity is not None:
+        db_item.quantity = item_update.quantity
+    if item_update.selected is not None:
+        db_item.selected = item_update.selected
+    
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+@app.delete("/cart/{item_id}")
+async def remove_from_cart(item_id: int, current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
+    item = db.query(CartItemDB).filter(CartItemDB.id == item_id, CartItemDB.user_id == current_user.id).first()
+    if item:
+        db.delete(item)
+        db.commit()
+    return {"message": "Removed from cart"}
+
+@app.post("/cart/merge")
+async def merge_cart(merge_request: CartMergeRequest, current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Merge guest cart items into the user's permanent cart."""
+    for item in merge_request.items:
+        existing = db.query(CartItemDB).filter(
+            CartItemDB.user_id == current_user.id,
+            CartItemDB.product_id == item.product_id
+        ).first()
+        
+        if existing:
+            # For merge, take the larger quantity or sum? Let's sum but cap at stock later
+            existing.quantity += item.quantity
+        else:
+            new_item = CartItemDB(
+                user_id=current_user.id,
+                product_id=item.product_id,
+                quantity=item.quantity,
+                selected=item.selected
+            )
+            db.add(new_item)
+    
+    db.commit()
+    return {"message": "Cart merged successfully"}
     
 # Trigger reload for env update
 
@@ -649,6 +939,7 @@ async def payment_callback(
         return RedirectResponse(url=f"{frontend_url}/payment/failure?txnid={txnid}", status_code=303)
 
 @app.get("/admin/stats")
+@cache(expire=3600)
 async def get_admin_stats(db: Session = Depends(get_db)):
     total_orders = db.query(OrderDB).count()
     total_revenue = db.query(func.sum(OrderDB.total_amount)).scalar() or 0.0
@@ -687,10 +978,12 @@ async def upload_image(file: UploadFile = File(...)):
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
             
+        # Optimize image and convert to WebP
+        optimized_path = process_image(file_path)
+        final_filename = os.path.basename(optimized_path)
+        
         # Return a relative URL instead of absolute 
-        # so it automatically adapts to whatever environment (Render/Local)
-        # the frontend uses to display it.
-        return {"url": f"/uploads/{unique_filename}"}
+        return {"url": f"/uploads/{final_filename}"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
