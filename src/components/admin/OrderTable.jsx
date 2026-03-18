@@ -1,0 +1,114 @@
+import React from 'react';
+import { Package, Calendar, Search } from 'lucide-react';
+
+const OrderTable = ({ 
+    orders, 
+    searchQuery, 
+    orderStatusFilter, 
+    setOrderStatusFilter, 
+    setSelectedOrder, 
+    hasMoreOrders, 
+    loadMore, 
+    loadingMore 
+}) => {
+    return (
+        <>
+            {/* Order Status Tabs */}
+            <div className="flex flex-wrap gap-2 mb-6">
+                {['All', 'pending', 'confirmed', 'shipped'].map((status) => (
+                    <button
+                        key={status}
+                        onClick={() => setOrderStatusFilter(status)}
+                        className={`px-5 py-2 rounded-full text-sm font-semibold transition-all shadow-sm ${orderStatusFilter === status
+                            ? 'bg-violet-500 text-white border border-violet-400'
+                            : 'bg-white/5 hover:bg-white/10 text-gray-400 border border-white/10 hover:text-white'
+                            }`}
+                    >
+                        {status === 'All' ? 'All Orders' : status.charAt(0).toUpperCase() + status.slice(1)}
+                    </button>
+                ))}
+            </div>
+
+            <div className="space-y-4 mb-6">
+                {orders.length > 0 ? (
+                    orders.map((order, index) => (
+                        <div
+                            key={index}
+                            className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-all group flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden"
+                        >
+                            {/* Left Margin Accent Line */}
+                            <div className={`absolute left-0 top-0 bottom-0 w-1 ${order.status === 'confirmed' ? 'bg-green-500' :
+                                order.status === 'pending' ? 'bg-yellow-500' :
+                                    'bg-blue-500'
+                                }`}></div>
+
+                            {/* Left section: ID & Email & Date */}
+                            <div className="flex items-center gap-4 pl-2">
+                                <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center border border-violet-500/20 text-violet-400 shrink-0">
+                                    <Package size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="text-white font-bold text-lg leading-tight flex items-center gap-2">
+                                        Order #order_tronix_{String(order.id).padStart(4, '0')}
+                                        <span className="text-xs font-normal text-gray-500 flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded-md border border-white/5">
+                                            <Calendar size={12} />
+                                            {order.created_at ? new Date(order.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
+                                        </span>
+                                    </h3>
+                                    <p className="text-gray-400 text-sm mt-0.5">{order.full_name || order.customer_email}</p>
+                                </div>
+                            </div>
+
+                            {/* Middle section: Stats */}
+                            <div className="flex flex-wrap items-center gap-x-8 gap-y-3 sm:ml-auto mr-4">
+                                <div>
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-0.5">Total Amount</p>
+                                    <p className="text-emerald-400 font-bold sm:text-lg leading-tight">₹{order.total_amount.toLocaleString()}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-0.5">Items</p>
+                                    <p className="text-white font-medium sm:text-lg leading-tight">{Array.isArray(order.items) ? order.items.length : 0}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">Status</p>
+                                    <span className={`px-2.5 py-1 rounded-md text-[10px] uppercase tracking-wider font-bold ${order.status === 'confirmed' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+                                        order.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' :
+                                            'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                                        }`}>
+                                        {order.status}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Right Action Button */}
+                            <button
+                                onClick={() => setSelectedOrder(order)}
+                                className="w-full sm:w-auto px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 rounded-xl text-white text-sm font-semibold transition-all flex items-center justify-center gap-2 group-hover:bg-violet-500/20 group-hover:text-violet-300 group-hover:border-violet-500/30"
+                            >
+                                <Search size={16} className="opacity-70" />
+                                <span>View Details</span>
+                            </button>
+                        </div>
+                    ))
+                ) : (
+                    <div className="text-center py-12 px-4 bg-white/5 border border-white/10 rounded-2xl">
+                        <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Search size={24} className="text-gray-500" />
+                        </div>
+                        <h3 className="text-lg font-medium text-white mb-1">No Orders Found</h3>
+                        <p className="text-gray-400 text-sm">We couldn't find any orders matching "{searchQuery}"</p>
+                    </div>
+                )}
+            </div>
+            {hasMoreOrders && (
+                <div className="flex justify-center mt-4">
+                    <button onClick={loadMore} disabled={loadingMore} className="text-tronix-primary hover:underline disabled:opacity-50">
+                        {loadingMore ? 'Loading...' : 'Load More Orders'}
+                    </button>
+                </div>
+            )}
+        </>
+    );
+};
+
+export default OrderTable;
