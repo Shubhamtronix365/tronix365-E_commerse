@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { MapPin, CreditCard, ShieldCheck, Truck, ChevronRight } from 'lucide-react';
+import { MapPin, CreditCard, ShieldCheck, Truck, ChevronRight, Loader, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import client from '../api/client';
 import { getImageUrl } from '../utils/imageUtils';
 
 const Checkout = () => {
     const { selectedItems, cartTotal } = useCart();
+    const { user } = useAuth();
     const [loading, setLoading] = useState(false);
+    const [isPincodeLoading, setIsPincodeLoading] = useState(false);
+    const [pincodeError, setPincodeError] = useState('');
     const navigate = useNavigate();
 
     // Redirect if no items selected
@@ -33,18 +37,53 @@ const Checkout = () => {
 
     // Auto-fill from logged-in user
     useEffect(() => {
-        const userStr = localStorage.getItem('tronix_user');
-        if (userStr) {
-            try {
-                const user = JSON.parse(userStr);
-                setAddress(prev => ({
-                    ...prev,
-                    fullName: prev.fullName || user.name || '',
-                    email: prev.email || user.email || ''
-                }));
-            } catch (e) { }
+        if (user) {
+            setAddress(prev => ({
+                ...prev,
+                fullName: prev.fullName || user.full_name || user.name || '',
+                email: prev.email || user.email || ''
+            }));
         }
-    }, []);
+    }, [user]);
+
+    // Auto-fill city and state from PIN code
+    useEffect(() => {
+        const fetchPincodeDetails = async () => {
+            if (address.pincode.length === 6) {
+                setIsPincodeLoading(true);
+                setPincodeError('');
+                try {
+                    const res = await fetch(`https://api.postalpincode.in/pincode/${address.pincode}`);
+                    const data = await res.json();
+                    
+                    if (data[0].Status === "Success") {
+                        const { District, State } = data[0].PostOffice[0];
+                        setAddress(prev => ({
+                            ...prev,
+                            city: District,
+                            state: State
+                        }));
+                        toast.success(`Location found: ${District}, ${State}`);
+                    } else {
+                        setPincodeError('Invalid PIN code');
+                    }
+                } catch (error) {
+                    console.error("PIN lookup error:", error);
+                    setPincodeError('Failed to fetch details');
+                } finally {
+                    setIsPincodeLoading(false);
+                }
+            } else if (address.pincode.length > 0 && address.pincode.length < 6) {
+                setPincodeError(''); // Reset while typing
+            }
+        };
+
+        const timer = setTimeout(() => {
+            fetchPincodeDetails();
+        }, 500); // Debounce to allow typing
+
+        return () => clearTimeout(timer);
+    }, [address.pincode]);
 
     const [paymentMethod, setPaymentMethod] = useState('payu');
 
@@ -74,7 +113,6 @@ const Checkout = () => {
 
         setLoading(true);
         try {
-            const user = JSON.parse(localStorage.getItem('tronix_user'));
             const email = address.email || (user ? user.email : "guest@example.com");
 
             // 1. Get PayU params and hash from backend
@@ -173,11 +211,24 @@ const Checkout = () => {
                             </div>
                             <div>
                                 <label className="block text-gray-400 text-sm mb-1">Pincode</label>
-                                <input
-                                    type="text" name="pincode" value={address.pincode} onChange={handleInputChange}
-                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-tronix-primary outline-none transition-colors"
-                                    placeholder="110001"
-                                />
+                                <div className="relative">
+                                    <input
+                                        type="text" name="pincode" value={address.pincode} onChange={handleInputChange}
+                                        maxLength={6}
+                                        className={`w-full bg-white/5 border ${pincodeError ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-3 text-white focus:border-tronix-primary outline-none transition-colors`}
+                                        placeholder="110001"
+                                    />
+                                    {isPincodeLoading && (
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                            <Loader size={16} className="text-tronix-primary animate-spin" />
+                                        </div>
+                                    )}
+                                </div>
+                                {pincodeError && (
+                                    <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                                        <AlertCircle size={12} /> {pincodeError}
+                                    </p>
+                                )}
                             </div>
                             <div className="md:col-span-2">
                                 <label className="block text-gray-400 text-sm mb-1">Flat, House no., Building, Company, Apartment</label>

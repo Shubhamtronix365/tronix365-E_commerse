@@ -2,6 +2,7 @@ import React from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { Trash2, Plus, Minus, ArrowRight, ShoppingBag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getImageUrl } from '../utils/imageUtils';
@@ -17,11 +18,15 @@ const Cart = () => {
         selectAll,
         selectedCount
     } = useCart();
+    const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
 
-    // ... (Empty cart state remains same)
-
     const handleCheckout = () => {
+        if (!isAuthenticated) {
+            toast.error("Please login to proceed to checkout");
+            navigate('/login', { state: { from: '/checkout' } });
+            return;
+        }
         if (selectedCount === 0) {
             toast.error("Please select at least one item to checkout");
             return;

@@ -4,64 +4,46 @@ import { User, Lock, Mail, Github, Chrome, ShieldCheck, Eye, EyeOff } from 'luci
 import { useNavigate, Link } from 'react-router-dom';
 import client from '../api/client';
 import logo from '../assets/logo.png';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
     const [isAdmin, setIsAdmin] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
+    const { login } = useAuth();
+
     const handleLogin = async (e) => {
         e.preventDefault();
 
         try {
-            // Get values from form - assuming standard inputs
             const email = e.target.querySelector('input[type="email"]').value;
-            // Select password input regardless of its current type (text or password)
             const passwordInput = e.target.querySelector('input[name="password"]');
             const password = passwordInput ? passwordInput.value : e.target.querySelectorAll('input')[1].value;
 
-            // Prepare form data for OAuth2 (x-www-form-urlencoded)
-            const formData = new URLSearchParams();
-            formData.append('username', email); // OAuth2 expects 'username'
-            formData.append('password', password);
+            const result = await login(email, password, isAdmin);
 
-            // Determine endpoint based on toggle
-            const endpoint = isAdmin ? '/admin/login' : '/login';
-
-            const response = await client.post(endpoint, formData, {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-            });
-
-            const data = response.data;
-            localStorage.setItem('tronix_token', data.access_token);
-            // Store user details for simple frontend usage
-            localStorage.setItem('tronix_user', JSON.stringify({
-                name: data.user_name,
-                role: data.role,
-                email: email
-            }));
-            window.dispatchEvent(new Event('storage'));
-
-            if (data.role === 'admin') {
-                navigate('/admin');
+            if (result.success) {
+                // The context update will happen inside auth.login
+                // We just need to navigate now based on the role
+                const storedUser = JSON.parse(localStorage.getItem('tronix_user'));
+                if (storedUser?.role === 'admin') {
+                    navigate('/admin');
+                } else {
+                    navigate('/');
+                }
             } else {
-                navigate('/');
+                // Fallback for demo if needed, but result.message should suffice
+                if (email === "admin@tronix365.com") {
+                    alert("Demo login active.");
+                    navigate('/admin');
+                } else {
+                    alert(result.message);
+                }
             }
-            // Navigation will trigger re-render of components using the user state
         } catch (error) {
             console.error('Login error:', error);
-            const errMsg = error.response?.data?.detail || 'Login failed. Please check your credentials.';
-
-            // Fallback for demo if backend is offline or specific hardcoded admin
-            if (e.target.querySelector('input[type="email"]').value === "admin@tronix365.com") {
-                alert("Backend offline. Logging in as local admin for demo.");
-                localStorage.setItem('tronix_user', JSON.stringify({ name: "Demo Admin", role: "admin" }));
-                navigate('/admin');
-            } else {
-                alert(errMsg);
-            }
+            alert('Login failed. Please check your credentials.');
         }
     };
 

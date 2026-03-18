@@ -4,17 +4,20 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Check, X as XIcon, ArrowLeft, Star, ShieldCheck, Truck, Heart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import { useCartAnimation } from '../context/CartAnimationContext';
 import { motion } from 'framer-motion';
 import { products as mockProducts } from '../data/mockData';
 import ReviewSection from '../components/product/ReviewSection';
 import client from '../api/client';
 import { getImageUrl } from '../utils/imageUtils';
+import RelatedProducts from '../components/product/RelatedProducts';
 
 const ProductDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { addToCart } = useCart();
     const { toggleWishlist, isInWishlist } = useWishlist();
+    const { animateToCart } = useCartAnimation();
     const [product, setProduct] = useState(null);
     const [activeTab, setActiveTab] = useState('specs');
     const [quantity, setQuantity] = useState(1);
@@ -55,9 +58,10 @@ const ProductDetails = () => {
         );
     }
 
-    const handleAddToCart = () => {
+    const handleAddToCart = (e) => {
         const success = addToCart(product, quantity);
         if (success) {
+            animateToCart(e.currentTarget.getBoundingClientRect());
             toast.success(`Added ${quantity} ${product.title} to cart!`);
         }
     };
@@ -250,6 +254,9 @@ const ProductDetails = () => {
                         )}
                     </div>
                 </div>
+
+                {/* Recommendations Section */}
+                <RelatedProducts productId={id} />
             </div>
         </div>
     );
