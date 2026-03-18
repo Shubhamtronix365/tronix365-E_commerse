@@ -3,47 +3,20 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Search, ShoppingCart, User, Menu, X, LogOut, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import logo from '../../assets/logo.png';
-import SearchOverlay from '../search/SearchOverlay';
-import SearchBar from '../search/SearchBar';
+import SearchOverlay from './SearchOverlay';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
-    const [user, setUser] = useState(null);
+    const { user, logout } = useAuth();
     const { cartCount } = useCart();
 
-    useEffect(() => {
-        // Check local storage for user data
-        const checkUser = () => {
-            try {
-                const storedUser = localStorage.getItem('tronix_user');
-                if (storedUser) {
-                    setUser(JSON.parse(storedUser));
-                } else {
-                    // Fallback for old key/format compatibility
-                    const oldUser = localStorage.getItem('user');
-                    if (oldUser) setUser(JSON.parse(oldUser));
-                }
-            } catch (e) {
-                console.error("Error parsing user data", e);
-            }
-        };
-
-        checkUser();
-        window.addEventListener('storage', checkUser);
-        return () => window.removeEventListener('storage', checkUser);
-    }, []);
-
     const handleLogout = () => {
-        localStorage.removeItem('tronix_token');
-        localStorage.removeItem('tronix_user');
-        localStorage.removeItem('user'); // Clean up old key
-        localStorage.removeItem('tronix365_cart');
-        localStorage.removeItem('tronix365_wishlist');
-        setUser(null);
-        navigate('/login'); // Use navigate to respect the basename in App.jsx
+        logout();
+        navigate('/login');
     };
 
     return (
@@ -76,11 +49,17 @@ const Navbar = () => {
 
                         {/* Actions */}
                         <div className="hidden md:flex items-center space-x-6">
-                            <SearchBar />
+                            <button 
+                                onClick={() => setIsSearchOpen(true)}
+                                className="text-gray-300 hover:text-tronix-primary transition-colors p-2 bg-white/5 rounded-full border border-white/5"
+                                title="Search (Cmd+K)"
+                            >
+                                <Search size={20} />
+                            </button>
                             <Link to="/wishlist" className="text-gray-300 hover:text-tronix-accent transition-colors">
                                 <Heart size={20} />
                             </Link>
-                            <Link to="/cart" className="relative text-gray-300 hover:text-tronix-primary transition-colors">
+                            <Link to="/cart" id="navbar-cart-icon" className="relative text-gray-300 hover:text-tronix-primary transition-colors">
                                 <ShoppingCart size={20} />
                                 {cartCount > 0 && (
                                     <span className="absolute -top-2 -right-2 bg-tronix-primary text-xs w-5 h-5 rounded-full flex items-center justify-center text-white font-bold animate-pulse">
