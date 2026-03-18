@@ -2,11 +2,26 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Zap } from 'lucide-react';
 import ProductCard from '../product/ProductCard';
-import { products } from '../../data/mockData';
+import ProductCardSkeleton from '../product/ProductCardSkeleton';
+import client from '../../api/client';
 
 const FeaturedProducts = () => {
-    // Select featured products (e.g., first 4)
-    const featuredProducts = products.slice(0, 4);
+    const [featuredProducts, setFeaturedProducts] = React.useState([]);
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        const fetchFeatured = async () => {
+            try {
+                const response = await client.get('/products?limit=4');
+                setFeaturedProducts(response.data);
+            } catch (error) {
+                console.error("Error fetching featured products:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchFeatured();
+    }, []);
 
     return (
         <section className="py-20 bg-tronix-dark border-t border-white/5 relative">
@@ -26,11 +41,15 @@ const FeaturedProducts = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {featuredProducts.map(product => (
-                        <div key={product.id} className="h-full">
-                            <ProductCard product={product} />
-                        </div>
-                    ))}
+                    {loading ? (
+                        [...Array(4)].map((_, i) => <ProductCardSkeleton key={i} />)
+                    ) : (
+                        featuredProducts.map(product => (
+                            <div key={product.id} className="h-full">
+                                <ProductCard product={product} />
+                            </div>
+                        ))
+                    )}
                 </div>
 
                 <div className="mt-12 text-center md:hidden">
