@@ -4,11 +4,22 @@ import { ShoppingCart, Eye, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useWishlist } from '../../context/WishlistContext';
+import { useCart } from '../../context/CartContext';
+import { useCartAnimation } from '../../context/CartAnimationContext';
 import { getImageUrl } from '../../utils/imageUtils';
 
 const ProductCard = ({ product }) => {
     const { toggleWishlist, isInWishlist } = useWishlist();
+    const { addToCart } = useCart();
+    const { animateToCart } = useCartAnimation();
     const isWishlisted = isInWishlist(product.id);
+
+    const handleAddToCart = (e) => {
+        e.preventDefault();
+        addToCart(product);
+        animateToCart(e.currentTarget.getBoundingClientRect());
+        toast.success(`Added ${product.title} to cart`);
+    };
 
     return (
         <motion.div
@@ -36,12 +47,16 @@ const ProductCard = ({ product }) => {
 
                 {/* Overlay Actions */}
                 <div className={`absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-sm ${product.stock === 0 ? 'hidden' : ''}`}>
-                    <Link to={`/product/${product.id}`} className="p-2 bg-white text-tronix-dark rounded-full hover:bg-tronix-primary hover:text-white transition-colors">
+                    <Link to={`/product/${product.id}`} className="p-2 bg-white text-tronix-dark rounded-full hover:bg-tronix-primary hover:text-white transition-colors" title="View Details">
                         <Eye size={20} />
                     </Link>
-                    <Link to={`/product/${product.id}`} className="p-2 bg-tronix-primary text-white rounded-full hover:bg-blue-600 transition-colors">
+                    <button
+                        onClick={handleAddToCart}
+                        className="p-2 bg-tronix-primary text-white rounded-full hover:bg-violet-600 transition-colors"
+                        title="Add to Cart"
+                    >
                         <ShoppingCart size={20} />
-                    </Link>
+                    </button>
                     <button
                         onClick={(e) => {
                             e.preventDefault();
@@ -67,10 +82,14 @@ const ProductCard = ({ product }) => {
                         {product.title}
                     </h3>
                 </Link>
-                <div className="mt-auto flex items-center justify-between">
-                    <div className="flex flex-col">
-                        <span className="text-xl font-bold text-white">₹{product.price}</span>
-                    </div>
+                <div className="mt-4 flex items-center justify-between gap-2">
+                    <button
+                        onClick={handleAddToCart}
+                        disabled={product.stock === 0}
+                        className="flex-1 bg-white/5 hover:bg-tronix-primary text-white text-xs font-bold py-2 px-3 rounded-lg border border-white/10 hover:border-tronix-primary transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:bg-white/5"
+                    >
+                        <ShoppingCart size={14} /> Add
+                    </button>
                     <button
                         onClick={(e) => {
                             e.preventDefault();
@@ -81,10 +100,10 @@ const ProductCard = ({ product }) => {
                                 toast.success('Added to Wishlist');
                             }
                         }}
-                        className={`text-xs transition-colors flex items-center gap-1 ${isWishlisted ? 'text-red-500 hover:text-red-400' : 'text-tronix-muted hover:text-white'}`}
+                        className={`p-2 rounded-lg transition-colors border ${isWishlisted ? 'bg-red-500/10 border-red-500/50 text-red-500' : 'bg-white/5 border-white/10 text-tronix-muted hover:text-white'}`}
+                        title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
                     >
-                        <Heart size={14} fill={isWishlisted ? "currentColor" : "none"} />
-                        {isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}
+                        <Heart size={16} fill={isWishlisted ? "currentColor" : "none"} />
                     </button>
                 </div>
             </div>
