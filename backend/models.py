@@ -4,7 +4,8 @@ from sqlalchemy.orm import relationship
 from database import Base
 from pydantic import BaseModel, field_validator
 from typing import List, Optional, Dict, Any
-from datetime import datetime# SQLAlchemy Models (Database Tables)
+from datetime import datetime
+from utils import sanitize_html, sanitize_description
 class ProductDB(Base):
     __tablename__ = "products"
 
@@ -33,6 +34,10 @@ class UserDB(Base):
     is_2fa_enabled = Column(Boolean, default=False)
     two_factor_secret = Column(String, nullable=True)
     profile_picture = Column(String, nullable=True)
+    
+    refresh_tokens = relationship("RefreshTokenDB", back_populates="user", cascade="all, delete-orphan")
+    wishlist_items = relationship("WishlistItemDB", back_populates="user", cascade="all, delete-orphan")
+    cart_items = relationship("CartItemDB", back_populates="user", cascade="all, delete-orphan")
 
 class OrderItemDB(Base):
     __tablename__ = "order_items"
@@ -71,6 +76,16 @@ class OrderDB(Base):
 class ProductBase(BaseModel):
     title: str
     description: str
+
+    @field_validator('title', mode='before')
+    @classmethod
+    def sanitize_title(cls, v):
+        return sanitize_html(v)
+
+    @field_validator('description', mode='before')
+    @classmethod
+    def sanitize_desc(cls, v):
+        return sanitize_description(v)
     price: float
     category: str
     image: Optional[str] = None
@@ -178,6 +193,7 @@ class UserLogin(BaseModel):
 
 class Token(BaseModel):
     access_token: str
+    refresh_token: Optional[str] = None
     token_type: str
     user_name: str
     role: str
@@ -204,6 +220,11 @@ class ReviewCreate(BaseModel):
     rating: int
     comment: str
 
+    @field_validator('comment', mode='before')
+    @classmethod
+    def sanitize_comment(cls, v):
+        return sanitize_html(v)
+
 class ReviewResponse(BaseModel):
     id: int
     rating: int
@@ -222,3 +243,66 @@ class ContactMessageDB(Base):
     email = Column(String)
     message = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class RefreshTokenDB(Base):
+    __tablename__ = "refresh_tokens"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    token = Column(String, unique=True, index=True)
+    expires_at = Column(DateTime(timezone=True))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("UserDB", back_populates="refresh_tokens")
+
+class WishlistItemDB(Base):
+    __tablename__ = "wishlist_items"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    product_id = Column(Integer, ForeignKey("products.id"))
+    
+    user = relationship("UserDB", back_populates="wishlist_items")
+    product = relationship("ProductDB")
+
+class CartItemDB(Base):
+    __tablename__ = "cart_items"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    product_id = Column(Integer, ForeignKey("products.id"))
+    quantity = Column(Integer, default=1)
+    selected = Column(Boolean, default=True)
+    
+    user = relationship("UserDB", back_populates="cart_items")
+    product = relationship("ProductDB")
+
+# Pydantic Schemas for Wishlist & Cart
+class WishlistCreate(BaseModel):
+    product_id: int
+
+class WishlistResponse(BaseModel):
+    id: int
+    product_id: int
+    product: Optional[Product] = None
+    class Config:
+        from_attributes = True
+
+class CartItemCreate(BaseModel):
+    product_id: int
+    quantity: int = 1
+    selected: bool = True
+
+class CartItemUpdate(BaseModel):
+    quantity: Optional[int] = None
+    selected: Optional[bool] = None
+
+class CartItemResponse(BaseModel):
+    id: int
+    product_id: int
+    quantity: int
+    selected: bool
+    product: Optional[Product] = None
+    class Config:
+        from_attributes = True
+
+class CartMergeRequest(BaseModel):
+    items: List[CartItemCreate]
