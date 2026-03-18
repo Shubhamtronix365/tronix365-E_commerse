@@ -1,57 +1,51 @@
 # Tronix365 E-commerce Platform
 
-## Project Description
-Tronix365 is a full-stack e-commerce application designed for selling electronics and gadgets. It features a modern, responsive user interface built with React and a robust backend API powered by FastAPI. The platform supports user authentication, product management, shopping cart functionality, payment processing integration, and a comprehensive admin dashboard.
+## Description
+Tronix365 is a high-performance, full-stack e-commerce application designed for selling electronics and gadgets. It features a stunning Neo-Glass UI built with React and a high-concurrency backend powered by FastAPI. The platform integrates advanced features such as real-time stock management, Redis-backed caching, rate-limited secure endpoints, and professional database migrations.
 
 ## Features
-- **User Authentication**: Secure Signup and Login with JWT and password visibility toggles.
-- **Product Catalog**: Browse products by category, filter by price, sort, and paginate through large lists.
-- **Product Details**: View detailed specifications, images, and reviews.
-- **Shopping Cart**: Add items, update quantities, and view total cost dynamically.
-- **Checkout Process**: Integrated payment gateway flow (PayU) with order confirmation.
-- **Admin Dashboard**: 
-    - View aggregate statistics (Revenue, Orders, Products, Users).
-    - Manage products and orders with paginated lists.
-- **User Dashboard**: View personal order history with pagination and profile details.
-- **Responsive Design**: Optimized for mobile and desktop using TailwindCSS and Glassmorphism aesthetics.
+- **User Authentication**: Secure Signup/Login with JWT (dual-token rotation) and password visibility toggles.
+- **Product Catalog**: Advanced search with fuzzy matching, category filtering, and server-side pagination.
+- **Visual Polish**: Shimmer-effect skeleton loaders, glassmorphism aesthetics, and smooth page transitions.
+- **Shopping Cart**: Real-time synchronization between guest and authenticated user states.
+- **Checkout Process**: Secure payment flow integration (PayU) with order tracking history.
+- **Admin Dashboard**: Comprehensive stats (Revenue, Orders, Products, Users) with dedicated management tables.
+- **Security**: Request rate limiting (SlowAPI), HTML sanitization (Bleach), and XSS protection.
+- **Performance**: Automatic WebP image optimization and Redis caching layer.
 
 ## Tech Stack
-- **Frontend**: React 19, Vite, TailwindCSS 4, React Router DOM 7
-- **Backend**: FastAPI, SQLAlchemy, Pydantic
-- **Database**: PostgreSQL (Production) / SQLite (Local Dev)
-- **Deployment**: Ready for Vercel/Render (Frontend) and Cloud Platforms (Backend)
+- **Frontend**: React 19, Vite, TailwindCSS 4, Framer Motion, Lucide Icons.
+- **Backend**: FastAPI, SQLAlchemy (PostgreSQL/SQLite), Pydantic, Alembic.
+- **Infrastructure**: Redis (Cache), SlowAPI (Rate Limiting), PayU (Payment).
 
 ## Folder Structure
-```
+```bash
 project-root/
-|-- backend/             # FastAPI Backend Server
-|   |-- main.py          # Application Entry Point & API Routes
-|   |-- models.py        # Database Models
-|   |-- schemas/         # Pydantic Schemas
-|   |-- database.py      # Database Connection
-|   |-- auth.py          # Authentication Logic
-|   |-- seed.py          # Script to populate initial data
-|   |-- tronix_env/      # Python Virtual Environment
+|-- backend/             # FastAPI Backend Server (MVC/Layered Pattern)
+|   |-- main.py          # Entry Point & Primary Routes
+|   |-- models.py        # Database Models (SQLAlchemy)
+|   |-- auth.py          # JWT & Security Logic
+|   |-- database.py      # Connection Configuration
+|   |-- utils.py         # Image Processing & Sanitization
+|   |-- migrations/      # Alembic Version History
+|   |-- myenv/           # Python Virtual Environment
 |
-|-- client/              # React Frontend Source (Project Root acts as client in this repo setup)
-|   |-- src/
-|   |   |-- components/  # Reusable UI Components
-|   |   |-- pages/       # Page Components (Routes: Shop, Login, Dashboard, etc.)
-|   |   |-- context/     # Global State (CartContext)
-|   |   |-- api/         # Axios Client Configuration
-|   |   |-- assets/      # Static Images and Icons
+|-- src/                 # React Frontend Source
+|   |-- components/      # Modular UI (admin/, common/, layout/, product/)
+|   |-- pages/           # Route Components (Home, Shop, Dashboards)
+|   |-- context/         # Global State (Auth, Cart, Wishlist)
+|   |-- api/             # API Client Configuration
+|   |-- assets/          # Static Media
 |
-|-- public/              # Static Assets (Favicon, etc.)
+|-- public/              # Static Frontend Assets
+|-- .gitignore           # Version Control Exclusions
 |-- README.md            # Project Documentation
+|-- package.json         # Node.js Dependencies
 ```
 
 ## Setup Instructions
 
-### Prerequisites
-- Node.js (v18+)
-- Python (v3.9+)
-
-### 1. Backend Setup
+### 1. Backend Setup (server)
 Navigate to the `backend` directory:
 ```bash
 cd backend
@@ -60,12 +54,12 @@ cd backend
 Create and activate the virtual environment:
 ```bash
 # Windows
-python -m venv tronix_env
-tronix_env\Scripts\activate
+python -m venv myenv
+myenv\Scripts\activate
 
 # Linux/Mac
-python3 -m venv tronix_env
-source tronix_env/bin/activate
+python3 -m venv myenv
+source myenv/bin/activate
 ```
 
 Install dependencies:
@@ -73,77 +67,63 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-Set up Environment Variables:
-Create a `.env` file in the `backend/` directory:
-```env
-DATABASE_URL=sqlite:///./tronix365.db
-SECRET_KEY=your_secure_secret_key
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-# CORS Configuration
-CORS_ORIGINS=http://localhost:5173,http://localhost:3000
-```
-
-Seed the Database (Optional but recommended for first run):
-```bash
-python seed.py
-```
-
-Run the Server:
-Make sure you are inside the `backend` directory:
-```bash
-uvicorn main:app --reload
-```
-The API will be available at `http://localhost:8000`.
-
-### 2. Frontend Setup
-Open a new terminal and navigate to the project root:
-```bash
-cd ..  # If you were in backend, go back to root
-# OR
-cd "path/to/project-root"
-```
-
-Install dependencies:
+### 2. Frontend Setup (client)
+Open a new terminal in the project root:
 ```bash
 npm install
 ```
 
-Run the Development Server:
+## Run Commands
+
+### Backend
+From the `backend` directory (with `myenv` active):
+```bash
+uvicorn main:app --reload
+```
+
+### Frontend
+From the project root:
 ```bash
 npm run dev
 ```
-The application will be available at `http://localhost:5173`.
 
-## API Documentation
-Key endpoints available:
+## Installed Libraries
 
--   **Auth**: `/signup`, `/login`, `/profile`
--   **Products**: `/products` (Supports `skip` and `limit` for pagination)
--   **Orders**: 
-    -   `/orders` (Admin: List all orders with pagination)
-    -   `/orders/user` (User: List personal orders with pagination)
-    -   `/orders` (POST: Create new order)
--   **Admin**: `/admin/stats` (Aggregate dashboard metrics)
+### Python (Backend)
+- `fastapi`, `uvicorn`: API core.
+- `sqlalchemy`, `alembic`: Database and migrations.
+- `slowapi`: Rate limiting protection.
+- `redis`, `fastapi-cache2`: Performance optimization.
+- `bleach`: Input sanitization.
+- `Pillow`: Image processing/WebP conversion.
 
-## Installed Packages
-
-### Backend (Python)
-- `fastapi`: Web framework.
-- `uvicorn`: ASGI server.
-- `sqlalchemy`: Database ORM.
-- `python-jose`: JWT token handling.
-- `passlib`: Password hashing.
-- `pydantic`: Data validation.
-
-### Frontend (npm)
-- `react`, `react-dom`: Core framework.
-- `react-router-dom`: Routing.
-- `axios`: API requests.
-- `tailwindcss`: Styling.
-- `framer-motion`: Animations.
-- `lucide-react`: Icons.
-- `react-hot-toast`: Notifications.
+### npm (Frontend)
+- `react-router-dom`: Modern routing.
+- `framer-motion`: Premium animations and transitions.
+- `axios`: API integration.
+- `lucide-react`: Iconography.
+- `react-hot-toast`: Interactive notifications.
 
 ## Environment Variables
-Ensure `backend/.env` is configured correctly for the database and secret keys. For frontend, vite uses `.env` in the root if needed (e.g., `VITE_API_URL`).
+Create a `.env` file in the `backend/` directory:
+| Variable | Description |
+| :--- | :--- |
+| `DATABASE_URL` | SQLAlchemy connection string (e.g., `sqlite:///./tronix365.db`) |
+| `SECRET_KEY` | Secret key for JWT signing |
+| `REDIS_URL` | Redis connection URL (e.g., `redis://localhost:6379`) |
+| `PAYU_KEY` | Merchant Key for PayU payment gateway |
+| `PAYU_SALT` | Merchant Salt for PayU payment gateway |
+
+## API Details
+- **Auth**: `POST /login`, `POST /signup`, `GET /profile`, `POST /refresh`.
+- **Products**: `GET /products`, `GET /products/search`, `POST /products`.
+- **Wishlist/Cart**: `GET /wishlist`, `POST /wishlist`, `GET /cart`, `POST /cart/merge`.
+- **Orders**: `POST /orders`, `GET /orders/user`, `GET /orders/{id}`.
+- **Admin**: `GET /admin/stats`.
+
+## Future Scope
+- **TypeScript Migration**: Converting JS/JSX files to TS/TSX for better scalability.
+- **Global Search**: Integration with Meilisearch or Algolia for lightning-fast results.
+- **Advanced Recommendations**: Personalized AI-driven product suggestions.
+- **Order Tracking**: Real-time visual pipeline for shipment status.
+- **Advanced Social Proof**: Image-based reviews and live inventory scarcity alerts.
