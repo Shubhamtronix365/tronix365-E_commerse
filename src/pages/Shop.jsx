@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Filter, X } from 'lucide-react';
 import ProductCard from '../components/product/ProductCard';
+import ProductCardSkeleton from '../components/product/ProductCardSkeleton';
 import ProductFilter from '../components/shop/ProductFilter';
 import { categories, products as mockProducts } from '../data/mockData';
 import client from '../api/client';
@@ -153,8 +154,10 @@ const Shop = () => {
                     <div className="lg:col-span-3">
                         {/* Loading State */}
                         {loading ? (
-                            <div className="flex justify-center items-center py-20">
-                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tronix-primary"></div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {[...Array(6)].map((_, i) => (
+                                    <ProductCardSkeleton key={i} />
+                                ))}
                             </div>
                         ) : error ? (
                             <div className="text-center text-red-500 py-10">{error}</div>
