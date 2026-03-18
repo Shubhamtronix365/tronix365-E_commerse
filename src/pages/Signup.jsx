@@ -4,6 +4,7 @@ import { Mail, Lock, User, ArrowRight, Loader, Eye, EyeOff } from 'lucide-react'
 import { motion } from 'framer-motion';
 import client from '../api/client';
 import logo from '../assets/logo.png';
+import { useAuth } from '../context/AuthContext';
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -22,6 +23,8 @@ const Signup = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const { signup, login } = useAuth();
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -34,33 +37,29 @@ const Signup = () => {
         setLoading(true);
 
         try {
-            console.log("Sending signup request...", formData);
-            const response = await client.post('/signup', {
+            const result = await signup({
                 email: formData.email,
                 password: formData.password,
                 full_name: formData.full_name
             });
 
-            const data = response.data;
-
-            // Auto login (store token)
-            localStorage.setItem('tronix_token', data.access_token);
-            localStorage.setItem('tronix_user', JSON.stringify({
-                name: data.user_name,
-                role: data.role,
-                email: formData.email
-            }));
-            window.dispatchEvent(new Event('storage'));
-
-            // Redirect
-            navigate('/');
+            if (result.success) {
+                // Auto login after successful signup
+                const loginResult = await login(formData.email, formData.password);
+                if (loginResult.success) {
+                    navigate('/');
+                } else {
+                    navigate('/login');
+                }
+            } else {
+                setError(result.message);
+                alert(`Signup failed: ${result.message}`);
+            }
         } catch (err) {
             console.error("Signup Error:", err);
-            const errMsg = err.response?.data?.detail || 'Registration failed';
-            setError(errMsg);
-            alert(`Signup failed: ${errMsg}`);
-        }
-        finally {
+            setError('Registration failed');
+            alert('Signup failed. Please try again.');
+        } finally {
             setLoading(false);
         }
     };
