@@ -17,9 +17,14 @@ import OrderDetails from './pages/OrderDetails';
 import Invoice from './pages/Invoice';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
+import { AuthProvider } from './context/AuthContext';
+import { CartAnimationProvider } from './context/CartAnimationContext';
 import { About, Contact, Terms, Privacy } from './pages/InfoPages';
 import PaymentStatus from './pages/PaymentStatus';
 import Categories from './pages/Categories';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import PageTransition from './components/common/PageTransition';
+import { AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
 
 // Wrapper to scroll to top on route change
@@ -58,50 +63,85 @@ const basename = getBasename();
 function App() {
   return (
     <Router basename={basename}>
-      <CartProvider>
-        <WishlistProvider>
-          <ScrollToTop />
-          <div className="min-h-screen bg-tronix-bg text-tronix-text font-sans selection:bg-tronix-primary selection:text-white flex flex-col">
-            <Navbar />
-            <main className="flex-grow">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/shop" element={<Shop />} />
-                <Route path="/product/:id" element={<ProductDetails />} />
-                <Route path="/categories" element={<Categories />} />
-                <Route path="/category/:category" element={<Shop />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/wishlist" element={<Wishlist />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/dashboard" element={<UserDashboard />} />
-                <Route path="/order/:id" element={<OrderDetails />} />
-                <Route path="/invoice/:id" element={<Invoice />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/payment/success" element={<PaymentStatus />} />
-                <Route path="/payment/failure" element={<PaymentStatus />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/privacy" element={<Privacy />} />
-                {/* Catch-all route to prevent blank screen and handle potential routing mismatches */}
-                <Route path="*" element={<Home />} />
-              </Routes>
-            </main>
-            <Footer />
-            <Toaster position="bottom-right" toastOptions={{
-              style: {
-                background: '#1a1a2e',
-                color: '#fff',
-                border: '1px solid rgba(255,255,255,0.1)'
-              }
-            }} />
-          </div>
-        </WishlistProvider>
-      </CartProvider>
+      <AuthProvider>
+        <CartProvider>
+          <WishlistProvider>
+            <CartAnimationProvider>
+              <AppContent />
+            </CartAnimationProvider>
+          </WishlistProvider>
+        </CartProvider>
+      </AuthProvider>
     </Router>
   );
 }
+
+const AppContent = () => {
+  const location = useLocation();
+
+  return (
+    <>
+      <ScrollToTop />
+      <div className="min-h-screen bg-tronix-bg text-tronix-text font-sans selection:bg-tronix-primary selection:text-white flex flex-col">
+        <Navbar />
+        <main className="flex-grow overflow-hidden">
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+              <Route path="/" element={<PageTransition><Home /></PageTransition>} />
+              <Route path="/shop" element={<PageTransition><Shop /></PageTransition>} />
+              <Route path="/product/:id" element={<PageTransition><ProductDetails /></PageTransition>} />
+              <Route path="/categories" element={<PageTransition><Categories /></PageTransition>} />
+              <Route path="/category/:category" element={<PageTransition><Shop /></PageTransition>} />
+              <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
+              <Route path="/checkout" element={
+                <ProtectedRoute>
+                  <PageTransition><Checkout /></PageTransition>
+                </ProtectedRoute>
+              } />
+              <Route path="/wishlist" element={<PageTransition><Wishlist /></PageTransition>} />
+              <Route path="/signup" element={<PageTransition><Signup /></PageTransition>} />
+              <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <PageTransition><UserDashboard /></PageTransition>
+                </ProtectedRoute>
+              } />
+              <Route path="/order/:id" element={
+                <ProtectedRoute>
+                  <PageTransition><OrderDetails /></PageTransition>
+                </ProtectedRoute>
+              } />
+              <Route path="/invoice/:id" element={
+                <ProtectedRoute>
+                  <PageTransition><Invoice /></PageTransition>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin" element={
+                <ProtectedRoute adminOnly={true}>
+                  <PageTransition><AdminDashboard /></PageTransition>
+                </ProtectedRoute>
+              } />
+              <Route path="/about" element={<PageTransition><About /></PageTransition>} />
+              <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
+              <Route path="/payment/success" element={<PageTransition><PaymentStatus /></PageTransition>} />
+              <Route path="/payment/failure" element={<PageTransition><PaymentStatus /></PageTransition>} />
+              <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
+              <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />
+              <Route path="*" element={<PageTransition><Home /></PageTransition>} />
+            </Routes>
+          </AnimatePresence>
+        </main>
+        <Footer />
+        <Toaster position="bottom-right" toastOptions={{
+          style: {
+            background: '#1a1a2e',
+            color: '#fff',
+            border: '1px solid rgba(255,255,255,0.1)'
+          }
+        }} />
+      </div>
+    </>
+  );
+};
 
 export default App;
