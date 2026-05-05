@@ -268,3 +268,105 @@ def send_order_confirmation_email(order):
     
     # Dispatch using the Brevo hook
     return send_email_via_brevo(to_email, subject, html_content, sender_name="Tronix365 Orders")
+
+def generate_abandoned_cart_html(user_name, cart_items, frontend_url):
+    """
+    Generates a premium abandoned cart recovery email.
+    """
+    item_rows = ""
+    total = 0
+    for item in cart_items:
+        img_url = item.product.image if getattr(item.product, 'image', None) else "https://via.placeholder.com/80?text=TRONIX365"
+        if img_url.startswith('/'):
+            img_url = f"{frontend_url}{img_url}"
+        
+        price = item.product.sale_price if item.product.sale_price else item.product.price
+        item_total = price * item.quantity
+        total += item_total
+            
+        item_rows += f"""
+        <tr>
+            <td style="padding: 15px; border-bottom: 1px solid #eee;">
+                <img src="{img_url}" alt="Product" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #eee;" />
+            </td>
+            <td style="padding: 15px; border-bottom: 1px solid #eee; text-align: left;">
+                <p style="margin: 0; font-weight: bold; color: #333;">{item.product.title}</p>
+                <p style="margin: 5px 0 0; font-size: 13px; color: #666;">Qty: {item.quantity}</p>
+            </td>
+            <td style="padding: 15px; border-bottom: 1px solid #eee; text-align: right;">
+                <p style="margin: 0; font-weight: bold; color: #333;">₹{item_total:,.2f}</p>
+            </td>
+        </tr>
+        """
+
+    cart_url = f"{frontend_url}/cart"
+
+    html_template = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f5; margin: 0; padding: 40px 20px; color: #333;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <tr>
+                <td style="background-color: #f59e0b; padding: 40px 30px; text-align: center;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 800; letter-spacing: 1px;">TRONIX365</h1>
+                    <p style="color: #fef3c7; margin: 10px 0 0; font-size: 16px;">Don't leave these behind!</p>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 40px 30px 20px;">
+                    <h2 style="margin: 0 0 15px; font-size: 22px; color: #111827;">Hey {user_name},</h2>
+                    <p style="margin: 0; font-size: 16px; color: #4b5563; line-height: 1.5;">
+                        We noticed you left some great items in your cart. They are still reserved for you, but they might sell out soon! 
+                        Come back and complete your purchase today.
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 0 30px;">
+                    <h3 style="margin: 0 0 15px; font-size: 18px; color: #111827; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">Your Shopping Cart</h3>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+                        {item_rows}
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 30px; text-align: right;">
+                    <p style="margin: 0; font-size: 18px; font-weight: bold; color: #111827;">Total: <span style="color: #f59e0b;">₹{total:,.2f}</span></p>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 30px 40px; text-align: center;">
+                    <a href="{cart_url}" style="display: inline-block; background-color: #f59e0b; color: #ffffff; text-decoration: none; padding: 14px 32px; font-size: 16px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 6px rgba(245, 158, 11, 0.25);">Return to Cart</a>
+                </td>
+            </tr>
+            <tr>
+                <td style="background-color: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+                    <p style="margin: 0 0 10px; font-size: 14px; color: #64748b;">
+                        Use code <strong style="color: #f59e0b;">WELCOME10</strong> for an extra 10% off!
+                    </p>
+                    <p style="margin: 0; font-size: 12px; color: #94a3b8;">
+                        &copy; 2026 Tronix365. All rights reserved.
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>
+    """
+    return html_template
+
+def send_abandoned_cart_email(user, cart_items):
+    """
+    Sends a recovery email for abandoned carts.
+    """
+    to_email = user.email
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip('/')
+    
+    subject = "Forget something? Your cart is waiting at Tronix365"
+    html_content = generate_abandoned_cart_html(user.full_name or "there", cart_items, frontend_url)
+    
+    return send_email_via_brevo(to_email, subject, html_content, sender_name="Tronix365 Re-engagement")

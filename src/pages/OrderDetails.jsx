@@ -150,17 +150,25 @@ const OrderDetails = () => {
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-sm text-gray-300">
                                         <span>Item(s) Subtotal:</span>
-                                        <span>₹{(order.total_amount / 1.18).toFixed(2)}</span>
+                                        <span>₹{((order.total_amount + (order.discount_amount || 0)) / 1.18).toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-sm text-gray-300">
                                         <span>GST (18%):</span>
-                                        <span className="text-yellow-400">₹{(order.total_amount - (order.total_amount / 1.18)).toFixed(2)}</span>
+                                        <span className="text-yellow-400">₹{((order.total_amount + (order.discount_amount || 0)) - ((order.total_amount + (order.discount_amount || 0)) / 1.18)).toFixed(2)}</span>
                                     </div>
-                                    <div className="flex justify-between text-sm text-gray-300 pb-2 border-b border-white/5">
+                                    <div className="flex justify-between text-sm text-gray-300">
                                         <span>Shipping:</span>
                                         <span className="text-emerald-400">Free</span>
                                     </div>
-                                    <div className="flex justify-between text-lg font-black text-emerald-400 pt-1">
+                                    {order.discount_amount > 0 && (
+                                        <div className="flex justify-between text-sm text-emerald-400 font-bold border-t border-white/5 pt-2">
+                                            <span>
+                                                Total Discount {order.coupon_code ? `(${order.coupon_code})` : ''}:
+                                            </span>
+                                            <span>- ₹{order.discount_amount}</span>
+                                        </div>
+                                    )}
+                                    <div className="flex justify-between text-lg font-black text-emerald-400 pt-1 border-t border-white/10 mt-2">
                                         <span>Grand Total:</span>
                                         <span>₹{order.total_amount.toLocaleString()}</span>
                                     </div>
@@ -192,6 +200,11 @@ const OrderDetails = () => {
                                             onClick={() => navigate(`/product/${item.product_id}`)}
                                         >
                                             {item.product ? item.product.title : `Product ID: ${item.product_id}`}
+                                            {item.bundle_id && (
+                                                <span className="ml-2 bg-tronix-primary/20 text-tronix-primary text-[10px] uppercase font-bold px-1.5 py-0.5 rounded border border-tronix-primary/30">
+                                                    Bundle
+                                                </span>
+                                            )}
                                         </h4>
                                         <p className="text-sm text-gray-400">Sold by: Tronix365</p>
                                         <div className="text-sm text-white font-medium mt-2">

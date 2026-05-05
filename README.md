@@ -9,7 +9,11 @@ Tronix365 is a high-performance, full-stack e-commerce application designed for 
 - **Visual Polish**: Shimmer-effect skeleton loaders, glassmorphism aesthetics, and smooth page transitions.
 - **Shopping Cart**: Real-time synchronization between guest and authenticated user states.
 - **Checkout Process**: Secure payment flow integration (PayU) with order tracking history.
-- **Admin Dashboard**: Comprehensive stats (Revenue, Orders, Products, Users) with dedicated management tables.
+- **Admin Dashboard**: Comprehensive stats (Revenue, Orders, Products, Users) with dedicated management tables for Coupons and Bundles.
+- **Marketing Tools**: 
+    - **Coupon System**: Advanced discount code engine with real-time validation and checkout integration.
+    - **Product Bundles**: "Buy Together & Save" offers with intelligent cart recognition and discounted pricing.
+    - **Abandoned Cart Recovery**: Automated inactivity tracking and premium email re-engagement (via Brevo).
 - **Security**: Request rate limiting (SlowAPI), HTML sanitization (Bleach), and XSS protection.
 - **Performance**: Automatic WebP image optimization and Redis caching layer.
 
@@ -119,7 +123,8 @@ Create a `.env` file in the `backend/` directory:
 - **Products**: `GET /products`, `GET /products/search`, `POST /products`.
 - **Wishlist/Cart**: `GET /wishlist`, `POST /wishlist`, `GET /cart`, `POST /cart/merge`.
 - **Orders**: `POST /orders`, `GET /orders/user`, `GET /orders/{id}`.
-- **Admin**: `GET /admin/stats`.
+- **Marketing**: `POST /apply-coupon`, `GET /bundles`, `POST /cart/bundle/{bundle_id}`.
+- **Admin**: `GET /admin/stats`, `POST /admin/coupons`, `POST /admin/bundles`.
 
 ## Future Scope
 - **TypeScript Migration**: Converting JS/JSX files to TS/TSX for better scalability.

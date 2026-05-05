@@ -3,18 +3,37 @@ import toast from 'react-hot-toast';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { MapPin, CreditCard, ShieldCheck, Truck, ChevronRight, Loader, AlertCircle } from 'lucide-react';
+import { MapPin, CreditCard, ShieldCheck, Truck, ChevronRight, Loader, AlertCircle, Trash2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import client from '../api/client';
 import { getImageUrl } from '../utils/imageUtils';
 
 const Checkout = () => {
-    const { selectedItems, cartTotal } = useCart();
+    const { selectedItems, cartTotal, subtotal: cartSubtotal, bundleDiscounts } = useCart();
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [isPincodeLoading, setIsPincodeLoading] = useState(false);
     const [pincodeError, setPincodeError] = useState('');
+    const [couponCode, setCouponCode] = useState('');
+    const [appliedCoupon, setAppliedCoupon] = useState(null);
+    const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
     const navigate = useNavigate();
+
+    const standaloneItems = selectedItems.filter(item => !item.bundle_id);
+    const bundleGroups = selectedItems.filter(item => item.bundle_id).reduce((acc, item) => {
+        if (!acc[item.bundle_id]) {
+            acc[item.bundle_id] = {
+                id: item.bundle_id,
+                bundle_name: item.bundle?.name || 'Product Bundle',
+                original_price: item.bundle?.original_price || 0,
+                bundle_price: item.bundle?.bundle_price || 0,
+                quantity: item.quantity,
+                items: []
+            };
+        }
+        acc[item.bundle_id].items.push(item);
+        return acc;
+    }, {});
 
     // Redirect if no items selected
     useEffect(() => {
@@ -86,12 +105,29 @@ const Checkout = () => {
     }, [address.pincode]);
 
     const [paymentMethod, setPaymentMethod] = useState('payu');
-
+    
     // Derived Totals
-    const subtotal = cartTotal;
-    const gst = Math.round(cartTotal * 0.18);
+    const subtotal = cartSubtotal; // Raw subtotal before bundle/coupon discounts
+    const couponDiscount = appliedCoupon ? appliedCoupon.discount_amount : 0;
+    const totalDiscount = bundleDiscounts + couponDiscount;
+    const gst = Math.round((subtotal - totalDiscount) * 0.18);
     const shipping = 0; // Free shipping logic
-    const totalAmount = subtotal + gst + shipping;
+    const totalAmount = subtotal - totalDiscount + gst + shipping;
+
+    const handleApplyCoupon = async () => {
+        if (!couponCode) return;
+        setIsApplyingCoupon(true);
+        try {
+            const res = await client.post(`/apply-coupon?code=${couponCode}&cart_total=${subtotal}`);
+            setAppliedCoupon(res.data);
+            toast.success(`Coupon "${res.data.code}" applied! You saved ₹${res.data.discount_amount}`);
+        } catch (err) {
+            toast.error(err.response?.data?.detail || "Invalid coupon code");
+            setAppliedCoupon(null);
+        } finally {
+            setIsApplyingCoupon(false);
+        }
+    };
 
     const handleInputChange = (e) => {
         setAddress({ ...address, [e.target.name]: e.target.value });
@@ -121,12 +157,18 @@ const Checkout = () => {
                 firstname: address.fullName,
                 email: email,
                 productinfo: `Order for ${selectedItems.length} items`,
-                items: selectedItems.map(item => ({ product_id: item.id, quantity: item.quantity })),
+                items: selectedItems.map(item => ({ 
+                    product_id: item.id, 
+                    quantity: item.quantity,
+                    bundle_id: item.bundle_id
+                })),
                 phone: address.mobile,
                 address_line: address.addressLine,
                 city: address.city,
                 state: address.state,
-                pincode: address.pincode
+                pincode: address.pincode,
+                coupon_code: appliedCoupon?.code || null,
+                discount_amount: totalDiscount
             });
 
             const data = response.data;
@@ -302,9 +344,55 @@ const Checkout = () => {
                         <div className="bg-tronix-card border border-white/10 rounded-xl p-6 shadow-xl">
                             <h3 className="text-lg font-bold text-white mb-4">Order Summary</h3>
 
+                            {/* Premium Coupon Input */}
+                            <div className="mb-6">
+                                <label className="block text-gray-400 text-xs mb-2 uppercase tracking-wider font-bold">Promo Code</label>
+                                {!appliedCoupon ? (
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Enter Code"
+                                            value={couponCode}
+                                            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl pl-4 pr-24 py-3 text-sm text-white focus:border-tronix-primary outline-none transition-colors placeholder:text-gray-500"
+                                        />
+                                        <button
+                                            onClick={handleApplyCoupon}
+                                            disabled={isApplyingCoupon || !couponCode}
+                                            className="absolute right-1.5 top-1.5 bottom-1.5 bg-tronix-primary hover:bg-violet-600 text-white px-4 rounded-lg text-sm font-bold transition-colors disabled:opacity-50"
+                                        >
+                                            {isApplyingCoupon ? '...' : 'Apply'}
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3 flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                                                <ShieldCheck size={16} className="text-emerald-400" />
+                                            </div>
+                                            <div>
+                                                <p className="text-emerald-400 font-bold text-sm tracking-wide">{appliedCoupon.code}</p>
+                                                <p className="text-emerald-500/80 text-[10px] uppercase font-bold">Successfully Applied</p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                setAppliedCoupon(null);
+                                                setCouponCode('');
+                                                toast.success("Coupon removed");
+                                            }}
+                                            className="p-2 text-gray-400 hover:text-red-400 hover:bg-white/5 rounded-lg transition-colors"
+                                            title="Remove Coupon"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="space-y-3 mb-6 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                                {selectedItems.map((item) => (
-                                    <div key={item.id} className="flex gap-3 items-start">
+                                {standaloneItems.map((item) => (
+                                    <div key={item.cart_item_id || item.id} className="flex gap-3 items-start">
                                         <div className="w-12 h-12 bg-white/5 rounded-md flex-shrink-0 flex items-center justify-center p-1">
                                             <img src={getImageUrl(item.image)} className="max-w-full max-h-full object-contain" />
                                         </div>
@@ -313,6 +401,30 @@ const Checkout = () => {
                                             <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
                                         </div>
                                         <p className="text-sm font-medium text-white">₹{item.price * item.quantity}</p>
+                                    </div>
+                                ))}
+
+                                {Object.values(bundleGroups).map((group) => (
+                                    <div key={`bundle-${group.id}`} className="bg-tronix-primary/5 rounded-lg border border-tronix-primary/20 p-3">
+                                        <div className="flex justify-between items-start mb-2 border-b border-white/5 pb-2">
+                                            <div>
+                                                <span className="text-[10px] font-bold text-tronix-primary uppercase tracking-wider block mb-0.5">Bundle Deal</span>
+                                                <p className="text-sm text-white font-bold">{group.bundle_name}</p>
+                                                <p className="text-xs text-gray-500">Qty: {group.quantity}</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <span className="text-xs text-gray-500 line-through block">₹{group.original_price * group.quantity}</span>
+                                                <span className="text-sm font-bold text-tronix-accent">₹{group.bundle_price * group.quantity}</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-wrap gap-1">
+                                            {group.items.map(bi => (
+                                                <div key={bi.cart_item_id || bi.id} className="flex items-center gap-1.5 bg-white/5 rounded px-1.5 py-1">
+                                                    <img src={getImageUrl(bi.image)} className="w-4 h-4 object-contain" />
+                                                    <span className="text-[10px] text-gray-400 capitalize max-w-[80px] truncate">{bi.title}</span>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -330,6 +442,18 @@ const Checkout = () => {
                                     <span>Tax (18% GST):</span>
                                     <span>₹{gst}</span>
                                 </div>
+                                {bundleDiscounts > 0 && (
+                                    <div className="flex justify-between text-emerald-400 text-sm italic">
+                                        <span>Bundle Savings:</span>
+                                        <span>- ₹{bundleDiscounts}</span>
+                                    </div>
+                                )}
+                                {appliedCoupon && (
+                                    <div className="flex justify-between text-emerald-400 text-sm font-bold">
+                                        <span>Coupon ({appliedCoupon.code}):</span>
+                                        <span>- ₹{couponDiscount}</span>
+                                    </div>
+                                )}
                                 <div className="flex justify-between text-white font-bold text-lg pt-2 border-t border-white/10 mt-2">
                                     <span>Order Total:</span>
                                     <span className="text-tronix-accent">₹{totalAmount}</span>

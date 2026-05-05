@@ -12,6 +12,8 @@ import OrderTable from '../components/admin/OrderTable';
 import ProductModal from '../components/admin/ProductModal';
 import OrderModal from '../components/admin/OrderModal';
 import AdminSettings from '../components/admin/AdminSettings';
+import CouponTable from '../components/admin/CouponTable';
+import BundleTable from '../components/admin/BundleTable';
 
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('products');
@@ -151,7 +153,13 @@ const AdminDashboard = () => {
     const handleSaveProduct = async (e) => {
         e.preventDefault();
         try {
-            const payload = { ...newProduct };
+            const payload = { 
+                ...newProduct,
+                price: newProduct.price === '' ? 0 : Number(newProduct.price),
+                mrp: newProduct.mrp === '' ? null : Number(newProduct.mrp),
+                stock: newProduct.stock === '' ? 0 : Number(newProduct.stock)
+            };
+            
             if (typeof payload.features === 'string') {
                 payload.features = payload.features.split('\n').map(f => f.trim()).filter(f => f);
             }
@@ -328,6 +336,18 @@ const AdminDashboard = () => {
                                 Orders
                             </button>
                             <button
+                                onClick={() => setActiveTab('coupons')}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'coupons' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
+                            >
+                                Coupons
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('bundles')}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'bundles' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
+                            >
+                                Bundles
+                            </button>
+                            <button
                                 onClick={() => setActiveTab('settings')}
                                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'settings' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
                             >
@@ -371,6 +391,14 @@ const AdminDashboard = () => {
                                 loadMore={loadMore}
                                 loadingMore={loadingMore}
                             />
+                        )}
+
+                        {activeTab === 'coupons' && (
+                            <CouponTable />
+                        )}
+
+                        {activeTab === 'bundles' && (
+                            <BundleTable products={products} />
                         )}
 
                         {activeTab === 'settings' && (

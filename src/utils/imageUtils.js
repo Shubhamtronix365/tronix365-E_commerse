@@ -4,7 +4,8 @@
  * If the path is a relative path (e.g., /uploads/...), it prepends the backend base URL.
  */
 export const getImageUrl = (imagePath) => {
-    if (!imagePath) return '';
+    // Return null instead of empty string to prevent React <img> src="" warnings
+    if (!imagePath) return null;
 
     // If it's an external URL or data URI, return as-is
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {

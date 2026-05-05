@@ -45,6 +45,7 @@ class OrderItemDB(Base):
     id = Column(Integer, primary_key=True, index=True)
     order_id = Column(Integer, ForeignKey("orders.id"))
     product_id = Column(Integer, ForeignKey("products.id"))
+    bundle_id = Column(Integer, ForeignKey("bundles.id"), nullable=True)
     quantity = Column(Integer)
     price_at_purchase = Column(Float) # Lock price at time of order
 
@@ -63,6 +64,10 @@ class OrderDB(Base):
     # Relationship to OrderItemDB
     items = relationship("OrderItemDB", back_populates="order", cascade="all, delete-orphan")
     
+    # Coupon & Discount
+    coupon_code = Column(String, nullable=True)
+    discount_amount = Column(Float, default=0.0)
+
     # Payment & Shipping Details
     txnid = Column(String, unique=True, index=True, nullable=True)
     full_name = Column(String, nullable=True)
@@ -158,6 +163,8 @@ class Order(OrderCreate):
     full_name: Optional[str] = None
     txnid: Optional[str] = None
     created_at: Optional[datetime] = None
+    coupon_code: Optional[str] = None
+    discount_amount: float = 0.0
     class Config:
         from_attributes = True
 
@@ -269,10 +276,48 @@ class CartItemDB(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     product_id = Column(Integer, ForeignKey("products.id"))
+    bundle_id = Column(Integer, ForeignKey("bundles.id"), nullable=True)
     quantity = Column(Integer, default=1)
     selected = Column(Boolean, default=True)
     
     user = relationship("UserDB", back_populates="cart_items")
+    product = relationship("ProductDB")
+    bundle = relationship("BundleDB")
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+class CouponDB(Base):
+    __tablename__ = "coupons"
+
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String, unique=True, index=True)
+    discount_type = Column(String) # 'percentage' or 'fixed'
+    discount_value = Column(Float)
+    min_purchase = Column(Float, default=0.0)
+    expiry_date = Column(DateTime(timezone=True))
+    is_active = Column(Boolean, default=True)
+    usage_limit = Column(Integer, nullable=True)
+    used_count = Column(Integer, default=0)
+
+class BundleDB(Base):
+    __tablename__ = "bundles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    description = Column(String)
+    original_price = Column(Float)
+    bundle_price = Column(Float)
+    is_active = Column(Boolean, default=True)
+
+    products = relationship("BundleProductDB", back_populates="bundle", cascade="all, delete-orphan")
+
+class BundleProductDB(Base):
+    __tablename__ = "bundle_products"
+
+    id = Column(Integer, primary_key=True, index=True)
+    bundle_id = Column(Integer, ForeignKey("bundles.id"))
+    product_id = Column(Integer, ForeignKey("products.id"))
+
+    bundle = relationship("BundleDB", back_populates="products")
     product = relationship("ProductDB")
 
 # Pydantic Schemas for Wishlist & Cart
@@ -298,11 +343,70 @@ class CartItemUpdate(BaseModel):
 class CartItemResponse(BaseModel):
     id: int
     product_id: int
+    bundle_id: Optional[int] = None
     quantity: int
     selected: bool
     product: Optional[Product] = None
+    bundle: Optional[BundleResponse] = None
     class Config:
         from_attributes = True
 
 class CartMergeRequest(BaseModel):
     items: List[CartItemCreate]
+
+# Pydantic Schemas for Bundles
+class BundleProductResponse(BaseModel):
+    product_id: int
+    product: Product
+    class Config:
+        from_attributes = True
+
+class BundleResponse(BaseModel):
+    id: int
+    name: str
+    description: str
+    original_price: float
+    bundle_price: float
+    is_active: bool
+    products: List[BundleProductResponse]
+    class Config:
+        from_attributes = True
+
+class BundleCreate(BaseModel):
+    name: str
+    description: str
+    original_price: float
+    bundle_price: float
+    product_ids: List[int]
+
+class BundleUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    bundle_price: Optional[float] = None
+
+# Pydantic Schemas for Coupons
+class CouponBase(BaseModel):
+    code: str
+    discount_type: str
+    discount_value: float
+    min_purchase: float = 0.0
+    expiry_date: datetime
+    is_active: bool = True
+    usage_limit: Optional[int] = None
+
+class CouponCreate(CouponBase):
+    pass
+
+class CouponResponse(CouponBase):
+    id: int
+    used_count: int
+    class Config:
+        from_attributes = True
+
+class CouponUpdate(BaseModel):
+    is_active: Optional[bool] = None
+    discount_value: Optional[float] = None
+    min_purchase: Optional[float] = None
+    usage_limit: Optional[int] = None
+    expiry_date: Optional[datetime] = None
+

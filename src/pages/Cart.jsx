@@ -12,7 +12,12 @@ const Cart = () => {
         cartItems,
         removeFromCart,
         updateQuantity,
+        removeBundle,
+        updateBundleQuantity,
+        toggleBundleSelection,
         cartTotal,
+        subtotal,
+        bundleDiscounts,
         clearCart,
         toggleSelection,
         selectAll,
@@ -20,6 +25,23 @@ const Cart = () => {
     } = useCart();
     const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
+
+    const standaloneItems = cartItems.filter(item => !item.bundle_id);
+    const bundleGroups = cartItems.filter(item => item.bundle_id).reduce((acc, item) => {
+        if (!acc[item.bundle_id]) {
+            acc[item.bundle_id] = {
+                id: item.bundle_id,
+                bundle_name: item.bundle?.name || 'Product Bundle',
+                original_price: item.bundle?.original_price || 0,
+                bundle_price: item.bundle?.bundle_price || 0,
+                quantity: item.quantity,
+                selected: item.selected !== false,
+                items: []
+            };
+        }
+        acc[item.bundle_id].items.push(item);
+        return acc;
+    }, {});
 
     const handleCheckout = () => {
         if (!isAuthenticated) {
@@ -55,9 +77,9 @@ const Cart = () => {
                             <span className="text-gray-300 font-medium">Select All ({cartItems.length} items)</span>
                         </div>
 
-                        {cartItems.map((item) => (
+                        {standaloneItems.map((item) => (
                             <motion.div
-                                key={item.id}
+                                key={item.cart_item_id || item.id}
                                 layout
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -67,7 +89,7 @@ const Cart = () => {
                                 <input
                                     type="checkbox"
                                     checked={item.selected !== false}
-                                    onChange={() => toggleSelection(item.id)}
+                                    onChange={() => toggleSelection(item.cart_item_id || item.id)}
                                     className="w-5 h-5 accent-tronix-primary bg-white/10 border-white/20 rounded cursor-pointer shrink-0"
                                 />
 
@@ -78,21 +100,23 @@ const Cart = () => {
                                 <div className="flex flex-col sm:flex-row flex-1 min-w-0 sm:items-center gap-4">
                                     <div className="flex-1 min-w-0">
                                         <h3 className={`font-medium truncate ${item.selected === false ? 'text-gray-500' : 'text-white'}`}>{item.title}</h3>
-                                        <p className="text-sm text-gray-400">{item.category}</p>
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-sm text-gray-400">{item.category}</p>
+                                        </div>
                                         <div className={`mt-2 font-bold ${item.selected === false ? 'text-gray-600' : 'text-tronix-accent'}`}>₹{item.price}</div>
                                     </div>
 
                                     <div className="flex items-center justify-between sm:justify-end gap-6">
                                         <div className="flex items-center gap-2">
                                             <button
-                                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                                onClick={() => updateQuantity(item.cart_item_id || item.id, item.quantity - 1)}
                                                 className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
                                             >
                                                 <Minus size={14} />
                                             </button>
                                             <span className="w-8 text-center text-white font-medium">{item.quantity}</span>
                                             <button
-                                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                onClick={() => updateQuantity(item.cart_item_id || item.id, item.quantity + 1)}
                                                 disabled={item.quantity >= item.stock}
                                                 className={`w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-colors ${item.quantity >= item.stock ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}
                                             >
@@ -101,11 +125,93 @@ const Cart = () => {
                                         </div>
 
                                         <button
-                                            onClick={() => removeFromCart(item.id)}
+                                            onClick={() => removeFromCart(item.cart_item_id || item.id)}
                                             className="p-2 text-gray-500 hover:text-red-500 transition-colors"
                                         >
                                             <Trash2 size={18} />
                                         </button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+
+                        {Object.values(bundleGroups).map((group) => (
+                            <motion.div
+                                key={`bundle-${group.id}`}
+                                layout
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                className={`bg-tronix-primary/5 border ${group.selected ? 'border-tronix-primary/50' : 'border-tronix-primary/20'} rounded-xl p-4 transition-colors relative overflow-hidden`}
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-r from-tronix-primary/10 to-transparent opacity-30 pointer-events-none" />
+
+                                <div className="flex gap-4 items-start relative z-10">
+                                    <input
+                                        type="checkbox"
+                                        checked={group.selected}
+                                        onChange={() => toggleBundleSelection(group.id)}
+                                        className="w-5 h-5 accent-tronix-primary bg-white/10 border-white/20 rounded cursor-pointer shrink-0 mt-1"
+                                    />
+                                    
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className="bg-tronix-primary text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+                                                        Bundle Deal
+                                                    </span>
+                                                </div>
+                                                <h3 className={`font-bold text-lg ${group.selected === false ? 'text-gray-500' : 'text-white'}`}>
+                                                    {group.bundle_name}
+                                                </h3>
+                                            </div>
+                                            <div className="text-right">
+                                                <span className="text-sm text-gray-500 line-through block">₹{group.original_price}</span>
+                                                <span className={`text-xl font-bold ${group.selected === false ? 'text-gray-600' : 'text-tronix-accent'}`}>
+                                                    ₹{group.bundle_price}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-wrap gap-2 mb-4">
+                                            {group.items.map(bi => (
+                                                <div key={bi.cart_item_id || bi.id} className="flex items-center gap-2 bg-white/5 rounded-lg p-2 pr-3 border border-white/5">
+                                                    <div className="w-8 h-8 rounded bg-white/5 flex items-center justify-center p-1">
+                                                        <img src={getImageUrl(bi.image)} alt={bi.title} className={`max-w-full max-h-full object-contain ${group.selected === false ? 'opacity-50 grayscale' : ''}`} />
+                                                    </div>
+                                                    <span className={`text-xs font-medium ${group.selected === false ? 'text-gray-500' : 'text-gray-300'}`}>{bi.title}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-2">
+                                            <div className="flex items-center gap-4">
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={() => updateBundleQuantity(group.id, group.quantity - 1)}
+                                                        className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                                                    >
+                                                        <Minus size={14} />
+                                                    </button>
+                                                    <span className="w-8 text-center text-white font-medium">{group.quantity}</span>
+                                                    <button
+                                                        onClick={() => updateBundleQuantity(group.id, group.quantity + 1)}
+                                                        className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-colors text-gray-400 hover:text-white hover:bg-white/10"
+                                                    >
+                                                        <Plus size={14} />
+                                                    </button>
+                                                </div>
+                                                <span className="hidden sm:inline text-xs text-gray-500">Applies to all bundle items</span>
+                                            </div>
+
+                                            <button
+                                                onClick={() => removeBundle(group.id)}
+                                                className="p-2 text-gray-500 hover:text-red-500 transition-colors flex items-center gap-1 text-sm font-medium"
+                                            >
+                                                <Trash2 size={16} /> <span className="hidden sm:inline">Remove Bundle</span>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </motion.div>
@@ -129,8 +235,14 @@ const Cart = () => {
                             <div className="space-y-4 mb-6 pb-6 border-b border-white/5">
                                 <div className="flex justify-between text-gray-400">
                                     <span>Subtotal ({selectedCount} items)</span>
-                                    <span className="text-white">₹{cartTotal}</span>
+                                    <span className="text-white">₹{subtotal}</span>
                                 </div>
+                                {bundleDiscounts > 0 && (
+                                    <div className="flex justify-between text-emerald-400 font-medium">
+                                        <span>Bundle Savings</span>
+                                        <span>- ₹{bundleDiscounts}</span>
+                                    </div>
+                                )}
                                 <div className="flex justify-between text-gray-400">
                                     <span>Shipping</span>
                                     <span className="text-green-400">Free</span>
@@ -143,7 +255,7 @@ const Cart = () => {
 
                             <div className="flex justify-between text-lg font-bold text-white mb-8">
                                 <span>Total</span>
-                                <span>₹{Math.round(cartTotal * 1.18)}</span>
+                                <span className="text-tronix-accent">₹{Math.round(cartTotal * 1.18)}</span>
                             </div>
 
                             <button

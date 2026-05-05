@@ -15,20 +15,24 @@ import RelatedProducts from '../components/product/RelatedProducts';
 const ProductDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { addToCart } = useCart();
+    const { addToCart, addBundle } = useCart();
     const { toggleWishlist, isInWishlist } = useWishlist();
     const { animateToCart } = useCartAnimation();
     const [product, setProduct] = useState(null);
     const [activeTab, setActiveTab] = useState('specs');
     const [quantity, setQuantity] = useState(1);
     const [loading, setLoading] = useState(true);
+    const [bundles, setBundles] = useState([]);
 
     useEffect(() => {
-        const fetchProduct = async () => {
+        const fetchProductData = async () => {
             try {
-                // Use axios with 2000ms timeout
-                const response = await client.get(`/products/${id}`, { timeout: 2000 });
-                setProduct(response.data);
+                const [prodRes, bundlesRes] = await Promise.all([
+                    client.get(`/products/${id}`, { timeout: 2000 }),
+                    client.get(`/products/${id}/bundles`).catch(() => ({ data: [] }))
+                ]);
+                setProduct(prodRes.data);
+                setBundles(bundlesRes.data);
             } catch (error) {
                 console.warn('Backend unavailable, falling back to mock data:', error);
                 const found = mockProducts.find(p => p.id === parseInt(id));
@@ -38,7 +42,7 @@ const ProductDetails = () => {
             }
         };
 
-        fetchProduct();
+        fetchProductData();
     }, [id]);
 
     if (loading) {
@@ -198,6 +202,47 @@ const ProductDetails = () => {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Bundles Section */}
+                        {bundles.length > 0 && (
+                            <div className="mt-8 pt-8 border-t border-white/10">
+                                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                    <ShoppingCart className="text-tronix-accent" size={20} />
+                                    Buy Together & Save
+                                </h3>
+                                <div className="space-y-4">
+                                    {bundles.map(bundle => (
+                                        <div key={bundle.id} className="bg-tronix-primary/5 border border-tronix-primary/20 rounded-xl p-4 hover:border-tronix-primary/50 transition-all group">
+                                            <div className="flex justify-between items-start mb-3">
+                                                <div>
+                                                    <h4 className="text-white font-bold">{bundle.name}</h4>
+                                                    <p className="text-xs text-gray-400">{bundle.description}</p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <span className="text-xs text-gray-500 line-through block">₹{bundle.original_price}</span>
+                                                    <span className="text-lg font-bold text-tronix-accent">₹{bundle.bundle_price}</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center justify-between gap-4">
+                                                <div className="flex -space-x-3 overflow-hidden">
+                                                    {bundle.products.map(bp => (
+                                                        <div key={bp.id} className="inline-block h-8 w-8 rounded-full ring-2 ring-tronix-card bg-white p-1" title={bp.product.title}>
+                                                            <img src={getImageUrl(bp.product.image)} alt="" className="h-full w-full object-contain" />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <button 
+                                                    onClick={() => addBundle(bundle.id)}
+                                                    className="bg-tronix-primary text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-violet-600 transition-colors"
+                                                >
+                                                    Add Bundle to Cart
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </motion.div>
                 </div>
 

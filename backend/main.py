@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks, Request
+from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 from sqlalchemy.orm import Session, joinedload
@@ -8,7 +8,9 @@ from models import (
     Product, ProductDB, Order, OrderCreate, OrderDB, OrderItemDB, LoginRequest, 
     ReviewDB, ReviewCreate, ReviewResponse, ProductCreate, ProductUpdate, 
     ContactMessageDB, WishlistItemDB, CartItemDB, WishlistCreate, WishlistResponse,
-    CartItemCreate, CartItemUpdate, CartItemResponse, CartMergeRequest
+    CartItemCreate, CartItemUpdate, CartItemResponse, CartMergeRequest,
+    CouponDB, CouponCreate, CouponResponse, BundleDB, BundleProductDB,
+    BundleResponse, BundleCreate
 )
 import requests
 import hashlib
@@ -24,7 +26,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from utils import sanitize_html, sanitize_description, process_image
 from fastapi_cache import FastAPICache
-from fastapi_cache.backends.redis import RedisBackend
+from fastapi_cache.backends.inmemory import InMemoryBackend
 from fastapi_cache.decorator import cache
 import redis
 
@@ -33,32 +35,46 @@ UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
 
-# Create tables
-Base.metadata.create_all(bind=engine)
-
 # Initialize Limiter
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title="Tronix365 API", version="0.1.0")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+# Create tables - Moved to startup for non-blocking import
 @app.on_event("startup")
 async def startup():
+    # Try to initialize Redis, fallback to InMemory if it fails
     redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
     try:
+        from fastapi_cache.backends.redis import RedisBackend
         redis_client = redis.from_url(redis_url, encoding="utf8", decode_responses=True)
+        # Check if redis is actually reachable
+        redis_client.ping()
         FastAPICache.init(RedisBackend(redis_client), prefix="fastapi-cache")
         print(f"Redis cache initialized with URL: {redis_url}")
     except Exception as e:
-        print(f"Failed to initialize Redis cache: {e}")
+        print(f"Redis connection failed, falling back to InMemoryBackend: {e}")
+        FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
+    
+    try:
+        # Run in a thread to prevent blocking the event loop if DB is slow
+        from starlette.concurrency import run_in_threadpool
+        await run_in_threadpool(Base.metadata.create_all, bind=engine)
+        print("Database tables verified/created.")
+    except Exception as e:
+        print(f"Database connection error during startup: {e}")
 
 # CORS Setup
 # CORS Setup - Hardcoded for Production Safety
+env_origins = os.getenv("CORS_ORIGINS", "").split(",")
 origins = [
     "https://www.tronix365.in",
     "https://tronix365.in",
     "http://localhost:5173",
-    "http://localhost:3000"
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"
 ]
 
 app.add_middleware(
@@ -97,8 +113,9 @@ async def health_check():
     return {"status": "ok"}
 
 @app.get("/products", response_model=List[Product])
-@cache(expire=3600)
+# @cache(expire=3600, namespace="products")
 async def get_products(
+    response: Response,
     skip: int = 0,
     limit: int = 20,
     category: str = None,
@@ -108,6 +125,8 @@ async def get_products(
     search: str = None,
     db: Session = Depends(get_db)
 ):
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    print(f"DEBUG: get_products skip={skip}, limit={limit}, sort_by={sort_by}")
     query = db.query(ProductDB)
 
     if search:
@@ -134,12 +153,16 @@ async def get_products(
             query = query.order_by(ProductDB.price.desc())
         elif sort_by == "name_asc":
             query = query.order_by(ProductDB.title.asc())
+        else:
+            query = query.order_by(ProductDB.id.desc())
+    else:
+        query = query.order_by(ProductDB.id.desc())
 
     products = query.offset(skip).limit(limit).all()
     return products
 
 @app.get("/products/search", response_model=List[Product])
-@cache(expire=300)
+@cache(expire=300, namespace="products")
 async def search_products(q: str = "", db: Session = Depends(get_db)):
     """
     Search products by title, description, or category with fuzzy matching.
@@ -170,7 +193,7 @@ async def search_products(q: str = "", db: Session = Depends(get_db)):
     return products
 
 @app.get("/products/recommendations/{product_id}", response_model=List[Product])
-@cache(expire=3600)
+@cache(expire=3600, namespace="products")
 async def get_recommendations(product_id: int, db: Session = Depends(get_db)):
     """
     Get related products based on category.
@@ -190,13 +213,13 @@ async def get_recommendations(product_id: int, db: Session = Depends(get_db)):
         fill = db.query(ProductDB).filter(
             ProductDB.id != product_id,
             ProductDB.id.notin_([r.id for r in recommendations])
-        ).order_by(ProductDB.rating.desc()).limit(4 - len(recommendations)).all()
+        ).order_by(ProductDB.id.desc()).limit(4 - len(recommendations)).all()
         recommendations.extend(fill)
         
     return recommendations
 
 @app.get("/products/{product_id}", response_model=Product)
-@cache(expire=3600)
+@cache(expire=3600, namespace="products")
 async def get_product(product_id: int, db: Session = Depends(get_db)):
     product = db.query(ProductDB).filter(ProductDB.id == product_id).first()
     if not product:
@@ -209,6 +232,7 @@ async def create_product(product: ProductCreate, db: Session = Depends(get_db)):
     db.add(new_product)
     db.commit()
     db.refresh(new_product)
+    await FastAPICache.clear(namespace="products")  # Clear cache to ensure immediate visibility
     return new_product
 
 @app.put("/products/{product_id}", response_model=Product)
@@ -223,6 +247,7 @@ async def update_product(product_id: int, product: ProductUpdate, db: Session = 
     
     db.commit()
     db.refresh(db_product)
+    await FastAPICache.clear(namespace="products")  # Clear cache so edited products update globally
     return db_product
 
 @app.delete("/products/{product_id}", status_code=204)
@@ -233,6 +258,7 @@ async def delete_product(product_id: int, db: Session = Depends(get_db)):
     
     db.delete(db_product)
     db.commit()
+    await FastAPICache.clear(namespace="products")  # Clear cache when product deleted
     return None
 
 
@@ -286,6 +312,142 @@ async def create_order(order: OrderCreate, background_tasks: BackgroundTasks, db
     print(f"Order saved and email queued: {new_order.id}")
     return {"message": "Order placed successfully", "order_id": new_order.id, "status": "confirmed"}
 
+# Coupon System Endpoints
+@app.post("/admin/coupons", response_model=CouponResponse, status_code=201)
+async def create_coupon(coupon: CouponCreate, db: Session = Depends(get_db)):
+    # Check if coupon code exists
+    existing = db.query(CouponDB).filter(CouponDB.code == coupon.code).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Coupon code already exists")
+    
+    new_coupon = CouponDB(**coupon.dict())
+    db.add(new_coupon)
+    db.commit()
+    db.refresh(new_coupon)
+    return new_coupon
+
+@app.get("/admin/coupons", response_model=List[CouponResponse])
+async def list_coupons(db: Session = Depends(get_db)):
+    return db.query(CouponDB).all()
+
+@app.put("/admin/coupons/{coupon_id}", response_model=CouponResponse)
+async def update_coupon(coupon_id: int, update_data: CouponUpdate, db: Session = Depends(get_db)):
+    coupon = db.query(CouponDB).filter(CouponDB.id == coupon_id).first()
+    if not coupon:
+        raise HTTPException(status_code=404, detail="Coupon not found")
+    
+    update_dict = update_data.dict(exclude_unset=True)
+    for key, value in update_dict.items():
+        setattr(coupon, key, value)
+        
+    db.commit()
+    db.refresh(coupon)
+    return coupon
+
+@app.delete("/admin/coupons/{coupon_id}")
+async def delete_coupon(coupon_id: int, db: Session = Depends(get_db)):
+    coupon = db.query(CouponDB).filter(CouponDB.id == coupon_id).first()
+    if not coupon:
+        raise HTTPException(status_code=404, detail="Coupon not found")
+    db.delete(coupon)
+    db.commit()
+    return {"message": "Coupon deleted successfully"}
+
+@app.post("/apply-coupon")
+async def apply_coupon(code: str, cart_total: float, db: Session = Depends(get_db)):
+    coupon = db.query(CouponDB).filter(CouponDB.code == code, CouponDB.is_active == True).first()
+    if not coupon:
+        raise HTTPException(status_code=404, detail="Invalid or inactive coupon code")
+    
+    # Fix for offset-aware vs naive comparison
+    now = datetime.now(coupon.expiry_date.tzinfo) if coupon.expiry_date.tzinfo else datetime.utcnow()
+    if now > coupon.expiry_date:
+        raise HTTPException(status_code=400, detail="Coupon has expired")
+    
+    if coupon.usage_limit and coupon.used_count >= coupon.usage_limit:
+        raise HTTPException(status_code=400, detail="Coupon usage limit reached")
+        
+    if cart_total < coupon.min_purchase:
+        raise HTTPException(status_code=400, detail=f"Minimum purchase of {coupon.min_purchase} required")
+    
+    discount = 0.0
+    if coupon.discount_type == "percentage":
+        discount = cart_total * (coupon.discount_value / 100)
+    else:
+        discount = coupon.discount_value
+        
+    return {
+        "code": coupon.code,
+        "discount_amount": round(discount, 2),
+        "new_total": round(max(0, cart_total - discount), 2)
+    }
+
+# Bundle System Endpoints
+@app.post("/admin/bundles", response_model=BundleResponse, status_code=201)
+async def create_bundle(bundle_data: BundleCreate, db: Session = Depends(get_db)):
+    new_bundle = BundleDB(
+        name=bundle_data.name,
+        description=bundle_data.description,
+        original_price=bundle_data.original_price,
+        bundle_price=bundle_data.bundle_price
+    )
+    db.add(new_bundle)
+    db.commit()
+    db.refresh(new_bundle)
+    
+    for p_id in bundle_data.product_ids:
+        bp = BundleProductDB(bundle_id=new_bundle.id, product_id=p_id)
+        db.add(bp)
+    
+    db.commit()
+    db.refresh(new_bundle)
+    # Using joinedload to ensure products are returned
+    return db.query(BundleDB).options(joinedload(BundleDB.products).joinedload(BundleProductDB.product)).filter(BundleDB.id == new_bundle.id).first()
+
+@app.put("/admin/bundles/{bundle_id}", response_model=BundleResponse)
+async def update_bundle(bundle_id: int, update_data: BundleUpdate, db: Session = Depends(get_db)):
+    bundle = db.query(BundleDB).filter(BundleDB.id == bundle_id).first()
+    if not bundle:
+        raise HTTPException(status_code=404, detail="Bundle not found")
+    
+    update_dict = update_data.dict(exclude_unset=True)
+    for key, value in update_dict.items():
+        setattr(bundle, key, value)
+        
+    db.commit()
+    db.refresh(bundle)
+    return db.query(BundleDB).options(joinedload(BundleDB.products).joinedload(BundleProductDB.product)).filter(BundleDB.id == bundle_id).first()
+
+@app.delete("/admin/bundles/{bundle_id}")
+async def delete_bundle(bundle_id: int, db: Session = Depends(get_db)):
+    bundle = db.query(BundleDB).filter(BundleDB.id == bundle_id).first()
+    if not bundle:
+        raise HTTPException(status_code=404, detail="Bundle not found")
+    
+    # Safely nullify foreign keys in carts and order history
+    db.query(CartItemDB).filter(CartItemDB.bundle_id == bundle_id).update({"bundle_id": None})
+    db.query(OrderItemDB).filter(OrderItemDB.bundle_id == bundle_id).update({"bundle_id": None})
+    db.commit()
+    
+    db.delete(bundle)
+    db.commit()
+    return {"message": "Bundle deleted successfully"}
+
+@app.get("/bundles", response_model=List[BundleResponse])
+async def get_bundles(db: Session = Depends(get_db)):
+    return db.query(BundleDB).filter(BundleDB.is_active == True).options(
+        joinedload(BundleDB.products).joinedload(BundleProductDB.product)
+    ).all()
+
+@app.get("/products/{product_id}/bundles", response_model=List[BundleResponse])
+async def get_product_bundles(product_id: int, db: Session = Depends(get_db)):
+    """Fetch bundles that include this specific product."""
+    bundles = db.query(BundleDB).join(BundleProductDB).filter(
+        BundleProductDB.product_id == product_id,
+        BundleDB.is_active == True
+    ).options(joinedload(BundleDB.products).joinedload(BundleProductDB.product)).all()
+    return bundles
+
 
 @app.get("/orders", response_model=List[Order])
 async def get_orders(skip: int = 0, limit: int = 20, db: Session = Depends(get_db)):
@@ -295,7 +457,7 @@ async def get_orders(skip: int = 0, limit: int = 20, db: Session = Depends(get_d
     return orders
 
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from auth import verify_password, get_password_hash, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
+from auth import verify_password, get_password_hash, create_access_token, create_refresh_token, ACCESS_TOKEN_EXPIRE_MINUTES
 from datetime import timedelta
 from models import UserDB, UserCreate, Token, UserLogin, UserResponse, UserUpdate
 
@@ -648,7 +810,10 @@ async def remove_from_wishlist(product_id: int, current_user: UserDB = Depends(g
 # Cart Endpoints
 @app.get("/cart", response_model=List[CartItemResponse])
 async def get_cart(current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
-    return db.query(CartItemDB).options(joinedload(CartItemDB.product)).filter(CartItemDB.user_id == current_user.id).all()
+    return db.query(CartItemDB).options(
+        joinedload(CartItemDB.product),
+        joinedload(CartItemDB.bundle)
+    ).filter(CartItemDB.user_id == current_user.id).all()
 
 @app.post("/cart", response_model=CartItemResponse)
 async def add_to_cart(cart_item: CartItemCreate, current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -660,6 +825,7 @@ async def add_to_cart(cart_item: CartItemCreate, current_user: UserDB = Depends(
     
     if existing:
         existing.quantity += cart_item.quantity
+        existing.updated_at = datetime.utcnow()
         db.commit()
         db.refresh(existing)
         return db.query(CartItemDB).options(joinedload(CartItemDB.product)).filter(CartItemDB.id == existing.id).first()
@@ -686,6 +852,7 @@ async def update_cart_item(item_id: int, item_update: CartItemUpdate, current_us
     if item_update.selected is not None:
         db_item.selected = item_update.selected
     
+    db_item.updated_at = datetime.utcnow()
     db.commit()
     db.refresh(db_item)
     return db_item
@@ -721,6 +888,37 @@ async def merge_cart(merge_request: CartMergeRequest, current_user: UserDB = Dep
     
     db.commit()
     return {"message": "Cart merged successfully"}
+
+@app.post("/cart/bundle/{bundle_id}")
+async def add_bundle_to_cart(bundle_id: int, current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)):
+    bundle = db.query(BundleDB).options(joinedload(BundleDB.products)).filter(BundleDB.id == bundle_id).first()
+    if not bundle:
+        raise HTTPException(status_code=404, detail="Bundle not found")
+    
+    for bp in bundle.products:
+        # Check if already in cart (without a bundle_id or with a different one)
+        # For simplicity, we always add bundle items as new entries or update existing if same bundle
+        existing = db.query(CartItemDB).filter(
+            CartItemDB.user_id == current_user.id,
+            CartItemDB.product_id == bp.product_id,
+            CartItemDB.bundle_id == bundle_id
+        ).first()
+        
+        if existing:
+            existing.quantity += 1
+            existing.updated_at = datetime.utcnow()
+        else:
+            new_item = CartItemDB(
+                user_id=current_user.id,
+                product_id=bp.product_id,
+                bundle_id=bundle_id,
+                quantity=1,
+                selected=True
+            )
+            db.add(new_item)
+            
+    db.commit()
+    return {"message": f"Bundle '{bundle.name}' added to cart"}
     
 # Trigger reload for env update
 
@@ -732,6 +930,7 @@ from fastapi.responses import RedirectResponse
 class PaymentItem(BaseModel):
     product_id: int
     quantity: int
+    bundle_id: Optional[int] = None
 
 class PaymentInitiate(BaseModel):
     amount: float
@@ -744,6 +943,8 @@ class PaymentInitiate(BaseModel):
     city: str
     state: str
     pincode: str
+    coupon_code: Optional[str] = None
+    discount_amount: float = 0.0
 
 @app.post("/payment/initiate")
 async def initiate_payment(payment: PaymentInitiate, db: Session = Depends(get_db)):
@@ -759,6 +960,7 @@ async def initiate_payment(payment: PaymentInitiate, db: Session = Depends(get_d
         # Create OrderItemDB instance
         order_item = OrderItemDB(
             product_id=item.product_id,
+            bundle_id=item.bundle_id,
             quantity=item.quantity,
             price_at_purchase=product.sale_price if product.sale_price else product.price
         )
@@ -780,7 +982,9 @@ async def initiate_payment(payment: PaymentInitiate, db: Session = Depends(get_d
         address_line=payment.address_line,
         city=payment.city,
         state=payment.state,
-        pincode=payment.pincode
+        pincode=payment.pincode,
+        coupon_code=payment.coupon_code,
+        discount_amount=payment.discount_amount
     )
     db.add(new_order)
     db.commit()

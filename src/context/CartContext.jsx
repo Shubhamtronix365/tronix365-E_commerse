@@ -39,7 +39,9 @@ export const CartProvider = ({ children }) => {
                         ...item.product,
                         cart_item_id: item.id, // Store backend ID for updates
                         quantity: item.quantity,
-                        selected: item.selected
+                        selected: item.selected,
+                        bundle_id: item.bundle_id,
+                        bundle: item.bundle
                     }));
                     setCartItems(mergedItems);
                 } catch (error) {
@@ -76,9 +78,9 @@ export const CartProvider = ({ children }) => {
                 };
                 
                 setCartItems(prev => {
-                    const exists = prev.find(item => item.id === product.id);
+                    const exists = prev.find(item => item.id === product.id && !item.bundle_id);
                     if (exists) {
-                        return prev.map(item => item.id === product.id ? newItem : item);
+                        return prev.map(item => (item.id === product.id && !item.bundle_id) ? newItem : item);
                     }
                     return [...prev, newItem];
                 });
@@ -91,7 +93,7 @@ export const CartProvider = ({ children }) => {
         }
 
         // Guest logic
-        const existingItem = cartItems.find(item => item.id === product.id);
+        const existingItem = cartItems.find(item => item.id === product.id && !item.bundle_id);
         const currentQty = existingItem ? existingItem.quantity : 0;
         const maxAllowed = product.stock || 0;
 
@@ -101,10 +103,10 @@ export const CartProvider = ({ children }) => {
         }
 
         setCartItems(prevItems => {
-            const itemInCart = prevItems.find(item => item.id === product.id);
+            const itemInCart = prevItems.find(item => item.id === product.id && !item.bundle_id);
             if (itemInCart) {
                 return prevItems.map(item =>
-                    item.id === product.id
+                    item.id === product.id && !item.bundle_id
                         ? { ...item, quantity: item.quantity + quantity }
                         : item
                 );
@@ -116,9 +118,36 @@ export const CartProvider = ({ children }) => {
         return true;
     };
 
-    const removeFromCart = async (productId) => {
+    const addBundle = async (bundleId) => {
+        if (!isAuthenticated) {
+            toast.error("Please login to add bundles");
+            return false;
+        }
+
+        try {
+            await axios.post(`/cart/bundle/${bundleId}`);
+            // Refetch cart to get updated items with bundle_ids
+            const response = await axios.get('/cart');
+            const mergedItems = response.data.map(item => ({
+                ...item.product,
+                cart_item_id: item.id,
+                quantity: item.quantity,
+                selected: item.selected,
+                bundle_id: item.bundle_id,
+                bundle: item.bundle
+            }));
+            setCartItems(mergedItems);
+            toast.success("Bundle added to cart");
+            return true;
+        } catch (error) {
+            toast.error("Failed to add bundle");
+            return false;
+        }
+    };
+
+    const removeFromCart = async (identifier) => {
         if (isAuthenticated) {
-            const item = cartItems.find(i => i.id === productId);
+            const item = cartItems.find(i => (i.cart_item_id || i.id) === identifier);
             if (item?.cart_item_id) {
                 try {
                     await axios.delete(`/cart/${item.cart_item_id}`);
@@ -127,13 +156,13 @@ export const CartProvider = ({ children }) => {
                 }
             }
         }
-        setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
+        setCartItems(prevItems => prevItems.filter(item => (item.cart_item_id || item.id) !== identifier));
     };
 
-    const updateQuantity = async (productId, newQuantity) => {
+    const updateQuantity = async (identifier, newQuantity) => {
         if (newQuantity < 1) return;
         
-        const item = cartItems.find(i => i.id === productId);
+        const item = cartItems.find(i => (i.cart_item_id || i.id) === identifier);
         if (!item) return;
 
         const maxAllowed = item.stock || 0;
@@ -153,13 +182,13 @@ export const CartProvider = ({ children }) => {
 
         setCartItems(prevItems =>
             prevItems.map(i =>
-                i.id === productId ? { ...i, quantity: newQuantity } : i
+                (i.cart_item_id || i.id) === identifier ? { ...i, quantity: newQuantity } : i
             )
         );
     };
 
-    const toggleSelection = async (productId) => {
-        const item = cartItems.find(i => i.id === productId);
+    const toggleSelection = async (identifier) => {
+        const item = cartItems.find(i => (i.cart_item_id || i.id) === identifier);
         if (!item) return;
 
         const newSelected = !item.selected;
@@ -174,7 +203,78 @@ export const CartProvider = ({ children }) => {
 
         setCartItems(prevItems =>
             prevItems.map(item =>
-                item.id === productId ? { ...item, selected: newSelected } : item
+                (item.cart_item_id || item.id) === identifier ? { ...item, selected: newSelected } : item
+            )
+        );
+    };
+
+    const removeBundle = async (bundleId) => {
+        if (!isAuthenticated) return;
+        const itemsToRemove = cartItems.filter(i => i.bundle_id === bundleId);
+        
+        try {
+            await Promise.all(
+                itemsToRemove.map(item => 
+                    item.cart_item_id ? axios.delete(`/cart/${item.cart_item_id}`) : Promise.resolve()
+                )
+            );
+        } catch (error) {
+            console.error("Failed to remove bundle:", error);
+        }
+        setCartItems(prev => prev.filter(i => i.bundle_id !== bundleId));
+    };
+
+    const updateBundleQuantity = async (bundleId, newQuantity) => {
+        if (!isAuthenticated || newQuantity < 1) return;
+        
+        const bundleItems = cartItems.filter(i => i.bundle_id === bundleId);
+        if (bundleItems.length === 0) return;
+
+        // Check stock for all items
+        const outOfStockItem = bundleItems.find(i => newQuantity > (i.stock || 0));
+        if (outOfStockItem) {
+            toast.error(`Not enough stock for ${outOfStockItem.title}`);
+            return;
+        }
+
+        try {
+            await Promise.all(
+                bundleItems.map(item =>
+                    item.cart_item_id ? axios.put(`/cart/${item.cart_item_id}`, { quantity: newQuantity }) : Promise.resolve()
+                )
+            );
+        } catch (error) {
+            toast.error("Failed to update bundle quantity");
+            return;
+        }
+
+        setCartItems(prevItems =>
+            prevItems.map(i =>
+                i.bundle_id === bundleId ? { ...i, quantity: newQuantity } : i
+            )
+        );
+    };
+
+    const toggleBundleSelection = async (bundleId) => {
+        if (!isAuthenticated) return;
+        const bundleItems = cartItems.filter(i => i.bundle_id === bundleId);
+        if (bundleItems.length === 0) return;
+        
+        const newSelected = !bundleItems[0].selected;
+
+        try {
+            await Promise.all(
+                bundleItems.map(item =>
+                    item.cart_item_id ? axios.put(`/cart/${item.cart_item_id}`, { selected: newSelected }) : Promise.resolve()
+                )
+            );
+        } catch (error) {
+            console.error("Failed to toggle bundle selection:", error);
+        }
+
+        setCartItems(prevItems =>
+            prevItems.map(item =>
+                item.bundle_id === bundleId ? { ...item, selected: newSelected } : item
             )
         );
     };
@@ -190,9 +290,32 @@ export const CartProvider = ({ children }) => {
     };
 
     // Calculate total ONLY for selected items
-    const cartTotal = cartItems
-        .filter(item => item.selected !== false) // Default to true if undefined
-        .reduce((total, item) => total + (item.price * item.quantity), 0);
+    const calculateTotals = () => {
+        let subtotal = 0;
+        let bundleDiscounts = 0;
+        const bundlesProcessed = new Set();
+
+        cartItems.filter(item => item.selected !== false).forEach(item => {
+            subtotal += item.price * item.quantity;
+            
+            // If item is part of a bundle and we haven't processed this bundle yet
+            if (item.bundle_id && item.bundle && !bundlesProcessed.has(item.bundle_id)) {
+                const discountPerBundle = item.bundle.original_price - item.bundle.bundle_price;
+                // We assume quantity 1 for the bundle itself for now, or match it to the item quantity
+                // Since all items in a bundle added together have same quantity in our logic
+                bundleDiscounts += discountPerBundle * item.quantity;
+                bundlesProcessed.add(item.bundle_id);
+            }
+        });
+
+        return {
+            subtotal,
+            bundleDiscounts,
+            total: subtotal - bundleDiscounts
+        };
+    };
+
+    const { subtotal, bundleDiscounts, total: cartTotal } = calculateTotals();
 
     const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
     const selectedCount = cartItems.filter(item => item.selected !== false).length;
@@ -203,12 +326,18 @@ export const CartProvider = ({ children }) => {
             cartItems,
             selectedItems,
             addToCart,
+            addBundle,
+            removeBundle,
+            updateBundleQuantity,
+            toggleBundleSelection,
             removeFromCart,
             updateQuantity,
             toggleSelection,
             selectAll,
             clearCart,
             cartTotal,
+            subtotal,
+            bundleDiscounts,
             cartCount,
             selectedCount
         }}>
