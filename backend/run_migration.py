@@ -4,7 +4,7 @@ import psycopg2
 from urllib.parse import urlparse
 
 load_dotenv()
-url = os.getenv('DATABASE_URL')
+url = os.getenv("DATABASE_URL")
 print(f"Connecting to: {url}")
 try:
     if url.startswith("postgres"):
@@ -14,7 +14,7 @@ try:
             user=result.username,
             password=result.password,
             host=result.hostname,
-            port=result.port
+            port=result.port,
         )
         conn.autocommit = True
         cursor = conn.cursor()

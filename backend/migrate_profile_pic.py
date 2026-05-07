@@ -5,7 +5,10 @@ import psycopg2
 from urllib.parse import urlparse
 
 # Get DB URL
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_4NqP1yOdlbkw@ep-jolly-hat-a52iknke-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require")
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://neondb_owner:npg_4NqP1yOdlbkw@ep-jolly-hat-a52iknke-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require",
+)
 
 print(f"Applying migration to: {DATABASE_URL}")
 
@@ -26,7 +29,7 @@ try:
             user=result.username,
             password=result.password,
             host=result.hostname,
-            port=result.port
+            port=result.port,
         )
         conn.autocommit = True
         cursor = conn.cursor()

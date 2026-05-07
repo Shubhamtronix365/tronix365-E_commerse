@@ -17,13 +17,13 @@ url = "https://api.brevo.com/v3/smtp/email"
 headers = {
     "accept": "application/json",
     "api-key": api_key,
-    "content-type": "application/json"
+    "content-type": "application/json",
 }
 data = {
     "sender": {"name": "Test", "email": "test@example.com"},
     "to": [{"email": "test@example.com", "name": "Test User"}],
     "subject": "Test Email",
-    "htmlContent": "<html><body><p>Test</p></body></html>"
+    "htmlContent": "<html><body><p>Test</p></body></html>",
 }
 
 try:

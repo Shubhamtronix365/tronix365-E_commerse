@@ -4,6 +4,7 @@ import os
 BASE_URL = "http://localhost:8000"
 TEST_IMAGE_PATH = "test_image.txt"
 
+
 def test_upload():
     print("Testing Image Upload...")
 
@@ -17,7 +18,7 @@ def test_upload():
             files = {"file": ("test_image.txt", f, "text/plain")}
             print("Uploading file...")
             res = requests.post(f"{BASE_URL}/upload", files=files)
-        
+
         if res.status_code != 200:
             print(f"FAILED to upload: {res.status_code} {res.text}")
             return
@@ -36,7 +37,7 @@ def test_upload():
         if res.status_code != 200:
             print(f"FAILED to access uploaded file: {res.status_code}")
             return
-        
+
         if res.text == "This is a test image content.":
             print("SUCCESS: Uploaded file content verified.")
         else:
@@ -48,6 +49,7 @@ def test_upload():
         # Cleanup local dummy file
         if os.path.exists(TEST_IMAGE_PATH):
             os.remove(TEST_IMAGE_PATH)
+
 
 if __name__ == "__main__":
     test_upload()

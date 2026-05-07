@@ -11,15 +11,23 @@ logger = logging.getLogger(__name__)
 
 BREVO_API_KEY = os.getenv("BREVO_API_KEY")
 BREVO_API_URL = "https://api.brevo.com/v3/smtp/email"
-SENDER_EMAIL = os.getenv("CONTACT_EMAIL", "support@tronix365.com") 
+SENDER_EMAIL = os.getenv("CONTACT_EMAIL", "support@tronix365.com")
 
-def send_email_via_brevo(to_email: str, subject: str, html_content: str, sender_name: str = "Tronix365", sender_email: str = None, reply_to: dict = None):
+
+def send_email_via_brevo(
+    to_email: str,
+    subject: str,
+    html_content: str,
+    sender_name: str = "Tronix365",
+    sender_email: str = None,
+    reply_to: dict = None,
+):
     """
     Sends an email using the Brevo API.
     """
     if not sender_email:
         sender_email = SENDER_EMAIL
-    
+
     if not BREVO_API_KEY:
         logger.warning("BREVO_API_KEY not set. Skipping email.")
         return False
@@ -27,29 +35,34 @@ def send_email_via_brevo(to_email: str, subject: str, html_content: str, sender_
     headers = {
         "accept": "application/json",
         "api-key": BREVO_API_KEY,
-        "content-type": "application/json"
+        "content-type": "application/json",
     }
 
     payload = {
         "sender": {"name": sender_name, "email": sender_email},
         "to": [{"email": to_email}],
         "subject": subject,
-        "htmlContent": html_content
+        "htmlContent": html_content,
     }
 
     if reply_to:
         payload["replyTo"] = reply_to
 
     try:
-        response = requests.post(BREVO_API_URL, json=payload, headers=headers, timeout=10)
+        response = requests.post(
+            BREVO_API_URL, json=payload, headers=headers, timeout=10
+        )
         response.raise_for_status()
-        logger.info(f"Email sent successfully to {to_email}. Message ID: {response.json().get('messageId')}")
+        logger.info(
+            f"Email sent successfully to {to_email}. Message ID: {response.json().get('messageId')}"
+        )
         return True
     except requests.exceptions.RequestException as e:
         logger.error(f"Failed to send email via Brevo: {e}")
         if e.response:
             logger.error(f"Brevo Response: {e.response.text}")
         return False
+
 
 def send_contact_form_notification(name: str, email: str, message: str):
     """
@@ -62,7 +75,7 @@ def send_contact_form_notification(name: str, email: str, message: str):
         return False
 
     subject = f"New Contact Message from {name}"
-    
+
     html_body = f"""
     <html>
     <body style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
@@ -79,16 +92,17 @@ def send_contact_form_notification(name: str, email: str, message: str):
     </body>
     </html>
     """
-    
+
     # We send FROM the system address (SENDER_EMAIL) TO the admin address (to_email)
     # We set 'reply-to' as the user's email so the admin can reply directly.
     return send_email_via_brevo(
-        to_email, 
-        subject, 
-        html_body, 
+        to_email,
+        subject,
+        html_body,
         sender_name="Tronix365 Contact Form",
-        reply_to={"name": name, "email": email}
+        reply_to={"name": name, "email": email},
     )
+
 
 def generate_order_confirmation_html(order, frontend_url: str):
     """
@@ -96,8 +110,12 @@ def generate_order_confirmation_html(order, frontend_url: str):
     Assumes `order` is a SQLAlchemy OrderDB instance with a joined `.items` relationship
     where each item has a `.product` relationship.
     """
-    date_str = order.created_at.strftime("%B %d, %Y") if hasattr(order.created_at, 'strftime') else str(order.created_at).split("T")[0]
-    
+    date_str = (
+        order.created_at.strftime("%B %d, %Y")
+        if hasattr(order.created_at, "strftime")
+        else str(order.created_at).split("T")[0]
+    )
+
     # Calculate totals
     subtotal = sum(item.price_at_purchase * item.quantity for item in order.items)
     gst = subtotal * 0.18
@@ -107,11 +125,15 @@ def generate_order_confirmation_html(order, frontend_url: str):
     item_rows = ""
     for item in order.items:
         # Fallback to a placeholder if image is missing
-        img_url = item.product.image if getattr(item.product, 'image', None) else "https://via.placeholder.com/80?text=TRONIX365"
+        img_url = (
+            item.product.image
+            if getattr(item.product, "image", None)
+            else "https://via.placeholder.com/80?text=TRONIX365"
+        )
         # Ensure image is absolute URL if it's relative
-        if img_url.startswith('/'):
+        if img_url.startswith("/"):
             img_url = f"{frontend_url}{img_url}"
-            
+
         item_rows += f"""
         <tr>
             <td style="padding: 15px; border-bottom: 1px solid #eee;">
@@ -247,6 +269,7 @@ def generate_order_confirmation_html(order, frontend_url: str):
     """
     return html_template
 
+
 def send_order_confirmation_email(order):
     """
     Orchestrates the HTML generation and email dispatch for a successful order.
@@ -256,18 +279,21 @@ def send_order_confirmation_email(order):
     if not to_email:
         logger.error("Order has no customer_email. Cannot send confirmation.")
         return False
-        
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip('/')
+
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
     if "tronix365.in" in frontend_url and "/e-commerse" not in frontend_url:
         frontend_url = f"{frontend_url}/e-commerse"
-    
+
     subject = f"Order Confirmation - #order_tronix_{order.id:04d} from Tronix365"
-    
+
     # Generate the pristine HTML payload
     html_content = generate_order_confirmation_html(order, frontend_url)
-    
+
     # Dispatch using the Brevo hook
-    return send_email_via_brevo(to_email, subject, html_content, sender_name="Tronix365 Orders")
+    return send_email_via_brevo(
+        to_email, subject, html_content, sender_name="Tronix365 Orders"
+    )
+
 
 def generate_abandoned_cart_html(user_name, cart_items, frontend_url):
     """
@@ -276,14 +302,20 @@ def generate_abandoned_cart_html(user_name, cart_items, frontend_url):
     item_rows = ""
     total = 0
     for item in cart_items:
-        img_url = item.product.image if getattr(item.product, 'image', None) else "https://via.placeholder.com/80?text=TRONIX365"
-        if img_url.startswith('/'):
+        img_url = (
+            item.product.image
+            if getattr(item.product, "image", None)
+            else "https://via.placeholder.com/80?text=TRONIX365"
+        )
+        if img_url.startswith("/"):
             img_url = f"{frontend_url}{img_url}"
-        
-        price = item.product.sale_price if item.product.sale_price else item.product.price
+
+        price = (
+            item.product.sale_price if item.product.sale_price else item.product.price
+        )
         item_total = price * item.quantity
         total += item_total
-            
+
         item_rows += f"""
         <tr>
             <td style="padding: 15px; border-bottom: 1px solid #eee;">
@@ -359,14 +391,19 @@ def generate_abandoned_cart_html(user_name, cart_items, frontend_url):
     """
     return html_template
 
+
 def send_abandoned_cart_email(user, cart_items):
     """
     Sends a recovery email for abandoned carts.
     """
     to_email = user.email
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip('/')
-    
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+
     subject = "Forget something? Your cart is waiting at Tronix365"
-    html_content = generate_abandoned_cart_html(user.full_name or "there", cart_items, frontend_url)
-    
-    return send_email_via_brevo(to_email, subject, html_content, sender_name="Tronix365 Re-engagement")
+    html_content = generate_abandoned_cart_html(
+        user.full_name or "there", cart_items, frontend_url
+    )
+
+    return send_email_via_brevo(
+        to_email, subject, html_content, sender_name="Tronix365 Re-engagement"
+    )

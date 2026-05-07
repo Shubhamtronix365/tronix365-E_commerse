@@ -3,6 +3,7 @@ import json
 
 BASE_URL = "http://localhost:8000"
 
+
 def test_dashboard_flow():
     # 1. Signup
     email = "test_dashboard_user@example.com"
@@ -11,9 +12,9 @@ def test_dashboard_flow():
         "email": email,
         "password": password,
         "full_name": "Dashboard Tester",
-        "role": "user"
+        "role": "user",
     }
-    
+
     print(f"1. Signing up user {email}...")
     try:
         signup_res = requests.post(f"{BASE_URL}/signup", json=payload)
@@ -30,17 +31,14 @@ def test_dashboard_flow():
 
     # 2. Login
     print("2. Logging in...")
-    login_data = {
-        "username": email,
-        "password": password
-    }
-    
+    login_data = {"username": email, "password": password}
+
     try:
         login_res = requests.post(f"{BASE_URL}/login", data=login_data)
         if login_res.status_code != 200:
             print(f"   Login failed: {login_res.status_code} {login_res.text}")
             return
-            
+
         token_data = login_res.json()
         token = token_data["access_token"]
         print("   Login successful, token received")
@@ -57,7 +55,9 @@ def test_dashboard_flow():
         if profile_res.status_code == 200:
             print(f"   Profile: {json.dumps(profile_res.json(), indent=2)}")
         else:
-            print(f"   Profile fetch failed: {profile_res.status_code} {profile_res.text}")
+            print(
+                f"   Profile fetch failed: {profile_res.status_code} {profile_res.text}"
+            )
     except Exception as e:
         print(f"   Error fetching profile: {e}")
 
@@ -71,6 +71,7 @@ def test_dashboard_flow():
             print(f"   Orders fetch failed: {orders_res.status_code} {orders_res.text}")
     except Exception as e:
         print(f"   Error fetching orders: {e}")
+
 
 if __name__ == "__main__":
     test_dashboard_flow()

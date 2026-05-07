@@ -1,6 +1,7 @@
 from database import engine
 from sqlalchemy import text
 
+
 def run_migration():
     queries = [
         "ALTER TABLE orders ADD COLUMN created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();",
@@ -10,9 +11,9 @@ def run_migration():
         "ALTER TABLE orders ADD COLUMN address_line VARCHAR;",
         "ALTER TABLE orders ADD COLUMN city VARCHAR;",
         "ALTER TABLE orders ADD COLUMN state VARCHAR;",
-        "ALTER TABLE orders ADD COLUMN pincode VARCHAR;"
+        "ALTER TABLE orders ADD COLUMN pincode VARCHAR;",
     ]
-    
+
     with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
         for q in queries:
             try:
@@ -22,6 +23,7 @@ def run_migration():
                 print(f"Skipped {q.split(' ')[4]}: {e}")
 
     print("Migration complete!")
+
 
 if __name__ == "__main__":
     run_migration()

@@ -4,6 +4,7 @@ from models import UserDB
 from auth import get_password_hash
 import os
 
+
 def create_admin():
     db = SessionLocal()
     try:
@@ -11,7 +12,7 @@ def create_admin():
         email = os.getenv("ADMIN_EMAIL", "bhavesh729@gmail.com")
         password = os.getenv("ADMIN_PASSWORD", "bhavesh729")
         hashed_password = get_password_hash(password)
-        
+
         admin = db.query(UserDB).filter(UserDB.email == email).first()
         if admin:
             print(f"Admin '{email}' already exists. Updating password...")
@@ -22,26 +23,27 @@ def create_admin():
             return
 
         print(f"Creating new admin: {email}")
-        
+
         new_admin = UserDB(
             email=email,
             hashed_password=hashed_password,
             full_name="System Admin",
             role="admin",
-            is_active=True
+            is_active=True,
         )
-        
+
         db.add(new_admin)
         db.commit()
         db.refresh(new_admin)
         print(f"Admin created successfully!")
         print(f"Email: {email}")
         print(f"Password: {password}")
-        
+
     except Exception as e:
         print(f"Error creating admin: {e}")
     finally:
         db.close()
+
 
 if __name__ == "__main__":
     create_admin()

@@ -15,6 +15,7 @@ try:
     session = Session()
 
     from models import ProductDB, Product
+
     products = session.query(ProductDB).all()
     print(f"Found {len(products)} products in DB.")
 
@@ -30,5 +31,5 @@ try:
 except Exception as e:
     print(f"Error: {e}")
 finally:
-    if 'session' in locals():
+    if "session" in locals():
         session.close()

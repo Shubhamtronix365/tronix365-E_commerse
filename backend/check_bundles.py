@@ -1,6 +1,7 @@
 from database import SessionLocal
 from models import BundleDB, ProductDB, BundleProductDB
 
+
 def check_and_create_bundle():
     db = SessionLocal()
     try:
@@ -16,30 +17,34 @@ def check_and_create_bundle():
             if len(products) < 2:
                 print("Not enough products to create a bundle.")
                 return
-            
+
             new_bundle = BundleDB(
                 name="Starter Pack",
                 description="Get started with these two essential items!",
                 original_price=products[0].price + products[1].price,
-                bundle_price=(products[0].price + products[1].price) * 0.8, # 20% discount
-                is_active=True
+                bundle_price=(products[0].price + products[1].price)
+                * 0.8,  # 20% discount
+                is_active=True,
             )
             db.add(new_bundle)
             db.commit()
             db.refresh(new_bundle)
-            
+
             for p in products:
                 bp = BundleProductDB(bundle_id=new_bundle.id, product_id=p.id)
                 db.add(bp)
-            
+
             db.commit()
-            print(f"Created bundle: {new_bundle.name} (ID: {new_bundle.id}) for products {[p.title for p in products]}")
-            
+            print(
+                f"Created bundle: {new_bundle.name} (ID: {new_bundle.id}) for products {[p.title for p in products]}"
+            )
+
     except Exception as e:
         print(f"Error: {e}")
         db.rollback()
     finally:
         db.close()
+
 
 if __name__ == "__main__":
     check_and_create_bundle()

@@ -11,9 +11,11 @@ with engine.connect() as connection:
         result = connection.execute(text("SELECT count(*) FROM products"))
         count = result.scalar()
         print(f"Product count: {count}")
-        
+
         if count > 0:
-            result = connection.execute(text("SELECT id, title, price FROM products LIMIT 5"))
+            result = connection.execute(
+                text("SELECT id, title, price FROM products LIMIT 5")
+            )
             print("Sample products:")
             for row in result:
                 print(row)
