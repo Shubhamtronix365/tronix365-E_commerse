@@ -7,6 +7,64 @@ import ProductCardSkeleton from '../components/product/ProductCardSkeleton';
 import ProductFilter from '../components/shop/ProductFilter';
 import { categories, products as mockProducts } from '../data/mockData';
 import client from '../api/client';
+import SEO from '../components/common/SEO';
+
+const categorySeoData = {
+    'all': {
+        title: 'Shop Electronic Components & Microcontrollers',
+        description: 'Explore the full catalog of electronic parts, development boards, sensors, and robotics components at Tronix365.',
+        faqs: [
+            { q: "What is Tronix365?", a: "Tronix365 is an e-commerce platform offering electronic components, microcontroller boards, sensors, and DIY tools for electronics creators." },
+            { q: "Do you ship across India?", a: "Yes, we ship to all major cities and states across India with fast courier services." }
+        ]
+    },
+    'sensors': {
+        title: 'Electronic Sensors - Ultrasonic, Temperature, IR Sensors',
+        description: 'Shop high-quality ultrasonic, temperature, humidity, IR, and obstacle sensors for your microcontrollers. Best prices in India with fast delivery.',
+        faqs: [
+            { q: "What are sensors in electronics?", a: "Sensors are devices that detect changes in the physical environment (like temperature, distance, light, motion) and convert them into electrical signals that microcontrollers like Arduino can read." },
+            { q: "Can I use these sensors with ESP32 or Raspberry Pi?", a: "Yes, most sensors are compatible with Arduino, ESP32, ESP8266, and Raspberry Pi operating at 3.3V or 5V." }
+        ]
+    },
+    'development-boards': {
+        title: 'Microcontroller & Development Boards - Arduino, Raspberry Pi',
+        description: 'Get authentic Arduino Uno, Raspberry Pi, and other microcontroller development boards. Perfect for students, developers, and electronics hobbyists.',
+        faqs: [
+            { q: "What is the difference between Arduino and Raspberry Pi?", a: "Arduino is a microcontroller board designed for executing simple code and interacting with sensors directly. Raspberry Pi is a full single-board computer running an OS, suitable for heavy computations and IoT projects." },
+            { q: "Do the boards come with usb cables?", a: "Most of our Arduino boards come with a compatible USB programming cable included." }
+        ]
+    },
+    'modules': {
+        title: 'Electronic Modules & IoT Boards - WiFi, Bluetooth, Relay',
+        description: 'Buy high-performance ESP32 development boards, NodeMCU ESP8266, and WiFi modules for IoT and smart home projects at Tronix365.',
+        faqs: [
+            { q: "Does the ESP32 board support Bluetooth and WiFi?", a: "Yes, ESP32 has integrated Wi-Fi and Bluetooth capabilities, making it ideal for remote monitoring and IoT applications." },
+            { q: "What is a relay module?", a: "A relay module is an electrically operated switch that allows microcontrollers to control high-voltage appliances like bulbs or fans safely." }
+        ]
+    },
+    'motors': {
+        title: 'Robotics Parts & Motors - Servos, Gear Motors, Steppers',
+        description: 'Explore robotics components, SG90 servo motor, DC gear motor, and accessories. Build your next robotic arm or rover with Tronix365.',
+        faqs: [
+            { q: "What is an SG90 servo motor?", a: "The SG90 is a lightweight micro-servo motor that rotates 180 degrees, commonly used in small RC planes, robotics, and servo control projects." },
+            { q: "Can I drive DC motors directly from Arduino?", a: "No, DC motors require more current than Arduino pins can provide. You should use a motor driver IC (like L293D) or transistor switch." }
+        ]
+    },
+    'battery': {
+        title: 'Li-Po & Lithium-Ion Rechargeable Batteries',
+        description: 'High capacity, safe lithium polymer (Li-Po) and lithium-ion batteries. Lightweight power solutions for drones, RC planes, and portable devices.',
+        faqs: [
+            { q: "How do I safely charge Li-Po batteries?", a: "Always use a dedicated Li-Po balance charger and never leave batteries charging unattended. Keep them in a fireproof bag." }
+        ]
+    },
+    'displays': {
+        title: 'IoT Display Modules - OLED, LCD, I2C Displays',
+        description: 'Discover essential electronics modules including OLED displays, I2C screens, and relay control boards. Easy interface with your smart projects.',
+        faqs: [
+            { q: "How do I interface an OLED display with Arduino?", a: "Most OLED modules use the I2C interface (SDA/SCL pins) and can be programmed using libraries like Adafruit SSD1306 in the Arduino IDE." }
+        ]
+    }
+};
 
 const Shop = () => {
     const { category } = useParams();
@@ -114,8 +172,32 @@ const Shop = () => {
         fetchProducts(nextPage, false);
     };
 
+    const categoryKey = category ? category.toLowerCase() : 'all';
+    const activeSeo = categorySeoData[categoryKey] || categorySeoData['all'];
+
     return (
         <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+            <SEO
+                title={activeSeo.title}
+                description={activeSeo.description}
+                url={`https://www.tronix365.in/e-commerse/category/${categoryKey}`}
+            />
+            {activeSeo.faqs && activeSeo.faqs.length > 0 && (
+                <script type="application/ld+json">
+                    {JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "FAQPage",
+                        "mainEntity": activeSeo.faqs.map(faq => ({
+                            "@type": "Question",
+                            "name": faq.q,
+                            "acceptedAnswer": {
+                                "@type": "Answer",
+                                "text": faq.a
+                            }
+                        }))
+                    })}
+                </script>
+            )}
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
@@ -195,6 +277,27 @@ const Shop = () => {
                         )}
                     </div>
                 </div>
+
+                {/* SEO FAQ Section */}
+                {activeSeo.faqs && activeSeo.faqs.length > 0 && (
+                    <div className="mt-16 bg-tronix-card/30 border border-white/5 rounded-2xl p-8 backdrop-blur-md">
+                        <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-6">
+                            Frequently Asked Questions
+                        </h2>
+                        <div className="space-y-6">
+                            {activeSeo.faqs.map((faq, idx) => (
+                                <div key={idx} className="border-b border-white/10 pb-4 last:border-b-0 last:pb-0">
+                                    <h3 className="text-lg font-bold text-tronix-primary mb-2">
+                                        {faq.q}
+                                    </h3>
+                                    <p className="text-gray-300 leading-relaxed text-sm">
+                                        {faq.a}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Mobile Filter Drawer */}
                 <AnimatePresence>

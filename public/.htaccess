@@ -1,8 +1,8 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /e-commerse/
-  RewriteRule ^index\.html$ - [L]
+  RewriteRule ^index\.php$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /e-commerse/index.html [L]
+  RewriteRule . /e-commerse/index.php [L]
 </IfModule>

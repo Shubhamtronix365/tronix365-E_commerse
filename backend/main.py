@@ -259,6 +259,25 @@ async def get_product(product_id: int, db: Session = Depends(get_db)):
     return product
 
 
+@app.get("/products/slug/{slug}", response_model=Product)
+@cache(expire=3600, namespace="products")
+async def get_product_by_slug(slug: str, db: Session = Depends(get_db)):
+    import re
+    def make_slug(title: str) -> str:
+        t = title.lower()
+        t = re.sub(r'[^a-z0-9\s-]', '', t)
+        t = re.sub(r'[\s-]+', '-', t)
+        return t.strip('-')
+
+    products = db.query(ProductDB).all()
+    for p in products:
+        if make_slug(p.title) == slug.lower().strip('-'):
+            return p
+
+    raise HTTPException(status_code=404, detail="Product not found")
+
+
+
 @app.post("/products", response_model=Product, status_code=201)
 async def create_product(product: ProductCreate, db: Session = Depends(get_db)):
     new_product = ProductDB(**product.dict())

@@ -7,6 +7,8 @@ import { useWishlist } from '../../context/WishlistContext';
 import { useCart } from '../../context/CartContext';
 import { useCartAnimation } from '../../context/CartAnimationContext';
 import { getImageUrl } from '../../utils/imageUtils';
+import { slugify } from '../../utils/slugify';
+import Image from '../common/Image';
 
 const ProductCard = ({ product }) => {
     const { toggleWishlist, isInWishlist } = useWishlist();
@@ -30,9 +32,10 @@ const ProductCard = ({ product }) => {
         >
             {/* Image Container */}
             <div className="relative h-48 overflow-hidden bg-white/5 p-4 flex items-center justify-center">
-                <img
+                <Image
                     src={getImageUrl(product.image)}
                     alt={product.title}
+                    title={product.title}
                     className="h-full object-contain group-hover:scale-110 transition-transform duration-500"
                 />
 
@@ -47,7 +50,7 @@ const ProductCard = ({ product }) => {
 
                 {/* Overlay Actions */}
                 <div className={`absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-sm ${product.stock === 0 ? 'hidden' : ''}`}>
-                    <Link to={`/product/${product.id}`} className="p-2 bg-white text-tronix-dark rounded-full hover:bg-tronix-primary hover:text-white transition-colors" title="View Details">
+                    <Link to={`/product/${slugify(product.title)}`} className="p-2 bg-white text-tronix-dark rounded-full hover:bg-tronix-primary hover:text-white transition-colors" title="View Details">
                         <Eye size={20} />
                     </Link>
                     <button
@@ -77,7 +80,7 @@ const ProductCard = ({ product }) => {
             {/* Content */}
             <div className="p-4 flex-1 flex flex-col">
                 <div className="text-xs text-tronix-primary font-medium mb-1">{product.category}</div>
-                <Link to={`/product/${product.id}`} className="block">
+                <Link to={`/product/${slugify(product.title)}`} className="block">
                     <h3 className="text-white font-medium text-lg leading-tight mb-2 line-clamp-2 group-hover:text-tronix-primary transition-colors">
                         {product.title}
                     </h3>

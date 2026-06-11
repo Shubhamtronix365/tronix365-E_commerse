@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import client from '../../api/client';
 import { getImageUrl } from '../../utils/imageUtils';
 import Skeleton from '../common/Skeleton';
+import { slugify } from '../../utils/slugify';
 
 const SearchOverlay = ({ isOpen, onClose }) => {
     const [query, setQuery] = useState('');
@@ -55,9 +56,9 @@ const SearchOverlay = ({ isOpen, onClose }) => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [onClose, isOpen]);
 
-    const handleResultClick = (id) => {
+    const handleResultClick = (product) => {
         onClose();
-        navigate(`/product/${id}`);
+        navigate(`/product/${slugify(product.title)}`);
     };
 
     return (
@@ -118,7 +119,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                                     {results.map((product) => (
                                         <button
                                             key={product.id}
-                                            onClick={() => handleResultClick(product.id)}
+                                            onClick={() => handleResultClick(product)}
                                             className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors group text-left"
                                         >
                                             <div className="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center p-1 shrink-0">

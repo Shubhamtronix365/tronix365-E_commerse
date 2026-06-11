@@ -6,6 +6,8 @@ import { Link } from 'react-router-dom';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
 import { getImageUrl } from '../utils/imageUtils';
+import { slugify } from '../utils/slugify';
+import Image from '../components/common/Image';
 
 const Wishlist = () => {
     const { wishlistItems, removeFromWishlist } = useWishlist();
@@ -42,11 +44,12 @@ const Wishlist = () => {
                                     <Trash2 size={16} />
                                 </button>
 
-                                <Link to={`/product/${product.id}`} className="block">
+                                <Link to={`/product/${slugify(product.title)}`} className="block">
                                     <div className="relative h-48 p-4 bg-white/5 group-hover:bg-white/10 transition-colors flex items-center justify-center">
-                                        <img
+                                        <Image
                                             src={getImageUrl(product.image)}
                                             alt={product.title}
+                                            title={product.title}
                                             className="h-full object-contain drop-shadow-lg group-hover:scale-110 transition-transform duration-300"
                                         />
                                     </div>

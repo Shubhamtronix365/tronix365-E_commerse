@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+Allow: /e-commerse/
+Allow: /e-commerse/shop
+Allow: /e-commerse/product/
+Allow: /e-commerse/category/
+Allow: /e-commerse/about
+Allow: /e-commerse/contact
+
+# Block private/checkout pages from wasting search crawl budget
+Disallow: /e-commerse/cart
+Disallow: /e-commerse/checkout
+Disallow: /e-commerse/dashboard
+Disallow: /e-commerse/admin
+Disallow: /e-commerse/login
+Disallow: /e-commerse/signup
+Disallow: /e-commerse/order/
+Disallow: /e-commerse/invoice/
+Disallow: /e-commerse/payment/
+
+Sitemap: https://www.tronix365.in/sitemap.xml
+Sitemap: https://www.tronix365.in/e-commerse/sitemap.xml

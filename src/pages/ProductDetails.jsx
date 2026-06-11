@@ -11,9 +11,13 @@ import ReviewSection from '../components/product/ReviewSection';
 import client from '../api/client';
 import { getImageUrl } from '../utils/imageUtils';
 import RelatedProducts from '../components/product/RelatedProducts';
+import SEO from '../components/common/SEO';
+import ProductSchema from '../components/common/ProductSchema';
+import Breadcrumbs from '../components/common/Breadcrumbs';
+import Image from '../components/common/Image';
 
 const ProductDetails = () => {
-    const { id } = useParams();
+    const { slug } = useParams();
     const navigate = useNavigate();
     const { addToCart, addBundle } = useCart();
     const { toggleWishlist, isInWishlist } = useWishlist();
@@ -27,15 +31,25 @@ const ProductDetails = () => {
     useEffect(() => {
         const fetchProductData = async () => {
             try {
-                const [prodRes, bundlesRes] = await Promise.all([
-                    client.get(`/products/${id}`, { timeout: 2000 }),
-                    client.get(`/products/${id}/bundles`).catch(() => ({ data: [] }))
-                ]);
-                setProduct(prodRes.data);
+                const isId = /^\d+$/.test(slug);
+                const endpoint = isId ? `/products/${slug}` : `/products/slug/${slug}`;
+                const prodRes = await client.get(endpoint, { timeout: 2000 });
+                const productData = prodRes.data;
+                setProduct(productData);
+
+                // Fetch bundles using product ID
+                const bundlesRes = await client.get(`/products/${productData.id}/bundles`).catch(() => ({ data: [] }));
                 setBundles(bundlesRes.data);
             } catch (error) {
                 console.warn('Backend unavailable, falling back to mock data:', error);
-                const found = mockProducts.find(p => p.id === parseInt(id));
+                const isId = /^\d+$/.test(slug);
+                let found;
+                if (isId) {
+                    found = mockProducts.find(p => p.id === parseInt(slug));
+                } else {
+                    const { slugify } = await import('../utils/slugify');
+                    found = mockProducts.find(p => slugify(p.title) === slug);
+                }
                 setProduct(found || null);
             } finally {
                 setLoading(false);
@@ -43,7 +57,7 @@ const ProductDetails = () => {
         };
 
         fetchProductData();
-    }, [id]);
+    }, [slug]);
 
     if (loading) {
         return (
@@ -72,21 +86,36 @@ const ProductDetails = () => {
 
     return (
         <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+            <SEO
+                title={product.title}
+                description={product.description}
+                image={getImageUrl(product.image)}
+                url={`https://www.tronix365.in/e-commerse/product/${slug}`}
+                type="product"
+            />
+            <ProductSchema
+                name={product.title}
+                description={product.description}
+                image={getImageUrl(product.image)}
+                price={product.price}
+                sku={product.skv}
+                category={product.category}
+                inStock={product.stock > 0}
+            />
             <div className="max-w-7xl mx-auto">
-                <Link to="/shop" className="inline-flex items-center text-gray-400 hover:text-white mb-8 transition-colors">
-                    <ArrowLeft size={20} className="mr-2" /> Back to Shop
-                </Link>
+                <Breadcrumbs category={product.category} productName={product.title} />
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-4">
                     {/* Image Section */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         className="bg-tronix-card/50 border border-white/5 rounded-2xl p-8 flex items-center justify-center h-[500px]"
                     >
-                        <img
+                        <Image
                             src={getImageUrl(product.image)}
                             alt={product.title}
+                            title={product.title}
                             className="max-h-full max-w-full object-contain drop-shadow-2xl"
                         />
                     </motion.div>
@@ -301,7 +330,7 @@ const ProductDetails = () => {
                 </div>
 
                 {/* Recommendations Section */}
-                <RelatedProducts productId={id} />
+                <RelatedProducts productId={product.id} />
             </div>
         </div>
     );

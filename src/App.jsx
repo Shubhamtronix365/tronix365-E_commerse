@@ -3,25 +3,31 @@ import { Toaster } from 'react-hot-toast';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import UserDashboard from './pages/UserDashboard';
-import AdminDashboard from './pages/AdminDashboard';
-import Shop from './pages/Shop';
-import ProductDetails from './pages/ProductDetails';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import Wishlist from './pages/Wishlist';
-import OrderDetails from './pages/OrderDetails';
-import Invoice from './pages/Invoice';
+const Home = React.lazy(() => import('./pages/Home'));
+const Login = React.lazy(() => import('./pages/Login'));
+const Signup = React.lazy(() => import('./pages/Signup'));
+const UserDashboard = React.lazy(() => import('./pages/UserDashboard'));
+const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const Shop = React.lazy(() => import('./pages/Shop'));
+const ProductDetails = React.lazy(() => import('./pages/ProductDetails'));
+const Cart = React.lazy(() => import('./pages/Cart'));
+const Checkout = React.lazy(() => import('./pages/Checkout'));
+const Wishlist = React.lazy(() => import('./pages/Wishlist'));
+const OrderDetails = React.lazy(() => import('./pages/OrderDetails'));
+const Invoice = React.lazy(() => import('./pages/Invoice'));
+const Categories = React.lazy(() => import('./pages/Categories'));
+const PaymentStatus = React.lazy(() => import('./pages/PaymentStatus'));
+
+// Lazy load InfoPages
+const About = React.lazy(() => import('./pages/InfoPages').then(module => ({ default: module.About })));
+const Contact = React.lazy(() => import('./pages/InfoPages').then(module => ({ default: module.Contact })));
+const Terms = React.lazy(() => import('./pages/InfoPages').then(module => ({ default: module.Terms })));
+const Privacy = React.lazy(() => import('./pages/InfoPages').then(module => ({ default: module.Privacy })));
+
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import { AuthProvider } from './context/AuthContext';
 import { CartAnimationProvider } from './context/CartAnimationContext';
-import { About, Contact, Terms, Privacy } from './pages/InfoPages';
-import PaymentStatus from './pages/PaymentStatus';
-import Categories from './pages/Categories';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import PageTransition from './components/common/PageTransition';
 import { AnimatePresence } from 'framer-motion';
@@ -37,6 +43,13 @@ const ScrollToTop = () => {
   }, [pathname, hash]);
   return null;
 };
+
+// Sleek loading fallback for lazy routes
+const PageLoader = () => (
+  <div className="min-h-screen bg-tronix-bg flex items-center justify-center">
+    <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-tronix-primary"></div>
+  </div>
+);
 
 // Placeholder pages to prevent crash
 const Placeholder = ({ title }) => (
@@ -85,11 +98,12 @@ const AppContent = () => {
       <div className="min-h-screen bg-tronix-bg text-tronix-text font-sans selection:bg-tronix-primary selection:text-white flex flex-col">
         <Navbar />
         <main className="flex-grow overflow-hidden">
-          <AnimatePresence mode="wait">
-            <Routes location={location} key={location.pathname}>
+          <React.Suspense fallback={<PageLoader />}>
+            <AnimatePresence mode="wait">
+              <Routes location={location} key={location.pathname}>
               <Route path="/" element={<PageTransition><Home /></PageTransition>} />
               <Route path="/shop" element={<PageTransition><Shop /></PageTransition>} />
-              <Route path="/product/:id" element={<PageTransition><ProductDetails /></PageTransition>} />
+              <Route path="/product/:slug" element={<PageTransition><ProductDetails /></PageTransition>} />
               <Route path="/categories" element={<PageTransition><Categories /></PageTransition>} />
               <Route path="/category/:category" element={<PageTransition><Shop /></PageTransition>} />
               <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
@@ -128,8 +142,9 @@ const AppContent = () => {
               <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
               <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />
               <Route path="*" element={<PageTransition><Home /></PageTransition>} />
-            </Routes>
-          </AnimatePresence>
+              </Routes>
+            </AnimatePresence>
+          </React.Suspense>
         </main>
         <Footer />
         <Toaster position="bottom-right" toastOptions={{

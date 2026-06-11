@@ -5,6 +5,7 @@ import { products as mockProducts } from '../../data/mockData';
 import { Link } from 'react-router-dom';
 import client from '../../api/client';
 import { getImageUrl } from '../../utils/imageUtils';
+import { slugify } from '../../utils/slugify';
 
 const SearchOverlay = ({ isOpen, onClose }) => {
     const [query, setQuery] = useState('');
@@ -104,7 +105,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                                     results.map(product => (
                                         <Link
                                             key={product.id}
-                                            to={`/product/${product.id}`}
+                                            to={`/product/${slugify(product.title)}`}
                                             onClick={onClose}
                                             className="flex items-center gap-4 bg-tronix-card/50 hover:bg-tronix-card border border-white/5 hover:border-tronix-primary/30 p-4 rounded-xl transition-all group"
                                         >
