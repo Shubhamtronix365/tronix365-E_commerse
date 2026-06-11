@@ -1,24 +1,151 @@
-# Tronix365 E-commerce
+# ⚡ Tronix365 E-commerce Platform
 
-## Description
-Tronix365 is a modern, full-stack e-commerce platform designed to provide a seamless shopping experience. It features comprehensive product discovery, secure user authentication, shopping carts, wishlists, and order management. The platform also includes a dedicated Admin Dashboard for managing inventory, coupons, and bundled product offers. It is built with a React frontend and a fast, scalable FastAPI backend.
+Tronix365 is a state-of-the-art, full-stack e-commerce web application engineered for high-performance product browsing, real-time inventory management, and automated checkout. With an aesthetic bento-grid dashboard, secure authentication, and a dynamic shopping cart, it serves as a robust prototype for an online electronics retail hub.
 
-## Features
-- **User Authentication**: Secure Signup, Login, and Admin access using JWT and refresh tokens.
-- **Product Management**: Browse, search, filter, and view related product recommendations.
-- **Shopping Experience**: Dynamic Shopping Cart and Wishlist functionality.
-- **Order Processing**: Checkout system supporting Coupons and Bundled Products with inventory locking.
-- **User Engagement**: Product reviews, ratings, and a contact form with automated email notifications.
-- **Admin Dashboard**: Comprehensive control over products, stock levels, discount coupons, and bundles.
+---
 
-## Tech Stack
-- **Frontend**: React 19, Vite, Tailwind CSS v4, React Router v7.
-- **Backend**: FastAPI (Python 3), SQLAlchemy ORM.
-- **Database**: PostgreSQL (Production) / SQLite (Local Development).
-- **Authentication**: JWT (JSON Web Tokens).
-- **Caching & Rate Limiting**: Redis, Slowapi.
+## ✨ Features
+- **Modern Bento UI**: Beautiful, responsive layout with glassmorphic cards and dynamic animations.
+- **Fuzzy Search & Filters**: High-performance backend search, pagination, category sorting, and price range filters.
+- **Smart Shopping Cart**: Persistent cart state, client-side validation, and instant coupon/discount application.
+- **Admin Inventory Dashboard**: Live product updates, order confirmation control panel, and coupon generator.
+- **Brevo Email Notifications**: Automatic generation of beautiful HTML invoices emailed on confirmed orders.
+- **Secure Authentication**: Encrypted password authentication (bcrypt), JWT tokens, and Google OAuth integration.
+- **Rate Limiting & Caching**: Security features with Slowapi rate limiters and Redis/InMemory backend caching.
 
-## Folder Structure
+---
+
+## 🌐 Production Hosting & Deployment
+
+For a full step-by-step tutorial on hosting this project in production:
+- **Database**: Serverless PostgreSQL via **NeonDB**
+- **Backend API**: Python FastAPI via **Render**
+- **Frontend Client**: React Single Page Application via **Hostinger**
+
+Refer to our complete [Hosting & Configuration Guide](file:///C:/Users/Hi/.gemini/antigravity/brain/503fde86-f0b9-4cc0-b435-3167395d548b/hosting_guide.md) for details.
+
+---
+
+## 🚀 Novice-to-Expert Quick Run Guide
+
+If you want to run this application locally from scratch as quickly as possible, follow this step-by-step guide.
+
+### 📋 Prerequisites
+First, make sure you have the following installed on your machine:
+1. **Node.js** (LTS Version recommended) - [Download here](https://nodejs.org/)
+2. **Python 3.10+** - [Download here](https://www.python.org/)
+3. *Optional*: **PostgreSQL** (only if you want a production-grade database instead of the built-in SQLite)
+
+---
+
+### 🔧 Step-by-Step Installation
+
+#### ⚙️ Part 1: Backend Setup (FastAPI Server)
+
+1. **Open a terminal** (PowerShell/CMD on Windows, or Terminal on macOS/Linux) and navigate to the project directory:
+   ```bash
+   cd tronix365-E_commerse
+   ```
+
+2. **Navigate into the backend folder**:
+   ```bash
+   cd backend
+   ```
+
+3. **Create and Activate a Python Virtual Environment (`myenv`):**
+   This isolates your Python dependencies so they do not conflict with other projects.
+   * **Windows (Command Prompt / CMD):**
+     ```cmd
+     python -m venv myenv
+     myenv\Scripts\activate.bat
+     ```
+   * **Windows (PowerShell):**
+     ```powershell
+     python -m venv myenv
+     .\myenv\Scripts\Activate.ps1
+     ```
+     *(Note: If you get a script execution policy error in PowerShell, run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process` first)*
+   * **macOS / Linux:**
+     ```bash
+     python3 -m venv myenv
+     source myenv/bin/activate
+     ```
+
+   Once activated, your terminal prompt will display `(myenv)`.
+
+4. **Install Python dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+5. **Configure Environment Variables (`.env`):**
+   Create a file named `.env` inside the `backend` folder. Copy and paste the following configuration:
+   ```env
+   # Database Settings (SQLite is the simplest for local testing - no installation required!)
+   DATABASE_URL=sqlite:///./tronix365.db
+
+   # Security
+   SECRET_KEY=generated_secret_key_change_me_in_production
+   ALGORITHM=HS256
+   ACCESS_TOKEN_EXPIRE_MINUTES=30
+   CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+   FRONTEND_URL=http://localhost:5173
+
+   # Email Configurations (SMTP Server - Brevo API example)
+   BREVO_API_KEY=your_brevo_api_key_here
+   CONTACT_EMAIL=your_email@gmail.com
+
+   # PayU payment credentials (for test environments)
+   PAYU_ENV=TEST
+   PAYU_KEY=xFdsL0
+   PAYU_SALT=VOo7u1I9JuewBQQwyA1X9PvonouDaDex
+   ```
+
+6. **Initialize and Seed the Database:**
+   We have a helper script that automatically drops/creates tables and populates them with initial mock products and an admin account.
+   Run this command from your active environment terminal:
+   ```bash
+   python seed.py
+   ```
+   This will output `Successfully seeded products and admin user!`.
+   * **Default Admin Account:** `admin@tronix365.com`
+   * **Default Admin Password:** `adminpassword123`
+
+   *(Optional)* To create a custom admin user, run:
+   ```bash
+   python create_admin.py
+   ```
+
+7. **Start the Backend Server:**
+   ```bash
+   uvicorn main:app --reload
+   ```
+   The FastAPI API documentation will now be interactive at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
+
+---
+
+#### 💻 Part 2: Frontend Setup (React & Vite)
+
+1. **Open a new terminal tab/window** and navigate to the project root directory:
+   ```bash
+   cd tronix365-E_commerse
+   ```
+
+2. **Install Node packages**:
+   ```bash
+   npm install
+   ```
+
+3. **Run the Frontend Dev Server**:
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:5173/e-commerse/](http://localhost:5173/e-commerse/) in your browser. You can now register/login, add products to the cart, apply coupon codes, and browse the admin panel!
+
+---
+
+## 🛠️ Folder Structure
+
 ```text
 tronix365-E_commerse/
 │
@@ -46,131 +173,92 @@ tronix365-E_commerse/
 └── vite.config.js
 ```
 
-## Core Utilities & Scripts
+---
 
-The backend utilizes several standalone utility scripts and helper files to manage logic, database operations, and maintenance:
+## 💡 Tech Stack
+- **Frontend**: React 19, Vite, Tailwind CSS v4, React Router v7.
+- **Backend**: FastAPI (Python 3.10+), SQLAlchemy ORM.
+- **Database**: PostgreSQL (Production) / SQLite (Local Development).
+- **Authentication**: JWT (JSON Web Tokens) & Google OAuth2.
+- **Caching & Rate Limiting**: Redis, Slowapi.
 
-### Helper Files (Backend)
-- `utils.py`: Contains data sanitization (`bleach`) to prevent XSS attacks and image processing (`Pillow`) to optimize uploaded images to WebP format.
-- `email_utils.py`: Handles all asynchronous SMTP operations including order confirmations and contact form notifications.
-- `auth.py`: Centralized security file handling JWT generation, validation, and bcrypt password hashing.
+---
 
-### Management Scripts (Backend)
-- `create_admin.py`: Use this script to quickly scaffold an admin user to access the Admin Dashboard.
-- `seed.py` / `seed_neon_db.py`: Scripts used to initially populate the database (SQLite or NeonDB) with mock products, bundles, and coupons for testing.
-- `import_products.py`: A bulk import utility to load products into the database from CSV/JSON templates.
-- `run_migration.py`: Helper script to programmatically trigger Alembic schema upgrades.
+## 📦 Installed Libraries
 
-## Setup Instructions
+### Frontend Packages (NPM)
+- `react` / `react-dom` — Core UI structure.
+- `react-router-dom` — Modern SPA routing.
+- `axios` — HTTP request handler.
+- `tailwindcss` / `@tailwindcss/postcss` — Modern styling compiler.
+- `framer-motion` — Smooth transitions & page animations.
+- `lucide-react` — Streamlined SVG icon suite.
+- `react-hot-toast` — Sleek, responsive notifications.
 
-### 1. Backend Setup
-1. Open a terminal and navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-2. Create and activate a Python virtual environment named `myenv`:
-   - **Windows:**
-     ```bash
-     python -m venv myenv
-     myenv\Scripts\activate
-     ```
-   - **Linux/Mac:**
-     ```bash
-     python -m venv myenv
-     source myenv/bin/activate
-     ```
-3. Install the required Python packages:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Create a `.env` file in the backend directory and configure your environment variables.
+### Backend Packages (PIP)
+- `fastapi` — High-performance web framework.
+- `uvicorn` — Fast ASGI web server.
+- `sqlalchemy` — Python SQL Toolkit and Object Relational Mapper.
+- `alembic` — Database migrations wrapper.
+- `python-jose[cryptography]` — JWT encoder/decoder.
+- `passlib[bcrypt]` — Password hashing algorithm.
+- `python-dotenv` — Environment variables loader.
+- `fastapi-cache2[redis]` — Caching controller.
+- `slowapi` — Endpoint rate-limiter for security.
 
-### 2. Frontend Setup
-1. Open a new terminal in the project root directory.
-2. Install the necessary Node modules:
-   ```bash
-   npm install
-   ```
+---
 
-## Run Commands
+## 🔍 Key API Endpoints
+FastAPI generates interactive documentation at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs). Here are some major endpoints:
 
-**To Run the Backend (make sure `myenv` is active):**
+* **Authentication**:
+  - `POST /signup` - Register a standard client account
+  - `POST /login` - Issue JWT tokens for active users
+  - `POST /auth/google` - Fast authentication using Google Account OAuth
+* **Product Catalog**:
+  - `GET /products` - Fetch paginated list of items (supports query matching, ordering, and stock status)
+  - `GET /products/{id}` - Fetch single product specs
+* **E-Commerce Actions**:
+  - `GET /cart` / `POST /cart` - Retrieve or modify active shopping items
+  - `GET /wishlist` / `POST /wishlist` - Manage bookmark listings
+  - `POST /orders` - Process checks, verify stocks, and submit orders
+
+---
+
+## ❓ Troubleshooting & FAQs
+
+### 1. PowerShell Script Execution Policy Error (Windows)
+**Error:** `Script cannot be loaded because running scripts is disabled on this system.`
+**Solution:** Open PowerShell as an administrator and run:
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+```
+Then try activating the virtual environment again.
+
+### 2. Port Collision (Address Already In Use)
+**Error:** `[Errno 10048] error while attempting to bind on address ('127.0.0.1', 8000)`
+**Solution:** This means another service (or a lingering uvicorn process) is running on port 8000.
+You can run uvicorn on a different port:
 ```bash
-cd backend
-uvicorn main:app --reload
+uvicorn main:app --reload --port 8080
 ```
-*The API runs at `http://127.0.0.1:8000`. API Docs are at `/docs`.*
+*Note: If you change the backend port, remember to update the base URL in the frontend Axios configuration.*
 
-**To Run the Frontend:**
+### 3. Missing Node Modules
+**Error:** `vite: command not found`
+**Solution:** Ensure you ran `npm install` in the project root directory before running `npm run dev`.
+
+### 4. Database Schema Changes
+If you modify database models and need to recreate the database tables, you can easily re-run the seeding script:
 ```bash
-# In the root directory
-npm run dev
+python seed.py
 ```
-*The frontend runs at `http://localhost:5173`.*
+*(Warning: Running seed.py drops existing tables and resets the local database).*
 
-## Installed Libraries
+---
 
-**Frontend Packages (NPM):**
-- `react` / `react-dom` → UI Library
-- `vite` → Build tool and development server
-- `react-router-dom` → Application routing
-- `axios` → Making API calls to the backend
-- `tailwindcss` / `@tailwindcss/postcss` → Utility-first CSS styling
-- `framer-motion` → Complex UI animations
-- `lucide-react` → SVG Icons
-- `react-hot-toast` → Notification toasts
-
-**Backend Packages (PIP):**
-- `fastapi` → High-performance web framework
-- `uvicorn` → ASGI web server
-- `sqlalchemy` → Database ORM
-- `alembic` → Database migration tool
-- `python-jose[cryptography]` → JWT token creation and validation
-- `passlib[bcrypt]` → Secure password hashing
-- `python-dotenv` → Environment variable management
-- `fastapi-cache2[redis]` → Endpoint caching
-- `slowapi` → Rate limiting for API security
-
-## Environment Variables
-Create a `.env` file in the `backend/` folder with the following keys:
-```env
-# Database Configuration
-DATABASE_URL=sqlite:///./tronix365.db  # Or your PostgreSQL URI
-
-# Security
-SECRET_KEY=your_secret_key_here
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
-
-# Email (SMTP for sending confirmations)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASSWORD=your_app_password
-
-# Optional Redis
-REDIS_URL=redis://localhost:6379
-```
-
-## API Details
-*Note: This is a high-level overview. Full interactive documentation is automatically generated by FastAPI at `http://127.0.0.1:8000/docs`.*
-
-- **Auth endpoints**: 
-  - `POST /signup` - Register a new user
-  - `POST /login` - Obtain JWT access tokens
-- **Products endpoints**:
-  - `GET /products` - Fetch all products (supports pagination, filtering, searching)
-  - `GET /products/{id}` - Fetch single product
-- **Cart/Wishlist endpoints**:
-  - `GET /cart`, `POST /cart` - Manage cart items
-  - `GET /wishlist`, `POST /wishlist` - Manage wishlist items
-- **Order endpoints**:
-  - `POST /orders` - Create a new order (locks stock and price)
-  - `GET /orders/user` - View order history
-
-## Future Scope
-- **Payment Gateway Integration**: Implement Stripe, Razorpay, or PayPal for processing live transactions.
-- **Advanced Admin Analytics**: Graphical charts representing sales, user growth, and stock velocity.
-- **Mobile Application**: Porting the frontend to React Native for iOS and Android platforms.
-- **User Profile Enhancements**: Cloud upload (e.g., AWS S3) for profile pictures and product media.
+## 🔮 Future Scope
+- **Live Payments**: Integrate production payment APIs (Razorpay / Stripe).
+- **Admin Dashboard Visuals**: Add interactive line charts for tracking daily sales, profit margins, and peak shopping hours.
+- **Mobile Integration**: Package components using React Native.
+- **CDN Integrations**: Store media/product assets on AWS S3 or Cloudinary.

@@ -1,12 +1,13 @@
 from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List
+from typing import List, Optional, Union
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, or_, and_
 from database import engine, Base, get_db
 from models import (
     Product,
     ProductDB,
+    UserDB,
     Order,
     OrderCreate,
     OrderDB,
@@ -42,6 +43,8 @@ from datetime import datetime, timedelta
 from fastapi.staticfiles import StaticFiles
 from fastapi import UploadFile, File
 import shutil
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 from email_utils import send_order_confirmation_email
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -91,17 +94,18 @@ async def startup():
         print(f"Database connection error during startup: {e}")
 
 
-# CORS Setup
-# CORS Setup - Hardcoded for Production Safety
-env_origins = os.getenv("CORS_ORIGINS", "").split(",")
+# CORS Setup - Hardcoded for Production Safety & Dynamic Config
+env_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
 origins = [
     "https://www.tronix365.in",
     "https://tronix365.in",
+    "https://www.tronix.in",
+    "https://tronix.in",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-]
+] + env_origins
 
 app.add_middleware(
     CORSMiddleware,
@@ -117,19 +121,7 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-
-@app.exception_handler(RequestValidationError)
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    print(f"Validation Error: {exc.errors()}")
-    body = exc.body
-    if not isinstance(body, (dict, list, str, int, float, bool, type(None))):
-        body = str(body)
-    return JSONResponse(
-        status_code=422,
-        content={"detail": exc.errors(), "body": body},
-    )
-
+# Removed custom validation_exception_handler because it breaks CORS on 422 errors
 
 @app.get("/")
 async def read_root():
@@ -322,7 +314,7 @@ async def create_order(
     new_order = OrderDB(
         customer_email=order.customer_email,
         total_amount=order.total_amount,
-        status="confirmed",  # Auto-confirm for demo
+        status="pending",  # Requires admin approval
     )
 
     # Process Items
@@ -354,22 +346,63 @@ async def create_order(
         )
         new_order.items.append(order_item)
 
-        # Deduct Stock globally
-        product.stock -= item.quantity
-
     db.add(new_order)
     db.commit()
     db.refresh(new_order)
 
-    # Dispatch Order Confirmation Email in the background
-    background_tasks.add_task(send_order_confirmation_email, new_order)
-
-    print(f"Order saved and email queued: {new_order.id}")
+    print(f"Order saved as pending: {new_order.id}")
     return {
-        "message": "Order placed successfully",
+        "message": "Order placed successfully. Pending admin approval.",
         "order_id": new_order.id,
-        "status": "confirmed",
+        "status": "pending",
     }
+
+class OrderStatusUpdate(BaseModel):
+    status: str
+
+@app.put("/admin/orders/{order_id}/status")
+async def update_order_status(
+    order_id: int, 
+    status_update: OrderStatusUpdate, 
+    background_tasks: BackgroundTasks, 
+    db: Session = Depends(get_db)
+):
+    order = db.query(OrderDB).filter(OrderDB.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    valid_statuses = ["pending", "confirmed", "shipped", "delivered", "deleted"]
+    if status_update.status not in valid_statuses:
+        raise HTTPException(status_code=400, detail="Invalid status")
+
+    # If rejecting (deleted), restore stock only if the order was previously confirmed, shipped, or delivered
+    if status_update.status == "deleted" and order.status in ["confirmed", "shipped", "delivered"]:
+        for item in order.items:
+            product = db.query(ProductDB).filter(ProductDB.id == item.product_id).first()
+            if product:
+                product.stock += item.quantity
+
+    # If accepting (confirmed) from pending, send email, increment coupon usage, and decrement stock
+    if status_update.status == "confirmed" and order.status == "pending":
+        background_tasks.add_task(send_order_confirmation_email, order)
+        # Decrement Stock
+        if order.items:
+            for item in order.items:
+                product = db.query(ProductDB).filter(ProductDB.id == item.product_id).first()
+                if product:
+                    product.stock -= item.quantity
+                    if product.stock < 0:
+                        product.stock = 0  # Safety check
+        if order.coupon_code:
+            coupon = db.query(CouponDB).filter(CouponDB.code == order.coupon_code).first()
+            if coupon:
+                coupon.used_count += 1
+
+    order.status = status_update.status
+    db.commit()
+    db.refresh(order)
+
+    return {"message": "Order status updated successfully", "status": order.status}
 
 
 # Coupon System Endpoints
@@ -822,6 +855,78 @@ async def admin_login(
     }
 
 
+class GoogleLoginRequest(BaseModel):
+    credential: str
+
+
+@app.post("/auth/google", response_model=Token)
+async def google_auth(google_req: GoogleLoginRequest, db: Session = Depends(get_db)):
+    try:
+        # 1. Verify the ID Token from Google
+        CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+        if not CLIENT_ID:
+            raise HTTPException(status_code=500, detail="Google Client ID not configured")
+            
+        idinfo = id_token.verify_oauth2_token(
+            google_req.credential, google_requests.Request(), CLIENT_ID
+        )
+
+        # 2. Extract user info
+        email = idinfo['email']
+        name = idinfo.get('name', email.split('@')[0])
+        picture = idinfo.get('picture')
+
+        # 3. Check if user exists, if not create
+        user = db.query(UserDB).filter(UserDB.email == email).first()
+        if not user:
+            # Create user without password (OAuth user)
+            user = UserDB(
+                email=email,
+                full_name=name,
+                profile_picture=picture,
+                role="user",
+                hashed_password="OAUTH_USER_NO_PASSWORD"  # Sentinel value
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        else:
+            # Update profile picture if it changed
+            if picture and not user.profile_picture:
+                user.profile_picture = picture
+                db.commit()
+
+        # 4. Issue local tokens
+        access_token = create_access_token(data={"sub": user.email, "role": user.role})
+        refresh_token = create_refresh_token(data={"sub": user.email})
+
+        # Store Refresh Token
+        from models import RefreshTokenDB
+        from auth import REFRESH_TOKEN_EXPIRE_DAYS
+        db_refresh_token = RefreshTokenDB(
+            user_id=user.id,
+            token=refresh_token,
+            expires_at=datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS),
+        )
+        db.add(db_refresh_token)
+        db.commit()
+
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
+            "user_name": user.full_name,
+            "role": user.role,
+        }
+
+    except ValueError:
+        # Invalid token
+        raise HTTPException(status_code=401, detail="Invalid Google token")
+    except Exception as e:
+        print(f"Google Auth Error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error during Google Auth")
+
+
 @app.post("/refresh", response_model=Token)
 async def refresh_token_endpoint(refresh_token: str, db: Session = Depends(get_db)):
     from jose import JWTError, jwt
@@ -1224,7 +1329,7 @@ from fastapi.responses import RedirectResponse
 class PaymentItem(BaseModel):
     product_id: int
     quantity: int
-    bundle_id: Optional[int] = None
+    bundle_id: int | None = None
 
 
 class PaymentInitiate(BaseModel):
@@ -1238,8 +1343,9 @@ class PaymentInitiate(BaseModel):
     city: str
     state: str
     pincode: str
-    coupon_code: Optional[str] = None
+    coupon_code: str | None = None
     discount_amount: float = 0.0
+    bypass: bool = False
 
 
 @app.post("/payment/initiate")
@@ -1273,11 +1379,12 @@ async def initiate_payment(payment: PaymentInitiate, db: Session = Depends(get_d
     salt = os.getenv("PAYU_SALT")
     txnid = f"TXN{int(payment.amount)}{os.urandom(4).hex()}"  # Unique ID
 
-    # Create Order in DB (Pending)
+    # Create Order in DB
+    status = "confirmed" if payment.bypass else "pending"
     new_order = OrderDB(
         customer_email=payment.email,
         total_amount=payment.amount,
-        status="pending",
+        status=status,
         items=items_for_order,  # Save actual items
         txnid=txnid,
         full_name=payment.firstname,
@@ -1290,8 +1397,27 @@ async def initiate_payment(payment: PaymentInitiate, db: Session = Depends(get_d
         discount_amount=payment.discount_amount,
     )
     db.add(new_order)
+
+    # If bypassed, decrement stock and increment coupon usage count immediately
+    if payment.bypass:
+        for item in items_for_order:
+            product = db.query(ProductDB).filter(ProductDB.id == item.product_id).first()
+            if product:
+                product.stock -= item.quantity
+                if product.stock < 0:
+                    product.stock = 0  # Safety check
+        if payment.coupon_code:
+            coupon = db.query(CouponDB).filter(CouponDB.code == payment.coupon_code).first()
+            if coupon:
+                coupon.used_count += 1
     db.commit()
     db.refresh(new_order)
+
+    # Clear Cart for this user after successful order initiation
+    user_obj = db.query(UserDB).filter(UserDB.email == payment.email).first()
+    if user_obj:
+        db.query(CartItemDB).filter(CartItemDB.user_id == user_obj.id, CartItemDB.selected == True).delete()
+        db.commit()
 
     payu_env = os.getenv("PAYU_ENV", "MOCK").upper()
     if payu_env == "PROD":
@@ -1415,7 +1541,7 @@ async def payment_callback(
             order.status = "tampered"
             db.commit()
         frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
-        if "tronix365.in" in frontend_url and "/e-commerse" not in frontend_url:
+        if ("tronix365.in" in frontend_url or "tronix.in" in frontend_url) and "/e-commerse" not in frontend_url:
             frontend_url = f"{frontend_url}/e-commerse"
 
         return RedirectResponse(
@@ -1445,7 +1571,12 @@ async def payment_callback(
                             product.stock -= item.quantity
                             if product.stock < 0:
                                 product.stock = 0  # Safety check
-                db.commit()  # Commit both status and stock update
+                # Increment coupon usage count if coupon was used
+                if order.coupon_code:
+                    coupon = db.query(CouponDB).filter(CouponDB.code == order.coupon_code).first()
+                    if coupon:
+                        coupon.used_count += 1
+                db.commit()  # Commit status, stock, and coupon updates
                 db.refresh(order)
 
                 # Payment succeeds and order is confirmed. Send HTML invoice!
@@ -1454,10 +1585,9 @@ async def payment_callback(
             order.status = "failed"
             db.commit()
 
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
     # If the app is in a subdirectory but FRONTEND_URL is just the root, we append it.
-    # For Tronix365 production, it's under /e-commerse
-    if "tronix365.in" in frontend_url and "/e-commerse" not in frontend_url:
+    # For Tronix365 or Tronix production, it's under /e-commerse
+    if ("tronix365.in" in frontend_url or "tronix.in" in frontend_url) and "/e-commerse" not in frontend_url:
         frontend_url = f"{frontend_url}/e-commerse"
 
     # Redirect to Frontend

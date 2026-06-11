@@ -281,7 +281,7 @@ def send_order_confirmation_email(order):
         return False
 
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
-    if "tronix365.in" in frontend_url and "/e-commerse" not in frontend_url:
+    if ("tronix365.in" in frontend_url or "tronix.in" in frontend_url) and "/e-commerse" not in frontend_url:
         frontend_url = f"{frontend_url}/e-commerse"
 
     subject = f"Order Confirmation - #order_tronix_{order.id:04d} from Tronix365"
