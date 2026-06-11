@@ -169,14 +169,12 @@ const Checkout = () => {
                 pincode: address.pincode,
                 coupon_code: appliedCoupon?.code || null,
                 discount_amount: totalDiscount,
-                bypass: true
+                bypass: false
             });
 
             const data = response.data;
 
-            // Bypassing PayU for testing as requested
-            // 2. Create hidden form and submit to PayU (COMMENTED OUT FOR BYPASS)
-            /*
+            // 2. Create hidden form and submit to PayU
             const form = document.createElement('form');
             form.action = data.action;
             form.method = 'POST';
@@ -204,17 +202,6 @@ const Checkout = () => {
 
             document.body.appendChild(form);
             form.submit();
-            */
-
-            // Bypassed Flow:
-            toast.success("Order Placed Successfully! (Payment Bypassed)");
-            
-            // Clear the local cart
-            clearCart();
-
-            setTimeout(() => {
-                navigate('/dashboard');
-            }, 1500);
 
         } catch (error) {
             console.error('Checkout error:', error);
@@ -478,7 +465,7 @@ const Checkout = () => {
                                 disabled={loading}
                                 className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 rounded-lg shadow-lg transition-colors flex items-center justify-center gap-2"
                             >
-                                {loading ? 'Processing...' : 'Place Your Order (Bypass Payment)'}
+                                {loading ? 'Redirecting to PayU...' : 'Proceed to Secure Payment'}
                             </button>
 
                             <p className="text-xs text-center text-gray-500 mt-3">
