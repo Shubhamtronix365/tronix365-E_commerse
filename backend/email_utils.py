@@ -128,7 +128,7 @@ def generate_order_confirmation_html(order, frontend_url: str):
         img_url = (
             item.product.image
             if getattr(item.product, "image", None)
-            else "https://via.placeholder.com/80?text=TRONIX365"
+            else "https://placehold.co/80?text=TRONIX365"
         )
         # Ensure image is absolute URL if it's relative
         if img_url.startswith("/"):
@@ -305,7 +305,7 @@ def generate_abandoned_cart_html(user_name, cart_items, frontend_url):
         img_url = (
             item.product.image
             if getattr(item.product, "image", None)
-            else "https://via.placeholder.com/80?text=TRONIX365"
+            else "https://placehold.co/80?text=TRONIX365"
         )
         if img_url.startswith("/"):
             img_url = f"{frontend_url}{img_url}"

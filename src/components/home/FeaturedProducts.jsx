@@ -25,7 +25,7 @@ const FeaturedProducts = () => {
 
     return (
         <section className="py-20 bg-tronix-dark border-t border-white/5 relative">
-            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150"></div>
+            <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20 brightness-100 contrast-150"></div>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="flex items-center justify-between mb-12">
                     <div>

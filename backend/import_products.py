@@ -115,7 +115,7 @@ def import_products(csv_file_path, reset=False):
                     # 3. Process Image
                     image_val = row.get("image", "")
                     final_image_path = (
-                        "https://via.placeholder.com/400x400?text=No+Image"
+                        "https://placehold.co/400x400?text=No+Image"
                     )
 
                     if image_val:
@@ -145,7 +145,7 @@ def import_products(csv_file_path, reset=False):
                                 if existing_product:
                                     final_image_path = existing_product.image
                                 else:
-                                    final_image_path = "https://via.placeholder.com/400x400?text=No+Image"
+                                    final_image_path = "https://placehold.co/400x400?text=No+Image"
 
                     # 4. Handle Updates or Creation
                     if existing_product:
