@@ -203,7 +203,7 @@ class Order(OrderCreate):
     txnid: Optional[str] = None
     created_at: Optional[datetime] = None
     coupon_code: Optional[str] = None
-    discount_amount: float = 0.0
+    discount_amount: Optional[float] = 0.0
 
     class Config:
         from_attributes = True
