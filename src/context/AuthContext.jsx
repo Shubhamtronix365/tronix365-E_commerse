@@ -92,6 +92,25 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const loginWithGoogle = async (credential) => {
+        try {
+            const response = await axios.post('/auth/google', { credential });
+            const { access_token, user_name, role } = response.data;
+            
+            setToken(access_token);
+            const userData = { full_name: user_name, role };
+            setUser(userData);
+            localStorage.setItem('tronix_user', JSON.stringify(userData));
+            
+            return { success: true };
+        } catch (error) {
+            return { 
+                success: false, 
+                message: error.response?.data?.detail || "Google Login failed" 
+            };
+        }
+    };
+
     const logout = () => {
         setToken(null);
         setUser(null);
@@ -109,6 +128,7 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated: !!user,
         isLoading,
         login,
+        loginWithGoogle,
         signup,
         logout,
         setUser

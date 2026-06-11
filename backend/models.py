@@ -190,11 +190,16 @@ class OrderCreate(BaseModel):
     total_amount: float
     customer_email: str
     status: str = "pending"
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    address_line: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    pincode: Optional[str] = None
 
 
 class Order(OrderCreate):
     id: int
-    full_name: Optional[str] = None
     txnid: Optional[str] = None
     created_at: Optional[datetime] = None
     coupon_code: Optional[str] = None

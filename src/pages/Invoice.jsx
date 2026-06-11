@@ -110,14 +110,24 @@ const Invoice = () => {
             {/* Totals */}
             <div className="flex justify-end">
                 <div className="w-1/2 md:w-1/3">
-                    <div className="flex justify-between py-2 border-b border-gray-200 text-gray-600">
-                        <span>Subtotal:</span>
-                        <span>₹{order.total_amount.toFixed(2)}</span>
+                    <div className="flex justify-between py-2 border-b border-gray-200 text-gray-600 text-sm">
+                        <span>Subtotal (before tax):</span>
+                        <span>₹{((order.total_amount + (order.discount_amount || 0)) / 1.18).toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between py-2 border-b border-gray-200 text-gray-600">
+                    <div className="flex justify-between py-2 border-b border-gray-200 text-gray-600 text-sm">
+                        <span>GST (18%):</span>
+                        <span>₹{((order.total_amount + (order.discount_amount || 0)) - ((order.total_amount + (order.discount_amount || 0)) / 1.18)).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-gray-200 text-gray-600 text-sm">
                         <span>Shipping:</span>
                         <span>Free</span>
                     </div>
+                    {order.discount_amount > 0 && (
+                        <div className="flex justify-between py-2 border-b border-gray-200 text-emerald-600 font-bold text-sm">
+                            <span>Discount {order.coupon_code ? `(${order.coupon_code})` : ''}:</span>
+                            <span>- ₹{order.discount_amount.toFixed(2)}</span>
+                        </div>
+                    )}
                     <div className="flex justify-between py-4 text-xl font-bold border-b-2 border-gray-800 text-gray-900">
                         <span>Total:</span>
                         <span>₹{order.total_amount.toFixed(2)}</span>

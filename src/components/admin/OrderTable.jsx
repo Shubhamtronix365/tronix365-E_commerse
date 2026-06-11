@@ -15,7 +15,7 @@ const OrderTable = ({
         <>
             {/* Order Status Tabs */}
             <div className="flex flex-wrap gap-2 mb-6">
-                {['All', 'pending', 'confirmed', 'shipped'].map((status) => (
+                {['All', 'pending', 'confirmed', 'shipped', 'delivered', 'deleted'].map((status) => (
                     <button
                         key={status}
                         onClick={() => setOrderStatusFilter(status)}
@@ -39,7 +39,9 @@ const OrderTable = ({
                             {/* Left Margin Accent Line */}
                             <div className={`absolute left-0 top-0 bottom-0 w-1 ${order.status === 'confirmed' ? 'bg-green-500' :
                                 order.status === 'pending' ? 'bg-yellow-500' :
-                                    'bg-blue-500'
+                                    order.status === 'shipped' ? 'bg-blue-500' :
+                                        order.status === 'delivered' ? 'bg-emerald-500' :
+                                            'bg-red-500'
                                 }`}></div>
 
                             {/* Left section: ID & Email & Date */}
@@ -64,6 +66,11 @@ const OrderTable = ({
                                 <div>
                                     <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-0.5">Total Amount</p>
                                     <p className="text-emerald-400 font-bold sm:text-lg leading-tight">₹{order.total_amount.toLocaleString()}</p>
+                                    {order.coupon_code && (
+                                        <p className="text-[10px] text-yellow-400/80 font-medium mt-0.5">
+                                            Coupon: {order.coupon_code} (-₹{order.discount_amount})
+                                        </p>
+                                    )}
                                 </div>
                                 <div>
                                     <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-0.5">Items</p>
@@ -73,7 +80,9 @@ const OrderTable = ({
                                     <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">Status</p>
                                     <span className={`px-2.5 py-1 rounded-md text-[10px] uppercase tracking-wider font-bold ${order.status === 'confirmed' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
                                         order.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' :
-                                            'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                                            order.status === 'shipped' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
+                                                order.status === 'delivered' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                                                    'bg-red-500/10 text-red-400 border border-red-500/20'
                                         }`}>
                                         {order.status}
                                     </span>

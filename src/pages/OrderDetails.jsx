@@ -72,34 +72,45 @@ const OrderDetails = () => {
                     <div className="p-6 md:p-8">
                         {/* Status Pipeline Stepper */}
                         <div className="bg-black/20 border border-white/5 rounded-2xl p-6 relative overflow-hidden mb-8">
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500/20 via-fuchsia-500/20 to-blue-500/20"></div>
-                            <div className="flex items-center justify-between relative z-10">
-                                {['pending', 'confirmed', 'shipped'].map((step, idx, arr) => {
-                                    const isActive = order.status === step || arr.indexOf(order.status) > idx;
-                                    const isCurrent = order.status === step;
-                                    return (
-                                        <div key={step} className="flex flex-col items-center flex-1 relative">
-                                            {/* Connecting Line */}
-                                            {idx !== arr.length - 1 && (
-                                                <div className={`absolute top-5 left-[50%] right-[-50%] h-[2px] ${isActive ? 'bg-violet-500' : 'bg-white/10'}`} />
-                                            )}
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500/20 via-fuchsia-500/20 to-emerald-500/20"></div>
+                            {order.status === 'deleted' ? (
+                                <div className="flex flex-col items-center justify-center py-4">
+                                    <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center border border-red-500/30 mb-3">
+                                        <XCircle size={32} className="text-red-500" />
+                                    </div>
+                                    <h3 className="text-red-400 font-bold text-lg">Order Rejected</h3>
+                                    <p className="text-gray-400 text-sm mt-1">This order was not approved and has been cancelled.</p>
+                                </div>
+                            ) : (
+                                <div className="flex items-center justify-between relative z-10">
+                                    {['pending', 'confirmed', 'shipped', 'delivered'].map((step, idx, arr) => {
+                                        const isActive = order.status === step || arr.indexOf(order.status) >= idx;
+                                        const isCurrent = order.status === step;
+                                        return (
+                                            <div key={step} className="flex flex-col items-center flex-1 relative">
+                                                {/* Connecting Line */}
+                                                {idx !== arr.length - 1 && (
+                                                    <div className={`absolute top-5 left-[50%] right-[-50%] h-[2px] ${isActive && arr.indexOf(order.status) > idx ? 'bg-violet-500' : 'bg-white/10'}`} />
+                                                )}
 
-                                            {/* Step Circle */}
-                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center relative z-10 transition-colors duration-500 ${isActive ? 'bg-violet-500 text-white shadow-[0_0_15px_rgba(139,92,246,0.5)]' : 'bg-white/5 text-gray-500 border border-white/10'
-                                                }`}>
-                                                {isActive && !isCurrent ? <Check size={20} /> :
-                                                    step === 'pending' ? <Clock size={20} /> :
-                                                        step === 'confirmed' ? <Package size={20} /> : <Truck size={20} />}
+                                                {/* Step Circle */}
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center relative z-10 transition-colors duration-500 ${isActive ? 'bg-violet-500 text-white shadow-[0_0_15px_rgba(139,92,246,0.5)]' : 'bg-white/5 text-gray-500 border border-white/10'
+                                                    }`}>
+                                                    {isActive && !isCurrent ? <Check size={20} /> :
+                                                        step === 'pending' ? <Clock size={20} /> :
+                                                            step === 'confirmed' ? <Package size={20} /> :
+                                                                step === 'shipped' ? <Truck size={20} /> : <Check size={20} />}
+                                                </div>
+
+                                                {/* Step Label */}
+                                                <p className={`mt-3 text-xs font-bold uppercase tracking-wider ${isActive ? 'text-white' : 'text-gray-500'}`}>
+                                                    {step === 'pending' ? 'Pending Approval' : step === 'confirmed' ? 'Order Placed' : step}
+                                                </p>
                                             </div>
-
-                                            {/* Step Label */}
-                                            <p className={`mt-3 text-xs font-bold uppercase tracking-wider ${isActive ? 'text-white' : 'text-gray-500'}`}>
-                                                {step}
-                                            </p>
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
 
                         {/* Status Grid Dossier */}

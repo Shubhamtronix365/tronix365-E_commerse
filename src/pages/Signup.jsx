@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import client from '../api/client';
 import logo from '../assets/logo.png';
 import { useAuth } from '../context/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
+import { toast } from 'react-hot-toast';
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -23,7 +25,19 @@ const Signup = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const { signup, login } = useAuth();
+    const { signup, login, loginWithGoogle } = useAuth();
+
+    const handleGoogleSuccess = async (credentialResponse) => {
+        setLoading(true);
+        const result = await loginWithGoogle(credentialResponse.credential);
+        setLoading(false);
+        if (result.success) {
+            toast.success('Signed up with Google successfully!');
+            navigate('/');
+        } else {
+            toast.error(result.message || 'Google signup failed');
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -168,6 +182,28 @@ const Signup = () => {
                     >
                         {loading ? <Loader className="animate-spin" /> : "Create Account"}
                     </button>
+
+                    <div className="relative my-8">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-white/5"></div>
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase tracking-widest">
+                            <span className="bg-tronix-card px-4 text-gray-500 font-bold">Fast Registration</span>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="w-full max-w-[280px] hover:scale-[1.02] transition-transform">
+                            <GoogleLogin
+                                onSuccess={handleGoogleSuccess}
+                                onError={() => toast.error('Google Sign Up Failed')}
+                                theme="filled_black"
+                                shape="pill"
+                                text="signup_with"
+                                width="280"
+                            />
+                        </div>
+                    </div>
 
                     <div className="text-center">
                         <Link to="/login" className="font-medium text-tronix-primary hover:text-white transition-colors text-sm">

@@ -2,32 +2,58 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { User, Lock, Mail, Github, Chrome, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import client from '../api/client';
 import logo from '../assets/logo.png';
 import { useAuth } from '../context/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
     const [isAdmin, setIsAdmin] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
-    const { login } = useAuth();
+    const { login, loginWithGoogle } = useAuth();
+
+    const handleGoogleSuccess = async (credentialResponse) => {
+        const result = await loginWithGoogle(credentialResponse.credential);
+        if (result.success) {
+            toast.success('Google Login successful!');
+            navigate('/');
+        } else {
+            toast.error(result.message || 'Google Login failed');
+        }
+    };
 
     const handleLogin = async (e) => {
         e.preventDefault();
 
         try {
-            const email = e.target.querySelector('input[type="email"]').value;
+            const email = e.target.querySelector('input[type="email"]')?.value;
             const passwordInput = e.target.querySelector('input[name="password"]');
-            const password = passwordInput ? passwordInput.value : e.target.querySelectorAll('input')[1].value;
+            const password = passwordInput ? passwordInput.value : e.target.querySelectorAll('input')[1]?.value;
+
+            if (!email || !password) {
+                toast.error("Please enter both email and password.");
+                return;
+            }
 
             const result = await login(email, password, isAdmin);
 
             if (result.success) {
-                // The context update will happen inside auth.login
-                // We just need to navigate now based on the role
-                const storedUser = JSON.parse(localStorage.getItem('tronix_user'));
-                if (storedUser?.role === 'admin') {
+                toast.success('Login successful!');
+                const storedUserStr = localStorage.getItem('tronix_user');
+                let role = 'user';
+                if (storedUserStr) {
+                    try {
+                        const storedUser = JSON.parse(storedUserStr);
+                        role = storedUser?.role;
+                    } catch (e) {
+                        console.error('Error parsing stored user', e);
+                    }
+                }
+                
+                if (role === 'admin' || isAdmin) {
                     navigate('/admin');
                 } else {
                     navigate('/');
@@ -35,15 +61,15 @@ const Login = () => {
             } else {
                 // Fallback for demo if needed, but result.message should suffice
                 if (email === "admin@tronix365.com") {
-                    alert("Demo login active.");
+                    toast.success("Demo login active.");
                     navigate('/admin');
                 } else {
-                    alert(result.message);
+                    toast.error(result.message || 'Login failed.');
                 }
             }
         } catch (error) {
-            console.error('Login error:', error);
-            alert('Login failed. Please check your credentials.');
+            console.error('Unexpected login error:', error);
+            toast.error('An unexpected error occurred during login.');
         }
     };
 
@@ -155,22 +181,27 @@ const Login = () => {
 
                 {!isAdmin && (
                     <>
-                        <div className="relative my-6">
+                        <div className="relative my-8">
                             <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-white/10"></div>
+                                <div className="w-full border-t border-white/5"></div>
                             </div>
-                            <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-tronix-card px-2 text-gray-500">Or continue with</span>
+                            <div className="relative flex justify-center text-xs uppercase tracking-widest">
+                                <span className="bg-tronix-card px-4 text-gray-500 font-bold">Quick Access</span>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <button className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl py-2.5 transition-colors text-sm text-white">
-                                <Chrome size={18} /> Google
-                            </button>
-                            <button className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl py-2.5 transition-colors text-sm text-white">
-                                <Github size={18} /> GitHub
-                            </button>
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="w-full max-w-[280px] hover:scale-[1.02] transition-transform">
+                                <GoogleLogin
+                                    onSuccess={handleGoogleSuccess}
+                                    onError={() => toast.error('Google Login Failed')}
+                                    theme="filled_black"
+                                    shape="pill"
+                                    text="continue_with"
+                                    width="280"
+                                />
+                            </div>
+                            <p className="text-[10px] text-gray-600 uppercase tracking-widest font-bold">Secure Single Sign-On</p>
                         </div>
                     </>
                 )}

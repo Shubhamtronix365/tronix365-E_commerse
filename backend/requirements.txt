@@ -15,3 +15,5 @@ bleach
 Pillow
 redis
 fastapi-cache2[redis]
+google-auth
+jinja2

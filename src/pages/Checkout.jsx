@@ -9,7 +9,7 @@ import client from '../api/client';
 import { getImageUrl } from '../utils/imageUtils';
 
 const Checkout = () => {
-    const { selectedItems, cartTotal, subtotal: cartSubtotal, bundleDiscounts } = useCart();
+    const { selectedItems, cartTotal, subtotal: cartSubtotal, bundleDiscounts, clearCart } = useCart();
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [isPincodeLoading, setIsPincodeLoading] = useState(false);
@@ -168,17 +168,19 @@ const Checkout = () => {
                 state: address.state,
                 pincode: address.pincode,
                 coupon_code: appliedCoupon?.code || null,
-                discount_amount: totalDiscount
+                discount_amount: totalDiscount,
+                bypass: true
             });
 
             const data = response.data;
 
-            // 2. Create hidden form and submit to PayU
+            // Bypassing PayU for testing as requested
+            // 2. Create hidden form and submit to PayU (COMMENTED OUT FOR BYPASS)
+            /*
             const form = document.createElement('form');
             form.action = data.action;
             form.method = 'POST';
 
-            // Mix address into surl/furl params if needed, or just standard PayU params
             const params = {
                 key: data.key,
                 txnid: data.txnid,
@@ -186,7 +188,7 @@ const Checkout = () => {
                 productinfo: data.productinfo,
                 firstname: data.firstname,
                 email: data.email,
-                phone: address.mobile, // Use address mobile
+                phone: address.mobile,
                 surl: data.surl,
                 furl: data.furl,
                 hash: data.hash
@@ -202,6 +204,17 @@ const Checkout = () => {
 
             document.body.appendChild(form);
             form.submit();
+            */
+
+            // Bypassed Flow:
+            toast.success("Order Placed Successfully! (Payment Bypassed)");
+            
+            // Clear the local cart
+            clearCart();
+
+            setTimeout(() => {
+                navigate('/dashboard');
+            }, 1500);
 
         } catch (error) {
             console.error('Checkout error:', error);
@@ -465,7 +478,7 @@ const Checkout = () => {
                                 disabled={loading}
                                 className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 rounded-lg shadow-lg transition-colors flex items-center justify-center gap-2"
                             >
-                                {loading ? 'Processing...' : 'Place Your Order and Pay'}
+                                {loading ? 'Processing...' : 'Place Your Order (Bypass Payment)'}
                             </button>
 
                             <p className="text-xs text-center text-gray-500 mt-3">

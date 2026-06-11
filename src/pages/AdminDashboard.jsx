@@ -224,6 +224,54 @@ const AdminDashboard = () => {
         }
     };
 
+    const handleUpdateOrderStatus = async (orderId, newStatus) => {
+        try {
+            const originalOrder = orders.find(o => o.id === orderId);
+            const prevStatus = originalOrder ? originalOrder.status : 'pending';
+
+            const res = await client.put(`/admin/orders/${orderId}/status`, { status: newStatus });
+            
+            // Update orders list state
+            setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+            if (selectedOrder && selectedOrder.id === orderId) {
+                setSelectedOrder({ ...selectedOrder, status: newStatus });
+            }
+
+            // Adjust stock in the local products state to match the backend updates
+            if (originalOrder && originalOrder.items) {
+                let stockDiff = 0;
+                if (newStatus === 'confirmed' && prevStatus === 'pending') {
+                    stockDiff = -1; // Deduct stock
+                } else if (newStatus === 'deleted' && ['confirmed', 'shipped', 'delivered'].includes(prevStatus)) {
+                    stockDiff = 1;  // Restore stock
+                }
+
+                if (stockDiff !== 0) {
+                    setProducts(prevProducts =>
+                        prevProducts.map(p => {
+                            const orderItem = originalOrder.items.find(item => item.product_id === p.id);
+                            if (orderItem) {
+                                return {
+                                    ...p,
+                                    stock: Math.max(0, p.stock + (orderItem.quantity * stockDiff))
+                                };
+                            }
+                            return p;
+                        })
+                    );
+                }
+            }
+
+            toast.success(`Order marked as ${newStatus}`);
+            if (newStatus === 'deleted') {
+                setSelectedOrder(null);
+            }
+        } catch (error) {
+            console.error("Update order status error:", error);
+            toast.error('Failed to update order status');
+        }
+    };
+
     const handleUpdateProfile = async (e) => {
         e.preventDefault();
 
@@ -459,6 +507,7 @@ const AdminDashboard = () => {
                 isOpen={!!selectedOrder}
                 onClose={() => setSelectedOrder(null)}
                 order={selectedOrder}
+                onUpdateOrderStatus={handleUpdateOrderStatus}
             />
 
         </div >

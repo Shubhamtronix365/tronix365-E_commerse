@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Package, Check, Clock, Truck, User, CreditCard, Calendar, Image as ImageIcon } from 'lucide-react';
 
-const OrderModal = ({ isOpen, onClose, order }) => {
+const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
     if (!order) return null;
 
     return (
@@ -50,34 +50,87 @@ const OrderModal = ({ isOpen, onClose, order }) => {
 
                             {/* Status Pipeline Stepper */}
                             <div className="bg-black/20 border border-white/5 rounded-2xl p-6 relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500/20 via-fuchsia-500/20 to-blue-500/20"></div>
-                                <div className="flex items-center justify-between relative z-10">
-                                    {['pending', 'confirmed', 'shipped'].map((step, idx, arr) => {
-                                        const isActive = order.status === step || arr.indexOf(order.status) > idx;
-                                        const isCurrent = order.status === step;
-                                        return (
-                                            <div key={step} className="flex flex-col items-center flex-1 relative">
-                                                {/* Connecting Line */}
-                                                {idx !== arr.length - 1 && (
-                                                    <div className={`absolute top-5 left-[50%] right-[-50%] h-[2px] ${isActive ? 'bg-violet-500' : 'bg-white/10'}`} />
-                                                )}
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500/20 via-fuchsia-500/20 to-emerald-500/20"></div>
+                                {order.status === 'deleted' ? (
+                                    <div className="flex flex-col items-center justify-center py-4">
+                                        <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center border border-red-500/30 mb-3">
+                                            <X size={32} className="text-red-500" />
+                                        </div>
+                                        <h3 className="text-red-400 font-bold text-lg">Order Rejected & Deleted</h3>
+                                        <p className="text-gray-400 text-sm mt-1">This order was cancelled and stock has been restored.</p>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-between relative z-10">
+                                        {['pending', 'confirmed', 'shipped', 'delivered'].map((step, idx, arr) => {
+                                            const isActive = order.status === step || arr.indexOf(order.status) >= idx;
+                                            const isCurrent = order.status === step;
+                                            return (
+                                                <div key={step} className="flex flex-col items-center flex-1 relative">
+                                                    {/* Connecting Line */}
+                                                    {idx !== arr.length - 1 && (
+                                                        <div className={`absolute top-5 left-[50%] right-[-50%] h-[2px] ${isActive && arr.indexOf(order.status) > idx ? 'bg-violet-500' : 'bg-white/10'}`} />
+                                                    )}
 
-                                                {/* Step Circle */}
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center relative z-10 transition-colors duration-500 ${isActive ? 'bg-violet-500 text-white shadow-[0_0_15px_rgba(139,92,246,0.5)]' : 'bg-white/5 text-gray-500 border border-white/10'
-                                                    }`}>
-                                                    {isActive && !isCurrent ? <Check size={20} /> :
-                                                        step === 'pending' ? <Clock size={20} /> :
-                                                            step === 'confirmed' ? <Package size={20} /> : <Truck size={20} />}
+                                                    {/* Step Circle */}
+                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center relative z-10 transition-colors duration-500 ${isActive ? 'bg-violet-500 text-white shadow-[0_0_15px_rgba(139,92,246,0.5)]' : 'bg-white/5 text-gray-500 border border-white/10'
+                                                        }`}>
+                                                        {isActive && !isCurrent ? <Check size={20} /> :
+                                                            step === 'pending' ? <Clock size={20} /> :
+                                                                step === 'confirmed' ? <Package size={20} /> :
+                                                                    step === 'shipped' ? <Truck size={20} /> : <Check size={20} />}
+                                                    </div>
+
+                                                    {/* Step Label */}
+                                                    <p className={`mt-3 text-xs font-bold uppercase tracking-wider ${isActive ? 'text-white' : 'text-gray-500'}`}>
+                                                        {step}
+                                                    </p>
                                                 </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
 
-                                                {/* Step Label */}
-                                                <p className={`mt-3 text-xs font-bold uppercase tracking-wider ${isActive ? 'text-white' : 'text-gray-500'}`}>
-                                                    {step}
-                                                </p>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+                                {/* Admin Action Buttons */}
+                                {order.status !== 'deleted' && onUpdateOrderStatus && (
+                                    <div className="mt-6 flex flex-wrap justify-center gap-3 pt-6 border-t border-white/10">
+                                        {order.status === 'pending' && (
+                                            <>
+                                                <button
+                                                    onClick={() => onUpdateOrderStatus(order.id, 'confirmed')}
+                                                    className="px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-bold text-sm transition-colors shadow-lg shadow-emerald-500/20"
+                                                >
+                                                    Accept Order
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        if(window.confirm("Are you sure you want to reject this order? Stock will be restored.")) {
+                                                            onUpdateOrderStatus(order.id, 'deleted');
+                                                        }
+                                                    }}
+                                                    className="px-6 py-2 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-lg font-bold text-sm transition-colors"
+                                                >
+                                                    Reject Order
+                                                </button>
+                                            </>
+                                        )}
+                                        {order.status === 'confirmed' && (
+                                            <button
+                                                onClick={() => onUpdateOrderStatus(order.id, 'shipped')}
+                                                className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-bold text-sm transition-colors shadow-lg shadow-blue-500/20"
+                                            >
+                                                Mark as Shipped
+                                            </button>
+                                        )}
+                                        {order.status === 'shipped' && (
+                                            <button
+                                                onClick={() => onUpdateOrderStatus(order.id, 'delivered')}
+                                                className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold text-sm transition-colors shadow-lg shadow-green-500/20"
+                                            >
+                                                Mark as Delivered
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Customer & Order Info Grid */}
@@ -97,17 +150,44 @@ const OrderModal = ({ isOpen, onClose, order }) => {
                                             <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Email Address</p>
                                             <p className="text-gray-300">{order.customer_email}</p>
                                         </div>
-                                        {order.phone && (
+                                    </div>
+                                </div>
+
+                                {/* Shipping Address Card */}
+                                <div className="bg-white/5 border border-white/5 rounded-2xl p-5 hover:bg-white/10 transition-colors">
+                                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                                        <Truck size={16} className="text-blue-400" /> Shipping Address
+                                    </h3>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Address Line</p>
+                                            <p className="text-gray-200">{order.address_line || 'N/A'}</p>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Phone Number</p>
-                                                <p className="text-gray-300">{order.phone}</p>
+                                                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">City</p>
+                                                <p className="text-gray-200">{order.city || 'N/A'}</p>
                                             </div>
-                                        )}
+                                            <div>
+                                                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">State</p>
+                                                <p className="text-gray-200">{order.state || 'N/A'}</p>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Pincode</p>
+                                                <p className="text-gray-200 font-bold tracking-widest">{order.pincode || 'N/A'}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Phone</p>
+                                                <p className="text-gray-200">{order.phone || 'N/A'}</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 {/* Order Timeline Card */}
-                                <div className="bg-white/5 border border-white/5 rounded-2xl p-5 hover:bg-white/10 transition-colors">
+                                <div className="bg-white/5 border border-white/5 rounded-2xl p-5 hover:bg-white/10 transition-colors lg:col-span-2">
                                     <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
                                         <CreditCard size={16} className="text-emerald-400" /> Payment & Timeline
                                     </h3>
@@ -191,13 +271,20 @@ const OrderModal = ({ isOpen, onClose, order }) => {
                                                 <tr>
                                                     <td colSpan="2"></td>
                                                     <td className="px-6 py-3 text-right text-sm text-gray-400 font-medium">Original Amount (before tax):</td>
-                                                    <td className="px-6 py-3 text-right text-sm text-white font-bold">₹{(order.total_amount / 1.18).toFixed(2)}</td>
+                                                    <td className="px-6 py-3 text-right text-sm text-white font-bold">₹{((order.total_amount + (order.discount_amount || 0)) / 1.18).toFixed(2)}</td>
                                                 </tr>
                                                 <tr>
                                                     <td colSpan="2"></td>
                                                     <td className="px-6 py-3 text-right text-sm text-gray-400 font-medium">GST (18%):</td>
-                                                    <td className="px-6 py-3 text-right text-sm text-yellow-400 font-bold">₹{(order.total_amount - (order.total_amount / 1.18)).toFixed(2)}</td>
+                                                    <td className="px-6 py-3 text-right text-sm text-yellow-400 font-bold">₹{((order.total_amount + (order.discount_amount || 0)) - ((order.total_amount + (order.discount_amount || 0)) / 1.18)).toFixed(2)}</td>
                                                 </tr>
+                                                {order.discount_amount > 0 && (
+                                                    <tr>
+                                                        <td colSpan="2"></td>
+                                                        <td className="px-6 py-3 text-right text-sm text-emerald-400 font-bold">Total Discount {order.coupon_code ? `(${order.coupon_code})` : ''}:</td>
+                                                        <td className="px-6 py-3 text-right text-sm text-emerald-400 font-bold">- ₹{order.discount_amount}</td>
+                                                    </tr>
+                                                )}
                                                 <tr className="border-t border-white/10 bg-white/5">
                                                     <td colSpan="2"></td>
                                                     <td className="px-6 py-4 text-right text-sm text-white font-bold">Grand Total:</td>
