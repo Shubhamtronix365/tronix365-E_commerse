@@ -170,6 +170,7 @@ tronix365-E_commerse/
 ├── .gitignore
 ├── README.md
 ├── package.json
+├── requirements.txt
 └── vite.config.js
 ```
 
