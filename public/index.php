@@ -16,12 +16,40 @@ $path = trim($path, '/');
 $title = "Tronix365 | Premium Electronic Components";
 $description = "Shop high-quality Arduino boards, sensors, ESP32 modules, robotics parts, and IoT devices at Tronix365.";
 $image = $baseUrl . "/Tronix3650final_circular.png";
-$url = $baseUrl . $_SERVER['REQUEST_URI'];
+$url = "https://www.tronix365.in" . $_SERVER['REQUEST_URI'];
 $extraHead = "";
 
 // Helper to sanitize text for meta tags
 function escapeMeta($text) {
     return htmlspecialchars(strip_tags(trim($text)), ENT_QUOTES, 'UTF-8');
+}
+
+// Robust URL fetching using cURL (fallback to file_get_contents)
+function fetchUrl($url, $timeout = 5.0) {
+    if (function_exists('curl_init')) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Accept: application/json'
+        ]);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($httpCode === 200) {
+            return $response;
+        }
+        return false;
+    } else {
+        $ctx = stream_context_create([
+            'http' => [
+                'timeout' => $timeout,
+                'header' => "Accept: application/json\r\n"
+            ]
+        ]);
+        return @file_get_contents($url, false, $ctx);
+    }
 }
 
 // 2. Route Matching
@@ -32,13 +60,7 @@ if (preg_match('/^product\/([a-zA-Z0-9_-]+)$/', $path, $matches)) {
     $fetchUrl = $isId ? "$apiUrl/products/$slugOrId" : "$apiUrl/products/slug/$slugOrId";
 
     // Fetch product details from FastAPI backend
-    $ctx = stream_context_create([
-        'http' => [
-            'timeout' => 2.5, // Fast timeout to avoid blocking users
-            'header' => "Accept: application/json\r\n"
-        ]
-    ]);
-    $response = @file_get_contents($fetchUrl, false, $ctx);
+    $response = fetchUrl($fetchUrl, 5.0);
     
     if ($response) {
         $product = json_decode($response, true);
