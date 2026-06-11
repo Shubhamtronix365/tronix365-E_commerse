@@ -30,10 +30,12 @@ from models import (
     CouponDB,
     CouponCreate,
     CouponResponse,
+    CouponUpdate,
     BundleDB,
     BundleProductDB,
     BundleResponse,
     BundleCreate,
+    BundleUpdate,
 )
 import requests
 import hashlib
