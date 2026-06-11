@@ -1071,6 +1071,31 @@ async def get_order_by_id(
     return order
 
 
+@app.get("/orders/transaction/{txnid}", response_model=Order)
+async def get_order_by_txnid(
+    txnid: str,
+    current_user: UserDB = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    # Fetch specific order by transaction ID
+    order = (
+        db.query(OrderDB)
+        .options(joinedload(OrderDB.items).joinedload(OrderItemDB.product))
+        .filter(OrderDB.txnid == txnid)
+        .first()
+    )
+
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    # Security: Ensure only the order creator (or an admin) can view it
+    if order.customer_email != current_user.email and current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized to view this order")
+
+    return order
+
+
+
 # Wishlist Endpoints
 @app.get("/wishlist", response_model=List[WishlistResponse])
 async def get_wishlist(
@@ -1413,11 +1438,13 @@ async def initiate_payment(payment: PaymentInitiate, db: Session = Depends(get_d
     db.commit()
     db.refresh(new_order)
 
-    # Clear Cart for this user after successful order initiation
-    user_obj = db.query(UserDB).filter(UserDB.email == payment.email).first()
-    if user_obj:
-        db.query(CartItemDB).filter(CartItemDB.user_id == user_obj.id, CartItemDB.selected == True).delete()
-        db.commit()
+    # Clear Cart for this user immediately only if bypassed (as payment is successful instantly)
+    if payment.bypass:
+        user_obj = db.query(UserDB).filter(UserDB.email == payment.email).first()
+        if user_obj:
+            db.query(CartItemDB).filter(CartItemDB.user_id == user_obj.id, CartItemDB.selected == True).delete()
+            db.commit()
+
 
     payu_env = os.getenv("PAYU_ENV", "MOCK").upper()
     if payu_env == "PROD":
@@ -1455,6 +1482,92 @@ async def initiate_payment(payment: PaymentInitiate, db: Session = Depends(get_d
         "hash": hash_value,
         "action": action_url,
     }
+
+
+@app.post("/payment/retry/{order_id}")
+async def retry_payment(
+    order_id: int,
+    current_user: UserDB = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    # Fetch the order with items loaded
+    order = (
+        db.query(OrderDB)
+        .options(joinedload(OrderDB.items).joinedload(OrderItemDB.product))
+        .filter(OrderDB.id == order_id)
+        .first()
+    )
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    # Security check
+    if order.customer_email != current_user.email and current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized to access this order")
+
+    # Check if order is already paid/confirmed
+    if order.status in ["confirmed", "shipped", "delivered"]:
+        raise HTTPException(status_code=400, detail="Order is already paid/confirmed")
+
+    # Validate stock of items
+    for item in order.items:
+        product = db.query(ProductDB).filter(ProductDB.id == item.product_id).first()
+        if not product:
+            raise HTTPException(status_code=404, detail=f"Product {item.product_id} not found")
+        if product.stock < item.quantity:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Insufficient stock for {product.title}. Only {product.stock} left."
+            )
+
+    # Generate new transaction ID
+    txnid = f"TXN{int(order.total_amount)}{os.urandom(4).hex()}"
+    order.txnid = txnid
+    # Reset status to pending when retrying
+    order.status = "pending"
+    db.commit()
+    db.refresh(order)
+
+    key = os.getenv("PAYU_KEY")
+    salt = os.getenv("PAYU_SALT")
+
+    payu_env = os.getenv("PAYU_ENV", "MOCK").upper()
+    if payu_env == "PROD":
+        action_url = "https://secure.payu.in/_payment"
+    elif payu_env == "TEST":
+        action_url = "https://test.payu.in/_payment"
+    else:
+        action_url = (
+            f"{os.getenv('BACKEND_URL', 'http://localhost:8000')}/payment/mock-process"
+        )
+
+    # Strict formatting to avoid float precision hash mismatch
+    amount_str = f"{order.total_amount:.2f}"
+    productinfo = f"Order for {len(order.items)} items"
+
+    hash_value = generate_payu_hash(
+        key,
+        txnid,
+        amount_str,
+        productinfo,
+        order.full_name or "Customer",
+        order.customer_email,
+        salt,
+    )
+
+    return {
+        "key": key,
+        "txnid": txnid,
+        "amount": amount_str,
+        "productinfo": productinfo,
+        "firstname": order.full_name or "Customer",
+        "email": order.customer_email,
+        "phone": order.phone or "",
+        "surl": f"{os.getenv('BACKEND_URL', 'http://localhost:8000')}/payment/callback",  # Success URL
+        "furl": f"{os.getenv('BACKEND_URL', 'http://localhost:8000')}/payment/callback",  # Failure URL
+        "hash": hash_value,
+        "action": action_url,
+    }
+
 
 
 @app.post("/payment/mock-process")
@@ -1578,6 +1691,12 @@ async def payment_callback(
                         coupon.used_count += 1
                 db.commit()  # Commit status, stock, and coupon updates
                 db.refresh(order)
+
+                # Clear Cart for this user on successful payment
+                user_obj = db.query(UserDB).filter(UserDB.email == order.customer_email).first()
+                if user_obj:
+                    db.query(CartItemDB).filter(CartItemDB.user_id == user_obj.id, CartItemDB.selected == True).delete()
+                    db.commit()
 
                 # Payment succeeds and order is confirmed. Send HTML invoice!
                 background_tasks.add_task(send_order_confirmation_email, order)
