@@ -201,6 +201,24 @@ if (preg_match('/^product\/([a-zA-Z0-9_-]+)$/', $path, $matches)) {
             $extraHead .= "\n<script type=\"application/ld+json\">" . json_encode($faqSchema) . "</script>";
         }
     }
+} else if ($path === 'shop') {
+    $title = "Shop Electronic Components Online | Tronix365";
+    $description = "Browse our catalog of microcontrollers, IoT boards, sensors, motors, and robotics parts. Filter by category, price, and search term.";
+} else if ($path === 'categories') {
+    $title = "Browse Components Categories | Tronix365";
+    $description = "Find the perfect microcontrollers, development boards, sensors, and robotics parts for your project categorized for easy browsing.";
+} else if ($path === 'about') {
+    $title = "About Us | Tronix365";
+    $description = "Learn about Tronix365, our mission, guaranteed quality, and expert technical support for electronics makers and hobbyists.";
+} else if ($path === 'contact') {
+    $title = "Contact Us | Tronix365";
+    $description = "Get in touch with Tronix365 support for product questions, order help, and sales. Contact via email, phone, or live form.";
+} else if ($path === 'terms') {
+    $title = "Terms & Conditions | Tronix365";
+    $description = "Read the terms and conditions for purchasing genuine electronic components and using the Tronix365 platform.";
+} else if ($path === 'privacy') {
+    $title = "Privacy Policy | Tronix365";
+    $description = "Review the privacy policy of Tronix365. We protect your personal data and ensure secure transactions.";
 }
 
 // 3. Load React build file index.html

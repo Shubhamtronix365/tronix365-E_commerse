@@ -1,9 +1,15 @@
 import React from 'react';
 import CategoryGrid from '../components/home/CategoryGrid';
+import SEO from '../components/common/SEO';
 
 const Categories = () => {
     return (
         <div className="min-h-screen pt-16">
+            <SEO 
+                title="Browse Components Categories" 
+                description="Find the perfect microcontrollers, development boards, sensors, and robotics parts for your project categorized for easy browsing."
+                keywords="electronics categories, sensors, microcontrollers, motors, batteries"
+            />
             <div className="py-12 px-4 sm:px-6 lg:px-8 text-center bg-tronix-dark border-b border-white/5">
                 <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
                     Explore Categories

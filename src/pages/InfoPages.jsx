@@ -3,9 +3,11 @@ import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { MapPin, Mail, Phone } from 'lucide-react';
 import client from '../api/client';
+import SEO from '../components/common/SEO';
 
-const PageLayout = ({ title, children }) => (
+const PageLayout = ({ title, description, keywords, children }) => (
     <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+        <SEO title={title} description={description} keywords={keywords} />
         <div className="max-w-4xl mx-auto">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -24,7 +26,11 @@ const PageLayout = ({ title, children }) => (
 );
 
 export const About = () => (
-    <PageLayout title="About Us">
+    <PageLayout 
+        title="About Us"
+        description="Learn about Tronix365, our mission, guaranteed quality, and expert technical support for electronics makers and hobbyists."
+        keywords="about Tronix365, electronics store, Arduino supplier, IoT components"
+    >
         <p className="text-lg leading-relaxed mb-6">
             Welcome to <span className="text-tronix-primary font-bold">TRONIX365</span>, your premier destination for electronics components, development boards, and DIY kits. Founded in 2024, we are a team of passionate engineers and makers dedicated to empowering the innovator in everyone.
         </p>
@@ -65,7 +71,11 @@ export const Contact = () => {
     };
 
     return (
-        <PageLayout title="Contact Us">
+        <PageLayout 
+            title="Contact Us"
+            description="Get in touch with Tronix365 support for product questions, order help, and sales. Contact via email, phone, or live form."
+            keywords="contact Tronix365, support email, customer service, electronics help"
+        >
             <p className="text-lg mb-8">
                 Have a question about a product? Need help with an order? We'd love to hear from you.
             </p>
@@ -139,7 +149,11 @@ export const Contact = () => {
 };
 
 export const Terms = () => (
-    <PageLayout title="Terms & Conditions">
+    <PageLayout 
+        title="Terms & Conditions"
+        description="Read the terms and conditions for purchasing genuine electronic components and using the Tronix365 platform."
+        keywords="terms and conditions, user agreement, shopping policies"
+    >
         <p className="mb-4">Last Updated: January 2026</p>
         <h3 className="text-xl font-bold text-white mt-6 mb-2">1. Acceptance of Terms</h3>
         <p className="mb-4">By accessing and using this website, you accept and agree to be bound by the terms and provision of this agreement.</p>
@@ -153,7 +167,11 @@ export const Terms = () => (
 );
 
 export const Privacy = () => (
-    <PageLayout title="Privacy Policy">
+    <PageLayout 
+        title="Privacy Policy"
+        description="Review the privacy policy of Tronix365. We protect your personal data and ensure secure transactions."
+        keywords="privacy policy, data protection, secure shopping"
+    >
         <p className="mb-4">Last Updated: January 2026</p>
         <p className="mb-6">Your privacy is important to us. It is TRONIX365's policy to respect your privacy regarding any information we may collect from you across our website.</p>
 

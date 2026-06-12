@@ -5,10 +5,16 @@ import { AboutSection, ContactSection } from '../components/home/InfoSections';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import logo from '../assets/logo.png';
+import SEO from '../components/common/SEO';
 
 const Home = () => {
     return (
         <main className="min-h-screen pt-16">
+            <SEO 
+                title="Premium Electronic Components & IoT Modules" 
+                description="Shop genuine Arduino boards, ESP32 modules, sensors, motors, and IoT displays at Tronix365. Best price and fast delivery in India." 
+                keywords="Arduino, ESP32, IoT Modules, Sensors, Robotics, Tronix365"
+            />
             <HeroSlider />
 
             {/* Brand Highlight Section */}
