@@ -40,7 +40,7 @@ const HeroSlider = () => {
     }, []);
 
     return (
-        <section className="relative h-[600px] overflow-hidden">
+        <section className="relative h-[420px] sm:h-[500px] md:h-[600px] overflow-hidden">
             <AnimatePresence mode='wait'>
                 <motion.div
                     key={current}
@@ -57,7 +57,7 @@ const HeroSlider = () => {
                             alt={slides[current].title}
                             className="w-full h-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-r from-tronix-bg via-tronix-bg/90 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-tronix-bg via-tronix-bg/95 sm:via-tronix-bg/90 to-transparent" />
                     </div>
 
                     {/* Content */}
@@ -69,7 +69,7 @@ const HeroSlider = () => {
                                     animate={{ x: 0, opacity: 1 }}
                                     transition={{ delay: 0.2, duration: 0.5 }}
                                 >
-                                    <span className={`inline-block px-4 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${slides[current].color} mb-4`}>
+                                    <span className={`inline-block px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold text-white bg-gradient-to-r ${slides[current].color} mb-3 sm:mb-4`}>
                                         {slides[current].subtitle}
                                     </span>
                                 </motion.div>
@@ -78,7 +78,7 @@ const HeroSlider = () => {
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.3, duration: 0.5 }}
-                                    className="text-5xl md:text-7xl font-display font-bold text-white mb-6 leading-tight"
+                                    className="text-3xl sm:text-5xl md:text-7xl font-display font-bold text-white mb-4 sm:mb-6 leading-tight"
                                 >
                                     {slides[current].title}
                                 </motion.h1>
@@ -87,7 +87,7 @@ const HeroSlider = () => {
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.4, duration: 0.5 }}
-                                    className="text-lg text-gray-300 mb-8 leading-relaxed max-w-lg"
+                                    className="text-sm sm:text-base md:text-lg text-gray-300 mb-6 sm:mb-8 leading-relaxed max-w-lg"
                                 >
                                     {slides[current].description}
                                 </motion.p>
@@ -96,10 +96,10 @@ const HeroSlider = () => {
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.5, duration: 0.5 }}
-                                    className="group flex items-center gap-2 bg-tronix-primary hover:bg-violet-600 text-white px-8 py-4 rounded-full font-bold transition-all"
+                                    className="group flex items-center gap-2 bg-tronix-primary hover:bg-violet-600 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-full text-sm sm:text-base font-bold transition-all"
                                 >
                                     Explore Now
-                                    <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+                                    <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                                 </motion.button>
                             </div>
                         </div>

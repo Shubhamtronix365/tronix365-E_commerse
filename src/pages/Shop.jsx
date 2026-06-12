@@ -333,6 +333,7 @@ const Shop = () => {
                                     setSortBy={setSortBy}
                                     showInStockOnly={showInStockOnly}
                                     setShowInStockOnly={setShowInStockOnly}
+                                    isMobile={true}
                                 />
                                 <button
                                     onClick={() => setIsMobileFilterOpen(false)}

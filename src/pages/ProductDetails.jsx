@@ -110,7 +110,7 @@ const ProductDetails = () => {
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="bg-tronix-card/50 border border-white/5 rounded-2xl p-8 flex items-center justify-center h-[500px]"
+                        className="bg-tronix-card/50 border border-white/5 rounded-2xl p-8 flex items-center justify-center h-[320px] sm:h-[450px] lg:h-[500px]"
                     >
                         <Image
                             src={getImageUrl(product.image)}

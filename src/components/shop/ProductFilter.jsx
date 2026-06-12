@@ -11,11 +11,12 @@ const ProductFilter = ({
     sortBy,
     setSortBy,
     showInStockOnly,
-    setShowInStockOnly
+    setShowInStockOnly,
+    isMobile = false
 }) => {
     const [isSortOpen, setIsSortOpen] = React.useState(false);
     return (
-        <div className="bg-tronix-card/30 backdrop-blur-md border border-white/5 rounded-2xl p-6 sticky top-24">
+        <div className={`bg-tronix-card/30 backdrop-blur-md border border-white/5 rounded-2xl p-6 ${isMobile ? '' : 'sticky top-24'}`}>
             <div className="flex items-center gap-2 mb-6 text-white pb-4 border-b border-white/5">
                 <SlidersHorizontal size={20} className="text-tronix-primary" />
                 <h3 className="font-display font-bold text-lg">Filters</h3>

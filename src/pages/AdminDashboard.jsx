@@ -369,7 +369,7 @@ const AdminDashboard = () => {
 
                 {/* Content Area */}
                 <div className="bg-tronix-card border border-white/5 rounded-xl overflow-hidden min-h-[500px] flex flex-col">
-                    <div className="border-b border-white/5 p-4 flex items-center justify-between">
+                    <div className="border-b border-white/5 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex gap-2 sm:gap-4 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide">
                             <button
                                 onClick={() => setActiveTab('products')}
