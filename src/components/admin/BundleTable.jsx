@@ -9,7 +9,9 @@ const defaultBundleState = {
     description: '',
     original_price: 0,
     bundle_price: '',
-    product_ids: []
+    product_ids: [],
+    expiry_date: '',
+    usage_limit: ''
 };
 
 const BundleTable = ({ products }) => {
@@ -26,7 +28,7 @@ const BundleTable = ({ products }) => {
 
     const fetchBundles = async () => {
         try {
-            const res = await client.get('/bundles');
+            const res = await client.get('/admin/bundles');
             setBundles(res.data);
         } catch (err) {
             toast.error("Failed to load bundles");
@@ -55,6 +57,38 @@ const BundleTable = ({ products }) => {
         });
     };
 
+    const getBundleStatus = (bundle) => {
+        if (!bundle.is_active) return 'INACTIVE';
+        if (bundle.expiry_date && new Date(bundle.expiry_date) < new Date()) return 'EXPIRED';
+        if (bundle.usage_limit && bundle.used_count >= bundle.usage_limit) return 'LIMIT EXCEEDED';
+        return 'ACTIVE';
+    };
+
+    const getStatusStyles = (status) => {
+        switch (status) {
+            case 'ACTIVE':
+                return 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20';
+            case 'INACTIVE':
+                return 'bg-red-500/10 text-red-500 hover:bg-red-500/20';
+            case 'EXPIRED':
+                return 'bg-gray-500/10 text-gray-400 cursor-not-allowed';
+            case 'LIMIT EXCEEDED':
+                return 'bg-amber-500/10 text-amber-500 cursor-not-allowed';
+            default:
+                return 'bg-gray-500/10 text-gray-400';
+        }
+    };
+
+    const handleToggleStatus = async (bundle) => {
+        try {
+            await client.put(`/admin/bundles/${bundle.id}`, { is_active: !bundle.is_active });
+            toast.success(`Bundle ${!bundle.is_active ? 'activated' : 'deactivated'}`);
+            fetchBundles();
+        } catch (err) {
+            toast.error("Failed to update status");
+        }
+    };
+
     const handleSaveBundle = async (e) => {
         e.preventDefault();
         
@@ -63,19 +97,20 @@ const BundleTable = ({ products }) => {
         }
         
         try {
+            const payload = {
+                name: newBundle.name,
+                description: newBundle.description,
+                bundle_price: parseFloat(newBundle.bundle_price),
+                expiry_date: newBundle.expiry_date ? new Date(newBundle.expiry_date).toISOString() : null,
+                usage_limit: newBundle.usage_limit ? parseInt(newBundle.usage_limit) : null
+            };
+
             if (editingBundle) {
-                const payload = {
-                    name: newBundle.name,
-                    description: newBundle.description,
-                    bundle_price: parseFloat(newBundle.bundle_price)
-                };
                 await client.put(`/admin/bundles/${editingBundle.id}`, payload);
                 toast.success("Bundle updated successfully");
             } else {
-                const payload = {
-                    ...newBundle,
-                    bundle_price: parseFloat(newBundle.bundle_price)
-                };
+                payload.original_price = newBundle.original_price;
+                payload.product_ids = newBundle.product_ids;
                 await client.post('/admin/bundles', payload);
                 toast.success("Bundle created successfully");
             }
@@ -95,7 +130,9 @@ const BundleTable = ({ products }) => {
             description: bundle.description || '',
             original_price: bundle.original_price,
             bundle_price: bundle.bundle_price.toString(),
-            product_ids: bundle.products.map(p => p.product_id)
+            product_ids: bundle.products.map(p => p.product_id),
+            expiry_date: bundle.expiry_date ? new Date(bundle.expiry_date).toISOString().split('T')[0] : '',
+            usage_limit: bundle.usage_limit ? bundle.usage_limit.toString() : ''
         });
         setIsModalOpen(true);
     };
@@ -141,8 +178,26 @@ const BundleTable = ({ products }) => {
                             <div>
                                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
                                     {bundle.name}
+                                    <button 
+                                        onClick={() => {
+                                            const status = getBundleStatus(bundle);
+                                            if (status === 'ACTIVE' || status === 'INACTIVE') {
+                                                handleToggleStatus(bundle);
+                                            }
+                                        }}
+                                        disabled={getBundleStatus(bundle) === 'EXPIRED' || getBundleStatus(bundle) === 'LIMIT EXCEEDED'}
+                                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-colors ${getStatusStyles(getBundleStatus(bundle))}`}
+                                    >
+                                        {getBundleStatus(bundle)}
+                                    </button>
                                 </h3>
                                 <p className="text-sm text-gray-400 mt-1">{bundle.description}</p>
+                                <div className="flex flex-col gap-1 mt-2 text-xs text-gray-500">
+                                    <p>Used: <span className="text-gray-300 font-medium">{bundle.used_count || 0} / {bundle.usage_limit || '∞'}</span></p>
+                                    {bundle.expiry_date && (
+                                        <p>Expires: <span className="text-gray-300 font-medium">{new Date(bundle.expiry_date).toLocaleDateString()}</span></p>
+                                    )}
+                                </div>
                             </div>
                             <div className="flex flex-col items-end gap-2 text-right">
                                 <div className="flex items-center gap-1 mb-1">
@@ -226,6 +281,27 @@ const BundleTable = ({ products }) => {
                                                         className="w-full bg-white/5 border border-emerald-500/50 rounded-lg px-4 py-2 text-white focus:outline-none"
                                                         value={newBundle.bundle_price}
                                                         onChange={(e) => setNewBundle({ ...newBundle, bundle_price: e.target.value })}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-sm text-gray-400 mb-1">Expiry Date</label>
+                                                    <input
+                                                        type="date"
+                                                        className="w-full bg-[#1A1A2E] border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-tronix-primary"
+                                                        value={newBundle.expiry_date}
+                                                        onChange={(e) => setNewBundle({ ...newBundle, expiry_date: e.target.value })}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm text-gray-400 mb-1">Usage Limit</label>
+                                                    <input
+                                                        type="number"
+                                                        placeholder="Unlimited"
+                                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none"
+                                                        value={newBundle.usage_limit}
+                                                        onChange={(e) => setNewBundle({ ...newBundle, usage_limit: e.target.value })}
                                                     />
                                                 </div>
                                             </div>

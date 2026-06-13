@@ -275,24 +275,50 @@ def send_order_confirmation_email(order):
     Orchestrates the HTML generation and email dispatch for a successful order.
     Designed to be called via FastAPI BackgroundTasks.
     """
-    to_email = order.customer_email
-    if not to_email:
-        logger.error("Order has no customer_email. Cannot send confirmation.")
+    from database import SessionLocal
+    from models import OrderDB, OrderItemDB
+    from sqlalchemy.orm import joinedload
+
+    order_id = order if isinstance(order, int) else order.id
+
+    db = SessionLocal()
+    try:
+        # Reload order with eagerly loaded relationships to prevent DetachedInstanceError
+        order_loaded = (
+            db.query(OrderDB)
+            .options(joinedload(OrderDB.items).joinedload(OrderItemDB.product))
+            .filter(OrderDB.id == order_id)
+            .first()
+        )
+        if not order_loaded:
+            logger.error(f"Order ID {order_id} not found in database. Cannot send confirmation.")
+            return False
+
+        to_email = order_loaded.customer_email
+        if not to_email:
+            logger.error(f"Order #{order_loaded.id} has no customer_email. Cannot send confirmation.")
+            return False
+
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+        if ("tronix365.in" in frontend_url or "tronix.in" in frontend_url) and "/e-commerse" not in frontend_url:
+            frontend_url = f"{frontend_url}/e-commerse"
+
+        subject = f"Order Confirmation - #order_tronix_{order_loaded.id:04d} from Tronix365"
+
+        # Generate the pristine HTML payload
+        html_content = generate_order_confirmation_html(order_loaded, frontend_url)
+
+        # Dispatch using the Brevo hook
+        return send_email_via_brevo(
+            to_email, subject, html_content, sender_name="Tronix365 Orders"
+        )
+    except Exception as e:
+        logger.error(f"Failed to send order confirmation email for order #{order_id}: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         return False
-
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
-    if ("tronix365.in" in frontend_url or "tronix.in" in frontend_url) and "/e-commerse" not in frontend_url:
-        frontend_url = f"{frontend_url}/e-commerse"
-
-    subject = f"Order Confirmation - #order_tronix_{order.id:04d} from Tronix365"
-
-    # Generate the pristine HTML payload
-    html_content = generate_order_confirmation_html(order, frontend_url)
-
-    # Dispatch using the Brevo hook
-    return send_email_via_brevo(
-        to_email, subject, html_content, sender_name="Tronix365 Orders"
-    )
+    finally:
+        db.close()
 
 
 def generate_abandoned_cart_html(user_name, cart_items, frontend_url):

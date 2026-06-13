@@ -1,83 +1,101 @@
 import os
 import sys
 import argparse
-import random
 import json
+import re
+import time
+import random
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 
 # Add current folder to path to import local modules
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from database import SessionLocal, engine
+# Ensure console output handles UTF-8 characters nicely on Windows
+try:
+    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(encoding='utf-8')
+except AttributeError:
+    pass
+
+from database import SessionLocal
 from models import ProductDB
 
-load_dotenv()
-
-# Dictionary of high-quality templates for electronics categories
-# Using title hash ensures the same product gets a consistent description, but different products in the same category get unique phrasing.
-TEMPLATES = {
-    "Development Boards": [
-        "The {title} is a high-performance development board ideal for IoT and microcontroller programming. Designed for both hobbyists and professionals, it provides stable power management and multiple GPIO pins. Perfect for prototyping smart systems, DIY electronics, and learning programming fundamentals.",
-        "Get started with your micro-computing projects using the {title}. This board offers robust connectivity and reliable processing power for automation and prototyping. It easily interfaces with various sensors, making it an essential component for any developer's toolkit.",
-        "The {title} is an industry-standard development module designed for swift prototyping and hardware debugging. Featuring an accessible layout and versatile pins, it simplifies circuit designs. Perfect for embedded systems engineering and student learning labs."
-    ],
-    "Sensors": [
-        "The {title} is a high-accuracy sensor module designed for real-time environment sensing and measurements. Operating with low power consumption, it provides precise readings to your microcontroller board. Ideal for robotics obstacle detection, home automation, and smart telemetry projects.",
-        "Enhance your DIY projects with the {title}. This sensor module provides reliable, fast-response detection and measurement capabilities. It is fully compatible with Arduino, ESP32, and Raspberry Pi, making it perfect for custom automation systems.",
-        "The {title} is a responsive electronic sensor module engineered for critical data acquisition. Built with low-noise circuitry, it ensures accurate telemetry feedback for smart projects, weather stations, and interactive robotic devices."
-    ],
-    "Modules": [
-        "The {title} is a compact, high-efficiency breakout module designed for seamless integration into your circuits. Featuring standard pin spacing and high-quality construction, it simplifies complex electronics prototyping. Ideal for communication, power regulation, or relay control in custom projects.",
-        "Upgrade your hardware projects with the {title}. This electronics module is engineered for reliable operation and easy breadboard interfacing. It is an excellent choice for wireless IoT setups, home automation, and electronic hardware design.",
-        "The {title} is a high-performance interface module designed to expand the capabilities of your microcontrollers. With durable solder pads and built-in protection, it offers stable performance for custom relay systems and wireless projects."
-    ],
-    "Motors": [
-        "The {title} offers high-torque, precise motion control for your robotic and automation creations. Designed for durable and long-lasting performance, it operates smoothly under load. Perfect for building custom robotic arms, smart vehicle steering, and remote-controlled models.",
-        "Power your mechanical assemblies with the {title}. This motor is designed for efficiency and steady rotational speed control. It is easy to mount and compatible with standard motor drivers, making it key for robotics hobbyists.",
-        "The {title} is a rugged geared motor built to handle heavy-duty loads in electronic and robotic projects. Operating at low power with maximum output torque, it is perfect for smart cars, solar trackers, and motorized pulley setups."
-    ],
-    "Battery": [
-        "The {title} provides stable and long-lasting power for your portable electronic creations. Engineered with built-in safety features, it delivers steady voltage under load. Ideal for drones, portable IoT nodes, and remote microcontroller projects.",
-        "Keep your projects powered on the go with the {title}. This battery solution offers high capacity and reliable recharge cycles. It is the perfect compact power pack for DIY robotics, remote sensors, and wearable tech.",
-        "The {title} is a high-density, reliable power cell optimized for microelectronics and low-power systems. With stable discharge curves, it ensures safe, continuous operation for portable data loggers and smart wearables."
-    ],
-    "Displays": [
-        "The {title} is a bright, clear display module designed for visual output on your microcontroller projects. With low power consumption and high contrast, it ensures easy readability in any lighting. Perfect for displaying sensor data, menus, and real-time project statistics.",
-        "Add a crisp user interface to your electronics with the {title}. This display module is easy to wire and program using standard open-source libraries. Ideal for smart clocks, telemetry monitors, and custom dashboard readouts.",
-        "The {title} is a high-resolution screen module designed to provide a rich graphical interface for your smart devices. Easy to configure using SPI or I2C protocols, it is perfect for custom hardware menus, telemetry panels, and readouts."
-    ]
-}
-
-DEFAULT_TEMPLATES = [
-    "The {title} is a premium quality electronic component designed for reliable performance in custom circuits. Built to industry standards, it offers clean signal transmission and durable construction. Perfect for electronics prototyping, student labs, and DIY hardware projects.",
-    "Upgrade your electronics toolkit with the {title}. This component ensures robust operation and easy compatibility with standard prototyping boards. It is a highly dependable choice for building, testing, and debugging electronic systems.",
-    "The {title} is an essential component for custom circuit construction and laboratory testing. Providing secure connections and long-term durability, it is designed to fit standard breadboard and PCB layouts."
-]
+# Load .env file relative to this script
+dotenv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+load_dotenv(dotenv_path=dotenv_path)
 
 def generate_local_description(product: ProductDB) -> str:
-    # Use product ID or title hash to randomly but consistently select a template
-    random_seed = len(product.title) + (product.id or 0)
-    category = product.category
+    """
+    Fallback method to generate a detailed description locally by extracting
+    features (voltage, size, channels, chipsets) from the product title.
+    """
+    title = product.title
+    category = product.category or "Electronics"
     
-    # Get template list
-    templates = TEMPLATES.get(category, DEFAULT_TEMPLATES)
-    template = templates[random_seed % len(templates)]
+    # Extract operational voltage (e.g. 5V, 3.3V, 12V)
+    voltage_match = re.search(r'(\d+(?:\.\d+)?)\s*[Vv]\b', title)
     
-    # Format description
-    description = template.format(title=product.title)
+    # Extract dimensions/size (e.g. 5mm, 10cm, 0.96 inch, 2.4")
+    size_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:mm|cm|inch|")\b', title, re.IGNORECASE)
     
-    # Append specs if available to make it highly custom
+    # Extract number of channels (e.g. 1 ch, 4 channel, 8 ch)
+    channel_match = re.search(r'(\d+)\s*(?:-[Cc]hannel|[Cc]hannel|[Cc]hanel|[Cc]h)\b', title, re.IGNORECASE)
+    
+    # Extract known chipsets or boards
+    chips = [
+        "ESP32", "ESP8266", "L293D", "LM35", "DHT11", "DHT22", "TP4056", 
+        "MAX7219", "MPU6050", "NE555", "HC-SR04", "HC-05", "HC-06", 
+        "nRF24L01", "ATTiny85", "ATmega328P"
+    ]
+    chip_found = None
+    for chip in chips:
+        if re.search(rf'\b{chip}\b', title, re.IGNORECASE):
+            chip_found = chip
+            break
+            
+    # Construct technical segments
+    voltage_str = f"operating at a stable {voltage_match.group(0)}" if voltage_match else "with standard operating voltage"
+    size_str = f"measuring {size_match.group(0)}" if size_match else ""
+    channel_str = f"featuring {channel_match.group(0)}" if channel_match else ""
+    chip_str = f"powered by the {chip_found} microchip" if chip_found else ""
+    
+    features = [f for f in [chip_str, channel_str, size_str] if f]
+    features_desc = f", {', '.join(features)}" if features else ""
+    
+    desc = (
+        f"The {title} is a professional-grade {category.lower()} component {voltage_str}{features_desc} "
+        f"designed for reliable and high-performance electronics prototyping."
+    )
+    
+    # Add application description by category
+    apps = {
+        "Development Boards": "Ideal for custom IoT systems, microcontroller programming, and smart home automation projects.",
+        "Sensors": "Perfect for real-time environment monitoring, telemetry collection, and robotic sensory inputs.",
+        "Modules": "Engineered for clean breadboard integration, wireless communication routing, or device expansion setups.",
+        "Motors": "Optimized for high-torque motion controls, DIY robotics, smart vehicles, and mechanical assemblies.",
+        "Battery": "Provides stable, long-lasting power storage and backup efficiency for portable smart devices.",
+        "Displays": "Enables crisp visual readouts, interactive user interfaces, and telemetry monitoring dashboards."
+    }
+    app_desc = apps.get(category, "Perfect for student learning labs, custom PCB designs, and advanced DIY electronics experiments.")
+    desc += f" {app_desc}"
+    
+    # Append specs from DB if available
     if product.specs and isinstance(product.specs, dict) and len(product.specs) > 0:
         specs_list = []
-        for k, v in list(product.specs.items())[:2]: # take first 2 specs
-            specs_list.append(f"{k} of {v}")
+        for k, v in list(product.specs.items())[:3]:
+            specs_list.append(f"{k}: {v}")
         if specs_list:
-            description += f" Features key specifications including {', and '.join(specs_list)}."
+            desc += f" Key specifications: {'; '.join(specs_list)}."
             
-    return description
+    return desc
 
 def generate_ai_description(product: ProductDB, api_key: str) -> str:
+    """
+    Invokes Google Gemini API to generate a highly detailed, professional, 
+    and unique description paragraph for the product. Handles rate limits
+    via retry and exponential backoff.
+    """
     try:
         import google.generativeai as genai
     except ImportError:
@@ -85,56 +103,81 @@ def generate_ai_description(product: ProductDB, api_key: str) -> str:
         sys.exit(1)
         
     genai.configure(api_key=api_key)
-    
-    # Select a lightweight fast model
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    model = genai.GenerativeModel('models/gemini-flash-latest')
     
     prompt = f"""
-    You are an expert copywriter and SEO specialist for an e-commerce electronics store called "Tronix365".
-    Your task is to write a high-quality, unique, and SEO-optimized product description for the following product:
+    You are an expert technical copywriter and SEO specialist for an e-commerce electronics store called "Tronix365".
+    Your task is to write a highly detailed, unique, and SEO-optimized product description for the following electronic component:
 
-    - Title: "{product.title}"
+    - Product Title: "{product.title}"
     - Category: "{product.category}"
-    - Specs: {json.dumps(product.specs or {{}})}
+    - Specifications: {json.dumps(product.specs or {})}
 
-    Rules:
-    1. Output a description of exactly 2 to 3 sentences (40 to 60 words).
-    2. Do not use generic copy. Make it sound professional and tailored to hobbyists, engineers, and students.
-    3. Incorporate relevant electronics search terms naturally (e.g. "breadboard prototyping", "Arduino compatible", "ESP32 project", "reliable connection", "soldering-free").
-    4. Mention the category and application (e.g. "Ideal for DIY robotics and smart home systems").
-    5. Do not include placeholders, pricing, or call-to-actions.
-    6. Output ONLY the description text, nothing else. No labels or headers.
+    Rules & Formatting Requirements:
+    1. The description MUST explicitly detail and incorporate (where applicable):
+       - Operational voltage (e.g., 3.3V, 5V, 12V, etc.), current, or general power ratings.
+       - Key technical features (like chipset, channels, interface protocols like SPI/I2C, or precision).
+       - Practical applications (e.g., DIY robotics, IoT telemetry, smart home automation, Arduino/Raspberry Pi compatible setups).
+       - Battery / power requirements (if the product is a battery, charger, power supply, or is battery-operated).
+    2. Do not use generic, copy-paste phrasing. Ensure the tone is professional, technical, yet accessible to hobbyists, engineering students, and makers.
+    3. Naturally incorporate relevant search terms (e.g., "breadboard prototyping", "Arduino compatible", "sensor integration", "soldering-friendly").
+    4. Do not include placeholders, pricing, shipping info, or marketing call-to-actions.
+    5. Keep the length between 60 to 120 words (around 3 to 5 clear sentences).
+    6. Output ONLY the description text. Do not include any HTML formatting, markdown styling, labels, titles, prefixes like "Description:", or surrounding quotes.
     """
     
-    try:
-        response = model.generate_content(prompt)
-        desc = response.text.strip()
-        # Clean any surrounding quotes
-        if desc.startswith('"') and desc.endswith('"'):
-            desc = desc[1:-1].strip()
-        return desc
-    except Exception as e:
-        print(f"Gemini API call failed for '{product.title}': {e}. Falling back to template-based generation.")
-        return generate_local_description(product)
+    for attempt in range(5):
+        try:
+            response = model.generate_content(prompt, request_options={"timeout": 30.0})
+            desc = response.text.strip()
+            # Clean any surrounding quotes
+            if desc.startswith('"') and desc.endswith('"'):
+                desc = desc[1:-1].strip()
+            if desc.startswith("'") and desc.endswith("'"):
+                desc = desc[1:-1].strip()
+            return desc
+        except Exception as e:
+            err_str = str(e)
+            if any(term in err_str.lower() for term in ["429", "resourceexhausted", "quota", "504", "deadline", "timeout"]):
+                sleep_time = 15 * (2 ** attempt) + random.uniform(2, 5)
+                print(f"Temporary API error for '{product.title}': {e}. Retrying in {sleep_time:.2f} seconds...", flush=True)
+                time.sleep(sleep_time)
+            else:
+                print(f"Gemini API call failed for '{product.title}': {e}. Falling back to template-based generation.", flush=True)
+                return generate_local_description(product)
+                
+    # If all attempts fail
+    print(f"Failed to generate AI description after {5} attempts for '{product.title}'. Using fallback.", flush=True)
+    return generate_local_description(product)
 
 def main():
     parser = argparse.ArgumentParser(description="Generate unique SEO product descriptions.")
     parser.add_argument("--use-ai", action="store_true", help="Use Google Gemini API to write descriptions (requires GEMINI_API_KEY in .env)")
     parser.add_argument("--dry-run", action="store_true", help="Print descriptions instead of writing them to the database")
+    parser.add_argument("--force", action="store_true", help="Force regenerate descriptions for all products even if they already have one")
+    parser.add_argument("--limit", type=int, help="Limit the number of products to process (useful for testing)")
     args = parser.parse_args()
 
     db: Session = SessionLocal()
     try:
-        # Fetch products with empty or missing descriptions
-        products = db.query(ProductDB).filter(
-            (ProductDB.description == "") | (ProductDB.description == None)
-        ).all()
+        if args.force:
+            print("Force mode enabled: Fetching all products from the database...")
+            products = db.query(ProductDB).all()
+        else:
+            print("Fetching products with empty or missing descriptions...")
+            products = db.query(ProductDB).filter(
+                (ProductDB.description == "") | (ProductDB.description == None)
+            ).all()
         
         if not products:
-            print("No products with empty descriptions found in database.")
+            print("No products matching the search criteria were found in the database.")
             return
 
-        print(f"Found {len(products)} products with empty descriptions.")
+        if args.limit:
+            print(f"Limiting execution to the first {args.limit} products...")
+            products = products[:args.limit]
+
+        print(f"Found {len(products)} products to process.")
         
         api_key = os.getenv("GEMINI_API_KEY")
         use_ai = args.use_ai and api_key
@@ -149,27 +192,37 @@ def main():
 
         updated_count = 0
         for i, product in enumerate(products):
-            print(f"[{i+1}/{len(products)}] Processing product: {product.title}...")
+            print(f"[{i+1}/{len(products)}] Processing product ID {product.id}: {product.title}...", flush=True)
             
             if use_ai:
                 description = generate_ai_description(product, api_key)
             else:
                 description = generate_local_description(product)
                 
-            print(f"Generated Description: {description}\n")
+            print(f"Generated Description: {description}\n", flush=True)
             
             if not args.dry_run:
-                product.description = description
-                db.add(product)
-                updated_count += 1
+                try:
+                    product.description = description
+                    db.add(product)
+                    db.commit()
+                    updated_count += 1
+                except Exception as db_err:
+                    db.rollback()
+                    print(f"Database error saving product ID {product.id}: {db_err}", flush=True)
+            
+            # Respect Gemini rate limits
+            if use_ai and i < len(products) - 1:
+                time.sleep(5.5)
                 
         if not args.dry_run:
-            db.commit()
-            print(f"Successfully updated {updated_count} product descriptions in the database!")
+            print(f"Successfully updated {updated_count} product descriptions in the database!", flush=True)
         else:
-            print("Dry run completed. No changes were committed to the database.")
+            print("Dry run completed. No changes were committed to the database.", flush=True)
             
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         db.rollback()
         print(f"An error occurred: {e}")
     finally:

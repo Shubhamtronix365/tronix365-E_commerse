@@ -419,6 +419,14 @@ async def update_order_status(
             if coupon:
                 coupon.used_count += 1
 
+        # Increment bundle usage count
+        if order.items:
+            bundle_ids = {item.bundle_id for item in order.items if item.bundle_id}
+            for b_id in bundle_ids:
+                bundle = db.query(BundleDB).filter(BundleDB.id == b_id).first()
+                if bundle:
+                    bundle.used_count = (bundle.used_count or 0) + 1
+
     order.status = status_update.status
     db.commit()
     db.refresh(order)
@@ -522,6 +530,9 @@ async def create_bundle(bundle_data: BundleCreate, db: Session = Depends(get_db)
         description=bundle_data.description,
         original_price=bundle_data.original_price,
         bundle_price=bundle_data.bundle_price,
+        expiry_date=bundle_data.expiry_date,
+        usage_limit=bundle_data.usage_limit,
+        used_count=0
     )
     db.add(new_bundle)
     db.commit()
@@ -584,19 +595,42 @@ async def delete_bundle(bundle_id: int, db: Session = Depends(get_db)):
     return {"message": "Bundle deleted successfully"}
 
 
+@app.get("/admin/bundles", response_model=List[BundleResponse])
+async def get_admin_bundles(db: Session = Depends(get_db)):
+    return (
+        db.query(BundleDB)
+        .options(joinedload(BundleDB.products).joinedload(BundleProductDB.product))
+        .all()
+    )
+
+
 @app.get("/bundles", response_model=List[BundleResponse])
 async def get_bundles(db: Session = Depends(get_db)):
-    return (
+    now = datetime.utcnow()
+    active_bundles = (
         db.query(BundleDB)
         .filter(BundleDB.is_active == True)
         .options(joinedload(BundleDB.products).joinedload(BundleProductDB.product))
         .all()
     )
 
+    filtered = []
+    for b in active_bundles:
+        if b.expiry_date:
+            b_now = datetime.now(b.expiry_date.tzinfo) if b.expiry_date.tzinfo else now
+            if b_now > b.expiry_date:
+                continue
+        if b.usage_limit and (b.used_count or 0) >= b.usage_limit:
+            continue
+        filtered.append(b)
+
+    return filtered
+
 
 @app.get("/products/{product_id}/bundles", response_model=List[BundleResponse])
 async def get_product_bundles(product_id: int, db: Session = Depends(get_db)):
     """Fetch bundles that include this specific product."""
+    now = datetime.utcnow()
     bundles = (
         db.query(BundleDB)
         .join(BundleProductDB)
@@ -604,7 +638,18 @@ async def get_product_bundles(product_id: int, db: Session = Depends(get_db)):
         .options(joinedload(BundleDB.products).joinedload(BundleProductDB.product))
         .all()
     )
-    return bundles
+
+    filtered = []
+    for b in bundles:
+        if b.expiry_date:
+            b_now = datetime.now(b.expiry_date.tzinfo) if b.expiry_date.tzinfo else now
+            if b_now > b.expiry_date:
+                continue
+        if b.usage_limit and (b.used_count or 0) >= b.usage_limit:
+            continue
+        filtered.append(b)
+
+    return filtered
 
 
 @app.get("/orders", response_model=List[Order])
@@ -1334,6 +1379,17 @@ async def add_bundle_to_cart(
     if not bundle:
         raise HTTPException(status_code=404, detail="Bundle not found")
 
+    if not bundle.is_active:
+        raise HTTPException(status_code=400, detail="This bundle is inactive")
+
+    if bundle.expiry_date:
+        now = datetime.now(bundle.expiry_date.tzinfo) if bundle.expiry_date.tzinfo else datetime.utcnow()
+        if now > bundle.expiry_date:
+            raise HTTPException(status_code=400, detail="This bundle has expired")
+
+    if bundle.usage_limit and (bundle.used_count or 0) >= bundle.usage_limit:
+        raise HTTPException(status_code=400, detail="This bundle has reached its usage limit")
+
     for bp in bundle.products:
         # Check if already in cart (without a bundle_id or with a different one)
         # For simplicity, we always add bundle items as new entries or update existing if same bundle
@@ -1410,6 +1466,18 @@ async def initiate_payment(payment: PaymentInitiate, db: Session = Depends(get_d
                 detail=f"Insufficient stock for {product.title}. Only {product.stock} left.",
             )
 
+        if item.bundle_id:
+            bundle = db.query(BundleDB).filter(BundleDB.id == item.bundle_id).first()
+            if bundle:
+                if not bundle.is_active:
+                    raise HTTPException(status_code=400, detail=f"Bundle '{bundle.name}' is inactive")
+                if bundle.expiry_date:
+                    now = datetime.now(bundle.expiry_date.tzinfo) if bundle.expiry_date.tzinfo else datetime.utcnow()
+                    if now > bundle.expiry_date:
+                        raise HTTPException(status_code=400, detail=f"Bundle '{bundle.name}' has expired")
+                if bundle.usage_limit and (bundle.used_count or 0) >= bundle.usage_limit:
+                    raise HTTPException(status_code=400, detail=f"Bundle '{bundle.name}' has reached its usage limit")
+
         # Create OrderItemDB instance
         order_item = OrderItemDB(
             product_id=item.product_id,
@@ -1456,6 +1524,13 @@ async def initiate_payment(payment: PaymentInitiate, db: Session = Depends(get_d
             coupon = db.query(CouponDB).filter(CouponDB.code == payment.coupon_code).first()
             if coupon:
                 coupon.used_count += 1
+
+        # Increment bundle usage immediately if bypassed
+        bundle_ids = {item.bundle_id for item in items_for_order if item.bundle_id}
+        for b_id in bundle_ids:
+            bundle = db.query(BundleDB).filter(BundleDB.id == b_id).first()
+            if bundle:
+                bundle.used_count = (bundle.used_count or 0) + 1
     db.commit()
     db.refresh(new_order)
 
@@ -1539,6 +1614,18 @@ async def retry_payment(
                 status_code=400,
                 detail=f"Insufficient stock for {product.title}. Only {product.stock} left."
             )
+
+        if item.bundle_id:
+            bundle = db.query(BundleDB).filter(BundleDB.id == item.bundle_id).first()
+            if bundle:
+                if not bundle.is_active:
+                    raise HTTPException(status_code=400, detail=f"Bundle '{bundle.name}' is inactive")
+                if bundle.expiry_date:
+                    now = datetime.now(bundle.expiry_date.tzinfo) if bundle.expiry_date.tzinfo else datetime.utcnow()
+                    if now > bundle.expiry_date:
+                        raise HTTPException(status_code=400, detail=f"Bundle '{bundle.name}' has expired")
+                if bundle.usage_limit and (bundle.used_count or 0) >= bundle.usage_limit:
+                    raise HTTPException(status_code=400, detail=f"Bundle '{bundle.name}' has reached its usage limit")
 
     # Generate new transaction ID
     txnid = f"TXN{int(order.total_amount)}{os.urandom(4).hex()}"
@@ -1664,6 +1751,7 @@ async def payment_callback(
     # Verify Signature
     key = os.getenv("PAYU_KEY")
     salt = os.getenv("PAYU_SALT")
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
 
     if not verify_payu_hash(
         salt, status, "", email, firstname, productinfo, amount, txnid, key, hash
@@ -1674,7 +1762,6 @@ async def payment_callback(
         if order:
             order.status = "tampered"
             db.commit()
-        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
         if ("tronix365.in" in frontend_url or "tronix.in" in frontend_url) and "/e-commerse" not in frontend_url:
             frontend_url = f"{frontend_url}/e-commerse"
 
@@ -1710,7 +1797,14 @@ async def payment_callback(
                     coupon = db.query(CouponDB).filter(CouponDB.code == order.coupon_code).first()
                     if coupon:
                         coupon.used_count += 1
-                db.commit()  # Commit status, stock, and coupon updates
+                # Increment bundle usage count
+                if order.items:
+                    bundle_ids = {item.bundle_id for item in order.items if item.bundle_id}
+                    for b_id in bundle_ids:
+                        bundle = db.query(BundleDB).filter(BundleDB.id == b_id).first()
+                        if bundle:
+                            bundle.used_count = (bundle.used_count or 0) + 1
+                db.commit()  # Commit status, stock, coupon, and bundle updates
                 db.refresh(order)
 
                 # Clear Cart for this user on successful payment

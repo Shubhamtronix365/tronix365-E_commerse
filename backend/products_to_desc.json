@@ -1,0 +1,1482 @@
+[
+  {
+    "id": 35,
+    "title": "LM35 Temperature Sensor MODULE",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 157,
+    "title": "METAL STUDD",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 238,
+    "title": "Member ",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 9,
+    "title": "ADXL345 Triple Axis Accelerometer Board",
+    "category": "",
+    "specs": {
+      "Supply Voltage": "3.3V or 5V",
+      "Sensitivity": "X: 28.6 LSB/g, Y: 31.2 LSB/g, Z: 34.5 LSB/g",
+      "Output Data Rate (ODR)": "800 Hz",
+      "Sensing Range": "±2g, ±4g, ±8g, ±16g"
+    }
+  },
+  {
+    "id": 40,
+    "title": "MLX90614 ESF Non-Contact Human Body Infrared Temperature Measurement Module",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 32,
+    "title": "5mm LDR Sensor",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 15,
+    "title": "DS18B20 TEMP SENSOR MODULE",
+    "category": "Module",
+    "specs": {}
+  },
+  {
+    "id": 64,
+    "title": "1 channel 5V single Chanel Relay Module",
+    "category": "",
+    "specs": {}
+  },
+  {
+    "id": 120,
+    "title": "6-12V Piezo Buzzer",
+    "category": "miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 123,
+    "title": "3 Pin Female To Female Relimate Connector",
+    "category": "Connector",
+    "specs": {}
+  },
+  {
+    "id": 105,
+    "title": "WIRLESS CHARGING MODULE",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 108,
+    "title": "L293D MOTOR DRIVER MODULE",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 110,
+    "title": "DIGITAL VOLTMETER",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 115,
+    "title": "12V RELAY QUBE",
+    "category": "Relays",
+    "specs": {}
+  },
+  {
+    "id": 118,
+    "title": "Microphones 9mm Condenser Microphone Sound Sensor",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 122,
+    "title": "2pin Relimate Connector (Male+Female set)",
+    "category": "Connector",
+    "specs": {}
+  },
+  {
+    "id": 3,
+    "title": "HC-SR04 Ultrasonic Sensor",
+    "category": "Sensors",
+    "specs": {
+      "Range": "2cm - 400cm",
+      "Voltage": "5V"
+    }
+  },
+  {
+    "id": 126,
+    "title": "6 PIN RELIMATE",
+    "category": "Connector",
+    "specs": {}
+  },
+  {
+    "id": 127,
+    "title": "7 PIN RELIMATE",
+    "category": "Connector",
+    "specs": {}
+  },
+  {
+    "id": 128,
+    "title": "8 PIN RELIMATE",
+    "category": "Connector",
+    "specs": {}
+  },
+  {
+    "id": 129,
+    "title": "12 PIN RELIMATE",
+    "category": "Connector",
+    "specs": {}
+  },
+  {
+    "id": 130,
+    "title": "16 PIN RELIMATE",
+    "category": "Connector",
+    "specs": {}
+  },
+  {
+    "id": 136,
+    "title": "100 RPM DC MOTOR",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 137,
+    "title": "Unnamed Product",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 138,
+    "title": "BO MOTOR",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 144,
+    "title": "DC PUMP",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 149,
+    "title": "PCA9685 16-Channel 12-bit PWM/Servo Driver",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 152,
+    "title": "MG90S SERVO MOTOR",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 153,
+    "title": "CLUSTER WHEEL",
+    "category": "Wheels",
+    "specs": {}
+  },
+  {
+    "id": 155,
+    "title": "DC MOTOR WHEEL",
+    "category": "Wheels",
+    "specs": {}
+  },
+  {
+    "id": 156,
+    "title": "AQUA PUMP",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 158,
+    "title": "12 V BIDC FAN",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 161,
+    "title": "12 V LED",
+    "category": "LED",
+    "specs": {}
+  },
+  {
+    "id": 162,
+    "title": "PVC HEATSINK SLIVES",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 163,
+    "title": "ANTENNA",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 169,
+    "title": "ESP32 -30 PIN",
+    "category": "Development Boards",
+    "specs": {}
+  },
+  {
+    "id": 170,
+    "title": "ESP CAM MODULE",
+    "category": "Development Boards",
+    "specs": {}
+  },
+  {
+    "id": 171,
+    "title": "ENC28J60",
+    "category": "Development Boards",
+    "specs": {}
+  },
+  {
+    "id": 172,
+    "title": "NODE MCU CPU 02",
+    "category": "Development Boards",
+    "specs": {}
+  },
+  {
+    "id": 173,
+    "title": "RASPBERRY PI",
+    "category": "Development Boards",
+    "specs": {}
+  },
+  {
+    "id": 174,
+    "title": "UNO CABLE",
+    "category": "Cables",
+    "specs": {}
+  },
+  {
+    "id": 175,
+    "title": "NANO CABLE",
+    "category": "Cables",
+    "specs": {}
+  },
+  {
+    "id": 176,
+    "title": "ESP32 CABLE",
+    "category": "Cables",
+    "specs": {}
+  },
+  {
+    "id": 177,
+    "title": "LI-ION CELL",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 178,
+    "title": "3 CELL BATTERY HOLDER",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 179,
+    "title": "2 CELL BATTERY HOLDER",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 180,
+    "title": "1 CELL BATTERY HOLDER",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 181,
+    "title": "MAINS SCORD",
+    "category": "Cables",
+    "specs": {}
+  },
+  {
+    "id": 182,
+    "title": "HDMI CABLE",
+    "category": "Cables",
+    "specs": {}
+  },
+  {
+    "id": 183,
+    "title": "33PF 50V CAPACOTIOR",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 184,
+    "title": "0.001 UF 50V CAP",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 185,
+    "title": "0.01UF 50V CAP",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 186,
+    "title": "0.1 UF 50V CAP",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 187,
+    "title": "100 PF 50V",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 188,
+    "title": "C31CAP01 O.OO1 UF 50V",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 189,
+    "title": "22 PF 50V",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 190,
+    "title": "1 UF CAP",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 191,
+    "title": "2.2 UF CAP",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 192,
+    "title": "4.7 UF CAP",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 193,
+    "title": "10 UF CAP",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 194,
+    "title": "22UF CAP",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 195,
+    "title": "100UF CAP",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 196,
+    "title": "470 UF CAP",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 197,
+    "title": "1000UF CAP",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 198,
+    "title": "100 PF 50V",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 200,
+    "title": "2N2222",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 201,
+    "title": "LIMITE SWITCH",
+    "category": "Switches",
+    "specs": {}
+  },
+  {
+    "id": 202,
+    "title": "ON OFF SWITCH BIG 2 PIN",
+    "category": "Switches",
+    "specs": {}
+  },
+  {
+    "id": 203,
+    "title": "ON OFF SWITCH BIG 3 PIN",
+    "category": "Switches",
+    "specs": {}
+  },
+  {
+    "id": 204,
+    "title": "ON OFF SWITCH SMALL 2 PIN",
+    "category": "Switches",
+    "specs": {}
+  },
+  {
+    "id": 207,
+    "title": "DC PIN FEMALE",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 208,
+    "title": "BUZZER",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 210,
+    "title": "9V BATTERY",
+    "category": "Battery",
+    "specs": {}
+  },
+  {
+    "id": 10,
+    "title": "ACS712 20AMP Ac/DC Current Sensor",
+    "category": "Sensors",
+    "specs": {
+      "Supply Voltage": "4.5V ~ 5.5V DC",
+      "Current Measurement Range": "-20A ~ 20A",
+      "Sensitivity": "100 mV/A",
+      "Signal Path": "Low-noise analog",
+      "Power-On Time": "35 µs",
+      "Output Rise Time": "5 µs (step input response)",
+      "Package": "SOIC-8, small footprint, low-profile"
+    }
+  },
+  {
+    "id": 11,
+    "title": "PZEM-004T AC Multi-function \nElectric Energy Metering Power Monitor",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 2,
+    "title": "Raspberry Pi 4 Model B (4GB)",
+    "category": "Development Boards",
+    "specs": {
+      "RAM": "4GB LPDDR4",
+      "Processor": "Broadcom BCM2711"
+    }
+  },
+  {
+    "id": 4,
+    "title": "ESP8266 NodeMCU",
+    "category": "Modules",
+    "specs": {
+      "WiFi": "802.11 b/g/n",
+      "Voltage": "3.3V"
+    }
+  },
+  {
+    "id": 5,
+    "title": "SG90 Micro Servo Motor",
+    "category": "Motors",
+    "specs": {
+      "Torque": "1.8 kg-cm",
+      "Speed": "0.1 sec/60deg"
+    }
+  },
+  {
+    "id": 6,
+    "title": "Li-Po Battery 3.7V 1000mAh",
+    "category": "Battery",
+    "specs": {
+      "Capacity": "1000mAh",
+      "Voltage": "3.7V"
+    }
+  },
+  {
+    "id": 7,
+    "title": "DHT11 Temperature & Humidity Sensor",
+    "category": "Sensors",
+    "specs": {
+      "Temp Range": "0-50°C",
+      "Humidity Range": "20-80%"
+    }
+  },
+  {
+    "id": 12,
+    "title": "DHT-11 Temperature And Humidity Sensor",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 13,
+    "title": "DHT22 Module Temp & Humidity Sensor",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 14,
+    "title": "DS18B20 Water Proof Temperature Probe – Black",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 66,
+    "title": "1 channel 24V Relay Control Board Module with Optocoupler",
+    "category": "Relays",
+    "specs": {}
+  },
+  {
+    "id": 16,
+    "title": "AD8232 ECG with Heart Rate Sensor",
+    "category": "Sensors",
+    "specs": {
+      "Type": "Fully integrated single-lead ECG front end",
+      "Common-Mode Rejection Ratio": "80 dB (dc to 60 Hz)",
+      "Electrode Configuration": "Two or three electrodes",
+      "Application Qualification": "Automotive",
+      "Operating Voltage": "2.0V to 3.5V",
+      "Fast Restore Feature": "Improves filter settling"
+    }
+  },
+  {
+    "id": 17,
+    "title": "EMG Muscle Sensor Module V3.0 with Cable And Electrodes",
+    "category": "Sensors",
+    "specs": {
+      "Electrode Pad Diameter": "52 mm",
+      "Cable Length": "2 feet",
+      "Weight": "30 g",
+      "Gain": "Improved adjustable gain (rugged design)",
+      "Cable Interface": "Onboard port for new cables",
+      "Connectivity": "Connects to board directly (plug-and-play)",
+      "Minimum Operating Voltage": "±3.5V"
+    }
+  },
+  {
+    "id": 18,
+    "title": "AS608 Optical Fingerprint Sensor Module",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 24,
+    "title": "Heart beat rate sensor",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 25,
+    "title": "Vibration Sensor Module",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 26,
+    "title": "1.5-5V DC VibrationMotor",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 114,
+    "title": "5V RELAY QUBE",
+    "category": "Relays",
+    "specs": {}
+  },
+  {
+    "id": 139,
+    "title": "TOY MOTOR",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 140,
+    "title": "N20 MOTOR",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 214,
+    "title": "YELLOW LED",
+    "category": "LED",
+    "specs": {}
+  },
+  {
+    "id": 51,
+    "title": "Analog TDS Sensor Module",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 31,
+    "title": "Eyeblink sensor",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 33,
+    "title": "LDR Sensor Module",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 34,
+    "title": "LM35 Temperature Sensor",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 36,
+    "title": "MC-38 Wired Door Window Sensor Magnetic Switch",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 37,
+    "title": "Hall Effect Sensor Module",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 38,
+    "title": "MAX30100",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 52,
+    "title": "Turbidity Sensor with  Modules",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 70,
+    "title": "SIM800L GSM Module",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 143,
+    "title": "500 RPM DC MOTOR",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 145,
+    "title": "BLDC MOTOR 1000KVA",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 39,
+    "title": "MAX30102 Heart Rate and Pulse Oximeter Sensor Module (Black)",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 41,
+    "title": "Mq2 Sensor",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 42,
+    "title": "MQ3 Sensor",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 44,
+    "title": "MQ5 Sensor",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 45,
+    "title": "MQ6 Sensor",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 46,
+    "title": "MQ7 carbon monoxide gas sensor module",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 47,
+    "title": "MQ-8 Hydrogen Gas Sensor Module",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 48,
+    "title": "MQ-135 Module (Ammonia, Sulphide and Benzene Gas Sensor)",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 49,
+    "title": "PH Analog Sensor",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 50,
+    "title": "PIR Sensor Module HC-SR501",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 73,
+    "title": "Laser Sensor Module",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 53,
+    "title": "Turbidity Sensor Suspended Turbidity Value Detection Module Kit",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 54,
+    "title": "Rain Drop Sensor Module",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 55,
+    "title": "Soil Moisture Sensor Module",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 56,
+    "title": "Capacitive Soil Moisture Sensor",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 58,
+    "title": "LM393 Sound Sensor Module",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 60,
+    "title": "Ultrasonic Sensor Module - HC-SR04",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 61,
+    "title": "Voltage Sensor Module",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 116,
+    "title": "USB Microphone",
+    "category": "miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 71,
+    "title": "SIM800C GSM Module",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 69,
+    "title": "8 Channel Relay Module",
+    "category": "Relays",
+    "specs": {}
+  },
+  {
+    "id": 74,
+    "title": "HC-05 Bluetooth Module",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 146,
+    "title": "SIMONK30ESC",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 215,
+    "title": "ORANGE LED",
+    "category": "LED",
+    "specs": {}
+  },
+  {
+    "id": 80,
+    "title": "DS3231 RTC Module Without Coin Cell (AT24C32)",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 85,
+    "title": "STEP UP MODULE XL6009",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 93,
+    "title": "MPU-6050 Triple-Axis Accelerometer & Gyroscope Module",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 98,
+    "title": "ESP01 MODULE",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 100,
+    "title": "I2C MODULE",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 101,
+    "title": "OLED Display Module",
+    "category": "Displays",
+    "specs": {}
+  },
+  {
+    "id": 102,
+    "title": "16x2 LCD Display",
+    "category": "Displays",
+    "specs": {}
+  },
+  {
+    "id": 103,
+    "title": "20x4 LCD Display",
+    "category": "Displays",
+    "specs": {}
+  },
+  {
+    "id": 124,
+    "title": "4 PIN RELIMATE",
+    "category": "Connector",
+    "specs": {}
+  },
+  {
+    "id": 125,
+    "title": "5 PIN RELIMATE",
+    "category": "Connector",
+    "specs": {}
+  },
+  {
+    "id": 154,
+    "title": "BO MOTOR WHEEL",
+    "category": "Wheels",
+    "specs": {}
+  },
+  {
+    "id": 205,
+    "title": "DC JACK",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 206,
+    "title": "DC PIN MALE",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 212,
+    "title": "SPEAKER",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 213,
+    "title": "RED LED",
+    "category": "LED",
+    "specs": {}
+  },
+  {
+    "id": 216,
+    "title": "GREEN LED",
+    "category": "LED",
+    "specs": {}
+  },
+  {
+    "id": 75,
+    "title": "ADS1115 Module",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 107,
+    "title": "L293D Motor Driver/Servo Shield for Arduino",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 109,
+    "title": "ULN2003 Stepper Motor Driver",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 111,
+    "title": "NEO 6M GPS Module",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 8,
+    "title": "OLED Display 0.96 inch",
+    "category": "Displays",
+    "specs": {
+      "Resolution": "128x64",
+      "Interface": "I2C"
+    }
+  },
+  {
+    "id": 217,
+    "title": "BLUE LED",
+    "category": "LED",
+    "specs": {}
+  },
+  {
+    "id": 218,
+    "title": "WHITE LED",
+    "category": "LED",
+    "specs": {}
+  },
+  {
+    "id": 219,
+    "title": "6 PIN IC SOCKET",
+    "category": "Socket",
+    "specs": {}
+  },
+  {
+    "id": 220,
+    "title": "8 PIN IC SOCKET",
+    "category": "Socket",
+    "specs": {}
+  },
+  {
+    "id": 221,
+    "title": "14 PIN IC SOCKET",
+    "category": "Socket",
+    "specs": {}
+  },
+  {
+    "id": 222,
+    "title": "16 PIN IC SOCKET",
+    "category": "Socket",
+    "specs": {}
+  },
+  {
+    "id": 223,
+    "title": "18 PIN IC SOCKET",
+    "category": "Socket",
+    "specs": {}
+  },
+  {
+    "id": 224,
+    "title": "20 PIN IC SOCKET",
+    "category": "Socket",
+    "specs": {}
+  },
+  {
+    "id": 226,
+    "title": "29 PIN IC SOCKET",
+    "category": "Socket",
+    "specs": {}
+  },
+  {
+    "id": 227,
+    "title": "MALE BURGSTRIP",
+    "category": "miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 228,
+    "title": "FEMALE BURGSTRIP",
+    "category": "miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 229,
+    "title": "STM 32",
+    "category": "Development Boards",
+    "specs": {}
+  },
+  {
+    "id": 230,
+    "title": "SMALL BREADBOARD",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 231,
+    "title": "MEDIUM BREADBOARD",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 232,
+    "title": "BIG BREADBOARD",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 233,
+    "title": "ROBOT CHESIS TYRE",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 234,
+    "title": "M-M WIRE",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 235,
+    "title": "F-F WIRE",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 237,
+    "title": "28 PIN IC SOCKET",
+    "category": "Socket",
+    "specs": {}
+  },
+  {
+    "id": 236,
+    "title": "F-M WIRE",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 19,
+    "title": "Float Level Control Switch Plastic Float Switch",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 20,
+    "title": "Water Flow Sensor ST-S201",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 21,
+    "title": "Flow Sensor YF-S401",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 23,
+    "title": "Flex Sensor",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 141,
+    "title": "200 RPM DC MOTOR",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 142,
+    "title": "300 RPM DC MOTOR",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 43,
+    "title": "MQ4 Sensor",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 59,
+    "title": "TTP223 1 Channel Capacitive Touch Sensor Module",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 117,
+    "title": "ISD1820 Voice Recording Module With Mic and Loud Speaker | SMD vers",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 62,
+    "title": "ZMPT  Voltage Sensor Module",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 63,
+    "title": "Color Sensor Module",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 67,
+    "title": "2 Channel 5V Relay Module With Optocoupler",
+    "category": "Relays",
+    "specs": {}
+  },
+  {
+    "id": 68,
+    "title": "4 Channel Relay Module",
+    "category": "Relays",
+    "specs": {}
+  },
+  {
+    "id": 76,
+    "title": "PCF8575 Remote 16 Bits I2C IIC SMBus I/O Expander Module",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 77,
+    "title": "Micro SD Card Reader Module",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 78,
+    "title": "5KG LOAD CELL MODULE",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 119,
+    "title": "INMP SOUND SENSOR",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 79,
+    "title": "40KG LOAD CELL MODULE",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 121,
+    "title": "TEC1-12706 Thermoelectric Peltier Cooler Module",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 147,
+    "title": "5V STEPPER MOTOT",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 148,
+    "title": "SG90 SERVO MOTOR",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 86,
+    "title": "STEP DOWN MODULW LM2596",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 88,
+    "title": "FTDI232 FTDI Serial Adapter Module",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 89,
+    "title": "RC522 RFID  Reader Writer Module",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 92,
+    "title": "BMP180 Digital Barometric Pressure Sensor Module",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 199,
+    "title": "BC558",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 209,
+    "title": "GLUSTICK",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 94,
+    "title": "TP4056 Battery Charger C Type Module with Protection",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 99,
+    "title": "Micro USB to DIP Adapter Board",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 150,
+    "title": "MG995 SERVO MOTOR",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 151,
+    "title": "MG996R SERVO MOTOR",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 131,
+    "title": "3.5 RPM DC MOTOR",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 132,
+    "title": "Dummy WHEEL",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 133,
+    "title": "12V 10RPM Geared DC Motor",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 134,
+    "title": "30 RPM 12V Centre Shaft DC Geared Motor",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 106,
+    "title": "L298N 2A Motor Driver Module",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 135,
+    "title": "60 RPM DC MOTOR 12V",
+    "category": "Motors",
+    "specs": {}
+  },
+  {
+    "id": 112,
+    "title": "4*4 KEYPAD",
+    "category": "Keypad",
+    "specs": {}
+  },
+  {
+    "id": 82,
+    "title": "DS1307 Real-Time Clock RTC I2C Module AT24C32",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 96,
+    "title": "TP4050 Mini USB Battery Charger e-274",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 159,
+    "title": "5V BIDC FAN",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 160,
+    "title": "VALUE SOLENOID",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 164,
+    "title": "ARDUINO UNO SMD",
+    "category": "Development Boards",
+    "specs": {}
+  },
+  {
+    "id": 165,
+    "title": "ARDUINO UNO DIP",
+    "category": "Development Boards",
+    "specs": {}
+  },
+  {
+    "id": 166,
+    "title": "PRO MINI",
+    "category": "Development Boards",
+    "specs": {}
+  },
+  {
+    "id": 167,
+    "title": "ARDUINO NANO",
+    "category": "Development Boards",
+    "specs": {}
+  },
+  {
+    "id": 168,
+    "title": "ARDUINO MEGA",
+    "category": "Development Boards",
+    "specs": {}
+  },
+  {
+    "id": 211,
+    "title": "BC547",
+    "category": "Miscellaneous",
+    "specs": {}
+  },
+  {
+    "id": 225,
+    "title": "9V BATTERY CAP",
+    "category": "Battery",
+    "specs": {}
+  },
+  {
+    "id": 1,
+    "title": "Arduino Uno R3",
+    "category": "Development Boards",
+    "specs": {
+      "Microcontroller": "ATmega328P",
+      "Operating Voltage": "5V"
+    }
+  },
+  {
+    "id": 30,
+    "title": "5mm IR LED Infrared Receiver and Transmitter Diode",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 65,
+    "title": "1 channel 5V single Chanel Relay Module",
+    "category": "Relays",
+    "specs": {}
+  },
+  {
+    "id": 81,
+    "title": "DS1307 Real-Time Clock RTC I2C Module AT24C32",
+    "category": "",
+    "specs": {}
+  },
+  {
+    "id": 83,
+    "title": "Ai Thinker Lora Module (RA-02) - 433Mhz",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 84,
+    "title": "NRF24L01 Transceiver Module",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 87,
+    "title": "CP2102 USB 2.0 to UART TTL Converter Module",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 90,
+    "title": "RS232 to TTL Serial Interface Module",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 91,
+    "title": "RS485 to TTL Serial Port Converter Adapter Communication Module",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 95,
+    "title": "TP4050 Mini USB Battery Charger e-274",
+    "category": "",
+    "specs": {}
+  },
+  {
+    "id": 97,
+    "title": "5V Step-Up Power Module Lithium Battery Charging Protection Board USB For DIY Charger 134N3P",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 104,
+    "title": "433 MHZ RF Modules TX & RX PAIR",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 113,
+    "title": "4*3 KEYPAD",
+    "category": "Keypad",
+    "specs": {}
+  },
+  {
+    "id": 29,
+    "title": "5mm IR LED Infrared Receiver and Transmitter Diode",
+    "category": "",
+    "specs": {}
+  },
+  {
+    "id": 22,
+    "title": "Force Sensor Resistor 14.7mm Round Pressure Sensor 0.5 Inch",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 27,
+    "title": "Coin Type Micro Vibration Motor",
+    "category": "",
+    "specs": {}
+  },
+  {
+    "id": 72,
+    "title": "EM18 RFID Module",
+    "category": "Modules",
+    "specs": {}
+  },
+  {
+    "id": 28,
+    "title": "Coin Type Micro Vibration Motor",
+    "category": "Sensors",
+    "specs": {}
+  },
+  {
+    "id": 57,
+    "title": "INDASTIAL TEMPRATURE SENSOR",
+    "category": "Sensors",
+    "specs": {}
+  }
+]

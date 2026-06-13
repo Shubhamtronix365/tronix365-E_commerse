@@ -20,6 +20,28 @@ const CouponTable = () => {
     const [editingCoupon, setEditingCoupon] = useState(null);
     const [newCoupon, setNewCoupon] = useState(defaultCouponState);
 
+    const getCouponStatus = (coupon) => {
+        if (!coupon.is_active) return 'INACTIVE';
+        if (coupon.expiry_date && new Date(coupon.expiry_date) < new Date()) return 'EXPIRED';
+        if (coupon.usage_limit && coupon.used_count >= coupon.usage_limit) return 'LIMIT EXCEEDED';
+        return 'ACTIVE';
+    };
+
+    const getStatusStyles = (status) => {
+        switch (status) {
+            case 'ACTIVE':
+                return 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20';
+            case 'INACTIVE':
+                return 'bg-red-500/10 text-red-500 hover:bg-red-500/20';
+            case 'EXPIRED':
+                return 'bg-gray-500/10 text-gray-400 cursor-not-allowed';
+            case 'LIMIT EXCEEDED':
+                return 'bg-amber-500/10 text-amber-500 cursor-not-allowed';
+            default:
+                return 'bg-gray-500/10 text-gray-400';
+        }
+    };
+
     useEffect(() => {
         fetchCoupons();
     }, []);
@@ -153,10 +175,16 @@ const CouponTable = () => {
                                 </td>
                                 <td className="px-4 py-4 text-center">
                                     <button 
-                                        onClick={() => handleToggleStatus(coupon)}
-                                        className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${coupon.is_active ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : 'bg-red-500/10 text-red-500 hover:bg-red-500/20'}`}
+                                        onClick={() => {
+                                            const status = getCouponStatus(coupon);
+                                            if (status === 'ACTIVE' || status === 'INACTIVE') {
+                                                handleToggleStatus(coupon);
+                                            }
+                                        }}
+                                        disabled={getCouponStatus(coupon) === 'EXPIRED' || getCouponStatus(coupon) === 'LIMIT EXCEEDED'}
+                                        className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${getStatusStyles(getCouponStatus(coupon))}`}
                                     >
-                                        {coupon.is_active ? 'ACTIVE' : 'INACTIVE'}
+                                        {getCouponStatus(coupon)}
                                     </button>
                                 </td>
                                 <td className="px-4 py-4 text-right">

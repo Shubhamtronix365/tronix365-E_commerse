@@ -366,6 +366,9 @@ class BundleDB(Base):
     original_price = Column(Float)
     bundle_price = Column(Float)
     is_active = Column(Boolean, default=True)
+    expiry_date = Column(DateTime(timezone=True), nullable=True)
+    usage_limit = Column(Integer, nullable=True)
+    used_count = Column(Integer, default=0, nullable=False)
 
     products = relationship(
         "BundleProductDB", back_populates="bundle", cascade="all, delete-orphan"
@@ -441,6 +444,9 @@ class BundleResponse(BaseModel):
     original_price: float
     bundle_price: float
     is_active: bool
+    expiry_date: Optional[datetime] = None
+    usage_limit: Optional[int] = None
+    used_count: int = 0
     products: List[BundleProductResponse]
 
     class Config:
@@ -453,12 +459,17 @@ class BundleCreate(BaseModel):
     original_price: float
     bundle_price: float
     product_ids: List[int]
+    expiry_date: Optional[datetime] = None
+    usage_limit: Optional[int] = None
 
 
 class BundleUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     bundle_price: Optional[float] = None
+    is_active: Optional[bool] = None
+    expiry_date: Optional[datetime] = None
+    usage_limit: Optional[int] = None
 
 
 # Pydantic Schemas for Coupons
