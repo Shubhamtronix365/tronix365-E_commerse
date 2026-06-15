@@ -53,22 +53,23 @@ const BundleTable = ({ products }) => {
     };
 
     const toggleProductSelection = (product) => {
-        const isSelected = newBundle.product_ids.includes(product.id);
-        let updatedIds;
-        let updatedOriginalPrice;
-
-        if (isSelected) {
-            updatedIds = newBundle.product_ids.filter(id => id !== product.id);
-            updatedOriginalPrice = newBundle.original_price - product.price;
-        } else {
-            updatedIds = [...newBundle.product_ids, product.id];
-            updatedOriginalPrice = newBundle.original_price + product.price;
-        }
-
-        setNewBundle({ 
-            ...newBundle, 
-            product_ids: updatedIds, 
-            original_price: updatedOriginalPrice 
+        setNewBundle(prev => {
+            const isSelected = prev.product_ids.includes(product.id);
+            if (isSelected) {
+                return {
+                    ...prev,
+                    product_ids: prev.product_ids.filter(id => id !== product.id),
+                    original_price: Math.max(0, prev.original_price - product.price),
+                };
+            } else {
+                // Prevent adding the same product twice
+                if (prev.product_ids.includes(product.id)) return prev;
+                return {
+                    ...prev,
+                    product_ids: [...prev.product_ids, product.id],
+                    original_price: prev.original_price + product.price,
+                };
+            }
         });
     };
 
@@ -246,8 +247,8 @@ const BundleTable = ({ products }) => {
                         </div>
                         <div className="flex flex-wrap gap-2">
                             {bundle.products.map(bp => (
-                                <div key={bp.id} className="bg-black/40 px-3 py-1 rounded-full text-xs text-gray-300 border border-white/5">
-                                    {bp.product.title}
+                                <div key={bp.id || bp.product_id} className="bg-black/40 px-3 py-1 rounded-full text-xs text-gray-300 border border-white/5">
+                                    {bp.product?.title || `Product #${bp.product_id}`}
                                 </div>
                             ))}
                         </div>

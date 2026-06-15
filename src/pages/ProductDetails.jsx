@@ -255,8 +255,8 @@ const ProductDetails = () => {
                                             <div className="flex items-center justify-between gap-4">
                                                 <div className="flex -space-x-3 overflow-hidden">
                                                     {bundle.products.map(bp => (
-                                                        <div key={bp.id} className="inline-block h-8 w-8 rounded-full ring-2 ring-tronix-card bg-white p-1" title={bp.product.title}>
-                                                            <img src={getImageUrl(bp.product.image)} alt="" className="h-full w-full object-contain" />
+                                                        <div key={bp.id || bp.product_id} className="inline-block h-8 w-8 rounded-full ring-2 ring-tronix-card bg-white p-1" title={bp.product?.title}>
+                                                            <img src={getImageUrl(bp.product?.image)} alt="" className="h-full w-full object-contain" />
                                                         </div>
                                                     ))}
                                                 </div>

@@ -430,6 +430,7 @@ class CartMergeRequest(BaseModel):
 
 # Pydantic Schemas for Bundles
 class BundleProductResponse(BaseModel):
+    id: Optional[int] = None
     product_id: Optional[int] = None
     product: Optional[Product] = None
 
