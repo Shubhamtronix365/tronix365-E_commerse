@@ -74,9 +74,18 @@ async def global_exception_handler(request: Request, exc: Exception):
     import traceback
     print(f"GLOBAL EXCEPTION: {exc}")
     traceback.print_exc()
+    
+    # Dynamically propagate CORS headers to prevent browser CORS blocks on error responses
+    origin = request.headers.get("origin")
+    headers = {}
+    if origin:
+        headers["Access-Control-Allow-Origin"] = origin
+        headers["Access-Control-Allow-Credentials"] = "true"
+        
     return JSONResponse(
         status_code=500,
         content={"detail": "Internal Server Error", "error": str(exc)},
+        headers=headers,
     )
 
 

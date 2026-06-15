@@ -176,7 +176,7 @@ class Product(ProductBase):
 
 
 class OrderItem(BaseModel):
-    product_id: int
+    product_id: Optional[int] = None
     quantity: int
     price_at_purchase: Optional[float] = None
     product: Optional[Product] = None
