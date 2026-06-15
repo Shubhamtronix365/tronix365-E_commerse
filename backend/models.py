@@ -430,8 +430,8 @@ class CartMergeRequest(BaseModel):
 
 # Pydantic Schemas for Bundles
 class BundleProductResponse(BaseModel):
-    product_id: int
-    product: Product
+    product_id: Optional[int] = None
+    product: Optional[Product] = None
 
     class Config:
         from_attributes = True
@@ -446,8 +446,13 @@ class BundleResponse(BaseModel):
     is_active: bool
     expiry_date: Optional[datetime] = None
     usage_limit: Optional[int] = None
-    used_count: int = 0
+    used_count: Optional[int] = 0
     products: List[BundleProductResponse]
+
+    @field_validator("used_count", mode="before")
+    @classmethod
+    def default_used_count(cls, v):
+        return v if v is not None else 0
 
     class Config:
         from_attributes = True
@@ -489,7 +494,12 @@ class CouponCreate(CouponBase):
 
 class CouponResponse(CouponBase):
     id: int
-    used_count: int
+    used_count: Optional[int] = 0
+
+    @field_validator("used_count", mode="before")
+    @classmethod
+    def default_used_count(cls, v):
+        return v if v is not None else 0
 
     class Config:
         from_attributes = True
