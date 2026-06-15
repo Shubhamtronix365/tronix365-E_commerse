@@ -70,7 +70,9 @@ const Shop = () => {
     const { category } = useParams();
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState('All');
+    const [selectedCategory, setSelectedCategory] = useState(() => {
+        return sessionStorage.getItem('shop_category') || 'All';
+    });
 
     // Initialize category from URL if present
     useEffect(() => {
@@ -89,14 +91,43 @@ const Shop = () => {
                 }
             }
         } else {
-            // If accessed via /shop, ensure 'All' is selected
-            setSelectedCategory('All');
+            // If accessed via /shop, use saved category or ensure 'All' is selected
+            const savedCategory = sessionStorage.getItem('shop_category');
+            if (savedCategory) {
+                setSelectedCategory(savedCategory);
+            } else {
+                setSelectedCategory('All');
+            }
         }
     }, [category]);
 
-    const [priceRange, setPriceRange] = useState(10000);
-    const [sortBy, setSortBy] = useState('');
-    const [showInStockOnly, setShowInStockOnly] = useState(false);
+    const [priceRange, setPriceRange] = useState(() => {
+        const storedPrice = sessionStorage.getItem('shop_priceRange');
+        return storedPrice ? Number(storedPrice) : 10000;
+    });
+    const [sortBy, setSortBy] = useState(() => {
+        return sessionStorage.getItem('shop_sortBy') || '';
+    });
+    const [showInStockOnly, setShowInStockOnly] = useState(() => {
+        return sessionStorage.getItem('shop_showInStockOnly') === 'true';
+    });
+
+    // Save filters to sessionStorage when they change
+    useEffect(() => {
+        sessionStorage.setItem('shop_category', selectedCategory);
+    }, [selectedCategory]);
+
+    useEffect(() => {
+        sessionStorage.setItem('shop_priceRange', priceRange.toString());
+    }, [priceRange]);
+
+    useEffect(() => {
+        sessionStorage.setItem('shop_sortBy', sortBy);
+    }, [sortBy]);
+
+    useEffect(() => {
+        sessionStorage.setItem('shop_showInStockOnly', showInStockOnly.toString());
+    }, [showInStockOnly]);
 
     // Pagination State
     const [page, setPage] = useState(1);
@@ -268,7 +299,7 @@ const Shop = () => {
                                 <h3 className="text-xl font-bold mb-2">No products found</h3>
                                 <p>Try adjusting your search or filters.</p>
                                 <button
-                                    onClick={() => { setSelectedCategory('All'); setPriceRange(10000); }}
+                                    onClick={() => { setSelectedCategory('All'); setPriceRange(10000); setSortBy(''); setShowInStockOnly(false); }}
                                     className="mt-4 text-tronix-primary hover:underline"
                                 >
                                     Clear all filters
