@@ -50,19 +50,34 @@ async function generate() {
     
     productRoutes = products.map(p => `/product/${slugify(p.title)}`);
   } catch (err) {
-    console.warn('API fetch failed during sitemap generation. Falling back to local mock data...', err);
-    // Basic fallback to seed products list to prevent failure
-    const mockTitles = [
-      "Arduino Uno R3",
-      "Raspberry Pi 4 Model B (4GB)",
-      "HC-SR04 Ultrasonic Sensor",
-      "ESP8266 NodeMCU",
-      "SG90 Micro Servo Motor",
-      "Li-Po Battery 3.7V 1000mAh",
-      "DHT11 Temperature & Humidity Sensor",
-      "OLED Display 0.96 inch"
-    ];
-    productRoutes = mockTitles.map(title => `/product/${slugify(title)}`);
+    console.warn('API fetch failed during sitemap generation. Falling back to local products_metadata.json if available...', err);
+    const localJsonPath = path.join(__dirname, '../public/products_metadata.json');
+    if (fs.existsSync(localJsonPath)) {
+      try {
+        const localData = JSON.parse(fs.readFileSync(localJsonPath, 'utf8'));
+        if (Array.isArray(localData)) {
+          productRoutes = localData.map(p => `/product/${slugify(p.title)}`);
+          console.log(`Successfully mapped ${productRoutes.length} products from local products_metadata.json.`);
+        }
+      } catch (jsonErr) {
+        console.error('Failed to parse local products_metadata.json:', jsonErr);
+      }
+    }
+    
+    if (productRoutes.length === 0) {
+      // Basic fallback to seed products list to prevent failure
+      const mockTitles = [
+        "Arduino Uno R3",
+        "Raspberry Pi 4 Model B (4GB)",
+        "HC-SR04 Ultrasonic Sensor",
+        "ESP8266 NodeMCU",
+        "SG90 Micro Servo Motor",
+        "Li-Po Battery 3.7V 1000mAh",
+        "DHT11 Temperature & Humidity Sensor",
+        "OLED Display 0.96 inch"
+      ];
+      productRoutes = mockTitles.map(title => `/product/${slugify(title)}`);
+    }
   }
 
   const allRoutes = [...staticRoutes, ...categoryRoutes, ...productRoutes];

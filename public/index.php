@@ -7,9 +7,11 @@ $apiUrl = "https://tronix365-e-commerse.onrender.com";
 
 // 1. Determine request path
 $requestUri = $_SERVER['REQUEST_URI'];
-// Remove subdirectory path /e-commerse/ from request
-$path = str_replace('/e-commerse', '', $requestUri);
-$path = parse_url($path, PHP_URL_PATH);
+// Remove subdirectory path /e-commerse/ from request robustly (only from the start of path)
+$path = parse_url($requestUri, PHP_URL_PATH);
+if (strpos($path, '/e-commerse') === 0) {
+    $path = substr($path, strlen('/e-commerse'));
+}
 $path = trim($path, '/');
 
 // Defaults
@@ -31,6 +33,9 @@ function fetchUrl($url, $timeout = 5.0) {
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+        // Disable SSL certificate verification (safeguard for shared hosting cURL issues with Render APIs)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Accept: application/json'
         ]);
@@ -59,75 +64,99 @@ if (preg_match('/^product\/([a-zA-Z0-9_-]+)$/', $path, $matches)) {
     $isId = ctype_digit($slugOrId);
     $fetchUrl = $isId ? "$apiUrl/products/$slugOrId" : "$apiUrl/products/slug/$slugOrId";
 
-    // Fetch product details from FastAPI backend
-    $response = fetchUrl($fetchUrl, 5.0);
-    
-    if ($response) {
-        $product = json_decode($response, true);
-        if ($product) {
-            $pName = escapeMeta($product['title']);
-            $title = "$pName | Tronix365";
-            $description = escapeMeta(substr($product['description'], 0, 160));
-            if (!empty($product['image'])) {
-                // Check if absolute URL or relative
-                $image = (strpos($product['image'], 'http') === 0) ? $product['image'] : "$apiUrl/" . ltrim($product['image'], '/');
+    // 1. Try to load product locally from metadata JSON first (high performance & offline fallback)
+    $product = null;
+    $jsonPath = __DIR__ . '/products_metadata.json';
+    if (file_exists($jsonPath)) {
+        $jsonData = json_decode(file_get_contents($jsonPath), true);
+        if (is_array($jsonData)) {
+            foreach ($jsonData as $item) {
+                if ($isId) {
+                    if (isset($item['id']) && $item['id'] == $slugOrId) {
+                        $product = $item;
+                        break;
+                    }
+                } else {
+                    if (isset($item['slug']) && strcasecmp($item['slug'], $slugOrId) === 0) {
+                        $product = $item;
+                        break;
+                    }
+                }
             }
-            
-            // Build Schema.org Product JSON-LD
-            $sku = !empty($product['skv']) ? $product['skv'] : "SKU-" . strtoupper(preg_replace('/[^A-Z0-9]/', '-', $pName));
-            $stockStatus = ($product['stock'] > 0) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock";
-            
-            $productSchema = [
-                "@context" => "https://schema.org",
-                "@type" => "Product",
-                "name" => $pName,
-                "description" => $description,
-                "image" => $image,
-                "category" => escapeMeta($product['category']),
-                "sku" => $sku,
-                "brand" => [
-                    "@type" => "Brand",
-                    "name" => "Tronix365"
-                ],
-                "offers" => [
-                    "@type" => "Offer",
-                    "url" => $url,
-                    "priceCurrency" => "INR",
-                    "price" => $product['price'],
-                    "itemCondition" => "https://schema.org/NewCondition",
-                    "availability" => $stockStatus
-                ]
-            ];
-            
-            // Build BreadcrumbList JSON-LD
-            $breadcrumbSchema = [
-                "@context" => "https://schema.org",
-                "@type" => "BreadcrumbList",
-                "itemListElement" => [
-                    [
-                        "@type" => "ListItem",
-                        "position" => 1,
-                        "name" => "Home",
-                        "item" => "$baseUrl/"
-                    ],
-                    [
-                        "@type" => "ListItem",
-                        "position" => 2,
-                        "name" => $product['category'],
-                        "item" => "$baseUrl/category/" . strtolower(str_replace(' ', '-', $product['category']))
-                    ],
-                    [
-                        "@type" => "ListItem",
-                        "position" => 3,
-                        "name" => $pName,
-                        "item" => $url
-                    ]
-                ]
-            ];
-            
-            $extraHead .= "\n<script type=\"application/ld+json\">" . json_encode($productSchema) . "</script>";
-            $extraHead .= "\n<script type=\"application/ld+json\">" . json_encode($breadcrumbSchema) . "</script>";
         }
+    }
+
+    // 2. Fallback to FastAPI backend cURL if not found locally
+    if (!$product) {
+        $response = fetchUrl($fetchUrl, 5.0);
+        if ($response) {
+            $product = json_decode($response, true);
+        }
+    }
+    
+    if ($product) {
+        $pName = escapeMeta($product['title']);
+        $title = "$pName | Tronix365";
+        $description = escapeMeta(substr($product['description'], 0, 160));
+        if (!empty($product['image'])) {
+            // Check if absolute URL or relative
+            $image = (strpos($product['image'], 'http') === 0) ? $product['image'] : "$apiUrl/" . ltrim($product['image'], '/');
+        }
+        
+        // Build Schema.org Product JSON-LD
+        $sku = !empty($product['skv']) ? $product['skv'] : "SKU-" . strtoupper(preg_replace('/[^A-Z0-9]/', '-', $pName));
+        $stockStatus = ($product['stock'] > 0) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock";
+        
+        $productSchema = [
+            "@context" => "https://schema.org",
+            "@type" => "Product",
+            "name" => $pName,
+            "description" => $description,
+            "image" => $image,
+            "category" => escapeMeta($product['category']),
+            "sku" => $sku,
+            "brand" => [
+                "@type" => "Brand",
+                "name" => "Tronix365"
+            ],
+            "offers" => [
+                "@type" => "Offer",
+                "url" => $url,
+                "priceCurrency" => "INR",
+                "price" => $product['price'],
+                "itemCondition" => "https://schema.org/NewCondition",
+                "availability" => $stockStatus
+            ]
+        ];
+        
+        // Build BreadcrumbList JSON-LD
+        $breadcrumbSchema = [
+            "@context" => "https://schema.org",
+            "@type" => "BreadcrumbList",
+            "itemListElement" => [
+                [
+                    "@type" => "ListItem",
+                    "position" => 1,
+                    "name" => "Home",
+                    "item" => "$baseUrl/"
+                ],
+                [
+                    "@type" => "ListItem",
+                    "position" => 2,
+                    "name" => $product['category'],
+                    "item" => "$baseUrl/category/" . strtolower(str_replace(' ', '-', $product['category']))
+                ],
+                [
+                    "@type" => "ListItem",
+                    "position" => 3,
+                    "name" => $pName,
+                    "item" => $url
+                ]
+            ]
+        ];
+        
+        $extraHead .= "\n<script type=\"application/ld+json\">" . json_encode($productSchema) . "</script>";
+        $extraHead .= "\n<script type=\"application/ld+json\">" . json_encode($breadcrumbSchema) . "</script>";
     }
 } else if (preg_match('/^category\/([a-zA-Z0-9_-]+)$/', $path, $matches)) {
     // Category Page
