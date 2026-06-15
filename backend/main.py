@@ -69,6 +69,17 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    import traceback
+    print(f"GLOBAL EXCEPTION: {exc}")
+    traceback.print_exc()
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error", "error": str(exc)},
+    )
+
+
 # Create tables - Moved to startup for non-blocking import
 @app.on_event("startup")
 async def startup():
@@ -120,6 +131,60 @@ app.add_middleware(
 # Mount static files
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from auth import (
+    verify_password,
+    get_password_hash,
+    create_access_token,
+    create_refresh_token,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+)
+from datetime import timedelta
+from models import UserDB, UserCreate, Token, UserLogin, UserResponse, UserUpdate
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+
+# Dependency to get current user
+async def get_current_user(
+    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+):
+    from jose import JWTError, jwt
+    from auth import SECRET_KEY, ALGORITHM
+    from models import TokenData
+
+    credentials_exception = HTTPException(
+        status_code=401,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        token_type: str = payload.get("type")
+        if email is None or token_type != "access":
+            raise credentials_exception
+        token_data = TokenData(email=email)
+    except JWTError:
+        raise credentials_exception
+
+    user = db.query(UserDB).filter(UserDB.email == token_data.email).first()
+    if user is None:
+        raise credentials_exception
+    return user
+
+
+# Dependency to get current admin
+async def get_current_admin(
+    current_user: UserDB = Depends(get_current_user)
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied. Admin privileges required.",
+        )
+    return current_user
+
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
@@ -158,6 +223,7 @@ async def get_products(
             (ProductDB.title.ilike(search_term))
             | (ProductDB.description.ilike(search_term))
             | (ProductDB.category.ilike(search_term))
+            | (ProductDB.skv.ilike(search_term))
         )
 
     if category and category != "All":
@@ -281,7 +347,11 @@ async def get_product_by_slug(slug: str, db: Session = Depends(get_db)):
 
 
 @app.post("/products", response_model=Product, status_code=201)
-async def create_product(product: ProductCreate, db: Session = Depends(get_db)):
+async def create_product(
+    product: ProductCreate,
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
     new_product = ProductDB(**product.dict())
     db.add(new_product)
     db.commit()
@@ -294,7 +364,10 @@ async def create_product(product: ProductCreate, db: Session = Depends(get_db)):
 
 @app.put("/products/{product_id}", response_model=Product)
 async def update_product(
-    product_id: int, product: ProductUpdate, db: Session = Depends(get_db)
+    product_id: int,
+    product: ProductUpdate,
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
 ):
     db_product = db.query(ProductDB).filter(ProductDB.id == product_id).first()
     if not db_product:
@@ -313,10 +386,23 @@ async def update_product(
 
 
 @app.delete("/products/{product_id}", status_code=204)
-async def delete_product(product_id: int, db: Session = Depends(get_db)):
+async def delete_product(
+    product_id: int,
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
     db_product = db.query(ProductDB).filter(ProductDB.id == product_id).first()
     if not db_product:
         raise HTTPException(status_code=404, detail="Product not found")
+
+    # Delete related wishlists, carts, reviews, and bundle associations
+    db.query(WishlistItemDB).filter(WishlistItemDB.product_id == product_id).delete()
+    db.query(CartItemDB).filter(CartItemDB.product_id == product_id).delete()
+    db.query(ReviewDB).filter(ReviewDB.product_id == product_id).delete()
+    db.query(BundleProductDB).filter(BundleProductDB.product_id == product_id).delete()
+    
+    # For order items, set product_id to NULL to preserve order history
+    db.query(OrderItemDB).filter(OrderItemDB.product_id == product_id).update({OrderItemDB.product_id: None})
 
     db.delete(db_product)
     db.commit()
@@ -386,7 +472,8 @@ async def update_order_status(
     order_id: int, 
     status_update: OrderStatusUpdate, 
     background_tasks: BackgroundTasks, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin)
 ):
     order = db.query(OrderDB).filter(OrderDB.id == order_id).first()
     if not order:
@@ -436,7 +523,11 @@ async def update_order_status(
 
 # Coupon System Endpoints
 @app.post("/admin/coupons", response_model=CouponResponse, status_code=201)
-async def create_coupon(coupon: CouponCreate, db: Session = Depends(get_db)):
+async def create_coupon(
+    coupon: CouponCreate,
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
     # Check if coupon code exists
     existing = db.query(CouponDB).filter(CouponDB.code == coupon.code).first()
     if existing:
@@ -450,13 +541,19 @@ async def create_coupon(coupon: CouponCreate, db: Session = Depends(get_db)):
 
 
 @app.get("/admin/coupons", response_model=List[CouponResponse])
-async def list_coupons(db: Session = Depends(get_db)):
+async def list_coupons(
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
     return db.query(CouponDB).all()
 
 
 @app.put("/admin/coupons/{coupon_id}", response_model=CouponResponse)
 async def update_coupon(
-    coupon_id: int, update_data: CouponUpdate, db: Session = Depends(get_db)
+    coupon_id: int,
+    update_data: CouponUpdate,
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
 ):
     coupon = db.query(CouponDB).filter(CouponDB.id == coupon_id).first()
     if not coupon:
@@ -472,7 +569,11 @@ async def update_coupon(
 
 
 @app.delete("/admin/coupons/{coupon_id}")
-async def delete_coupon(coupon_id: int, db: Session = Depends(get_db)):
+async def delete_coupon(
+    coupon_id: int,
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
     coupon = db.query(CouponDB).filter(CouponDB.id == coupon_id).first()
     if not coupon:
         raise HTTPException(status_code=404, detail="Coupon not found")
@@ -524,7 +625,11 @@ async def apply_coupon(code: str, cart_total: float, db: Session = Depends(get_d
 
 # Bundle System Endpoints
 @app.post("/admin/bundles", response_model=BundleResponse, status_code=201)
-async def create_bundle(bundle_data: BundleCreate, db: Session = Depends(get_db)):
+async def create_bundle(
+    bundle_data: BundleCreate,
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
     new_bundle = BundleDB(
         name=bundle_data.name,
         description=bundle_data.description,
@@ -555,7 +660,10 @@ async def create_bundle(bundle_data: BundleCreate, db: Session = Depends(get_db)
 
 @app.put("/admin/bundles/{bundle_id}", response_model=BundleResponse)
 async def update_bundle(
-    bundle_id: int, update_data: BundleUpdate, db: Session = Depends(get_db)
+    bundle_id: int,
+    update_data: BundleUpdate,
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
 ):
     bundle = db.query(BundleDB).filter(BundleDB.id == bundle_id).first()
     if not bundle:
@@ -576,7 +684,11 @@ async def update_bundle(
 
 
 @app.delete("/admin/bundles/{bundle_id}")
-async def delete_bundle(bundle_id: int, db: Session = Depends(get_db)):
+async def delete_bundle(
+    bundle_id: int,
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
     bundle = db.query(BundleDB).filter(BundleDB.id == bundle_id).first()
     if not bundle:
         raise HTTPException(status_code=404, detail="Bundle not found")
@@ -596,7 +708,10 @@ async def delete_bundle(bundle_id: int, db: Session = Depends(get_db)):
 
 
 @app.get("/admin/bundles", response_model=List[BundleResponse])
-async def get_admin_bundles(db: Session = Depends(get_db)):
+async def get_admin_bundles(
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
     return (
         db.query(BundleDB)
         .options(joinedload(BundleDB.products).joinedload(BundleProductDB.product))
@@ -653,57 +768,61 @@ async def get_product_bundles(product_id: int, db: Session = Depends(get_db)):
 
 
 @app.get("/orders", response_model=List[Order])
-async def get_orders(skip: int = 0, limit: int = 20, db: Session = Depends(get_db)):
-    orders = (
-        db.query(OrderDB)
-        .options(joinedload(OrderDB.items).joinedload(OrderItemDB.product))
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
+async def get_orders(
+    skip: int = 0,
+    limit: int = 20,
+    search: str = None,
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
+    query = db.query(OrderDB).options(joinedload(OrderDB.items).joinedload(OrderItemDB.product))
+    if search:
+        search_term = f"%{search}%"
+        
+        # Base filters for order fields
+        filters = [
+            OrderDB.customer_email.ilike(search_term),
+            OrderDB.status.ilike(search_term),
+            OrderDB.full_name.ilike(search_term),
+            OrderDB.txnid.ilike(search_term),
+            OrderDB.phone.ilike(search_term),
+            OrderDB.city.ilike(search_term),
+            OrderDB.state.ilike(search_term),
+            OrderDB.pincode.ilike(search_term),
+        ]
+        
+        # Check if search term matches a product's title or SKV in the order
+        product_filter = OrderDB.items.any(
+            OrderItemDB.product.has(
+                or_(
+                    ProductDB.title.ilike(search_term),
+                    ProductDB.skv.ilike(search_term),
+                )
+            )
+        )
+        filters.append(product_filter)
+        
+        # Try to parse order ID from search string
+        try:
+            clean_search = search.strip()
+            import re
+            match = re.search(r'(?:order_tronix_|#)+(\d+)', clean_search, re.IGNORECASE)
+            if match:
+                order_id = int(match.group(1))
+                filters.append(OrderDB.id == order_id)
+            else:
+                order_id = int(clean_search)
+                filters.append(OrderDB.id == order_id)
+        except ValueError:
+            pass
+            
+        query = query.filter(or_(*filters))
+
+    orders = query.order_by(OrderDB.id.desc()).offset(skip).limit(limit).all()
     return orders
 
 
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from auth import (
-    verify_password,
-    get_password_hash,
-    create_access_token,
-    create_refresh_token,
-    ACCESS_TOKEN_EXPIRE_MINUTES,
-)
-from datetime import timedelta
-from models import UserDB, UserCreate, Token, UserLogin, UserResponse, UserUpdate
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-
-
-# Dependency to get current user
-async def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
-):
-    from jose import JWTError, jwt
-    from auth import SECRET_KEY, ALGORITHM
-    from models import TokenData
-
-    credentials_exception = HTTPException(
-        status_code=401,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
-            raise credentials_exception
-        token_data = TokenData(email=email)
-    except JWTError:
-        raise credentials_exception
-
-    user = db.query(UserDB).filter(UserDB.email == token_data.email).first()
-    if user is None:
-        raise credentials_exception
-    return user
+# Dependencies moved to top to prevent NameError
 
 
 @app.post("/products/{product_id}/reviews", response_model=ReviewResponse)
@@ -1082,7 +1201,10 @@ async def update_user_profile(
 
 
 @app.get("/debug-orders")
-async def debug_orders(db: Session = Depends(get_db)):
+async def debug_orders(
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
     orders = db.query(OrderDB).order_by(OrderDB.id.desc()).limit(3).all()
     users = db.query(UserDB).order_by(UserDB.id.desc()).limit(3).all()
     return {
@@ -1447,11 +1569,14 @@ class PaymentInitiate(BaseModel):
     pincode: str
     coupon_code: str | None = None
     discount_amount: float = 0.0
-    bypass: bool = False
 
 
 @app.post("/payment/initiate")
-async def initiate_payment(payment: PaymentInitiate, db: Session = Depends(get_db)):
+async def initiate_payment(
+    payment: PaymentInitiate,
+    db: Session = Depends(get_db),
+    current_user: UserDB = Depends(get_current_user),
+):
     # 1. Validate Stock
     items_for_order = []
     for item in payment.items:
@@ -1494,11 +1619,10 @@ async def initiate_payment(payment: PaymentInitiate, db: Session = Depends(get_d
     txnid = f"TXN{int(payment.amount)}{os.urandom(4).hex()}"  # Unique ID
 
     # Create Order in DB
-    status = "confirmed" if payment.bypass else "pending"
     new_order = OrderDB(
-        customer_email=payment.email,
+        customer_email=current_user.email,  # Enforce logged-in user's email
         total_amount=payment.amount,
-        status=status,
+        status="pending",
         items=items_for_order,  # Save actual items
         txnid=txnid,
         full_name=payment.firstname,
@@ -1511,36 +1635,8 @@ async def initiate_payment(payment: PaymentInitiate, db: Session = Depends(get_d
         discount_amount=payment.discount_amount,
     )
     db.add(new_order)
-
-    # If bypassed, decrement stock and increment coupon usage count immediately
-    if payment.bypass:
-        for item in items_for_order:
-            product = db.query(ProductDB).filter(ProductDB.id == item.product_id).first()
-            if product:
-                product.stock -= item.quantity
-                if product.stock < 0:
-                    product.stock = 0  # Safety check
-        if payment.coupon_code:
-            coupon = db.query(CouponDB).filter(CouponDB.code == payment.coupon_code).first()
-            if coupon:
-                coupon.used_count += 1
-
-        # Increment bundle usage immediately if bypassed
-        bundle_ids = {item.bundle_id for item in items_for_order if item.bundle_id}
-        for b_id in bundle_ids:
-            bundle = db.query(BundleDB).filter(BundleDB.id == b_id).first()
-            if bundle:
-                bundle.used_count = (bundle.used_count or 0) + 1
     db.commit()
     db.refresh(new_order)
-
-    # Clear Cart for this user immediately only if bypassed (as payment is successful instantly)
-    if payment.bypass:
-        user_obj = db.query(UserDB).filter(UserDB.email == payment.email).first()
-        if user_obj:
-            db.query(CartItemDB).filter(CartItemDB.user_id == user_obj.id, CartItemDB.selected == True).delete()
-            db.commit()
-
 
     payu_env = os.getenv("PAYU_ENV", "MOCK").upper()
     if payu_env == "PROD":
@@ -1561,7 +1657,7 @@ async def initiate_payment(payment: PaymentInitiate, db: Session = Depends(get_d
         amount_str,
         payment.productinfo,
         payment.firstname,
-        payment.email,
+        current_user.email,  # Enforce logged-in user's email
         salt,
     )
 
@@ -1571,7 +1667,7 @@ async def initiate_payment(payment: PaymentInitiate, db: Session = Depends(get_d
         "amount": amount_str,
         "productinfo": payment.productinfo,
         "firstname": payment.firstname,
-        "email": payment.email,
+        "email": current_user.email,
         "phone": payment.phone,
         "surl": f"{os.getenv('BACKEND_URL', 'http://localhost:8000')}/payment/callback",  # Success URL
         "furl": f"{os.getenv('BACKEND_URL', 'http://localhost:8000')}/payment/callback",  # Failure URL
@@ -1691,6 +1787,31 @@ async def mock_payment_process(
     furl: str = Form(...),
     hash: str = Form(...),
 ):
+    # Validate surl and furl to prevent Open Redirects
+    from urllib.parse import urlparse
+    backend_url = os.getenv("BACKEND_URL", "http://localhost:8000")
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    
+    parsed_backend = urlparse(backend_url)
+    parsed_frontend = urlparse(frontend_url)
+    parsed_surl = urlparse(surl)
+    parsed_furl = urlparse(furl)
+
+    allowed_hosts = {
+        parsed_backend.netloc,
+        parsed_frontend.netloc,
+        "localhost:8000",
+        "127.0.0.1:8000",
+        "localhost:5173",
+        "127.0.0.1:5173",
+        "tronix365-e-commerse.onrender.com",
+    }
+    
+    if parsed_surl.netloc and parsed_surl.netloc not in allowed_hosts:
+        raise HTTPException(status_code=400, detail="Invalid success redirect URL (Open Redirect prohibited)")
+    if parsed_furl.netloc and parsed_furl.netloc not in allowed_hosts:
+        raise HTTPException(status_code=400, detail="Invalid failure redirect URL (Open Redirect prohibited)")
+
     # Simulate PayU processing time
     import time
 
@@ -1837,7 +1958,10 @@ async def payment_callback(
 
 @app.get("/admin/stats")
 @cache(expire=3600)
-async def get_admin_stats(db: Session = Depends(get_db)):
+async def get_admin_stats(
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
     total_orders = db.query(OrderDB).count()
     total_revenue = db.query(func.sum(OrderDB.total_amount)).scalar() or 0.0
     total_products = db.query(ProductDB).count()
@@ -1878,21 +2002,57 @@ async def get_admin_stats(db: Session = Depends(get_db)):
 
 
 @app.post("/upload")
-async def upload_image(file: UploadFile = File(...)):
-    try:
-        # Create a unique filename
-        file_extension = file.filename.split(".")[-1]
-        unique_filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{os.urandom(4).hex()}.{file_extension}"
-        file_path = os.path.join(UPLOAD_DIR, unique_filename)
+async def upload_image(
+    file: UploadFile = File(...),
+    current_user: UserDB = Depends(get_current_user),
+):
+    # 1. Check file extension against whitelist
+    filename = file.filename or ""
+    file_extension = filename.split(".")[-1].lower()
+    ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp", "gif"}
+    if file_extension not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid file extension. Only images (JPG, PNG, WEBP, GIF) are allowed."
+        )
 
+    # 2. Check file size (5MB limit)
+    contents = await file.read()
+    if len(contents) > 5 * 1024 * 1024:
+        raise HTTPException(
+            status_code=400,
+            detail="File size exceeds maximum limit of 5MB."
+        )
+
+    unique_filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{os.urandom(4).hex()}.{file_extension}"
+    file_path = os.path.join(UPLOAD_DIR, unique_filename)
+
+    try:
         with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+            buffer.write(contents)
+
+        # 3. Validate image content via Pillow
+        from PIL import Image
+        try:
+            with Image.open(file_path) as img:
+                img.verify()
+        except Exception:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            raise HTTPException(status_code=400, detail="Invalid or corrupt image file.")
 
         # Optimize image and convert to WebP
         optimized_path = process_image(file_path)
         final_filename = os.path.basename(optimized_path)
 
-        # Return a relative URL instead of absolute
+        # If process_image failed and didn't output a valid file path, handle it
+        if not os.path.exists(optimized_path):
+            raise HTTPException(status_code=500, detail="Failed to process image.")
+
         return {"url": f"/uploads/{final_filename}"}
+    except HTTPException as he:
+        raise he
     except Exception as e:
+        if os.path.exists(file_path):
+            os.remove(file_path)
         raise HTTPException(status_code=500, detail=str(e))

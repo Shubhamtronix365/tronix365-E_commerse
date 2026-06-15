@@ -36,23 +36,55 @@ const AdminDashboard = () => {
     });
     const [updatingProfile, setUpdatingProfile] = useState(false);
 
-    const filteredProducts = products.filter(p =>
-        (p.title && p.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (p.skv && p.skv.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (p.category && p.category.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
+    const isFirstMount = useRef(true);
+
+    const filteredProducts = products;
 
     const filteredOrders = orders.filter(o => {
-        const matchesSearch = (o.id && o.id.toString().includes(searchQuery.toLowerCase())) ||
-            (o.customer_email && o.customer_email.toLowerCase().includes(searchQuery.toLowerCase())) ||
-            (o.status && o.status.toLowerCase().includes(searchQuery.toLowerCase())) ||
-            (o.full_name && o.full_name.toLowerCase().includes(searchQuery.toLowerCase()));
-
         const matchesStatus = orderStatusFilter === 'All' ||
             (o.status && o.status.toLowerCase() === orderStatusFilter.toLowerCase());
 
-        return matchesSearch && matchesStatus;
+        return matchesStatus;
     });
+
+    // Fetch search data from backend dynamically
+    const fetchSearchData = async () => {
+        try {
+            const prodRes = await client.get(`/products?skip=0&limit=${LIMIT}&search=${searchQuery}`);
+            setProducts(prodRes.data);
+            setProductsPage(1);
+            if (prodRes.data.length < LIMIT) {
+                setHasMoreProducts(false);
+            } else {
+                setHasMoreProducts(true);
+            }
+
+            const ordRes = await client.get(`/orders?skip=0&limit=${LIMIT}&search=${searchQuery}`);
+            setOrders(ordRes.data);
+            setOrdersPage(1);
+            if (ordRes.data.length < LIMIT) {
+                setHasMoreOrders(false);
+            } else {
+                setHasMoreOrders(true);
+            }
+        } catch (error) {
+            console.error("Error searching admin data:", error);
+        }
+    };
+
+    // Debounced search logic
+    useEffect(() => {
+        if (isFirstMount.current) {
+            isFirstMount.current = false;
+            return;
+        }
+
+        const delayDebounceFn = setTimeout(() => {
+            fetchSearchData();
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery]);
 
     // Pagination States
     const [productsPage, setProductsPage] = useState(1);
@@ -100,7 +132,7 @@ const AdminDashboard = () => {
         try {
             if (activeTab === 'products') {
                 const nextSkip = productsPage * LIMIT;
-                const res = await client.get(`/products?skip=${nextSkip}&limit=${LIMIT}`);
+                const res = await client.get(`/products?skip=${nextSkip}&limit=${LIMIT}&search=${searchQuery}`);
                 const newItems = res.data;
 
                 setProducts(prev => [...prev, ...newItems]);
@@ -108,7 +140,7 @@ const AdminDashboard = () => {
                 if (newItems.length < LIMIT) setHasMoreProducts(false);
             } else {
                 const nextSkip = ordersPage * LIMIT;
-                const res = await client.get(`/orders?skip=${nextSkip}&limit=${LIMIT}`);
+                const res = await client.get(`/orders?skip=${nextSkip}&limit=${LIMIT}&search=${searchQuery}`);
                 const newItems = res.data;
 
                 setOrders(prev => [...prev, ...newItems]);

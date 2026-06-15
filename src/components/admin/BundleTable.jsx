@@ -16,6 +16,7 @@ const defaultBundleState = {
 
 const BundleTable = ({ products }) => {
     const [bundles, setBundles] = useState([]);
+    const [availableProducts, setAvailableProducts] = useState(products || []);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingBundle, setEditingBundle] = useState(null);
@@ -24,7 +25,18 @@ const BundleTable = ({ products }) => {
 
     useEffect(() => {
         fetchBundles();
+        fetchProducts();
     }, []);
+
+    const fetchProducts = async () => {
+        try {
+            // Fetch all products to ensure admin has full visibility when setting bundles
+            const res = await client.get('/products?limit=1000');
+            setAvailableProducts(res.data);
+        } catch (err) {
+            console.error("Failed to load products for bundle setting:", err);
+        }
+    };
 
     const fetchBundles = async () => {
         try {
@@ -149,7 +161,7 @@ const BundleTable = ({ products }) => {
         }
     };
 
-    const filteredAvailableProducts = products.filter(p => 
+    const filteredAvailableProducts = availableProducts.filter(p => 
         p.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
 

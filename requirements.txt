@@ -17,3 +17,5 @@ redis
 fastapi-cache2[redis]
 google-auth
 jinja2
+pytest
+httpx

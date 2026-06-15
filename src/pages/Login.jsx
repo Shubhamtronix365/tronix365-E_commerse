@@ -59,13 +59,7 @@ const Login = () => {
                     navigate('/');
                 }
             } else {
-                // Fallback for demo if needed, but result.message should suffice
-                if (email === "admin@tronix365.com") {
-                    toast.success("Demo login active.");
-                    navigate('/admin');
-                } else {
-                    toast.error(result.message || 'Login failed.');
-                }
+                toast.error(result.message || 'Login failed.');
             }
         } catch (error) {
             console.error('Unexpected login error:', error);
