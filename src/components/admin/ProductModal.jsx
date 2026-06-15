@@ -244,16 +244,18 @@ const ProductModal = ({
                                                 onChange={handleImageUpload}
                                             />
 
-                                            {/* Manual URL Input */}
-                                            <div className="relative mt-2">
-                                                <input
-                                                    type="text"
-                                                    placeholder="Or paste image URL here..."
-                                                    value={newProduct.image || ''}
-                                                    onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
-                                                    className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder-gray-600 focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary focus:bg-white/5 transition-all outline-none"
-                                                />
-                                            </div>
+                                            {/* Manual URL Input — hidden for data URI (base64 uploads) */}
+                                            {!newProduct.image?.startsWith('data:') && (
+                                                <div className="relative mt-2">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Or paste image URL here..."
+                                                        value={newProduct.image || ''}
+                                                        onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
+                                                        className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder-gray-600 focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary focus:bg-white/5 transition-all outline-none"
+                                                    />
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

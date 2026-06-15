@@ -209,6 +209,41 @@ async def health_check():
     return {"status": "ok"}
 
 
+@app.post("/upload")
+async def upload_image(
+    file: UploadFile = File(...),
+    current_user: UserDB = Depends(get_current_admin),
+):
+    """
+    Accepts an image upload and returns it as a base64 data URI.
+    This avoids Render's ephemeral filesystem which wipes /uploads/ on every restart.
+    The data URI is stored directly in the database so the image is always available.
+    """
+    # Validate file type
+    allowed_types = {"image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"}
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file type '{file.content_type}'. Allowed: JPEG, PNG, GIF, WebP, SVG."
+        )
+
+    # Read and size-check (max 5 MB)
+    contents = await file.read()
+    max_size = 5 * 1024 * 1024  # 5 MB
+    if len(contents) > max_size:
+        raise HTTPException(
+            status_code=413,
+            detail="Image too large. Maximum allowed size is 5 MB."
+        )
+
+    import base64
+    # Encode to base64 data URI — stored in DB, no disk required
+    b64 = base64.b64encode(contents).decode("utf-8")
+    data_uri = f"data:{file.content_type};base64,{b64}"
+
+    return {"url": data_uri}
+
+
 @app.get("/products", response_model=List[Product])
 # @cache(expire=3600, namespace="products")
 async def get_products(
