@@ -3,6 +3,7 @@ import { Plus, Trash2, Box, IndianRupee, Search, CheckCircle2, XCircle, Edit } f
 import toast from 'react-hot-toast';
 import client from '../../api/client';
 import { motion, AnimatePresence } from 'framer-motion';
+import ConfirmModal from './ConfirmModal';
 
 const defaultBundleState = {
     name: '',
@@ -22,6 +23,8 @@ const BundleTable = ({ products }) => {
     const [editingBundle, setEditingBundle] = useState(null);
     const [newBundle, setNewBundle] = useState(defaultBundleState);
     const [searchTerm, setSearchTerm] = useState('');
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [bundleToDelete, setBundleToDelete] = useState(null);
 
     useEffect(() => {
         fetchBundles();
@@ -149,15 +152,22 @@ const BundleTable = ({ products }) => {
         setIsModalOpen(true);
     };
 
-    const handleDelete = async (bundleId) => {
-        if (!window.confirm("Are you sure you want to delete this bundle? This cannot be undone.")) return;
-        
+    const handleDeleteClick = (bundle) => {
+        setBundleToDelete(bundle);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDeleteBundle = async () => {
+        if (!bundleToDelete) return;
         try {
-            await client.delete(`/admin/bundles/${bundleId}`);
+            await client.delete(`/admin/bundles/${bundleToDelete.id}`);
             toast.success("Bundle deleted successfully");
             fetchBundles();
         } catch (err) {
             toast.error("Failed to delete bundle");
+        } finally {
+            setIsDeleteModalOpen(false);
+            setBundleToDelete(null);
         }
     };
 
@@ -221,7 +231,7 @@ const BundleTable = ({ products }) => {
                                         <Edit size={14} />
                                     </button>
                                     <button 
-                                        onClick={() => handleDelete(bundle.id)}
+                                        onClick={() => handleDeleteClick(bundle)}
                                         className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-md transition-colors"
                                         title="Delete Bundle"
                                     >
@@ -380,6 +390,16 @@ const BundleTable = ({ products }) => {
                     </div>
                 )}
             </AnimatePresence>
+
+            <ConfirmModal 
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDeleteBundle}
+                title="Delete Bundle?"
+                message={`Are you sure you want to delete bundle "${bundleToDelete?.name}"? This action cannot be undone.`}
+                confirmText="Delete"
+                type="danger"
+            />
         </div>
     );
 };

@@ -14,6 +14,7 @@ import OrderModal from '../components/admin/OrderModal';
 import AdminSettings from '../components/admin/AdminSettings';
 import CouponTable from '../components/admin/CouponTable';
 import BundleTable from '../components/admin/BundleTable';
+import ConfirmModal from '../components/admin/ConfirmModal';
 
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('products');
@@ -506,33 +507,15 @@ const AdminDashboard = () => {
             />
 
             {/* Delete Confirmation Modal */}
-            {isDeleteModalOpen && (
-                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-tronix-card border border-white/10 rounded-2xl w-full max-w-sm p-6 relative text-center">
-                        <div className="mx-auto w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center mb-4">
-                            <Trash2 className="text-red-500" size={24} />
-                        </div>
-                        <h3 className="text-xl font-bold text-white mb-2">Delete Product?</h3>
-                        <p className="text-gray-400 mb-6">
-                            Are you sure you want to delete <span className="text-white font-medium">{productToDelete?.title}</span>? This action cannot be undone.
-                        </p>
-                        <div className="flex gap-3 justify-center">
-                            <button
-                                onClick={() => setIsDeleteModalOpen(false)}
-                                className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={confirmDeleteProduct}
-                                className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors"
-                            >
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDeleteProduct}
+                title="Delete Product?"
+                message={`Are you sure you want to delete "${productToDelete?.title}"? This action cannot be undone.`}
+                confirmText="Delete"
+                type="danger"
+            />
 
             {/* Order Details Modal */}
             <OrderModal 

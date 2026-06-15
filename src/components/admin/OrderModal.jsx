@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Package, Check, Clock, Truck, User, CreditCard, Calendar, Image as ImageIcon } from 'lucide-react';
+import ConfirmModal from './ConfirmModal';
 
 const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
+    const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+
     if (!order) return null;
 
     return (
-        <AnimatePresence>
+        <>
+            <AnimatePresence>
             {isOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 text-white">
                     {/* Backdrop */}
@@ -102,11 +106,7 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                                                     Accept Order
                                                 </button>
                                                 <button
-                                                    onClick={() => {
-                                                        if(window.confirm("Are you sure you want to reject this order? Stock will be restored.")) {
-                                                            onUpdateOrderStatus(order.id, 'deleted');
-                                                        }
-                                                    }}
+                                                    onClick={() => setIsRejectModalOpen(true)}
                                                     className="px-6 py-2 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-lg font-bold text-sm transition-colors"
                                                 >
                                                     Reject Order
@@ -300,6 +300,18 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                 </div>
             )}
         </AnimatePresence>
+
+        <ConfirmModal
+            isOpen={isRejectModalOpen}
+            onClose={() => setIsRejectModalOpen(false)}
+            onConfirm={() => onUpdateOrderStatus(order.id, 'deleted')}
+            title="Reject Order?"
+            message="Are you sure you want to reject this order? Stock will be restored."
+            confirmText="Reject"
+            cancelText="Keep Order"
+            type="danger"
+        />
+        </>
     );
 };
 

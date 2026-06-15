@@ -3,6 +3,7 @@ import { Plus, Trash2, Calendar, Tag, Percent, IndianRupee, Edit } from 'lucide-
 import toast from 'react-hot-toast';
 import client from '../../api/client';
 import { motion, AnimatePresence } from 'framer-motion';
+import ConfirmModal from './ConfirmModal';
 
 const defaultCouponState = {
     code: '',
@@ -19,6 +20,8 @@ const CouponTable = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCoupon, setEditingCoupon] = useState(null);
     const [newCoupon, setNewCoupon] = useState(defaultCouponState);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [couponToDelete, setCouponToDelete] = useState(null);
 
     const getCouponStatus = (coupon) => {
         if (!coupon.is_active) return 'INACTIVE';
@@ -98,15 +101,22 @@ const CouponTable = () => {
         setIsModalOpen(true);
     };
 
-    const handleDelete = async (couponId) => {
-        if (!window.confirm("Are you sure you want to delete this coupon? This cannot be undone.")) return;
-        
+    const handleDeleteClick = (coupon) => {
+        setCouponToDelete(coupon);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDeleteCoupon = async () => {
+        if (!couponToDelete) return;
         try {
-            await client.delete(`/admin/coupons/${couponId}`);
+            await client.delete(`/admin/coupons/${couponToDelete.id}`);
             toast.success("Coupon deleted successfully");
             fetchCoupons();
         } catch (err) {
             toast.error("Failed to delete coupon");
+        } finally {
+            setIsDeleteModalOpen(false);
+            setCouponToDelete(null);
         }
     };
 
@@ -197,7 +207,7 @@ const CouponTable = () => {
                                             <Edit size={16} />
                                         </button>
                                         <button 
-                                            onClick={() => handleDelete(coupon.id)}
+                                            onClick={() => handleDeleteClick(coupon)}
                                             className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
                                             title="Delete Coupon"
                                         >
@@ -320,6 +330,16 @@ const CouponTable = () => {
                     </div>
                 )}
             </AnimatePresence>
+
+            <ConfirmModal 
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDeleteCoupon}
+                title="Delete Coupon?"
+                message={`Are you sure you want to delete coupon "${couponToDelete?.code}"? This action cannot be undone.`}
+                confirmText="Delete"
+                type="danger"
+            />
         </div>
     );
 };
