@@ -108,7 +108,7 @@ const UserDashboard = () => {
             const res = await client.post('/upload', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            setEditForm({ ...editForm, profile_picture: res.data.url });
+            setEditForm(prev => ({ ...prev, profile_picture: res.data.url }));
             toast.success('Image uploaded successfully! Click Save to apply.');
         } catch (error) {
             console.error('Upload Error:', error);

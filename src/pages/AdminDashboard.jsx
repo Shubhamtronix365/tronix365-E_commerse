@@ -228,7 +228,7 @@ const AdminDashboard = () => {
             const res = await client.post("/upload", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
-            setNewProduct({ ...newProduct, image: res.data.url });
+            setNewProduct(prev => ({ ...prev, image: res.data.url }));
             toast.success("Image uploaded successfully");
         } catch (error) {
             console.error("Upload error:", error);

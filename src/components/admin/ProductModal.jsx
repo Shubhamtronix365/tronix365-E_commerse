@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Edit, Plus, Info, Tag, Boxes, Package, List, DollarSign, Image as ImageIcon, Loader, Save } from 'lucide-react';
+import { getImageUrl } from '../../utils/imageUtils';
 
 const ProductModal = ({
     isOpen,
@@ -197,7 +198,7 @@ const ProductModal = ({
                                             <div className="w-full aspect-[4/3] rounded-xl border-2 border-dashed border-white/10 mb-3 bg-black/20 flex flex-col items-center justify-center relative overflow-hidden group">
                                                 {newProduct.image ? (
                                                     <>
-                                                        <img src={newProduct.image} alt="Preview" className="w-full h-full object-cover" />
+                                                        <img src={getImageUrl(newProduct.image)} alt="Preview" className="w-full h-full object-cover" />
                                                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
                                                             <button
                                                                 type="button"
