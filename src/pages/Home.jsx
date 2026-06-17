@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import logo from '../assets/logo.png';
 import SEO from '../components/common/SEO';
+import ThreeDShowcase from '../components/home/ThreeDShowcase';
 
 const Home = () => {
     return (
@@ -56,6 +57,9 @@ const Home = () => {
                     </motion.div>
                 </div>
             </section>
+
+            {/* 3D Product Loop Showcase Section */}
+            <ThreeDShowcase />
 
             {/* Featured Products Section - now a component */}
             <FeaturedProducts />

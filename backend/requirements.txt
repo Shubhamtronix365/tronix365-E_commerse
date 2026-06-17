@@ -20,3 +20,5 @@ jinja2
 google-generativeai
 pytest
 httpx
+imageio
+imageio-ffmpeg
