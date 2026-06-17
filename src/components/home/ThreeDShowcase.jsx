@@ -173,28 +173,6 @@ const ThreeDShowcase = () => {
 
                                 {/* Glare Effect overlay */}
                                 <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/10 opacity-30 pointer-events-none" />
-
-                                {/* High-tech HUD Overlay details on video */}
-                                <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end pointer-events-none z-10 select-none">
-                                    <div className="glass px-3 py-2 rounded-lg border border-white/10 text-[9px] sm:text-xs font-mono text-gray-300 flex flex-col gap-0.5">
-                                        <span className="text-tronix-accent font-semibold flex items-center gap-1">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                            SYS OK
-                                        </span>
-                                        <span>MODEL: ESP32-WROOM-32E</span>
-                                        <span>SCALE: 1.00:1</span>
-                                    </div>
-                                    <div className="glass px-3 py-2 rounded-lg border border-white/10 text-[9px] sm:text-xs font-mono text-right text-gray-400">
-                                        <span>SHADERS: PBR REALTIME</span>
-                                        <br />
-                                        <span>FPS: 60.00 VSYNC</span>
-                                    </div>
-                                </div>
-
-                                {/* Interactive Watermark / Title */}
-                                <div className="absolute top-4 right-4 glass px-3 py-1.5 rounded-lg border border-white/10 text-[9px] sm:text-xs font-mono text-white tracking-widest uppercase">
-                                    TRONIX Engine v2.4
-                                </div>
                             </div>
                         </motion.div>
                     </div>

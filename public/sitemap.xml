@@ -66,11 +66,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/28-pin-ic-socket</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://www.tronix365.in/e-commerse/product/f-m-wire</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -126,7 +121,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/9v-battery-cap</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/28-pin-ic-socket</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -196,7 +191,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/bc547</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/9v-battery-cap</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -261,7 +256,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/100-pf-50v</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/bc547</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -771,7 +766,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/tp4050-mini-usb-battery-charger-e-274</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/mt8870-dtmf-decoder-module</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -841,7 +836,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/ds1307-real-time-clock-rtc-i2c-module-at24c32</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/rtc-cell</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -926,7 +921,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/1-channel-5v-single-chanel-relay-module</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/1-channel-5v-relay-control-board-module-with-optocoupler</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -1101,7 +1096,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/5mm-ir-led-infrared-receiver-and-transmitter-diode</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/5ch-ir-array-sensor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -1111,7 +1106,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/coin-type-micro-vibration-motor</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/ir-sensor-module</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
