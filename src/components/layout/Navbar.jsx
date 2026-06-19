@@ -6,6 +6,7 @@ import logo from '../../assets/logo.png';
 import SearchOverlay from './SearchOverlay';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { MaintenanceTicker } from '../common/MaintenanceNotice';
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -174,6 +175,7 @@ const Navbar = () => {
                         </motion.div>
                     )}
                 </AnimatePresence>
+                <MaintenanceTicker />
             </motion.nav >
         </>
     );

@@ -31,7 +31,8 @@ import { CartAnimationProvider } from './context/CartAnimationContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import PageTransition from './components/common/PageTransition';
 import { AnimatePresence } from 'framer-motion';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { MaintenanceModal } from './components/common/MaintenanceNotice';
 
 // Wrapper to scroll to top on route change
 const ScrollToTop = () => {
@@ -91,10 +92,24 @@ function App() {
 
 const AppContent = () => {
   const location = useLocation();
+  const [showMaintenanceModal, setShowMaintenanceModal] = useState(true);
+
+  useEffect(() => {
+    if (!showMaintenanceModal) {
+      const timer = setTimeout(() => {
+        setShowMaintenanceModal(true);
+      }, 25000);
+      return () => clearTimeout(timer);
+    }
+  }, [showMaintenanceModal]);
 
   return (
     <>
       <ScrollToTop />
+      <MaintenanceModal 
+        isOpen={showMaintenanceModal} 
+        onClose={() => setShowMaintenanceModal(false)} 
+      />
       <div className="min-h-screen bg-tronix-bg text-tronix-text font-sans selection:bg-tronix-primary selection:text-white flex flex-col">
         <Navbar />
         <main className="flex-grow overflow-hidden">
