@@ -1337,6 +1337,7 @@ async def google_auth(google_req: GoogleLoginRequest, db: Session = Depends(get_
             "token_type": "bearer",
             "user_name": user.full_name,
             "role": user.role,
+            "email": user.email,
         }
 
     except ValueError:

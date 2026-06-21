@@ -16,25 +16,25 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem('tronix_token'));
     const [isLoading, setIsLoading] = useState(true);
 
-    // Synchronize axios headers with token
-    useEffect(() => {
-        if (token) {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            localStorage.setItem('tronix_token', token);
-        } else {
-            delete axios.defaults.headers.common['Authorization'];
-            localStorage.removeItem('tronix_token');
-        }
-    }, [token]);
-
+    // Synchronize axios headers and load/verify user profile
     useEffect(() => {
         const loadUser = async () => {
-            const storedUser = localStorage.getItem('tronix_user');
-            if (storedUser && token) {
+            if (token) {
+                // Ensure header is updated immediately before any API call
+                axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                localStorage.setItem('tronix_token', token);
+
+                const storedUser = localStorage.getItem('tronix_user');
+                if (storedUser) {
+                    try {
+                        const parsedUser = JSON.parse(storedUser);
+                        setUser(parsedUser);
+                    } catch (e) {
+                        console.error("Failed to parse stored user:", e);
+                    }
+                }
+
                 try {
-                    const parsedUser = JSON.parse(storedUser);
-                    setUser(parsedUser);
-                    
                     // Verify token/fetch fresh profile
                     const response = await axios.get('/profile');
                     setUser(response.data);
@@ -45,12 +45,14 @@ export const AuthProvider = ({ children }) => {
                         logout();
                     }
                 }
+            } else {
+                delete axios.defaults.headers.common['Authorization'];
+                localStorage.removeItem('tronix_token');
             }
             setIsLoading(false);
         };
-
         loadUser();
-    }, []);
+    }, [token]);
 
     const login = async (email, password, isAdmin = false) => {
         try {
@@ -100,10 +102,10 @@ export const AuthProvider = ({ children }) => {
     const loginWithGoogle = async (credential) => {
         try {
             const response = await axios.post('/auth/google', { credential });
-            const { access_token, user_name, role } = response.data;
+            const { access_token, user_name, role, email } = response.data;
             
             setToken(access_token);
-            const userData = { full_name: user_name, role };
+            const userData = { email, full_name: user_name, role };
             setUser(userData);
             localStorage.setItem('tronix_user', JSON.stringify(userData));
             
