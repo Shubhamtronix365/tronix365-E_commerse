@@ -103,7 +103,7 @@ const AppContent = () => {
     }
   }, [showMaintenanceModal]);
 
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+  const isExcludedPage = location.pathname === '/login' || location.pathname === '/signup' || location.pathname.startsWith('/invoice');
 
   return (
     <>
@@ -113,7 +113,7 @@ const AppContent = () => {
         onClose={() => setShowMaintenanceModal(false)} 
       />
       <div className="min-h-screen bg-tronix-bg text-tronix-text font-sans selection:bg-tronix-primary selection:text-white flex flex-col">
-        {!isAuthPage && <Navbar />}
+        {!isExcludedPage && <Navbar />}
         <main className="flex-grow overflow-hidden">
           <React.Suspense fallback={<PageLoader />}>
             <AnimatePresence mode="wait">
@@ -163,7 +163,7 @@ const AppContent = () => {
             </AnimatePresence>
           </React.Suspense>
         </main>
-        {!isAuthPage && <Footer />}
+        {!isExcludedPage && <Footer />}
         <Toaster position="bottom-right" toastOptions={{
           style: {
             background: '#1a1a2e',

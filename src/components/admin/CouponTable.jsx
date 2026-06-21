@@ -149,7 +149,7 @@ const CouponTable = () => {
             </div>
 
             <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+                <table className="w-full text-left border-collapse min-w-[600px]">
                     <thead>
                         <tr className="border-b border-white/5 text-gray-400 text-sm uppercase tracking-wider">
                             <th className="px-4 py-3 font-medium">Code</th>

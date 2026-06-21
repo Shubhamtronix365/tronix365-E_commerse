@@ -197,9 +197,9 @@ const Signup = () => {
     };
 
     return (
-        <div className="min-h-screen md:h-screen md:overflow-hidden grid grid-cols-1 md:grid-cols-2 bg-tronix-bg relative overflow-hidden">
+        <div className="min-h-screen lg:h-screen lg:overflow-hidden grid grid-cols-1 lg:grid-cols-2 bg-tronix-bg relative overflow-hidden">
             {/* LEFT COLUMN: AUTH FORM */}
-            <div className="flex flex-col justify-center items-center px-6 py-6 md:py-8 bg-tronix-bg relative overflow-y-auto md:h-full w-full">
+            <div className="flex flex-col justify-center items-center px-6 py-6 lg:py-8 bg-tronix-bg relative overflow-y-auto w-full lg:h-full">
                 {/* Background Glow */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-tronix-primary/10 rounded-full blur-[100px] pointer-events-none" />
                 
@@ -415,7 +415,7 @@ const Signup = () => {
             </div>
 
             {/* RIGHT COLUMN: HERO PANEL */}
-            <div className="hidden md:flex flex-col justify-between p-12 bg-gradient-to-br from-slate-950 via-slate-900 to-violet-950 border-l border-white/5 relative overflow-hidden">
+            <div className="hidden lg:flex flex-col justify-between p-8 lg:p-12 bg-gradient-to-br from-slate-950 via-slate-900 to-violet-950 border-l border-white/5 relative overflow-y-auto lg:h-full">
                 {/* Visual accents */}
                 <div className="absolute top-0 left-0 w-full h-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px] pointer-events-none" />
                 <div className="absolute -top-40 -right-40 w-96 h-96 bg-tronix-primary/20 rounded-full blur-[100px]" />
@@ -426,7 +426,7 @@ const Signup = () => {
                     <span className="font-display font-bold text-xl text-white tracking-wider uppercase">Tronix<span className="text-tronix-primary">365</span></span>
                 </div>
 
-                <div className="my-auto relative z-10 max-w-lg space-y-6">
+                <div className="my-auto relative z-10 max-w-lg space-y-6 py-8">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
