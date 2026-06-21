@@ -10,8 +10,8 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
 - **Fuzzy Search & Filters**: High-performance backend search, pagination, category sorting, and price range filters.
 - **Smart Shopping Cart**: Persistent cart state, client-side validation, and instant coupon/discount application.
 - **Admin Inventory Dashboard**: Live product updates, order confirmation control panel, and coupon generator.
-- **Brevo Email Notifications**: Automatic generation of beautiful HTML invoices emailed on confirmed orders.
-- **Secure Authentication**: Encrypted password authentication (bcrypt), JWT tokens, and Google OAuth integration.
+- **Mandatory 2FA (Password + Email OTP)**: Secure two-step authentication for user signup and login. OTPs are sent via Brevo SMTP and expire in exactly 2 minutes.
+- **Secure Authentication**: Encrypted password authentication (PBKDF2), JWT tokens, and Google OAuth integration.
 - **Rate Limiting & Caching**: Security features with Slowapi rate limiters and Redis/InMemory backend caching.
 
 ---
@@ -24,7 +24,7 @@ For a full step-by-step tutorial on hosting this project in production:
 - **Backend API**: Python FastAPI via **Render**
 - **Frontend Client**: React Single Page Application via **Hostinger**
 
-Refer to our complete [Hosting & Configuration Guide](file:///C:/Users/Hi/.gemini/antigravity/brain/503fde86-f0b9-4cc0-b435-3167395d548b/hosting_guide.md) for details.
+Refer to our complete [Hosting & Configuration Guide](file:///c:/Users/Hi/Desktop/tronix365-E_commerse/HOSTING_GUIDE.md) for details.
 
 ---
 
@@ -230,9 +230,11 @@ tronix365-E_commerse/
 FastAPI generates interactive documentation at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs). Here are some major endpoints:
 
 - **Authentication**:
-  - `POST /signup` - Register a standard client account
-  - `POST /login` - Issue JWT tokens for active users
-  - `POST /auth/google` - Fast authentication using Google Account OAuth
+  - `POST /signup` - Register a standard client account in an inactive state (`is_active = False`) and trigger a verification OTP email. Returns a challenge response with `status: "otp_required"`.
+  - `POST /login` - Verify username and password credentials. If correct, trigger a verification OTP email. Returns a challenge response with `status: "otp_required"`.
+  - `POST /auth/verify-otp` - Verify the OTP code. Activates the user (if signup) and returns JWT access and refresh tokens.
+  - `POST /auth/resend-otp` - Generate a new OTP code and email it. Allowed only after 30 seconds (maximum 3 attempts within 15 minutes).
+  - `POST /auth/google` - Fast authentication using Google Account OAuth.
 - **Product Catalog**:
   - `GET /products` - Fetch paginated list of items (supports query matching, ordering, and stock status)
   - `GET /products/{id}` - Fetch single product specs

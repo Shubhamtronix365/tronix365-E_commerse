@@ -46,6 +46,7 @@ class UserDB(Base):
     is_2fa_enabled = Column(Boolean, default=False)
     two_factor_secret = Column(String, nullable=True)
     profile_picture = Column(String, nullable=True)
+    otp_blocked_until = Column(DateTime(timezone=True), nullable=True)
 
     refresh_tokens = relationship(
         "RefreshTokenDB", back_populates="user", cascade="all, delete-orphan"
@@ -246,11 +247,14 @@ class UserLogin(BaseModel):
 
 
 class Token(BaseModel):
-    access_token: str
+    access_token: Optional[str] = None
     refresh_token: Optional[str] = None
-    token_type: str
-    user_name: str
-    role: str
+    token_type: Optional[str] = "bearer"
+    user_name: Optional[str] = None
+    role: Optional[str] = None
+    status: Optional[str] = None
+    email: Optional[str] = None
+    signup_session: Optional[str] = None
 
 
 class TokenData(BaseModel):
@@ -314,6 +318,18 @@ class RefreshTokenDB(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("UserDB", back_populates="refresh_tokens")
+
+
+class OTPDB(Base):
+    __tablename__ = "otps"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, index=True, nullable=False)
+    otp_hash = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    is_verified = Column(Boolean, default=False)
+    attempts = Column(Integer, default=0)
 
 
 class WishlistItemDB(Base):
@@ -512,3 +528,13 @@ class CouponUpdate(BaseModel):
     min_purchase: Optional[float] = None
     usage_limit: Optional[int] = None
     expiry_date: Optional[datetime] = None
+
+
+class OTPSendRequest(BaseModel):
+    email: str
+
+
+class OTPVerifyRequest(BaseModel):
+    email: str
+    otp: str
+    signup_session: Optional[str] = None

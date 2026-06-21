@@ -103,6 +103,8 @@ const AppContent = () => {
     }
   }, [showMaintenanceModal]);
 
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+
   return (
     <>
       <ScrollToTop />
@@ -111,7 +113,7 @@ const AppContent = () => {
         onClose={() => setShowMaintenanceModal(false)} 
       />
       <div className="min-h-screen bg-tronix-bg text-tronix-text font-sans selection:bg-tronix-primary selection:text-white flex flex-col">
-        <Navbar />
+        {!isAuthPage && <Navbar />}
         <main className="flex-grow overflow-hidden">
           <React.Suspense fallback={<PageLoader />}>
             <AnimatePresence mode="wait">
@@ -161,7 +163,7 @@ const AppContent = () => {
             </AnimatePresence>
           </React.Suspense>
         </main>
-        <Footer />
+        {!isAuthPage && <Footer />}
         <Toaster position="bottom-right" toastOptions={{
           style: {
             background: '#1a1a2e',

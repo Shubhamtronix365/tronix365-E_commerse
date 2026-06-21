@@ -433,3 +433,74 @@ def send_abandoned_cart_email(user, cart_items):
     return send_email_via_brevo(
         to_email, subject, html_content, sender_name="Tronix365 Re-engagement"
     )
+
+
+def generate_otp_email_html(otp: str) -> str:
+    """
+    Generates a premium glassmorphic/neon HTML template for OTP emails.
+    """
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #0b0b14; margin: 0; padding: 40px 20px; color: #f3f4f6;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #111122 0%, #1a1a36 100%); border-radius: 16px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);">
+            <!-- Header -->
+            <tr>
+                <td style="background: linear-gradient(90deg, #6d28d9 0%, #4f46e5 100%); padding: 35px 30px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 2px;">TRONIX365</h1>
+                    <p style="color: #c7d2fe; margin: 5px 0 0; font-size: 14px; text-transform: uppercase; tracking: 0.1em;">Secure Authentication</p>
+                </td>
+            </tr>
+            
+            <!-- Body -->
+            <tr>
+                <td style="padding: 40px 30px 30px;">
+                    <h2 style="margin: 0 0 20px; font-size: 20px; color: #ffffff; font-weight: 600;">Verification Code</h2>
+                    <p style="margin: 0 0 30px; font-size: 15px; color: #9ca3af; line-height: 1.6;">
+                        You requested a one-time verification code to sign in to your Tronix365 account. Use the code below to complete the authentication process.
+                    </p>
+                    
+                    <!-- OTP Code Box -->
+                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 25px; text-align: center; margin-bottom: 30px;">
+                        <span style="font-size: 12px; color: #818cf8; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; display: block; margin-bottom: 10px;">One-Time Password (OTP)</span>
+                        <span style="font-size: 38px; font-weight: 800; color: #60a5fa; letter-spacing: 8px; font-family: 'Courier New', Courier, monospace;">{otp}</span>
+                    </div>
+                    
+                    <p style="margin: 0 0 20px; font-size: 14px; color: #f87171; line-height: 1.5; font-weight: 500;">
+                        ⚠️ This code is active for exactly 2 minutes (120 seconds) and will automatically expire thereafter.
+                    </p>
+                    
+                    <p style="margin: 0; font-size: 14px; color: #9ca3af; line-height: 1.6;">
+                        If you did not request this code, please ignore this email or contact support if you suspect unauthorized access.
+                    </p>
+                </td>
+            </tr>
+            
+            <!-- Footer -->
+            <tr>
+                <td style="background-color: #0d0d1a; padding: 30px; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.05);">
+                    <p style="margin: 0 0 10px; font-size: 12px; color: #6b7280;">
+                        This is an automated security notification. Please do not reply directly to this email.
+                    </p>
+                    <p style="margin: 0; font-size: 11px; color: #4b5563;">
+                        &copy; 2026 Tronix365. All rights reserved.
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>
+    """
+
+
+def send_otp_email(email: str, otp: str):
+    """
+    Sends the OTP verification code to the user.
+    """
+    subject = f"{otp} is your Tronix365 Verification Code"
+    html_content = generate_otp_email_html(otp)
+    return send_email_via_brevo(email, subject, html_content, sender_name="Tronix365 Security")

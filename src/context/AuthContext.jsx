@@ -62,6 +62,11 @@ export const AuthProvider = ({ children }) => {
             const response = await axios.post(endpoint, formData, {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             });
+            
+            if (response.data.status === 'otp_required') {
+                return { success: true, otpRequired: true, email: response.data.email };
+            }
+            
             const { access_token, user_name, role } = response.data;
             
             setToken(access_token);
@@ -111,6 +116,14 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const loginWithOTPResponse = (otpResponseData) => {
+        const { access_token, user_name, role, email } = otpResponseData;
+        setToken(access_token);
+        const userData = { email, full_name: user_name, role };
+        setUser(userData);
+        localStorage.setItem('tronix_user', JSON.stringify(userData));
+    };
+
     const logout = () => {
         setToken(null);
         setUser(null);
@@ -131,7 +144,8 @@ export const AuthProvider = ({ children }) => {
         loginWithGoogle,
         signup,
         logout,
-        setUser
+        setUser,
+        loginWithOTPResponse
     };
 
     return (

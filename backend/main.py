@@ -36,6 +36,9 @@ from models import (
     BundleResponse,
     BundleCreate,
     BundleUpdate,
+    OTPDB,
+    OTPSendRequest,
+    OTPVerifyRequest,
 )
 import requests
 import hashlib
@@ -47,7 +50,7 @@ from fastapi import UploadFile, File
 import shutil
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
-from email_utils import send_order_confirmation_email
+from email_utils import send_order_confirmation_email, send_otp_email
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -941,80 +944,182 @@ async def send_contact_email(
     return {"message": "Message sent successfully, queued for delivery"}
 
 
-@app.post("/signup", response_model=Token)
-@limiter.limit("5/minute")
-async def signup(request: Request, user: UserCreate, db: Session = Depends(get_db)):
-    try:
-        db_user = db.query(UserDB).filter(UserDB.email == user.email).first()
-        if db_user:
-            raise HTTPException(status_code=400, detail="Email already registered")
+def generate_and_send_otp_core(email: str, db: Session):
+    import secrets
+    email = email.lower().strip()
 
-        hashed_password = get_password_hash(user.password)
-        new_user = UserDB(
-            email=user.email,
-            hashed_password=hashed_password,
-            full_name=user.full_name,
-            role="user",  # Default role
-        )
-        db.add(new_user)
-        db.commit()
-        db.refresh(new_user)
+    # 1. Check user block
+    user = db.query(UserDB).filter(UserDB.email == email).first()
+    if user and user.otp_blocked_until:
+        if user.otp_blocked_until.replace(tzinfo=None) > datetime.utcnow():
+            diff = (user.otp_blocked_until.replace(tzinfo=None) - datetime.utcnow()).total_seconds()
+            mins = int(diff // 60) + 1
+            raise HTTPException(
+                status_code=400,
+                detail=f"Verification temporarily blocked due to too many incorrect attempts. Please try again after {mins} minute(s)."
+            )
 
-        # Auto-login after signup
-        access_token = create_access_token(
-            data={"sub": new_user.email, "role": new_user.role}
-        )
-        refresh_token = create_refresh_token(data={"sub": new_user.email})
+    # 2. Prevent abuse: resend allowed only after 30 seconds
+    latest_otp = db.query(OTPDB).filter(OTPDB.email == email).order_by(OTPDB.id.desc()).first()
+    if latest_otp:
+        time_since_creation = (datetime.utcnow() - latest_otp.created_at.replace(tzinfo=None)).total_seconds()
+        if time_since_creation < 30:
+            raise HTTPException(
+                status_code=400,
+                detail="Please wait 30 seconds before requesting another OTP."
+            )
 
-        # Store Refresh Token in DB
-        from models import RefreshTokenDB
-        from auth import REFRESH_TOKEN_EXPIRE_DAYS
-
-        db_refresh_token = RefreshTokenDB(
-            user_id=new_user.id,
-            token=refresh_token,
-            expires_at=datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS),
-        )
-        db.add(db_refresh_token)
-        db.commit()
-
-        return {
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-            "token_type": "bearer",
-            "user_name": new_user.full_name,
-            "role": new_user.role,
-        }
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        import traceback
-
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Signup Error: {str(e)}")
-
-
-@app.post("/login", response_model=Token)
-@limiter.limit("5/minute")
-async def login(
-    request: Request,
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db),
-):
-    user = db.query(UserDB).filter(UserDB.email == form_data.username).first()
-    if not user or not verify_password(form_data.password, user.hashed_password):
+    # 3. Prevent abuse: max 3 resend attempts (total 4 requests) within 15 minutes
+    time_limit = datetime.utcnow() - timedelta(minutes=15)
+    otp_count = db.query(OTPDB).filter(OTPDB.email == email, OTPDB.created_at >= time_limit).count()
+    if otp_count >= 4:
         raise HTTPException(
-            status_code=401,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
+            status_code=400,
+            detail="Maximum OTP requests reached. Please try again after 15 minutes."
         )
 
-    if user.role == "admin":
+    # 4. Invalidate previous unverified OTPs
+    db.query(OTPDB).filter(OTPDB.email == email, OTPDB.is_verified == False).update({"is_verified": True})
+    db.commit()
+
+    # 5. Generate random 6-digit OTP
+    otp = "".join([str(secrets.randbelow(10)) for _ in range(6)])
+
+    # 7. Secure hashing (SHA-256)
+    otp_hash = hashlib.sha256(otp.encode()).hexdigest()
+
+    # 8. Save OTP record
+    expires_at = datetime.utcnow() + timedelta(minutes=2)
+    db_otp = OTPDB(
+        email=email,
+        otp_hash=otp_hash,
+        expires_at=expires_at
+    )
+    db.add(db_otp)
+    db.commit()
+
+    # 9. Send via Brevo
+    sent = send_otp_email(email, otp)
+    if not sent:
+        print(f"--- [DEVELOPMENT ONLY] --- Email sending skipped. OTP for {email} is: {otp}")
+        try:
+            with open("otp_debug.txt", "w") as f:
+                f.write(otp)
+        except Exception as e:
+            print(f"Error writing otp to debug file: {e}")
+
+    return {"message": "OTP sent successfully"}
+
+
+@app.post("/auth/send-otp")
+@limiter.limit("5/minute")
+async def send_otp(request: Request, body: OTPSendRequest, db: Session = Depends(get_db)):
+    raise HTTPException(
+        status_code=400,
+        detail="Password check is mandatory. Please use the signup or login flow."
+    )
+
+
+@app.post("/auth/resend-otp")
+@limiter.limit("5/minute")
+async def resend_otp(request: Request, body: OTPSendRequest, db: Session = Depends(get_db)):
+    return generate_and_send_otp_core(body.email, db)
+
+
+@app.post("/auth/verify-otp", response_model=Token)
+@limiter.limit("5/minute")
+async def verify_otp(request: Request, body: OTPVerifyRequest, db: Session = Depends(get_db)):
+    email = body.email.lower().strip()
+    otp = body.otp.strip()
+
+    # 1. Check user block if user exists
+    user = db.query(UserDB).filter(UserDB.email == email).first()
+    if user and user.otp_blocked_until:
+        if user.otp_blocked_until.replace(tzinfo=None) > datetime.utcnow():
+            diff = (user.otp_blocked_until.replace(tzinfo=None) - datetime.utcnow()).total_seconds()
+            mins = int(diff // 60) + 1
+            raise HTTPException(
+                status_code=400,
+                detail=f"Verification temporarily blocked due to too many incorrect attempts. Please try again after {mins} minute(s)."
+            )
+
+    # 2. Get latest unverified OTP
+    otp_record = db.query(OTPDB).filter(OTPDB.email == email, OTPDB.is_verified == False).order_by(OTPDB.id.desc()).first()
+    if not otp_record:
+        raise HTTPException(status_code=400, detail="No active OTP request found for this email.")
+
+    # 3. Check expiration
+    if otp_record.expires_at.replace(tzinfo=None) < datetime.utcnow():
+        # Invalidate the expired OTP
+        otp_record.is_verified = True
+        db.commit()
+        raise HTTPException(status_code=400, detail="OTP has expired. Please request a new one.")
+
+    # 4. Check block inside OTP
+    if otp_record.attempts >= 5:
+        if user:
+            user.otp_blocked_until = datetime.utcnow() + timedelta(minutes=15)
+            db.commit()
         raise HTTPException(
-            status_code=403,
-            detail="Admin credentials not allowed here. Please use Admin Login.",
+            status_code=400,
+            detail="Too many incorrect attempts. Verification blocked for 15 minutes."
         )
 
+    # 5. Verify input
+    input_hash = hashlib.sha256(otp.encode()).hexdigest()
+    if otp_record.otp_hash != input_hash:
+        otp_record.attempts += 1
+        db.commit()
+
+        if otp_record.attempts >= 5:
+            if user:
+                user.otp_blocked_until = datetime.utcnow() + timedelta(minutes=15)
+                db.commit()
+            raise HTTPException(
+                status_code=400,
+                detail="Too many incorrect attempts. Verification blocked for 15 minutes."
+            )
+
+        remaining = 5 - otp_record.attempts
+        raise HTTPException(status_code=400, detail=f"Incorrect OTP. {remaining} attempt(s) remaining.")
+
+    # 6. Success! Invalidate OTP immediately
+    otp_record.is_verified = True
+    
+    if not user:
+        # This is a signup verification flow
+        if not body.signup_session:
+            raise HTTPException(
+                status_code=400,
+                detail="Signup session token is required for registration."
+            )
+        
+        from jose import JWTError, jwt
+        from auth import SECRET_KEY, ALGORITHM
+        try:
+            payload = jwt.decode(body.signup_session, SECRET_KEY, algorithms=[ALGORITHM])
+            if payload.get("type") != "signup_session" or payload.get("sub") != email:
+                raise HTTPException(status_code=400, detail="Invalid signup session token.")
+        except JWTError:
+            raise HTTPException(status_code=400, detail="Signup session token has expired or is invalid.")
+        
+        # Finally save the user to database
+        user = UserDB(
+            email=email,
+            hashed_password=payload.get("password"),
+            full_name=payload.get("full_name"),
+            role="user",
+            is_active=True
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    else:
+        user.otp_blocked_until = None
+        user.is_active = True
+        db.commit()
+
+    # 7. Generate JWT access and refresh tokens
     access_token = create_access_token(data={"sub": user.email, "role": user.role})
     refresh_token = create_refresh_token(data={"sub": user.email})
 
@@ -1034,6 +1139,92 @@ async def login(
         "access_token": access_token,
         "refresh_token": refresh_token,
         "token_type": "bearer",
+        "user_name": user.full_name,
+        "role": user.role,
+    }
+
+
+@app.post("/signup", response_model=Token)
+@limiter.limit("5/minute")
+async def signup(request: Request, user: UserCreate, db: Session = Depends(get_db)):
+    try:
+        user.email = user.email.lower().strip()
+        db_user = db.query(UserDB).filter(UserDB.email == user.email).first()
+        if db_user:
+            raise HTTPException(status_code=400, detail="Email already registered")
+
+        hashed_password = get_password_hash(user.password)
+
+        # Generate signup session JWT token
+        from jose import jwt
+        from auth import SECRET_KEY, ALGORITHM
+        
+        expires_at = datetime.utcnow() + timedelta(minutes=10)
+        payload = {
+            "sub": user.email,
+            "password": hashed_password,
+            "full_name": user.full_name,
+            "type": "signup_session",
+            "exp": expires_at
+        }
+        signup_session = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+        # Generate and send OTP for verification
+        generate_and_send_otp_core(user.email, db)
+
+        return {
+            "status": "otp_required",
+            "email": user.email,
+            "user_name": user.full_name,
+            "role": "user",
+            "signup_session": signup_session,
+        }
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Signup Error: {str(e)}")
+
+
+@app.post("/login", response_model=Token)
+@limiter.limit("5/minute")
+async def login(
+    request: Request,
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db),
+):
+    username = form_data.username.lower().strip()
+    user = db.query(UserDB).filter(UserDB.email == username).first()
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    if user.role == "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Admin credentials not allowed here. Please use Admin Login.",
+        )
+
+    # Check OTP blocked status
+    if user.otp_blocked_until:
+        if user.otp_blocked_until.replace(tzinfo=None) > datetime.utcnow():
+            diff = (user.otp_blocked_until.replace(tzinfo=None) - datetime.utcnow()).total_seconds()
+            mins = int(diff // 60) + 1
+            raise HTTPException(
+                status_code=400,
+                detail=f"Verification temporarily blocked due to too many incorrect attempts. Please try again after {mins} minute(s)."
+            )
+
+    # Generate and send OTP
+    generate_and_send_otp_core(user.email, db)
+
+    return {
+        "status": "otp_required",
+        "email": user.email,
         "user_name": user.full_name,
         "role": user.role,
     }
