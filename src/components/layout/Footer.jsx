@@ -71,6 +71,7 @@ const Footer = () => {
                             <li><Link to="/contact" className="group flex items-center text-gray-400 hover:text-white text-sm transition-colors"><ChevronRight size={16} className="text-tronix-primary opacity-0 group-hover:opacity-100 -ml-4 group-hover:mx-1 transition-all" /> Contact Us</Link></li>
                             <li><Link to="/terms" className="group flex items-center text-gray-400 hover:text-white text-sm transition-colors"><ChevronRight size={16} className="text-tronix-primary opacity-0 group-hover:opacity-100 -ml-4 group-hover:mx-1 transition-all" /> Terms & Conditions</Link></li>
                             <li><Link to="/privacy" className="group flex items-center text-gray-400 hover:text-white text-sm transition-colors"><ChevronRight size={16} className="text-tronix-primary opacity-0 group-hover:opacity-100 -ml-4 group-hover:mx-1 transition-all" /> Privacy Policy</Link></li>
+                            <li><Link to="/return-refund" className="group flex items-center text-gray-400 hover:text-white text-sm transition-colors"><ChevronRight size={16} className="text-tronix-primary opacity-0 group-hover:opacity-100 -ml-4 group-hover:mx-1 transition-all" /> Return & Refund Policy</Link></li>
                         </ul>
                     </div>
 
@@ -147,6 +148,8 @@ const Footer = () => {
                         <Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
                         <span className="w-1 h-1 bg-gray-600 rounded-full"></span>
                         <Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+                        <span className="w-1 h-1 bg-gray-600 rounded-full"></span>
+                        <Link to="/return-refund" className="hover:text-white transition-colors">Return & Refund Policy</Link>
                     </div>
                 </div>
             </div>

@@ -23,6 +23,7 @@ const About = React.lazy(() => import('./pages/InfoPages').then(module => ({ def
 const Contact = React.lazy(() => import('./pages/InfoPages').then(module => ({ default: module.Contact })));
 const Terms = React.lazy(() => import('./pages/InfoPages').then(module => ({ default: module.Terms })));
 const Privacy = React.lazy(() => import('./pages/InfoPages').then(module => ({ default: module.Privacy })));
+const ReturnRefund = React.lazy(() => import('./pages/InfoPages').then(module => ({ default: module.ReturnRefund })));
 
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
@@ -158,6 +159,7 @@ const AppContent = () => {
               <Route path="/payment/failure" element={<PageTransition><PaymentStatus /></PageTransition>} />
               <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
               <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />
+              <Route path="/return-refund" element={<PageTransition><ReturnRefund /></PageTransition>} />
               <Route path="*" element={<PageTransition><Home /></PageTransition>} />
               </Routes>
             </AnimatePresence>
