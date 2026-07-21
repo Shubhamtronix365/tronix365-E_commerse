@@ -110,13 +110,13 @@ const ProductDetails = () => {
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="bg-tronix-card/50 border border-white/5 rounded-2xl p-8 flex items-center justify-center h-[320px] sm:h-[450px] lg:h-[500px]"
+                        className="bg-white rounded-3xl p-8 flex items-center justify-center h-[320px] sm:h-[450px] lg:h-[500px] shadow-2xl shadow-violet-500/10 border border-white/20 overflow-hidden"
                     >
                         <Image
                             src={getImageUrl(product.image)}
                             alt={product.title}
                             title={product.title}
-                            className="max-h-full max-w-full object-contain drop-shadow-2xl"
+                            className="max-h-full max-w-full object-contain mix-blend-multiply drop-shadow-xl"
                         />
                     </motion.div>
 

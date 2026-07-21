@@ -33,28 +33,30 @@ const ProductCard = ({ product }) => {
             {/* Image Container */}
             <Link 
                 to={`/product/${slugify(product.title)}`} 
-                className="relative h-48 overflow-hidden bg-white/5 p-4 flex items-center justify-center cursor-pointer group-hover:opacity-90 transition-opacity"
+                className="relative h-48 overflow-hidden bg-tronix-dark/60 p-3 flex items-center justify-center cursor-pointer group-hover:opacity-95 transition-opacity border-b border-white/5"
             >
-                <Image
-                    src={getImageUrl(product.image)}
-                    alt={product.title}
-                    title={product.title}
-                    className="h-full object-contain group-hover:scale-110 transition-transform duration-500"
-                />
+                <div className="w-full h-full bg-white rounded-xl p-2.5 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                    <Image
+                        src={getImageUrl(product.image)}
+                        alt={product.title}
+                        title={product.title}
+                        className="max-h-full max-w-full object-contain mix-blend-multiply"
+                    />
+                </div>
 
                 {/* Out of Stock Overlay */}
                 {product.stock === 0 && (
-                    <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-10 backdrop-blur-[1px]">
-                        <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                    <div className="absolute inset-0 bg-black/75 flex items-center justify-center z-10 backdrop-blur-[2px]">
+                        <span className="bg-red-500 text-white text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-wider shadow-lg">
                             Out of Stock
                         </span>
                     </div>
                 )}
 
                 {/* Desktop Hover Indicator (Eye Icon) */}
-                <div className={`absolute inset-0 bg-black/40 opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 backdrop-blur-[2px] ${product.stock === 0 ? 'hidden' : ''}`}>
-                    <div className="p-3 bg-tronix-primary text-white rounded-full shadow-lg shadow-tronix-primary/30 transform scale-90 lg:group-hover:scale-100 transition-transform duration-300">
-                        <Eye size={22} />
+                <div className={`absolute inset-0 bg-black/35 opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 backdrop-blur-[2px] ${product.stock === 0 ? 'hidden' : ''}`}>
+                    <div className="p-3 bg-tronix-primary text-white rounded-full shadow-lg shadow-tronix-primary/40 transform scale-90 lg:group-hover:scale-100 transition-transform duration-300">
+                        <Eye size={20} />
                     </div>
                 </div>
             </Link>
