@@ -2,13 +2,20 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, Wrench } from 'lucide-react';
 
-export const MaintenanceTicker = () => {
-  const tickerText = "⚠️ SYSTEM MAINTENANCE IN PROGRESS: We are upgrading our databases and performing server optimization. Checkout and product inventory systems may face temporary instability. Thank you for your patience! ⚡";
+// Preset banner messages designed for Robotics Kits & Electronics store
+export const ANNOUNCEMENT_PRESETS = {
+  ROBOTICS_KITS: "🤖 ROBOTICS & DIY KITS SPECIAL: High-Torque BO Motors, ESP32 Modules, Sensors & Starter Kits in Stock! Use Code TRONIX10 for 10% OFF ⚡",
+  FREE_SHIPPING: "🚚 FREE EXPRESS SHIPPING across India on all Robotics Kits, Arduino & Sensor orders above ₹999! 📦",
+  MAINTENANCE: "⚠️ SYSTEM MAINTENANCE IN PROGRESS: We are upgrading catalog & inventory servers. Thank you for your patience! ⚡"
+};
+
+export const MaintenanceTicker = ({ activePreset = "ROBOTICS_KITS", customText = null }) => {
+  const tickerText = customText || ANNOUNCEMENT_PRESETS[activePreset] || ANNOUNCEMENT_PRESETS.ROBOTICS_KITS;
 
   return (
-    <div className="w-full bg-amber-500/10 border-b border-amber-500/20 text-amber-200 py-2.5 overflow-hidden relative z-40 backdrop-blur-sm select-none">
+    <div className="w-full bg-violet-500/10 border-b border-violet-500/20 text-violet-200 py-2 overflow-hidden relative z-40 backdrop-blur-sm select-none">
       <div className="whitespace-nowrap overflow-hidden flex w-full">
-        <div className="animate-marquee flex items-center gap-16 text-xs md:text-sm font-medium uppercase tracking-wider">
+        <div className="animate-marquee flex items-center gap-16 text-xs md:text-sm font-medium tracking-wider">
           <span>{tickerText}</span>
           <span>{tickerText}</span>
           <span>{tickerText}</span>
