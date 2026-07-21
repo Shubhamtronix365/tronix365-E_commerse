@@ -76,27 +76,17 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/m-m-wire</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://www.tronix365.in/e-commerse/product/robot-chesis-tyre</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/big-breadboard</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/medium-bread-board</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/medium-breadboard</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/small-breadboard</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/small-bread-board</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -106,12 +96,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/female-burgstrip</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/male-burgstrip</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/2x40-female-berg-strip</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -121,7 +106,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/28-pin-ic-socket</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/28-pin_socket</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -131,17 +116,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/18-pin-ic-socket</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://www.tronix365.in/e-commerse/product/16-pin-ic-socket</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/14-pin-ic-socket</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -156,17 +131,12 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/white-led</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/whiteled</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/blue-led</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/green-led</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -186,42 +156,22 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/speaker</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/9v-battery-cap-connector</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/9v-battery-cap</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/glue-stick</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/9v-battery</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/dc-pin-male-to-female</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/glustick</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/buzzer</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/dc-pin-female</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/dc-pin-male</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/dc-jack</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/dc-power-jack</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -231,37 +181,22 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/on-off-switch-big-3-pin</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://www.tronix365.in/e-commerse/product/on-off-switch-big-2-pin</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/limite-switch</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/npn-2n2222</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/2n2222</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/bc558-pnp-transistor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/bc558</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/bc547</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/1000uf-cap</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/bc547-npn-transistor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -271,27 +206,17 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/100uf-cap</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/22uf-50v-cap</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/22uf-cap</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/10-uf-cap</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/capacitor-10uf100v</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/47-uf-cap</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/22-uf-cap</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -306,22 +231,12 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/c31cap01-ooo1-uf-50v</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/100-pf-50v</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/cap01-ooo1-uf-50v</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/01-uf-50v-cap</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/001uf-50v-cap</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -336,12 +251,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/hdmi-cable</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/mains-scord</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/mains-cord</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -356,17 +266,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/3-cell-battery-holder</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/li-ion-cell</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/esp32-cable</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/18650-li-ion-2600mah-cell</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -376,12 +276,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/uno-cable</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/raspberry-pi</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/raspberry-pi-4-model-b-4gb</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -396,27 +291,12 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/esp-cam-module</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://www.tronix365.in/e-commerse/product/esp32-30-pin</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/arduino-mega</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/arduino-nano</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/pro-mini</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -441,17 +321,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/12-v-led</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/value-solenoid</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/5v-bidc-fan</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/valve-solenoid</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -476,22 +346,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/bo-motor-wheel</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://www.tronix365.in/e-commerse/product/cluster-wheel</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/mg90s-servo-motor</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/mg996r-servo-motor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -501,22 +356,12 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/pca9685-16-channel-12-bit-pwmservo-driver</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/servo-driver</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/sg90-servo-motor</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/5v-stepper-motot</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/simonk30esc</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/5v-stepper-motor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -526,17 +371,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/dc-pump</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://www.tronix365.in/e-commerse/product/500-rpm-dc-motor</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/300-rpm-dc-motor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -561,27 +396,12 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/unnamed-product</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://www.tronix365.in/e-commerse/product/100-rpm-dc-motor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/60-rpm-dc-motor-12v</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://www.tronix365.in/e-commerse/product/30-rpm-12v-centre-shaft-dc-geared-motor</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/12v-10rpm-geared-dc-motor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -606,27 +426,12 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/8-pin-relimate</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://www.tronix365.in/e-commerse/product/7-pin-relimate</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/6-pin-relimate</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://www.tronix365.in/e-commerse/product/5-pin-relimate</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/4-pin-relimate</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -641,7 +446,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/tec1-12706-thermoelectric-peltier-cooler-module</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/tec1-12706-thermoelectric-peltier-module</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -661,7 +466,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/isd1820-voice-recording-module-with-mic-and-loud-speaker-smd-vers</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/isd1820-voice-recording</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -681,12 +486,12 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/43-keypad</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/4x3-keypad</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/44-keypad</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/4x4-matrix-keypad</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -706,22 +511,17 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/l293d-motor-driver-module</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/l293d-motor-driver</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/l293d-motor-driverservo-shield-for-arduino</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/l298n-motor-driver-module</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/l298n-2a-motor-driver-module</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/wirless-charging-module</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/wirless-phone-charging-module</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -746,7 +546,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/i2c-module</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/i2c-module-16x2-lcd</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -756,12 +556,12 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/esp01-module</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/esp01-wifi-module</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/5v-step-up-power-module-lithium-battery-charging-protection-board-usb-for-diy-charger-134n3p</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/5v-step-up-power-module-lithium-battery-charging</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -806,7 +606,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/ftdi232-ftdi-serial-adapter-module</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/ftdi-serial-adapter-module</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -816,7 +616,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/step-down-modulw-lm2596</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/step-down-module-lm2596</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -851,12 +651,17 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/40kg-load-cell-module</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/40kg-load-cell</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/5kg-load-cell-module</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/color-sensor-module</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/5kg-load-cell</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -867,6 +672,11 @@
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/pcf8575-remote-16-bits-i2c-iic-smbus-io-expander-module</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/lm393-sound-sensor-module</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -886,7 +696,17 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://www.tronix365.in/e-commerse/product/turbidity-sensor-suspended-turbidity-value-detection-module-kit</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://www.tronix365.in/e-commerse/product/em18-rfid-module</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/turbidity-sensor-with-modules</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -901,12 +721,22 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://www.tronix365.in/e-commerse/product/ph-analog-sensor</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://www.tronix365.in/e-commerse/product/8-channel-relay-module</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/4-channel-relay-module</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/mq-8-hydrogen-gas-sensor-module</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -921,6 +751,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://www.tronix365.in/e-commerse/product/mq5-sensor</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://www.tronix365.in/e-commerse/product/1-channel-5v-relay-control-board-module-with-optocoupler</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -931,7 +766,12 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/color-sensor-module</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/mlx90614-esf-non-contact-human-body-infrared-temperature-measurement-module</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/max30100</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -941,12 +781,22 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://www.tronix365.in/e-commerse/product/hall-effect-sensor-module</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://www.tronix365.in/e-commerse/product/voltage-sensor-module</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/ultrasonic-sensor-module-hc-sr04</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/mc-38-wired-door-window-sensor-magnetic-switch</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/lm35-temperature-sensor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -956,7 +806,12 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/lm393-sound-sensor-module</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/5mm-ldr</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/eyeblink-sensor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -971,147 +826,12 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://www.tronix365.in/e-commerse/product/ir-sensor</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://www.tronix365.in/e-commerse/product/soil-moisture-sensor-module</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/rain-drop-sensor-module</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/turbidity-sensor-suspended-turbidity-value-detection-module-kit</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/turbidity-sensor-with-modules</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/analog-tds-sensor-module</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/pir-sensor-module-hc-sr501</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/ph-analog-sensor</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/mq-135-module-ammonia-sulphide-and-benzene-gas-sensor</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/mq-8-hydrogen-gas-sensor-module</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/mq7-carbon-monoxide-gas-sensor-module</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/mq6-sensor</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/mq5-sensor</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/mq4-sensor</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/mq3-sensor</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/mq2-sensor</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/mlx90614-esf-non-contact-human-body-infrared-temperature-measurement-module</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/max30102-heart-rate-and-pulse-oximeter-sensor-module-black</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/max30100</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/hall-effect-sensor-module</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/mc-38-wired-door-window-sensor-magnetic-switch</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/lm35-temperature-sensor-module</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/lm35-temperature-sensor</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/ldr-sensor-module</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/5mm-ldr-sensor</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/eyeblink-sensor</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/5ch-ir-array-sensor</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/5mm-ir-led-infrared-receiver-and-transmitter-diode</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/ir-sensor-module</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.tronix365.in/e-commerse/product/coin-type-micro-vibration-motor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -1121,7 +841,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/vibration-sensor-module</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/rain-drop-sensor-module</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -1141,7 +861,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/flow-sensor-yf-s401</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/analog-tds-sensor-module</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -1151,7 +871,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/float-level-control-switch-plastic-float-switch</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/pir-sensor-module-hc-sr501</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -1166,7 +886,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/ad8232-ecg-with-heart-rate-sensor</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/mq-135-module-ammonia-sulphide-and-benzene-gas-sensor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -1181,17 +901,17 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/dht22-module-temp-amp-humidity-sensor</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/mq7-carbon-monoxide-gas-sensor-module</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/dht-11-temperature-and-humidity-sensor</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/pzem004t-electric-energy-metering-power-monitor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/pzem-004t-ac-multi-function-electric-energy-metering-power-monitor</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/mq6-sensor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -1206,12 +926,17 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/oled-display-096-inch</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/mq4-sensor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/dht11-temperature-amp-humidity-sensor</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/oled-display</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/mq3-sensor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -1221,7 +946,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/sg90-micro-servo-motor</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/mq2-sensor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -1231,12 +956,12 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/hc-sr04-ultrasonic-sensor</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/ultrasonic-sensor-module-hc-sr04</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/raspberry-pi-4-model-b-4gb</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/max30102-heart-rate-and-pulse-oximeter-sensor-module-black</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
