@@ -65,24 +65,27 @@ const Home = () => {
             <FeaturedProducts />
 
             {/* Banner / Call to Action */}
-            <section className="py-24 relative overflow-hidden">
-                <div className="absolute inset-0">
+            <section className="py-24 relative overflow-hidden bg-gradient-to-b from-tronix-bg via-slate-900/80 to-tronix-bg border-y border-white/10">
+                {/* Tech Background Grid & Glowing Orbs */}
+                <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-violet-600/15 blur-[160px]" />
+                    <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem]" />
                     <img
                         src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=2000"
                         alt="Electronics Banner"
-                        className="w-full h-full object-cover opacity-20"
+                        className="w-full h-full object-cover opacity-15"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-tronix-bg via-tronix-bg/80 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-tronix-bg via-transparent to-tronix-bg" />
                 </div>
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
                     <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-6">
-                        Build Your <span className="text-tronix-primary">Dreams</span>
+                        Build Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-tronix-primary via-violet-400 to-tronix-accent">Dreams</span>
                     </h2>
-                    <p className="text-gray-300 text-lg max-w-2xl mx-auto mb-10">
-                        From Arduino to Raspberry Pi, we have everything you need to bring your ideas to life. Start building today.
+                    <p className="text-gray-300 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+                        From Arduino boards to advanced Robotics Kits & ESP32 IoT sensors, we have everything you need to bring your ideas to life. Start building today.
                     </p>
-                    <Link to="/shop" className="inline-block bg-tronix-primary hover:bg-violet-600 text-white font-bold px-10 py-4 rounded-full text-lg shadow-lg shadow-violet-500/30 transition-all hover:scale-105">
+                    <Link to="/shop" className="inline-block bg-gradient-to-r from-tronix-primary to-violet-600 hover:from-violet-600 hover:to-indigo-600 text-white font-bold px-10 py-4 rounded-full text-lg shadow-xl shadow-violet-500/30 transition-all hover:scale-105 cursor-pointer">
                         Start Shopping
                     </Link>
                 </div>

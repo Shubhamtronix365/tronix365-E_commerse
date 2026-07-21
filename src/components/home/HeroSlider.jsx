@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import roboticsImg from '../../assets/robotics.png';
 
 const slides = [
     {
@@ -25,7 +26,7 @@ const slides = [
         title: "Robotics Kits",
         subtitle: "Build. Code. Drive.",
         description: "Complete kits for beginners and advanced robotics enthusiasts.",
-        image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=2000",
+        image: roboticsImg,
         color: "from-orange-600 to-red-600"
     }
 ];
