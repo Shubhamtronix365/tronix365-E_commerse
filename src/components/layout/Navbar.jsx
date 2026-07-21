@@ -6,7 +6,6 @@ import logo from '../../assets/logo.png';
 import SearchOverlay from './SearchOverlay';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
-import { MaintenanceTicker } from '../common/MaintenanceNotice';
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -20,20 +19,9 @@ const Navbar = () => {
         navigate('/login');
     };
 
-    // Announcement Ticker Bar state: set to true to display news/maintenance ticker line
-    const showTicker = false; 
-    // Choice of preset: 'ROBOTICS_KITS' | 'FREE_SHIPPING' | 'MAINTENANCE'
-    const activeTickerPreset = 'ROBOTICS_KITS';
-
     return (
         <>
             <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-            
-            {showTicker && (
-                <div className="fixed top-0 left-0 right-0 z-50">
-                    <MaintenanceTicker activePreset={activeTickerPreset} />
-                </div>
-            )}
 
             <motion.nav
                 initial={{ y: -100 }}
