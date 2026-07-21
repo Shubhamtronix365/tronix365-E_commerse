@@ -261,6 +261,7 @@ tronix365-E_commerse/
 - `framer-motion` — Smooth transitions & page animations.
 - `lucide-react` — Streamlined SVG icon suite.
 - `react-hot-toast` — Sleek, responsive notifications.
+- `agentation` — Visual feedback & element annotation toolbar widget for AI agents (MCP server integration).
 
 ### Backend Packages (PIP)
 
