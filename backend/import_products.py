@@ -49,31 +49,24 @@ def import_products(csv_file_path, reset=False):
             print("Products and associated data wiped successfully. IDs reset to 1.\n")
 
         # Try common encodings to handle different CSV sources (Excel/Windows)
-        encodings = ["utf-8-sig", "cp1252", "latin-1"]
-        csvfile = None
+        encodings = ["utf-8-sig", "utf-8", "cp1252", "latin-1"]
+        chosen_encoding = None
 
         for encoding in encodings:
             try:
-                # Open with the current encoding trial
-                temp_file = open(csv_file_path, mode="r", encoding=encoding)
-                # Try reading a few lines to verify encoding
-                temp_file.read(1024)
-                temp_file.seek(0)
-                csvfile = temp_file
+                with open(csv_file_path, mode="r", encoding=encoding) as f:
+                    f.read()  # Read full file to verify encoding
+                chosen_encoding = encoding
                 print(f"Detected encoding: {encoding}")
                 break
             except (UnicodeDecodeError, PermissionError):
-                if "temp_file" in locals() and temp_file:
-                    temp_file.close()
                 continue
 
-        if not csvfile:
-            print(
-                f"Error: Could not decode the file with any common encoding (UTF-8, CP1252). Please ensure it is saved as a standard CSV."
-            )
-            return
+        if not chosen_encoding:
+            chosen_encoding = "utf-8"
+            print("Using fallback encoding: utf-8 (with character replacement)")
 
-        with csvfile:
+        with open(csv_file_path, mode="r", encoding=chosen_encoding, errors="replace") as csvfile:
             reader = csv.DictReader(csvfile)
 
             count = 0
@@ -98,18 +91,20 @@ def import_products(csv_file_path, reset=False):
 
                 try:
                     # 2. Find Existing Product (ID > SKV > Title)
+                    from sqlalchemy import func
+
                     existing_product = None
                     if row_id and row_id.isdigit():
                         existing_product = db.get(ProductDB, int(row_id))
 
                     if not existing_product and skv:
                         existing_product = (
-                            db.query(ProductDB).filter(ProductDB.skv == skv).first()
+                            db.query(ProductDB).filter(func.lower(ProductDB.skv) == skv.lower()).first()
                         )
 
                     if not existing_product and title:
                         existing_product = (
-                            db.query(ProductDB).filter(ProductDB.title == title).first()
+                            db.query(ProductDB).filter(func.lower(ProductDB.title) == title.lower()).first()
                         )
 
                     # 3. Process Image
@@ -159,7 +154,10 @@ def import_products(csv_file_path, reset=False):
                         if final_image_path:
                             existing_product.image = final_image_path
                         if skv:
-                            existing_product.skv = skv
+                            # Verify SKV is not used by another product
+                            skv_owner = db.query(ProductDB).filter(func.lower(ProductDB.skv) == skv.lower()).first()
+                            if not skv_owner or skv_owner.id == existing_product.id:
+                                existing_product.skv = skv
 
                         # Resilient Numeric Parsing
                         if row.get("price"):
@@ -198,8 +196,15 @@ def import_products(csv_file_path, reset=False):
                         db.commit()
                         updated += 1
                     else:
+                        final_skv = skv if skv else None
+                        if final_skv:
+                            dup_check = db.query(ProductDB).filter(func.lower(ProductDB.skv) == final_skv.lower()).first()
+                            if dup_check:
+                                import uuid
+                                final_skv = f"{skv}-{uuid.uuid4().hex[:4].upper()}"
+
                         new_product = ProductDB(
-                            skv=skv or None,
+                            skv=final_skv,
                             title=title or "Unnamed Product",
                             category=row.get("category", "Uncategorized"),
                             price=clean_float(row.get("price"), 0.0),

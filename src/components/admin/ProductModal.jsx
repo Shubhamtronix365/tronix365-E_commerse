@@ -53,7 +53,14 @@ const ProductModal = ({
 
                         {/* Form Body - Scrollable */}
                         <div className="p-6 overflow-y-auto custom-scrollbar">
-                            <form id="product-form" onSubmit={handleSaveProduct} className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                            <form 
+                                id="product-form" 
+                                onSubmit={(e) => {
+                                    console.log("DEBUG: product-form onSubmit event fired!");
+                                    handleSaveProduct(e);
+                                }} 
+                                className="grid grid-cols-1 lg:grid-cols-12 gap-6"
+                            >
 
                                 {/* Left Column - Main Details */}
                                 <div className="lg:col-span-8 space-y-5">
@@ -274,6 +281,9 @@ const ProductModal = ({
                             <button
                                 type="submit"
                                 form="product-form"
+                                onClick={(e) => {
+                                    console.log("DEBUG: product-form submit button onClick fired!");
+                                }}
                                 className="bg-tronix-primary hover:bg-violet-600 text-white font-bold px-8 py-2.5 rounded-xl transition-all shadow-lg shadow-violet-500/25 flex items-center gap-2"
                             >
                                 <Save size={18} />

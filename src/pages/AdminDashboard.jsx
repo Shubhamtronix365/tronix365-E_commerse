@@ -185,6 +185,9 @@ const AdminDashboard = () => {
 
     const handleSaveProduct = async (e) => {
         e.preventDefault();
+        console.log("DEBUG: handleSaveProduct called. Event target:", e.target);
+        console.log("DEBUG: editingProduct state:", editingProduct);
+        console.log("DEBUG: newProduct state:", newProduct);
         try {
             const payload = { 
                 ...newProduct,
@@ -199,19 +202,23 @@ const AdminDashboard = () => {
 
             if (editingProduct) {
                 // Update existing
+                console.log("DEBUG: Calling PUT /products with payload:", payload);
                 const res = await client.put(`/products/${editingProduct.id}`, payload);
+                console.log("DEBUG: PUT /products response:", res.data);
                 setProducts(products.map(p => p.id === editingProduct.id ? res.data : p));
                 toast.success('Product updated successfully');
             } else {
                 // Create new
+                console.log("DEBUG: Calling POST /products with payload:", payload);
                 const res = await client.post('/products', payload);
+                console.log("DEBUG: POST /products response:", res.data);
                 setProducts([res.data, ...products]);
                 toast.success('Product added successfully');
             }
             setIsAddProductOpen(false);
             setNewProduct({ title: '', category: 'Development Boards', price: '', mrp: '', description: '', image: '', features: '' });
         } catch (error) {
-            console.error("Save product error:", error);
+            console.error("DEBUG: Save product error:", error);
             toast.error('Failed to save product');
         }
     };

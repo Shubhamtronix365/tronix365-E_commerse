@@ -399,10 +399,15 @@ async def create_product(
     db: Session = Depends(get_db),
     current_admin: UserDB = Depends(get_current_admin),
 ):
+    print("DEBUG: create_product endpoint hit. Payload:", product.dict(), flush=True)
     new_product = ProductDB(**product.dict())
+    print("DEBUG: Adding new product to db session...", flush=True)
     db.add(new_product)
+    print("DEBUG: Committing database session...", flush=True)
     db.commit()
+    print("DEBUG: Refreshing product from db...", flush=True)
     db.refresh(new_product)
+    print(f"DEBUG: Insert completed. New Product ID: {new_product.id}", flush=True)
     await FastAPICache.clear(
         namespace="products"
     )  # Clear cache to ensure immediate visibility
