@@ -108,39 +108,52 @@ def import_products(csv_file_path, reset=False):
                         )
 
                     # 3. Process Image
-                    image_val = row.get("image", "")
+                    image_val = row.get("image", "").strip()
                     final_image_path = (
                         "https://placehold.co/400x400?text=No+Image"
                     )
 
-                    if image_val:
-                        if image_val.startswith("http"):
-                            final_image_path = image_val
-                        else:
-                            # Search in components folder
-                            import shutil
+                    if image_val and image_val.startswith("http"):
+                        final_image_path = image_val
+                    else:
+                        import shutil
 
-                            source_path = None
-                            # Possible extensions in components folder
-                            for ext in ["", ".jpeg", ".jpg", ".png"]:
-                                test_path = os.path.join("components", image_val + ext)
-                                if os.path.exists(test_path) and os.path.isfile(
-                                    test_path
-                                ):
-                                    source_path = test_path
+                        source_path = None
+                        components_dir = "components"
+                        
+                        if os.path.exists(components_dir):
+                            # Map clean lowercase filenames to actual filenames
+                            comp_files = {f.lower().strip(): f for f in os.listdir(components_dir) if os.path.isfile(os.path.join(components_dir, f))}
+                            
+                            candidates = []
+                            # Add image_val candidates
+                            if image_val:
+                                candidates.append(image_val.lower().strip())
+                                for ext in [".jpg", ".jpeg", ".png", ".webp"]:
+                                    candidates.append((image_val + ext).lower().strip())
+                            
+                            # Add title candidates as fallback
+                            if title:
+                                candidates.append(title.lower().strip())
+                                for ext in [".jpg", ".jpeg", ".png", ".webp"]:
+                                    candidates.append((title + ext).lower().strip())
+
+                            for cand in candidates:
+                                if cand in comp_files:
+                                    source_path = os.path.join(components_dir, comp_files[cand])
                                     break
 
-                            if source_path:
-                                filename = os.path.basename(source_path)
-                                dest_path = os.path.join("uploads", filename)
-                                os.makedirs("uploads", exist_ok=True)
-                                shutil.copy2(source_path, dest_path)
-                                final_image_path = f"/uploads/{filename}"
+                        if source_path:
+                            filename = os.path.basename(source_path)
+                            dest_path = os.path.join("uploads", filename)
+                            os.makedirs("uploads", exist_ok=True)
+                            shutil.copy2(source_path, dest_path)
+                            final_image_path = f"/uploads/{filename}"
+                        else:
+                            if existing_product and existing_product.image and "placehold" not in existing_product.image:
+                                final_image_path = existing_product.image
                             else:
-                                if existing_product:
-                                    final_image_path = existing_product.image
-                                else:
-                                    final_image_path = "https://placehold.co/400x400?text=No+Image"
+                                final_image_path = "https://placehold.co/400x400?text=No+Image"
 
                     # 4. Handle Updates or Creation
                     if existing_product:
