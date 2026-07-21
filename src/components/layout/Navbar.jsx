@@ -174,7 +174,6 @@ const Navbar = () => {
                         </motion.div>
                     )}
                 </AnimatePresence>
-                <MaintenanceTicker />
             </motion.nav >
         </>
     );
