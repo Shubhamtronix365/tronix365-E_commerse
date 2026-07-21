@@ -1,66 +1,116 @@
-# Product Data Import Guide
+# 📦 Product CSV Import & Image Management Guide
 
-## 1. Image Handling (Direct Images)
-
-You can use images from the internet (URL) or from your local computer.
-
-### Option A: Local Images (Recommended)
-1.  **Gather your images**: Collect all your product photos (e.g., `arduino.jpg`, `sensor_01.png`).
-2.  **Place them in the project**:
-    *   Copy all these images into the folder: `src/assets/products/`
-    *   *(Note: You might need to create the `products` folder inside `src/assets` if it doesn't exist)*
-3.  **In the CSV**:
-    *   Just write the **filename**.
-    *   **Correct**: `arduino.jpg`
-    *   **Incorrect**: `C:/Users/Photo/arduino.jpg`
-
-### Option B: Internet Images
-1.  **In the CSV**:
-    *   Paste the full link.
-    *   Example: `https://example.com/images/arduino.jpg`
+This guide details how to prepare your product data CSV/Excel files, place product images, execute the automated import script (`import_products.py`), and synchronize uploaded images for live production hosting (Render + NeonDB).
 
 ---
 
-## 2. CSV File Format
+## 1. 📁 Image Handling & Folder Placement
 
-**File Name**: `products.csv` (save as standard CSV comma-separated).
+You can supply product images via local files or direct web URLs.
 
-### Column Definition
+### Option A: Local Images (Recommended)
+1. **Place Raw Images**: Place all your raw product images inside the folder:
+   ```text
+   backend/components/
+   ```
+   * *Supported extensions*: `.jpg`, `.jpeg`, `.png`, `.webp`, `.svg`
+   * *Example filenames*: `Arduino_Uno R3.jpg`, `SG90 Micro Servo Motor.jpg`, `16x2 LCD Display.jpg`
+
+2. **Smart Automatic Image Matching**:
+   The `import_products.py` script automatically performs:
+   * **Case-insensitive matching**: Matches `arduino.jpg` to `Arduino_Uno R3.jpg`.
+   * **Title fallback matching**: If the `image` column in CSV is blank, it automatically searches for image files matching the product title.
+   * **Whitespace trimming**: Handles spaces before file extensions (e.g. `motor .jpg`).
+
+3. **Automatic Copy to `uploads/`**:
+   Matched images are automatically copied into:
+   ```text
+   backend/uploads/
+   ```
+   And recorded in the database with relative URL paths like `/uploads/Arduino_Uno R3.jpg`.
+
+### Option B: Direct Web Image URLs
+In your CSV, paste full HTTP/HTTPS image links:
+```csv
+skv,title,sale_price,image
+ARD-001,Arduino Uno R3,450,https://images.unsplash.com/photo-1553406830-ef2513450d76
+```
+
+---
+
+## 2. 📊 CSV File Format & Structure
+
+Save your product file as **`products.csv`** (or export from Microsoft Excel as **CSV UTF-8 (Comma delimited) (*.csv)**) and place it inside:
+```text
+backend/products.csv
+```
+
+### Column Specifications
 
 | Column Name | Required? | Description | Example |
 | :--- | :--- | :--- | :--- |
-| **`skv`** | **YES** | **Unique ID** for the product. Used to update existing items. | `ARD-001` or `SKV-105` |
-| `title` | YES | Name of the product. | `Arduino Uno R3` |
-| `category` | YES | Category name (grouping). | `Development Boards` |
-| `stock` | YES | Number of items available. | `50` |
-| `sale_price` | YES | **Selling Price** (The actual price customer pays). | `450` |
-| `mrp` | No | Maximum Retail Price (shown crossed out). | `650` |
-| `features` | No | Bullet points list. **Use `|` to separate items.** | `Low Power|5V Logic|USB-C` |
-| `specs` | No | Technical details. **Use `|` to separate items, `:` for value.** | `Voltage:5V|Memory:2KB` |
-| `image` | YES | Filename (see Section 1) or URL. | `arduino.jpg` |
-| `description`| No | Paragraph text describing the item. | `A powerful microcontroller...` |
+| `skv` | **Yes** | Unique Product SKU / Seller ID. Used for updates and unique indexing. | `ARD-001` |
+| `title` | **Yes** | Product Display Name. | `Arduino Uno R3` |
+| `category` | **Yes** | Category name for filtering. | `Development Boards` |
+| `sale_price` | **Yes** | Selling price customer pays. | `450` |
+| `mrp` | No | Maximum Retail Price (shown strikethrough). | `650` |
+| `stock` | No | Available inventory count (default: `100`). | `50` |
+| `image` | **Yes** | Image filename in `components/` or web URL. | `Arduino_Uno R3.jpg` |
+| `description` | No | Full product description text. | `Powerful microcontroller board...` |
+| `features` | No | Bullet list separated by `\|`. | `5V Logic\|USB-C Interface\|ATmega328P` |
+| `specs` | No | Key-value pairs separated by `\|` and `:`. | `Voltage:5V\|Clock Speed:16MHz` |
 
 ---
 
-## 3. Example Rows
+## 3. ⚙️ Encoding & SKU Resiliency
 
-**Simple Product:**
-```csv
-skv,title,stock,sale_price,image
-SKV-01,Basic LED,100,5,led_red.jpg
+The import script is built with production-grade resiliency:
+* **Multi-Encoding Auto-Detection**: Supports files saved in `UTF-8`, `UTF-8-SIG`, `CP1252` (Windows Excel), and `Latin-1`. Special symbols or non-breaking spaces are safely decoded using `errors="replace"`.
+* **Duplicate SKU Resolution**: If multiple CSV rows contain duplicate SKU codes, the script automatically generates a unique suffix (`SKU-A1B2`) to prevent PostgreSQL `UniqueViolation` database crashes.
+* **Case-Insensitive Product Lookup**: Existing products are matched by `skv` or `title` case-insensitively to prevent accidental duplicate entries.
+
+---
+
+## 4. 🚀 Running the Import Script
+
+### Step 1: Navigate to backend folder
+```powershell
+cd backend
 ```
 
-**Advanced Product with Features:**
-```csv
-skv,title,stock,sale_price,mrp,features,specs
-RPI-4,Raspberry Pi 4,20,4500,5500,Quad Core CPU|4GB RAM|WiFi,RAM:4GB|CPU:1.5GHz
+### Step 2: Activate virtual environment
+```powershell
+# Windows
+myenv\Scripts\activate
+
+# Linux / macOS
+source myenv/bin/activate
 ```
 
-## 4. How to Run Import
+### Step 3: Run the import script
 
-1.  Save your file as `products.csv` in the `backend/` folder.
-2.  Open terminal in `backend/` folder.
-3.  Run the command:
-    ```bash
-    python import_products.py
-    ```
+* **Normal Import / Update**:
+  ```powershell
+  python import_products.py products.csv
+  ```
+
+* **Fresh Reset & Re-Import** *(Wipes existing products & resets database IDs to 1)*:
+  ```powershell
+  python import_products.py products.csv --reset
+  ```
+
+---
+
+## 🌐 5. Deploying Images to Live Production Hosting (Render + NeonDB)
+
+When running the import script against your live **NeonDB PostgreSQL** instance:
+
+1. The script updates your live NeonDB database records.
+2. The product image files are copied into `backend/uploads/`.
+3. To deploy these local upload images to **Render** (so your live website can render them):
+   ```powershell
+   git add backend/uploads
+   git commit -m "feat: sync product images for live site"
+   git push origin main
+   ```
+4. Render will deploy the `backend/uploads` directory, and your live website will display all product images!
