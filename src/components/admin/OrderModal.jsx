@@ -95,8 +95,9 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
     const handleConfirmShipping = (e) => {
         e.preventDefault();
         const finalCourier = shippingData.courier === 'Other' 
-            ? (shippingData.custom_courier && shippingData.custom_courier.strip() ? shippingData.custom_courier.strip() : 'Local Transport') 
+            ? (shippingData.custom_courier && shippingData.custom_courier.trim() ? shippingData.custom_courier.trim() : 'Local Transport') 
             : shippingData.courier;
+
 
         onUpdateOrderStatus(order.id, {
             status: shippingData.targetStatus,

@@ -310,8 +310,24 @@ const AdminDashboard = () => {
             toast.success(`Order marked as ${newStatus.replace('_', ' ').toUpperCase()} & notification dispatched!`);
         } catch (error) {
             console.error("Update order status error:", error);
-            toast.error('Failed to update order status');
+            const statusCode = error.response?.status;
+            const detail = error.response?.data?.detail || error.response?.data?.error || error.message;
+            
+            if (statusCode === 401) {
+                toast.error('Session expired. Please log in again as admin.');
+            } else if (statusCode === 403) {
+                toast.error('Access denied. Admin privileges required.');
+            } else if (statusCode === 404) {
+                toast.error('Order not found on server.');
+            } else if (statusCode === 422) {
+                toast.error(`Validation error: ${detail}`);
+            } else if (statusCode === 500) {
+                toast.error(`Server error: ${detail}`);
+            } else {
+                toast.error(`Failed to update order status: ${detail || 'Unknown error'}`);
+            }
         }
+
     };
 
     const handleUpdateProfile = async (e) => {
