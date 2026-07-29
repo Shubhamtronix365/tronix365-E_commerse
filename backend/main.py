@@ -378,15 +378,31 @@ async def get_product(product_id: int, db: Session = Depends(get_db)):
 @cache(expire=3600, namespace="products")
 async def get_product_by_slug(slug: str, db: Session = Depends(get_db)):
     import re
-    def make_slug(title: str) -> str:
-        t = title.lower()
-        t = re.sub(r'[^a-z0-9\s-]', '', t)
-        t = re.sub(r'[\s-]+', '-', t)
+
+    def normalize(s: str) -> str:
+        if not s:
+            return ""
+        t = s.lower()
+        t = re.sub(r'[^a-z0-9\s_-]', '', t)
+        t = re.sub(r'[\s_-]+', '-', t)
         return t.strip('-')
 
+    target = normalize(slug)
     products = db.query(ProductDB).all()
+
+    # 1. Match normalized title slug
     for p in products:
-        if make_slug(p.title) == slug.lower().strip('-'):
+        if p.title and normalize(p.title) == target:
+            return p
+
+    # 2. Match normalized SKV or product ID
+    for p in products:
+        if p.skv and (normalize(p.skv) == target or p.skv.lower() == slug.lower()):
+            return p
+
+    # 3. Match exact or lower title
+    for p in products:
+        if p.title and p.title.lower().strip() == slug.lower().strip():
             return p
 
     raise HTTPException(status_code=404, detail="Product not found")

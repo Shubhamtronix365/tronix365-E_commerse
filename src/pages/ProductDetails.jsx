@@ -33,7 +33,7 @@ const ProductDetails = () => {
             try {
                 const isId = /^\d+$/.test(slug);
                 const endpoint = isId ? `/products/${slug}` : `/products/slug/${slug}`;
-                const prodRes = await client.get(endpoint, { timeout: 2000 });
+                const prodRes = await client.get(endpoint);
                 const productData = prodRes.data;
                 setProduct(productData);
 
@@ -41,14 +41,18 @@ const ProductDetails = () => {
                 const bundlesRes = await client.get(`/products/${productData.id}/bundles`).catch(() => ({ data: [] }));
                 setBundles(bundlesRes.data);
             } catch (error) {
-                console.warn('Backend unavailable, falling back to mock data:', error);
+                console.warn('Backend unavailable or product fetch error, checking local fallback:', error);
                 const isId = /^\d+$/.test(slug);
                 let found;
                 if (isId) {
                     found = mockProducts.find(p => p.id === parseInt(slug));
                 } else {
                     const { slugify } = await import('../utils/slugify');
-                    found = mockProducts.find(p => slugify(p.title) === slug);
+                    const targetSlug = slug.toLowerCase().replace(/_/g, '-');
+                    found = mockProducts.find(p => {
+                        const pSlug = slugify(p.title);
+                        return pSlug === slug || pSlug.replace(/_/g, '-') === targetSlug || (p.skv && p.skv.toLowerCase() === slug.toLowerCase());
+                    });
                 }
                 setProduct(found || null);
             } finally {
