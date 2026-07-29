@@ -256,7 +256,7 @@ class Order(OrderCreate):
 
 
 class OrderStatusUpdate(BaseModel):
-    status: str
+    status: Optional[str] = None
     courier: Optional[str] = None
     custom_courier: Optional[str] = None
     tracking_number: Optional[str] = None

@@ -572,7 +572,8 @@ async def update_order_status(
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
 
-    new_status = status_update.status.lower().strip()
+    new_status = (status_update.status.lower().strip() if status_update.status else order.status.lower())
+    order.status = new_status
 
     # Update Courier / Shipping Method (support custom shipping input if 'Other' chosen)
     if status_update.custom_courier and status_update.custom_courier.strip():
