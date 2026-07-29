@@ -138,8 +138,7 @@ const ProductDetails = () => {
                                     <Star key={star} size={16} fill="currentColor" />
                                 ))}
                             </div>
-                            <span className="text-gray-400 text-sm">(12 Reviews)</span>
-                            <span className="text-gray-400 text-sm">(12 Reviews)</span>
+                            <span className="text-gray-400 text-sm">(0 Reviews)</span>
                             {product.stock > 0 ? (
                                 <span className="text-green-400 text-sm flex items-center gap-1">
                                     <Check size={16} /> In Stock ({product.stock})

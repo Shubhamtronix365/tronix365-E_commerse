@@ -78,8 +78,8 @@ const OrderDetails = () => {
                                     <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center border border-red-500/30 mb-3">
                                         <XCircle size={32} className="text-red-500" />
                                     </div>
-                                    <h3 className="text-red-400 font-bold text-lg">Order Rejected</h3>
-                                    <p className="text-gray-400 text-sm mt-1">This order was not approved and has been cancelled.</p>
+                                    <h3 className="text-red-400 font-bold text-lg">Order Cancelled</h3>
+                                    <p className="text-gray-300 text-sm mt-1 text-center font-medium">Your order has been cancelled. Your payment will be refunded in 3-7 working days.</p>
                                 </div>
                             ) : (
                                 <div className="flex items-center justify-between relative z-10">

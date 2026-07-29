@@ -9,7 +9,7 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
 - **Modern Bento UI**: Beautiful, responsive layout with glassmorphic cards and dynamic animations.
 - **Fuzzy Search & Filters**: High-performance backend search, pagination, category sorting, and price range filters.
 - **Smart Shopping Cart**: Persistent cart state, client-side validation, and instant coupon/discount application.
-- **Admin Inventory Dashboard**: Live product updates, order confirmation control panel, and coupon generator.
+- **Admin Inventory & Order Management**: Live product updates, order review authority (orders stay pending until explicitly confirmed or cancelled by admin), and coupon generator.
 - **Mandatory 2FA (Password + Email OTP)**: Secure two-step authentication for user signup and login. OTPs are sent via Brevo SMTP and expire in exactly 2 minutes.
 - **Secure Authentication**: Encrypted password authentication (PBKDF2), JWT tokens, and Google OAuth integration.
 - **Rate Limiting & Caching**: Security features with Slowapi rate limiters and Redis/InMemory backend caching.

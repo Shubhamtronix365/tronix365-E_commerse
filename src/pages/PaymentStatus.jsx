@@ -143,7 +143,7 @@ const PaymentStatus = () => {
 
                     <p className="text-gray-400 max-w-md mx-auto mb-6 text-sm sm:text-base">
                         {isSuccess
-                            ? "Thank you! Your transaction completed successfully. An invoice and confirmation email has been sent."
+                            ? "Thank you! Your transaction completed successfully. Your order is placed and pending admin confirmation."
                             : "We couldn't process your payment. Your cart remains intact, and you can try again below."}
                     </p>
 

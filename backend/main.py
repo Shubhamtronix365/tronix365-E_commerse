@@ -2139,44 +2139,17 @@ async def payment_callback(
     order = db.query(OrderDB).filter(OrderDB.txnid == txnid).first()
     if order:
         if status == "success":
-            # Idempotency check: Only deduct stock if not already confirmed
-            if order.status != "confirmed":
-                order.status = "confirmed"
-                # Decrement Stock
-                if order.items:
-                    for item in order.items:
-                        product = (
-                            db.query(ProductDB)
-                            .filter(ProductDB.id == item.product_id)
-                            .first()
-                        )
-                        if product:
-                            product.stock -= item.quantity
-                            if product.stock < 0:
-                                product.stock = 0  # Safety check
-                # Increment coupon usage count if coupon was used
-                if order.coupon_code:
-                    coupon = db.query(CouponDB).filter(CouponDB.code == order.coupon_code).first()
-                    if coupon:
-                        coupon.used_count += 1
-                # Increment bundle usage count
-                if order.items:
-                    bundle_ids = {item.bundle_id for item in order.items if item.bundle_id}
-                    for b_id in bundle_ids:
-                        bundle = db.query(BundleDB).filter(BundleDB.id == b_id).first()
-                        if bundle:
-                            bundle.used_count = (bundle.used_count or 0) + 1
-                db.commit()  # Commit status, stock, coupon, and bundle updates
-                db.refresh(order)
+            # Keep order in 'pending' status so Admin has the authority to confirm or cancel it
+            if not order.status:
+                order.status = "pending"
+            db.commit()
+            db.refresh(order)
 
-                # Clear Cart for this user on successful payment
-                user_obj = db.query(UserDB).filter(UserDB.email == order.customer_email).first()
-                if user_obj:
-                    db.query(CartItemDB).filter(CartItemDB.user_id == user_obj.id, CartItemDB.selected == True).delete()
-                    db.commit()
-
-                # Payment succeeds and order is confirmed. Send HTML invoice!
-                background_tasks.add_task(send_order_confirmation_email, order)
+            # Clear Cart for this user on successful payment
+            user_obj = db.query(UserDB).filter(UserDB.email == order.customer_email).first()
+            if user_obj:
+                db.query(CartItemDB).filter(CartItemDB.user_id == user_obj.id, CartItemDB.selected == True).delete()
+                db.commit()
         else:
             order.status = "failed"
             db.commit()

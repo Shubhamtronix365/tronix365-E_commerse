@@ -293,7 +293,7 @@ const UserDashboard = () => {
                                                                     order.status === 'delivered' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
                                                                         'bg-red-500/10 text-red-400 border border-red-500/20'
                                                             }`}>
-                                                            {order.status === 'confirmed' ? 'Order Placed' : order.status === 'pending' ? 'Pending Approval' : order.status === 'deleted' ? 'Rejected' : order.status}
+                                                            {order.status === 'confirmed' ? 'Order Confirmed' : order.status === 'pending' ? 'Pending Approval' : order.status === 'deleted' ? 'Cancelled (Refund in 3-7 days)' : order.status}
                                                         </span>
                                                     </div>
                                                 </div>

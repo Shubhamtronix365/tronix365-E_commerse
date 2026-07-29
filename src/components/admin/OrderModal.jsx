@@ -60,8 +60,8 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                                         <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center border border-red-500/30 mb-3">
                                             <X size={32} className="text-red-500" />
                                         </div>
-                                        <h3 className="text-red-400 font-bold text-lg">Order Rejected & Deleted</h3>
-                                        <p className="text-gray-400 text-sm mt-1">This order was cancelled and stock has been restored.</p>
+                                        <h3 className="text-red-400 font-bold text-lg">Order Cancelled</h3>
+                                        <p className="text-gray-300 text-sm mt-1 text-center font-medium">This order was cancelled. Payment will be refunded in 3-7 working days.</p>
                                     </div>
                                 ) : (
                                     <div className="flex items-center justify-between relative z-10">
@@ -101,33 +101,49 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                                             <>
                                                 <button
                                                     onClick={() => onUpdateOrderStatus(order.id, 'confirmed')}
-                                                    className="px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-bold text-sm transition-colors shadow-lg shadow-emerald-500/20"
+                                                    className="px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-bold text-sm transition-colors shadow-lg shadow-emerald-500/20 flex items-center gap-2"
                                                 >
-                                                    Accept Order
+                                                    <Check size={16} /> Confirm Order
                                                 </button>
                                                 <button
                                                     onClick={() => setIsRejectModalOpen(true)}
-                                                    className="px-6 py-2 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-lg font-bold text-sm transition-colors"
+                                                    className="px-6 py-2 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-lg font-bold text-sm transition-colors flex items-center gap-2"
                                                 >
-                                                    Reject Order
+                                                    <X size={16} /> Cancel / Reject Order
                                                 </button>
                                             </>
                                         )}
                                         {order.status === 'confirmed' && (
-                                            <button
-                                                onClick={() => onUpdateOrderStatus(order.id, 'shipped')}
-                                                className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-bold text-sm transition-colors shadow-lg shadow-blue-500/20"
-                                            >
-                                                Mark as Shipped
-                                            </button>
+                                            <>
+                                                <button
+                                                    onClick={() => onUpdateOrderStatus(order.id, 'shipped')}
+                                                    className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-bold text-sm transition-colors shadow-lg shadow-blue-500/20"
+                                                >
+                                                    Mark as Shipped
+                                                </button>
+                                                <button
+                                                    onClick={() => setIsRejectModalOpen(true)}
+                                                    className="px-6 py-2 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-lg font-bold text-sm transition-colors flex items-center gap-2"
+                                                >
+                                                    <X size={16} /> Cancel Order
+                                                </button>
+                                            </>
                                         )}
                                         {order.status === 'shipped' && (
-                                            <button
-                                                onClick={() => onUpdateOrderStatus(order.id, 'delivered')}
-                                                className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold text-sm transition-colors shadow-lg shadow-green-500/20"
-                                            >
-                                                Mark as Delivered
-                                            </button>
+                                            <>
+                                                <button
+                                                    onClick={() => onUpdateOrderStatus(order.id, 'delivered')}
+                                                    className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold text-sm transition-colors shadow-lg shadow-green-500/20"
+                                                >
+                                                    Mark as Delivered
+                                                </button>
+                                                <button
+                                                    onClick={() => setIsRejectModalOpen(true)}
+                                                    className="px-6 py-2 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-lg font-bold text-sm transition-colors flex items-center gap-2"
+                                                >
+                                                    <X size={16} /> Cancel Order
+                                                </button>
+                                            </>
                                         )}
                                     </div>
                                 )}
@@ -305,9 +321,9 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
             isOpen={isRejectModalOpen}
             onClose={() => setIsRejectModalOpen(false)}
             onConfirm={() => onUpdateOrderStatus(order.id, 'deleted')}
-            title="Reject Order?"
-            message="Are you sure you want to reject this order? Stock will be restored."
-            confirmText="Reject"
+            title="Cancel / Reject Order?"
+            message="Are you sure you want to cancel this order? The customer will be informed that their payment will be refunded in 3-7 working days."
+            confirmText="Cancel Order"
             cancelText="Keep Order"
             type="danger"
         />

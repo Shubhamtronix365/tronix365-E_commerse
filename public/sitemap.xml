@@ -66,6 +66,61 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://www.tronix365.in/e-commerse/product/bhavesh</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/dwin-7-inch-capacitive-hmi-display-dmg80480c070_04wtc</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/espressif-esp32-c3-mini-1-n4-wifi-bluetooth-5-module-4mb-flash-pcb-antenna</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/original-esp32-wroom-32d-n4-module-4mb-flash-wifi-ble-espressif</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/espressif-esp32-wrover-e-n16r8-wireless-module-wifi-bluetooth-16mb-flash</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/espressif-esp32-wroom-32ue-wifi-bluetooth-module-4mb-flash-ipex-connector</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/gy-bme280-5v-temperature-humidity-pressure-sensor-module-i2c-spi-environmental-sensor</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/sensirion-sen66-sin-t-environmental-sensor-module-co-air-quality-sensor-i2c</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/gy-sht40-digital-temperature-amp-humidity-sensor-module-i2c-sensirion-sht40-high-accuracy</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/dfrobot-fermion-mems-odor-sensor-gas-detection-module-analog-output-33v-5v</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/dfrobot-gravity-i2c-oxygen-sensor-module</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://www.tronix365.in/e-commerse/product/f-m-wire</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
