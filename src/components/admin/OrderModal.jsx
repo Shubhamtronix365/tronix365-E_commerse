@@ -1,12 +1,128 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Package, Check, Clock, Truck, User, CreditCard, Calendar, Image as ImageIcon } from 'lucide-react';
-import ConfirmModal from './ConfirmModal';
+import { 
+    X, Package, Check, Clock, Truck, User, CreditCard, Calendar, 
+    Image as ImageIcon, AlertTriangle, Send, FileText, ChevronDown, RefreshCw 
+} from 'lucide-react';
+
+const PRESET_COURIERS = [
+    "Porter",
+    "Delhivery",
+    "DTDC",
+    "Blue Dart",
+    "India Post",
+    "DHL",
+    "FedEx",
+    "XpressBees",
+    "Ecom Express",
+    "Shadowfax",
+    "Self Delivery",
+    "Pickup",
+    "Other"
+];
+
+const ALL_ORDER_STATUSES = [
+    { value: "pending", label: "Order Received (Pending)" },
+    { value: "confirmed", label: "Order Confirmed" },
+    { value: "payment_received", label: "Payment Received" },
+    { value: "processing", label: "Processing" },
+    { value: "packed", label: "Packed" },
+    { value: "shipped", label: "Shipped" },
+    { value: "out_for_delivery", label: "Out For Delivery" },
+    { value: "delivered", label: "Delivered" },
+    { value: "cancelled", label: "Cancelled" },
+    { value: "refund_initiated", label: "Refund Initiated" },
+    { value: "refund_completed", label: "Refund Completed" },
+    { value: "failed_payment", label: "Failed Payment" },
+    { value: "return_requested", label: "Return Requested" },
+    { value: "return_approved", label: "Return Approved" },
+    { value: "return_rejected", label: "Return Rejected" },
+    { value: "exchange_approved", label: "Exchange Approved" },
+    { value: "exchange_rejected", label: "Exchange Rejected" }
+];
 
 const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
-    const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+    // Shipping Modal State
+    const [isShippingModalOpen, setIsShippingModalOpen] = useState(false);
+    const [shippingData, setShippingData] = useState({
+        targetStatus: 'shipped',
+        courier: 'Delhivery',
+        custom_courier: '',
+        tracking_number: '',
+        estimated_delivery_date: '',
+        estimated_arrival_time: ''
+    });
+
+    // Cancel Modal State
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+    const [cancelData, setCancelData] = useState({
+        cancellation_reason: '',
+        refund_status: 'Full Refund Initiated (3-7 Working Days)'
+    });
+
+    // Custom Status Change State
+    const [selectedNewStatus, setSelectedNewStatus] = useState('');
+
+    useEffect(() => {
+        if (order) {
+            setSelectedNewStatus(order.status || 'pending');
+            setShippingData({
+                targetStatus: 'shipped',
+                courier: order.courier ? (PRESET_COURIERS.includes(order.courier) ? order.courier : 'Other') : 'Delhivery',
+                custom_courier: order.courier && !PRESET_COURIERS.includes(order.courier) ? order.courier : '',
+                tracking_number: order.tracking_number || '',
+                estimated_delivery_date: order.estimated_delivery_date || '',
+                estimated_arrival_time: order.estimated_arrival_time || ''
+            });
+            setCancelData({
+                cancellation_reason: order.cancellation_reason || 'Cancelled by Store Administrator',
+                refund_status: order.refund_status || 'Full Refund Initiated (3-7 Working Days)'
+            });
+        }
+    }, [order]);
 
     if (!order) return null;
+
+    const handleOpenShippingModal = (status = 'shipped') => {
+        setShippingData(prev => ({ ...prev, targetStatus: status }));
+        setIsShippingModalOpen(true);
+    };
+
+    const handleConfirmShipping = (e) => {
+        e.preventDefault();
+        const finalCourier = shippingData.courier === 'Other' ? shippingData.custom_courier : shippingData.courier;
+        onUpdateOrderStatus(order.id, {
+            status: shippingData.targetStatus,
+            courier: shippingData.courier,
+            custom_courier: shippingData.custom_courier,
+            tracking_number: shippingData.tracking_number,
+            estimated_delivery_date: shippingData.estimated_delivery_date,
+            estimated_arrival_time: shippingData.estimated_arrival_time
+        });
+        setIsShippingModalOpen(false);
+    };
+
+    const handleConfirmCancel = (e) => {
+        e.preventDefault();
+        onUpdateOrderStatus(order.id, {
+            status: 'cancelled',
+            cancellation_reason: cancelData.cancellation_reason,
+            refund_status: cancelData.refund_status
+        });
+        setIsCancelModalOpen(false);
+    };
+
+    const handleDropdownStatusChange = (e) => {
+        const val = e.target.value;
+        setSelectedNewStatus(val);
+        if (val === 'shipped' || val === 'out_for_delivery') {
+            handleOpenShippingModal(val);
+        } else if (val === 'cancelled' || val === 'deleted') {
+            setIsCancelModalOpen(true);
+        } else {
+            onUpdateOrderStatus(order.id, { status: val });
+        }
+    };
 
     return (
         <>
@@ -52,27 +168,32 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                         {/* Body - Scrollable */}
                         <div className="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-6">
 
-                            {/* Status Pipeline Stepper */}
+                            {/* Status Pipeline Stepper & Admin Controls */}
                             <div className="bg-black/20 border border-white/5 rounded-2xl p-6 relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500/20 via-fuchsia-500/20 to-emerald-500/20"></div>
-                                {order.status === 'deleted' ? (
+                                
+                                {order.status === 'cancelled' || order.status === 'deleted' ? (
                                     <div className="flex flex-col items-center justify-center py-4">
                                         <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center border border-red-500/30 mb-3">
                                             <X size={32} className="text-red-500" />
                                         </div>
                                         <h3 className="text-red-400 font-bold text-lg">Order Cancelled</h3>
-                                        <p className="text-gray-300 text-sm mt-1 text-center font-medium">This order was cancelled. Payment will be refunded in 3-7 working days.</p>
+                                        <p className="text-gray-300 text-sm mt-1 text-center font-medium">
+                                            Reason: {order.cancellation_reason || 'Cancelled by store admin'}<br/>
+                                            Refund Status: <span className="text-emerald-400 font-bold">{order.refund_status || 'Full Refund Initiated (3-7 Working Days)'}</span>
+                                        </p>
                                     </div>
                                 ) : (
                                     <div className="flex items-center justify-between relative z-10">
                                         {['pending', 'confirmed', 'shipped', 'delivered'].map((step, idx, arr) => {
-                                            const isActive = order.status === step || arr.indexOf(order.status) >= idx;
+                                            const stepIndex = arr.indexOf(order.status);
+                                            const isActive = order.status === step || (stepIndex !== -1 && stepIndex >= idx);
                                             const isCurrent = order.status === step;
                                             return (
                                                 <div key={step} className="flex flex-col items-center flex-1 relative">
                                                     {/* Connecting Line */}
                                                     {idx !== arr.length - 1 && (
-                                                        <div className={`absolute top-5 left-[50%] right-[-50%] h-[2px] ${isActive && arr.indexOf(order.status) > idx ? 'bg-violet-500' : 'bg-white/10'}`} />
+                                                        <div className={`absolute top-5 left-[50%] right-[-50%] h-[2px] ${isActive && stepIndex > idx ? 'bg-violet-500' : 'bg-white/10'}`} />
                                                     )}
 
                                                     {/* Step Circle */}
@@ -86,7 +207,7 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
 
                                                     {/* Step Label */}
                                                     <p className={`mt-3 text-xs font-bold uppercase tracking-wider ${isActive ? 'text-white' : 'text-gray-500'}`}>
-                                                        {step}
+                                                        {step.replace('_', ' ')}
                                                     </p>
                                                 </div>
                                             );
@@ -94,63 +215,118 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                                     </div>
                                 )}
 
-                                {/* Admin Action Buttons */}
-                                {order.status !== 'deleted' && onUpdateOrderStatus && (
-                                    <div className="mt-6 flex flex-wrap justify-center gap-3 pt-6 border-t border-white/10">
+                                {/* Admin Action Bar & Status Dropdown */}
+                                <div className="mt-6 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+                                    {/* Quick Preset Buttons */}
+                                    <div className="flex flex-wrap items-center gap-2">
                                         {order.status === 'pending' && (
-                                            <>
-                                                <button
-                                                    onClick={() => onUpdateOrderStatus(order.id, 'confirmed')}
-                                                    className="px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-bold text-sm transition-colors shadow-lg shadow-emerald-500/20 flex items-center gap-2"
-                                                >
-                                                    <Check size={16} /> Confirm Order
-                                                </button>
-                                                <button
-                                                    onClick={() => setIsRejectModalOpen(true)}
-                                                    className="px-6 py-2 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-lg font-bold text-sm transition-colors flex items-center gap-2"
-                                                >
-                                                    <X size={16} /> Cancel / Reject Order
-                                                </button>
-                                            </>
+                                            <button
+                                                onClick={() => onUpdateOrderStatus(order.id, 'confirmed')}
+                                                className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-bold text-xs transition-colors shadow-lg shadow-emerald-500/20 flex items-center gap-1.5"
+                                            >
+                                                <Check size={14} /> Confirm Order
+                                            </button>
                                         )}
                                         {order.status === 'confirmed' && (
-                                            <>
-                                                <button
-                                                    onClick={() => onUpdateOrderStatus(order.id, 'shipped')}
-                                                    className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-bold text-sm transition-colors shadow-lg shadow-blue-500/20"
-                                                >
-                                                    Mark as Shipped
-                                                </button>
-                                                <button
-                                                    onClick={() => setIsRejectModalOpen(true)}
-                                                    className="px-6 py-2 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-lg font-bold text-sm transition-colors flex items-center gap-2"
-                                                >
-                                                    <X size={16} /> Cancel Order
-                                                </button>
-                                            </>
+                                            <button
+                                                onClick={() => handleOpenShippingModal('shipped')}
+                                                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-bold text-xs transition-colors shadow-lg shadow-blue-500/20 flex items-center gap-1.5"
+                                            >
+                                                <Truck size={14} /> Mark as Shipped
+                                            </button>
                                         )}
                                         {order.status === 'shipped' && (
-                                            <>
-                                                <button
-                                                    onClick={() => onUpdateOrderStatus(order.id, 'delivered')}
-                                                    className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold text-sm transition-colors shadow-lg shadow-green-500/20"
-                                                >
-                                                    Mark as Delivered
-                                                </button>
-                                                <button
-                                                    onClick={() => setIsRejectModalOpen(true)}
-                                                    className="px-6 py-2 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-lg font-bold text-sm transition-colors flex items-center gap-2"
-                                                >
-                                                    <X size={16} /> Cancel Order
-                                                </button>
-                                            </>
+                                            <button
+                                                onClick={() => handleOpenShippingModal('out_for_delivery')}
+                                                className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-bold text-xs transition-colors shadow-lg shadow-purple-500/20 flex items-center gap-1.5"
+                                            >
+                                                <Truck size={14} /> Out For Delivery
+                                            </button>
+                                        )}
+                                        {(order.status === 'shipped' || order.status === 'out_for_delivery') && (
+                                            <button
+                                                onClick={() => onUpdateOrderStatus(order.id, 'delivered')}
+                                                className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold text-xs transition-colors shadow-lg shadow-green-500/20 flex items-center gap-1.5"
+                                            >
+                                                <Check size={14} /> Mark Delivered
+                                            </button>
+                                        )}
+                                        {order.status !== 'cancelled' && order.status !== 'deleted' && (
+                                            <button
+                                                onClick={() => setIsCancelModalOpen(true)}
+                                                className="px-4 py-2 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-lg font-bold text-xs transition-colors flex items-center gap-1.5"
+                                            >
+                                                <X size={14} /> Cancel Order
+                                            </button>
                                         )}
                                     </div>
-                                )}
+
+                                    {/* Full Status Selector Dropdown */}
+                                    <div className="flex items-center gap-2 w-full md:w-auto">
+                                        <span className="text-xs text-gray-400 uppercase font-bold tracking-wider shrink-0">Change Status:</span>
+                                        <select
+                                            value={selectedNewStatus}
+                                            onChange={handleDropdownStatusChange}
+                                            className="bg-black/60 border border-violet-500/30 rounded-xl px-3 py-2 text-xs font-bold text-violet-300 focus:outline-none focus:border-violet-400 cursor-pointer w-full md:w-auto"
+                                        >
+                                            {ALL_ORDER_STATUSES.map(st => (
+                                                <option key={st.value} value={st.value} className="bg-gray-900 text-white font-medium">
+                                                    {st.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
+
+                            {/* Shipping Details Card (If available) */}
+                            {(order.courier || order.tracking_number || order.estimated_delivery_date) && (
+                                <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-5">
+                                    <h3 className="text-sm font-bold text-blue-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                        <Truck size={16} className="text-blue-400" /> Active Shipping Details
+                                    </h3>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                                        <div>
+                                            <p className="text-xs text-gray-400 font-medium">Courier / Partner</p>
+                                            <p className="text-white font-bold">{order.courier || 'N/A'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-400 font-medium">Tracking Number</p>
+                                            <p className="text-blue-400 font-mono font-bold">{order.tracking_number || 'N/A'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-400 font-medium">Est. Delivery / Arrival</p>
+                                            <p className="text-white font-bold">{order.estimated_delivery_date || order.estimated_arrival_time || 'N/A'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Customer & Order Info Grid */}
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+                                {/* B2B GST Card (If present) */}
+                                {(order.is_gst_invoice || order.gstin || order.company_name) && (
+                                    <div className="bg-violet-500/10 border border-violet-500/30 rounded-2xl p-5 lg:col-span-2">
+                                        <h3 className="text-sm font-bold text-violet-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                            🏢 Registered B2B GST Details
+                                        </h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                                            <div>
+                                                <p className="text-xs text-gray-400 font-medium">Company / Business Name</p>
+                                                <p className="text-white font-bold">{order.company_name || 'N/A'}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-gray-400 font-medium">Customer GSTIN</p>
+                                                <p className="text-violet-400 font-mono font-bold tracking-wider">{order.gstin || 'N/A'}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-gray-400 font-medium">Registered Office Address</p>
+                                                <p className="text-gray-300 text-xs">{order.company_address || order.address_line || 'N/A'}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Customer Profile Card */}
                                 <div className="bg-white/5 border border-white/5 rounded-2xl p-5 hover:bg-white/10 transition-colors">
@@ -211,7 +387,7 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                                         <div>
                                             <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Transaction ID</p>
                                             <p className="text-emerald-400 font-mono text-sm bg-emerald-500/10 inline-block px-2 py-1 rounded mt-1 border border-emerald-500/20">
-                                                {order.txnid || 'Payment Pending / COD'}
+                                                {order.txnid || 'Payment Pending / Online'}
                                             </p>
                                         </div>
                                         <div>
@@ -315,18 +491,142 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                     </motion.div>
                 </div>
             )}
-        </AnimatePresence>
+            </AnimatePresence>
 
-        <ConfirmModal
-            isOpen={isRejectModalOpen}
-            onClose={() => setIsRejectModalOpen(false)}
-            onConfirm={() => onUpdateOrderStatus(order.id, 'deleted')}
-            title="Cancel / Reject Order?"
-            message="Are you sure you want to cancel this order? The customer will be informed that their payment will be refunded in 3-7 working days."
-            confirmText="Cancel Order"
-            cancelText="Keep Order"
-            type="danger"
-        />
+            {/* Shipping Details Modal */}
+            <AnimatePresence>
+                {isShippingModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 text-white">
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsShippingModalOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-lg bg-gray-900 border border-violet-500/30 rounded-2xl p-6 shadow-2xl z-10 space-y-4">
+                            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                    <Truck className="text-blue-400" size={20} /> Dispatch & Shipping Details
+                                </h3>
+                                <button onClick={() => setIsShippingModalOpen(false)} className="text-gray-400 hover:text-white"><X size={20} /></button>
+                            </div>
+                            <form onSubmit={handleConfirmShipping} className="space-y-4 text-sm">
+                                <div>
+                                    <label className="block text-xs font-semibold text-gray-300 uppercase mb-1">Shipping Courier / Partner</label>
+                                    <select
+                                        value={shippingData.courier}
+                                        onChange={(e) => setShippingData({ ...shippingData, courier: e.target.value })}
+                                        className="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-violet-500"
+                                    >
+                                        {PRESET_COURIERS.map(c => (
+                                            <option key={c} value={c} className="bg-gray-900 text-white">{c}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {shippingData.courier === 'Other' && (
+                                    <div>
+                                        <label className="block text-xs font-semibold text-violet-300 uppercase mb-1">Custom Shipping Method (Type Any Carrier)</label>
+                                        <input
+                                            type="text"
+                                            required
+                                            placeholder="e.g. Local Transport, Bus Parcel, Train Cargo, Personal Delivery..."
+                                            value={shippingData.custom_courier}
+                                            onChange={(e) => setShippingData({ ...shippingData, custom_courier: e.target.value })}
+                                            className="w-full bg-black/50 border border-violet-500/40 rounded-xl px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-violet-400"
+                                        />
+                                    </div>
+                                )}
+
+                                <div>
+                                    <label className="block text-xs font-semibold text-gray-300 uppercase mb-1">Tracking Number (Optional)</label>
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. TRK987654321IN"
+                                        value={shippingData.tracking_number}
+                                        onChange={(e) => setShippingData({ ...shippingData, tracking_number: e.target.value })}
+                                        className="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-violet-500"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-300 uppercase mb-1">Est. Delivery Date</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. Aug 02, 2026"
+                                            value={shippingData.estimated_delivery_date}
+                                            onChange={(e) => setShippingData({ ...shippingData, estimated_delivery_date: e.target.value })}
+                                            className="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-violet-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-300 uppercase mb-1">Est. Arrival Time</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. By 4:00 PM"
+                                            value={shippingData.estimated_arrival_time}
+                                            onChange={(e) => setShippingData({ ...shippingData, estimated_arrival_time: e.target.value })}
+                                            className="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-violet-500"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end gap-3 pt-3 border-t border-white/10">
+                                    <button type="button" onClick={() => setIsShippingModalOpen(false)} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-gray-300 text-xs font-bold">Cancel</button>
+                                    <button type="submit" className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-500/20 flex items-center gap-1.5">
+                                        <Send size={14} /> Update Shipping & Notify Customer
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Order Cancellation Modal */}
+            <AnimatePresence>
+                {isCancelModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 text-white">
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsCancelModalOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-lg bg-gray-900 border border-red-500/40 rounded-2xl p-6 shadow-2xl z-10 space-y-4">
+                            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                                <h3 className="text-lg font-bold text-red-400 flex items-center gap-2">
+                                    <AlertTriangle className="text-red-500" size={20} /> Cancel Order & Send Notification
+                                </h3>
+                                <button onClick={() => setIsCancelModalOpen(false)} className="text-gray-400 hover:text-white"><X size={20} /></button>
+                            </div>
+                            <form onSubmit={handleConfirmCancel} className="space-y-4 text-sm">
+                                <div>
+                                    <label className="block text-xs font-semibold text-gray-300 uppercase mb-1">Reason for Cancellation</label>
+                                    <textarea
+                                        required
+                                        rows={3}
+                                        placeholder="e.g. Out of stock / Customer requested cancellation / Delivery address unreachable..."
+                                        value={cancelData.cancellation_reason}
+                                        onChange={(e) => setCancelData({ ...cancelData, cancellation_reason: e.target.value })}
+                                        className="w-full bg-black/50 border border-white/20 rounded-xl p-3 text-white placeholder-gray-500 focus:outline-none focus:border-red-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-semibold text-gray-300 uppercase mb-1">Refund Status Message</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        placeholder="e.g. Full Refund Initiated (3-7 Working Days) / Refund Completed"
+                                        value={cancelData.refund_status}
+                                        onChange={(e) => setCancelData({ ...cancelData, refund_status: e.target.value })}
+                                        className="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-red-500"
+                                    />
+                                </div>
+
+                                <div className="flex justify-end gap-3 pt-3 border-t border-white/10">
+                                    <button type="button" onClick={() => setIsCancelModalOpen(false)} className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-gray-300 text-xs font-bold">Keep Order</button>
+                                    <button type="submit" className="px-5 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-red-500/20 flex items-center gap-1.5">
+                                        <X size={14} /> Confirm Cancel & Dispatch Email
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </>
     );
 };

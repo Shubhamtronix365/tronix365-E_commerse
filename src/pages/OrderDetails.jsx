@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Package, ChevronLeft, CheckCircle, Clock, XCircle, FileText, Truck, CreditCard, User, Check, Calendar } from 'lucide-react';
+import { Package, ChevronLeft, CheckCircle, Clock, XCircle, FileText, Truck, CreditCard, User, Check, Calendar, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import client from '../api/client';
 import { getImageUrl } from '../utils/imageUtils';
@@ -19,7 +19,6 @@ const OrderDetails = () => {
             } catch (error) {
                 console.error("Order details error:", error);
                 toast.error("Failed to load order details");
-                // Navigate back if not found or unauthorized
                 navigate('/dashboard');
             } finally {
                 setLoading(false);
@@ -36,6 +35,8 @@ const OrderDetails = () => {
     if (!order) {
         return <div className="min-h-screen pt-24 text-center text-white">Order not found.</div>;
     }
+
+    const formattedStatus = order.status ? order.status.replace('_', ' ').toUpperCase() : 'PENDING';
 
     return (
         <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 bg-tronix-bg">
@@ -59,38 +60,47 @@ const OrderDetails = () => {
                                 Order #order_tronix_{String(order.id).padStart(4, '0')}
                             </p>
                         </div>
-                        <Link
-                            to={`/invoice/${order.id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg border border-white/10 text-sm font-medium transition-colors"
-                        >
-                            <FileText size={18} /> View Invoice
-                        </Link>
+                        <div className="flex items-center gap-3">
+                            <span className="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                                {formattedStatus}
+                            </span>
+                            <Link
+                                to={`/invoice/${order.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg border border-white/10 text-sm font-medium transition-colors"
+                            >
+                                <FileText size={18} /> View Invoice
+                            </Link>
+                        </div>
                     </div>
 
                     <div className="p-6 md:p-8">
                         {/* Status Pipeline Stepper */}
                         <div className="bg-black/20 border border-white/5 rounded-2xl p-6 relative overflow-hidden mb-8">
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500/20 via-fuchsia-500/20 to-emerald-500/20"></div>
-                            {order.status === 'deleted' ? (
+                            {order.status === 'cancelled' || order.status === 'deleted' ? (
                                 <div className="flex flex-col items-center justify-center py-4">
                                     <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center border border-red-500/30 mb-3">
                                         <XCircle size={32} className="text-red-500" />
                                     </div>
                                     <h3 className="text-red-400 font-bold text-lg">Order Cancelled</h3>
-                                    <p className="text-gray-300 text-sm mt-1 text-center font-medium">Your order has been cancelled. Your payment will be refunded in 3-7 working days.</p>
+                                    <p className="text-gray-300 text-sm mt-1 text-center font-medium">
+                                        Reason: {order.cancellation_reason || 'Cancelled by store administrator'}<br/>
+                                        Refund Status: <span className="text-emerald-400 font-bold">{order.refund_status || 'Full Refund Initiated (3-7 Working Days)'}</span>
+                                    </p>
                                 </div>
                             ) : (
                                 <div className="flex items-center justify-between relative z-10">
                                     {['pending', 'confirmed', 'shipped', 'delivered'].map((step, idx, arr) => {
-                                        const isActive = order.status === step || arr.indexOf(order.status) >= idx;
+                                        const stepIndex = arr.indexOf(order.status);
+                                        const isActive = order.status === step || (stepIndex !== -1 && stepIndex >= idx);
                                         const isCurrent = order.status === step;
                                         return (
                                             <div key={step} className="flex flex-col items-center flex-1 relative">
                                                 {/* Connecting Line */}
                                                 {idx !== arr.length - 1 && (
-                                                    <div className={`absolute top-5 left-[50%] right-[-50%] h-[2px] ${isActive && arr.indexOf(order.status) > idx ? 'bg-violet-500' : 'bg-white/10'}`} />
+                                                    <div className={`absolute top-5 left-[50%] right-[-50%] h-[2px] ${isActive && stepIndex > idx ? 'bg-violet-500' : 'bg-white/10'}`} />
                                                 )}
 
                                                 {/* Step Circle */}
@@ -104,7 +114,7 @@ const OrderDetails = () => {
 
                                                 {/* Step Label */}
                                                 <p className={`mt-3 text-xs font-bold uppercase tracking-wider ${isActive ? 'text-white' : 'text-gray-500'}`}>
-                                                    {step === 'pending' ? 'Pending Approval' : step === 'confirmed' ? 'Order Placed' : step}
+                                                    {step === 'pending' ? 'Pending Approval' : step === 'confirmed' ? 'Order Placed' : step.replace('_', ' ')}
                                                 </p>
                                             </div>
                                         );
@@ -112,6 +122,56 @@ const OrderDetails = () => {
                                 </div>
                             )}
                         </div>
+
+                        {/* Active Shipping Details Box (Synchronized with Admin Input) */}
+                        {(order.courier || order.tracking_number || order.estimated_delivery_date || order.estimated_arrival_time) && (
+                            <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-5 mb-8">
+                                <h3 className="text-sm font-bold text-blue-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                    <Truck size={18} className="text-blue-400" /> Courier & Shipment Tracking
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                                    <div>
+                                        <p className="text-xs text-gray-400 font-medium">Shipping Courier / Partner</p>
+                                        <p className="text-white font-bold text-base mt-0.5">{order.courier || 'Standard Courier Delivery'}</p>
+                                    </div>
+                                    {order.tracking_number && (
+                                        <div>
+                                            <p className="text-xs text-gray-400 font-medium">Tracking Number</p>
+                                            <p className="text-blue-400 font-mono font-bold text-base mt-0.5">{order.tracking_number}</p>
+                                        </div>
+                                    )}
+                                    {(order.estimated_delivery_date || order.estimated_arrival_time) && (
+                                        <div>
+                                            <p className="text-xs text-gray-400 font-medium">Estimated Delivery / Arrival</p>
+                                            <p className="text-emerald-400 font-bold text-base mt-0.5">{order.estimated_delivery_date || order.estimated_arrival_time}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Registered B2B GST Details Box */}
+                        {(order.is_gst_invoice || order.gstin || order.company_name) && (
+                            <div className="bg-violet-500/10 border border-violet-500/30 rounded-2xl p-5 mb-8">
+                                <h3 className="text-sm font-bold text-violet-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                    🏢 B2B Company GST Billing Information
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                                    <div>
+                                        <p className="text-xs text-gray-400 font-medium">Company Name</p>
+                                        <p className="text-white font-bold text-base mt-0.5">{order.company_name || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-gray-400 font-medium">Customer GSTIN</p>
+                                        <p className="text-violet-400 font-mono font-bold text-base mt-0.5 tracking-wider">{order.gstin || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-gray-400 font-medium">Registered Business Address</p>
+                                        <p className="text-gray-300 text-xs mt-0.5">{order.company_address || order.address_line || 'N/A'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Status Grid Dossier */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -142,7 +202,7 @@ const OrderDetails = () => {
                                 <div className="space-y-3">
                                     <div>
                                         <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-0.5">Transaction ID</p>
-                                        <div className="text-sm text-white font-mono bg-black/20 px-2 py-0.5 rounded inline-block">{order.txnid || 'Generates on confirmation'}</div>
+                                        <div className="text-sm text-white font-mono bg-black/20 px-2 py-0.5 rounded inline-block">{order.txnid || 'Online / Verified'}</div>
                                     </div>
                                     <div>
                                         <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-0.5">Order Placed At</p>
@@ -190,7 +250,7 @@ const OrderDetails = () => {
                         {/* Order Items */}
                         <h3 className="text-lg font-bold text-white mb-4">Items in this order</h3>
                         <div className="space-y-4">
-                            {order.items.map((item, index) => (
+                            {order.items && order.items.map((item, index) => (
                                 <div key={index} className="flex flex-col sm:flex-row gap-6 p-4 bg-white/5 border border-white/10 rounded-xl">
                                     {/* Product Image */}
                                     <div
@@ -228,7 +288,7 @@ const OrderDetails = () => {
                                         <p className="text-sm text-gray-400">Qty: <span className="text-white font-medium">{item.quantity}</span></p>
                                         <button
                                             onClick={() => navigate(`/product/${item.product_id}`)}
-                                            className="w-full sm:w-auto mt-2 bg-tronix-primary text-white hover:bg-violet-600 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                                            className="w-full sm:w-auto mt-2 bg-tronix-primary text-white hover:bg-violet-600 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5"
                                         >
                                             Buy it again
                                         </button>

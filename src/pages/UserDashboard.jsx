@@ -206,7 +206,7 @@ const UserDashboard = () => {
 
                                 {/* Order Status Tabs */}
                                 <div className="flex flex-wrap gap-2 mb-6">
-                                    {['All', 'pending', 'confirmed', 'shipped', 'delivered', 'deleted'].map((status) => (
+                                    {['All', 'pending', 'confirmed', 'shipped', 'out_for_delivery', 'delivered', 'cancelled'].map((status) => (
                                         <button
                                             key={status}
                                             onClick={() => setOrderStatusFilter(status)}
@@ -215,7 +215,7 @@ const UserDashboard = () => {
                                                 : 'bg-white/5 hover:bg-white/10 text-gray-400 border border-white/10 hover:text-white'
                                                 }`}
                                         >
-                                            {status === 'All' ? 'All Orders' : status.charAt(0).toUpperCase() + status.slice(1)}
+                                            {status === 'All' ? 'All Orders' : status.replace('_', ' ').toUpperCase()}
                                         </button>
                                     ))}
                                 </div>
@@ -240,7 +240,7 @@ const UserDashboard = () => {
                                                 {/* Left Margin Accent Line */}
                                                 <div className={`absolute left-0 top-0 bottom-0 w-1 ${order.status === 'confirmed' ? 'bg-green-500' :
                                                     order.status === 'pending' ? 'bg-yellow-500' :
-                                                        order.status === 'shipped' ? 'bg-blue-500' :
+                                                        order.status === 'shipped' || order.status === 'out_for_delivery' ? 'bg-blue-500' :
                                                             order.status === 'delivered' ? 'bg-emerald-500' :
                                                                 'bg-red-500'
                                                     }`}></div>
@@ -258,13 +258,18 @@ const UserDashboard = () => {
                                                                 {order.created_at ? new Date(order.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
                                                             </span>
                                                         </h3>
+                                                        {order.courier && (
+                                                            <p className="text-xs text-blue-300 font-medium mt-0.5 flex items-center gap-1">
+                                                                🚚 Courier: <strong className="text-white">{order.courier}</strong> {order.tracking_number ? `(${order.tracking_number})` : ''}
+                                                            </p>
+                                                        )}
                                                         <Link
                                                             to={`/invoice/${order.id}`}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="text-blue-400 hover:text-blue-300 transition-colors text-sm mt-0.5 inline-flex items-center gap-1"
+                                                            className="text-blue-400 hover:text-blue-300 transition-colors text-xs mt-1 inline-flex items-center gap-1"
                                                         >
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" x2="8" y1="13" y2="13" /><line x1="16" x2="8" y1="17" y2="17" /><line x1="10" x2="8" y1="9" y2="9" /></svg>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" x2="8" y1="13" y2="13" /><line x1="16" x2="8" y1="17" y2="17" /><line x1="10" x2="8" y1="9" y2="9" /></svg>
                                                             Download Invoice
                                                         </Link>
                                                     </div>
@@ -289,11 +294,11 @@ const UserDashboard = () => {
                                                         <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">Status</p>
                                                         <span className={`px-2.5 py-1 rounded-md text-[10px] uppercase tracking-wider font-bold ${order.status === 'confirmed' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
                                                             order.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' :
-                                                                order.status === 'shipped' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
+                                                                order.status === 'shipped' || order.status === 'out_for_delivery' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
                                                                     order.status === 'delivered' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
                                                                         'bg-red-500/10 text-red-400 border border-red-500/20'
                                                             }`}>
-                                                            {order.status === 'confirmed' ? 'Order Confirmed' : order.status === 'pending' ? 'Pending Approval' : order.status === 'deleted' ? 'Cancelled (Refund in 3-7 days)' : order.status}
+                                                            {order.status === 'confirmed' ? 'Order Confirmed' : order.status === 'pending' ? 'Pending Approval' : order.status === 'deleted' || order.status === 'cancelled' ? 'Cancelled (Refund 3-7 days)' : order.status.replace('_', ' ')}
                                                         </span>
                                                     </div>
                                                 </div>

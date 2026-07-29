@@ -264,17 +264,22 @@ const AdminDashboard = () => {
         }
     };
 
-    const handleUpdateOrderStatus = async (orderId, newStatus) => {
+    const handleUpdateOrderStatus = async (orderId, statusPayload) => {
         try {
             const originalOrder = orders.find(o => o.id === orderId);
             const prevStatus = originalOrder ? originalOrder.status : 'pending';
 
-            const res = await client.put(`/admin/orders/${orderId}/status`, { status: newStatus });
+            const payload = typeof statusPayload === 'string' ? { status: statusPayload } : statusPayload;
+            const newStatus = payload.status;
+
+            const res = await client.put(`/admin/orders/${orderId}/status`, payload);
             
-            // Update orders list state
-            setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+            // Update orders list state with all fields returned from API
+            const updatedOrderData = res.data ? { ...originalOrder, ...res.data, status: newStatus } : { ...originalOrder, ...payload, status: newStatus };
+
+            setOrders(orders.map(o => o.id === orderId ? updatedOrderData : o));
             if (selectedOrder && selectedOrder.id === orderId) {
-                setSelectedOrder({ ...selectedOrder, status: newStatus });
+                setSelectedOrder(updatedOrderData);
             }
 
             // Adjust stock in the local products state to match the backend updates
@@ -282,7 +287,7 @@ const AdminDashboard = () => {
                 let stockDiff = 0;
                 if (newStatus === 'confirmed' && prevStatus === 'pending') {
                     stockDiff = -1; // Deduct stock
-                } else if (newStatus === 'deleted' && ['confirmed', 'shipped', 'delivered'].includes(prevStatus)) {
+                } else if (['deleted', 'cancelled'].includes(newStatus) && ['confirmed', 'shipped', 'delivered', 'out_for_delivery'].includes(prevStatus)) {
                     stockDiff = 1;  // Restore stock
                 }
 
@@ -302,8 +307,8 @@ const AdminDashboard = () => {
                 }
             }
 
-            toast.success(`Order marked as ${newStatus}`);
-            if (newStatus === 'deleted') {
+            toast.success(`Order marked as ${newStatus.replace('_', ' ').toUpperCase()} & notification dispatched!`);
+            if (['deleted', 'cancelled'].includes(newStatus)) {
                 setSelectedOrder(null);
             }
         } catch (error) {

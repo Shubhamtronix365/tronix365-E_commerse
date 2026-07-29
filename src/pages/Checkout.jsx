@@ -43,7 +43,7 @@ const Checkout = () => {
         }
     }, [selectedItems, navigate]);
 
-    // Delivery Address State
+    // Delivery & B2B GST Address State
     const [address, setAddress] = useState({
         fullName: '',
         email: '',
@@ -51,7 +51,11 @@ const Checkout = () => {
         pincode: '',
         addressLine: '',
         city: '',
-        state: ''
+        state: '',
+        isGstInvoice: false,
+        companyName: '',
+        gstin: '',
+        companyAddress: ''
     });
 
     // Auto-fill from logged-in user
@@ -147,6 +151,18 @@ const Checkout = () => {
             return;
         }
 
+        // B2B GST Validation if requested
+        if (address.isGstInvoice) {
+            if (!address.companyName || !address.companyName.trim()) {
+                toast.error("Please enter your Company / Business Name for GST Invoice.");
+                return;
+            }
+            if (!address.gstin || address.gstin.trim().length !== 15) {
+                toast.error("Please enter a valid 15-character GSTIN number.");
+                return;
+            }
+        }
+
         setLoading(true);
         try {
             const email = address.email || (user ? user.email : "guest@example.com");
@@ -169,6 +185,13 @@ const Checkout = () => {
                 pincode: address.pincode,
                 coupon_code: appliedCoupon?.code || null,
                 discount_amount: totalDiscount,
+                is_gst_invoice: address.isGstInvoice,
+                gstin: address.isGstInvoice ? address.gstin.trim().toUpperCase() : null,
+                company_name: address.isGstInvoice ? address.companyName.trim() : null,
+                company_address: address.isGstInvoice ? (address.companyAddress.trim() || address.addressLine) : null,
+                gst_rate: 18.0,
+                gst_amount: gst,
+                subtotal_before_gst: subtotal - totalDiscount,
                 bypass: false
             });
 
@@ -296,6 +319,66 @@ const Checkout = () => {
                                     placeholder="Delhi"
                                 />
                             </div>
+
+                            {/* GST & B2B Business Billing Option */}
+                            <div className="md:col-span-2 pt-4 border-t border-white/10 mt-2">
+                                <label className="flex items-center gap-3 cursor-pointer bg-violet-500/10 border border-violet-500/20 p-4 rounded-xl hover:bg-violet-500/15 transition-all">
+                                    <input
+                                        type="checkbox"
+                                        name="isGstInvoice"
+                                        checked={address.isGstInvoice}
+                                        onChange={(e) => setAddress({ ...address, isGstInvoice: e.target.checked })}
+                                        className="w-5 h-5 text-violet-500 accent-violet-500 rounded cursor-pointer"
+                                    />
+                                    <div>
+                                        <p className="text-sm font-bold text-white flex items-center gap-2">
+                                            🏢 I require a GST Invoice / B2B Company Billing
+                                        </p>
+                                        <p className="text-xs text-gray-400">Claim GST input tax credit for your business or corporate purchase</p>
+                                    </div>
+                                </label>
+                            </div>
+
+                            {address.isGstInvoice && (
+                                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 bg-black/40 border border-violet-500/30 p-5 rounded-xl">
+                                    <div>
+                                        <label className="block text-violet-300 text-xs uppercase font-bold tracking-wider mb-1">Company / Business Name *</label>
+                                        <input
+                                            type="text"
+                                            name="companyName"
+                                            required
+                                            value={address.companyName}
+                                            onChange={handleInputChange}
+                                            placeholder="e.g. Acme Technologies Pvt Ltd"
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-violet-500 outline-none text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-violet-300 text-xs uppercase font-bold tracking-wider mb-1">GSTIN Number (15 Digits) *</label>
+                                        <input
+                                            type="text"
+                                            name="gstin"
+                                            required
+                                            maxLength={15}
+                                            value={address.gstin}
+                                            onChange={(e) => setAddress({ ...address, gstin: e.target.value.toUpperCase() })}
+                                            placeholder="e.g. 27AAAAA0000A1Z5"
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-violet-500 outline-none font-mono text-sm tracking-wider"
+                                        />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-violet-300 text-xs uppercase font-bold tracking-wider mb-1">Registered Business Address</label>
+                                        <input
+                                            type="text"
+                                            name="companyAddress"
+                                            value={address.companyAddress}
+                                            onChange={handleInputChange}
+                                            placeholder="Registered Office Address (Leave blank to use delivery address)"
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-violet-500 outline-none text-sm"
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 

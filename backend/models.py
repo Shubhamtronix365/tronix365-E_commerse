@@ -100,6 +100,28 @@ class OrderDB(Base):
     state = Column(String, nullable=True)
     pincode = Column(String, nullable=True)
 
+    # Enhanced Shipping & Logistics Details
+    courier = Column(String, nullable=True)
+    tracking_number = Column(String, nullable=True)
+    estimated_delivery_date = Column(String, nullable=True)
+    estimated_arrival_time = Column(String, nullable=True)
+
+    # Cancellation & Return/Exchange Details
+    cancellation_reason = Column(String, nullable=True)
+    cancellation_date = Column(DateTime(timezone=True), nullable=True)
+    refund_status = Column(String, nullable=True)
+    return_reason = Column(String, nullable=True)
+    rejection_reason = Column(String, nullable=True)
+
+    # GST & B2B Company Details
+    is_gst_invoice = Column(Boolean, default=False)
+    gstin = Column(String, nullable=True)
+    company_name = Column(String, nullable=True)
+    company_address = Column(String, nullable=True)
+    gst_rate = Column(Float, default=18.0)
+    gst_amount = Column(Float, default=0.0)
+    subtotal_before_gst = Column(Float, default=0.0)
+
 
 # Pydantic Schemas (API Request/Response)
 class ProductBase(BaseModel):
@@ -197,6 +219,13 @@ class OrderCreate(BaseModel):
     city: Optional[str] = None
     state: Optional[str] = None
     pincode: Optional[str] = None
+    is_gst_invoice: Optional[bool] = False
+    gstin: Optional[str] = None
+    company_name: Optional[str] = None
+    company_address: Optional[str] = None
+    gst_rate: Optional[float] = 18.0
+    gst_amount: Optional[float] = None
+    subtotal_before_gst: Optional[float] = None
 
 
 class Order(OrderCreate):
@@ -205,9 +234,38 @@ class Order(OrderCreate):
     created_at: Optional[datetime] = None
     coupon_code: Optional[str] = None
     discount_amount: Optional[float] = 0.0
+    courier: Optional[str] = None
+    tracking_number: Optional[str] = None
+    estimated_delivery_date: Optional[str] = None
+    estimated_arrival_time: Optional[str] = None
+    cancellation_reason: Optional[str] = None
+    cancellation_date: Optional[datetime] = None
+    refund_status: Optional[str] = None
+    return_reason: Optional[str] = None
+    rejection_reason: Optional[str] = None
+    is_gst_invoice: Optional[bool] = False
+    gstin: Optional[str] = None
+    company_name: Optional[str] = None
+    company_address: Optional[str] = None
+    gst_rate: Optional[float] = 18.0
+    gst_amount: Optional[float] = 0.0
+    subtotal_before_gst: Optional[float] = 0.0
 
     class Config:
         from_attributes = True
+
+
+class OrderStatusUpdate(BaseModel):
+    status: str
+    courier: Optional[str] = None
+    custom_courier: Optional[str] = None
+    tracking_number: Optional[str] = None
+    estimated_delivery_date: Optional[str] = None
+    estimated_arrival_time: Optional[str] = None
+    cancellation_reason: Optional[str] = None
+    refund_status: Optional[str] = None
+    return_reason: Optional[str] = None
+    rejection_reason: Optional[str] = None
 
 
 class LoginRequest(BaseModel):
@@ -306,6 +364,33 @@ class ContactMessageDB(Base):
     email = Column(String)
     message = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class EmailLogDB(Base):
+    __tablename__ = "email_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    order_id = Column(Integer, ForeignKey("orders.id"), nullable=True)
+    recipient = Column(String, index=True)
+    subject = Column(String)
+    status_trigger = Column(String, index=True)
+    delivery_status = Column(String, default="sent")
+    error_message = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class EmailLogResponse(BaseModel):
+    id: int
+    order_id: Optional[int] = None
+    recipient: str
+    subject: str
+    status_trigger: str
+    delivery_status: str
+    error_message: Optional[str] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
 
 
 class RefreshTokenDB(Base):

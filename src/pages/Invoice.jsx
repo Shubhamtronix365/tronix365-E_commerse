@@ -352,9 +352,11 @@ const Invoice = () => {
         {/* ── BILL TO / SHIP TO ── */}
         <div className="inv-parties">
           <div className="inv-party">
-            <div className="inv-party-title">Bill To</div>
+            <div className="inv-party-title">{(order.is_gst_invoice || order.gstin || order.company_name) ? 'Bill To (B2B Tax Invoice)' : 'Bill To'}</div>
+            {order.company_name && <p style={{ fontWeight: 700, fontSize: '11px', color: '#4c1d95' }}>🏢 {order.company_name}</p>}
             <p><strong>{cusName}</strong></p>
-            <p>{cusAddr}</p>
+            <p>{(order.is_gst_invoice && order.company_address) ? order.company_address : cusAddr}</p>
+            {order.gstin && <p style={{ fontWeight: 700, color: '#6d28d9', letterSpacing: '0.5px' }}><strong>Customer GSTIN:</strong> {order.gstin}</p>}
             {cusPhone && <p><strong>Mobile:</strong> {cusPhone}</p>}
             <p><strong>Place of Supply:</strong> {cusState}</p>
           </div>

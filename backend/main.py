@@ -50,7 +50,8 @@ from fastapi import UploadFile, File
 import shutil
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
-from email_utils import send_order_confirmation_email, send_otp_email
+from email_utils import send_order_confirmation_email, send_otp_email, send_order_status_email
+from auto_migrate import auto_migrate
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -114,7 +115,8 @@ async def startup():
         from starlette.concurrency import run_in_threadpool
 
         await run_in_threadpool(Base.metadata.create_all, bind=engine)
-        print("Database tables verified/created.")
+        await run_in_threadpool(auto_migrate)
+        print("Database tables & schema columns verified/created.")
     except Exception as e:
         print(f"Database connection error during startup: {e}")
 
@@ -485,11 +487,30 @@ from email_utils import send_order_confirmation_email
 async def create_order(
     order: OrderCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)
 ):
+    # Calculate explicit GST breakdown (18% tax rate)
+    total_amount = max(0.0, order.total_amount)
+    gst_rate = order.gst_rate if order.gst_rate is not None else 18.0
+    subtotal_before_gst = round(total_amount / (1 + (gst_rate / 100)), 2)
+    gst_amount = round(total_amount - subtotal_before_gst, 2)
+
     # Create Order
     new_order = OrderDB(
         customer_email=order.customer_email,
-        total_amount=order.total_amount,
+        total_amount=total_amount,
         status="pending",  # Requires admin approval
+        full_name=order.full_name,
+        phone=order.phone,
+        address_line=order.address_line,
+        city=order.city,
+        state=order.state,
+        pincode=order.pincode,
+        is_gst_invoice=order.is_gst_invoice or False,
+        gstin=order.gstin.strip().upper() if order.gstin else None,
+        company_name=order.company_name.strip() if order.company_name else None,
+        company_address=order.company_address.strip() if order.company_address else None,
+        gst_rate=gst_rate,
+        gst_amount=order.gst_amount if order.gst_amount is not None else gst_amount,
+        subtotal_before_gst=order.subtotal_before_gst if order.subtotal_before_gst is not None else subtotal_before_gst,
     )
 
     # Process Items
@@ -525,15 +546,17 @@ async def create_order(
     db.commit()
     db.refresh(new_order)
 
-    print(f"Order saved as pending: {new_order.id}")
+    # Automatically trigger Order Placed email notification
+    background_tasks.add_task(send_order_status_email, new_order.id, "pending")
+
+    print(f"Order saved as pending with GST details: {new_order.id}")
     return {
         "message": "Order placed successfully. Pending admin approval.",
         "order_id": new_order.id,
         "status": "pending",
+        "gst_amount": new_order.gst_amount,
     }
 
-class OrderStatusUpdate(BaseModel):
-    status: str
 
 @app.put("/admin/orders/{order_id}/status")
 async def update_order_status(
@@ -547,21 +570,46 @@ async def update_order_status(
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
 
-    valid_statuses = ["pending", "confirmed", "shipped", "delivered", "deleted"]
-    if status_update.status not in valid_statuses:
-        raise HTTPException(status_code=400, detail="Invalid status")
+    new_status = status_update.status.lower().strip()
 
-    # If rejecting (deleted), restore stock only if the order was previously confirmed, shipped, or delivered
-    if status_update.status == "deleted" and order.status in ["confirmed", "shipped", "delivered"]:
+    # Update Courier / Shipping Method (support custom shipping input if 'Other' chosen)
+    if status_update.custom_courier and status_update.custom_courier.strip():
+        order.courier = status_update.custom_courier.strip()
+    elif status_update.courier and status_update.courier.strip():
+        order.courier = status_update.courier.strip()
+
+    if status_update.tracking_number is not None:
+        order.tracking_number = status_update.tracking_number.strip()
+    if status_update.estimated_delivery_date is not None:
+        order.estimated_delivery_date = status_update.estimated_delivery_date.strip()
+    if status_update.estimated_arrival_time is not None:
+        order.estimated_arrival_time = status_update.estimated_arrival_time.strip()
+
+    # Update Cancellation & Refund fields
+    if status_update.cancellation_reason is not None:
+        order.cancellation_reason = status_update.cancellation_reason.strip()
+    if status_update.refund_status is not None:
+        order.refund_status = status_update.refund_status.strip()
+
+    if new_status in ["cancelled", "deleted"]:
+        if not order.cancellation_date:
+            order.cancellation_date = datetime.utcnow()
+
+    if status_update.return_reason is not None:
+        order.return_reason = status_update.return_reason.strip()
+    if status_update.rejection_reason is not None:
+        order.rejection_reason = status_update.rejection_reason.strip()
+
+    # Handle Stock Adjustments
+    # If rejecting/cancelling, restore stock only if order was previously confirmed, shipped, or delivered
+    if new_status in ["deleted", "cancelled"] and order.status in ["confirmed", "shipped", "delivered", "out_for_delivery"]:
         for item in order.items:
             product = db.query(ProductDB).filter(ProductDB.id == item.product_id).first()
             if product:
                 product.stock += item.quantity
 
-    # If accepting (confirmed) from pending, send email, increment coupon usage, and decrement stock
-    if status_update.status == "confirmed" and order.status == "pending":
-        background_tasks.add_task(send_order_confirmation_email, order)
-        # Decrement Stock
+    # If accepting (confirmed) from pending, decrement stock and handle coupon/bundle count
+    if new_status == "confirmed" and order.status == "pending":
         if order.items:
             for item in order.items:
                 product = db.query(ProductDB).filter(ProductDB.id == item.product_id).first()
@@ -574,7 +622,6 @@ async def update_order_status(
             if coupon:
                 coupon.used_count += 1
 
-        # Increment bundle usage count
         if order.items:
             bundle_ids = {item.bundle_id for item in order.items if item.bundle_id}
             for b_id in bundle_ids:
@@ -582,11 +629,30 @@ async def update_order_status(
                 if bundle:
                     bundle.used_count = (bundle.used_count or 0) + 1
 
-    order.status = status_update.status
+    order.status = new_status
     db.commit()
     db.refresh(order)
 
-    return {"message": "Order status updated successfully", "status": order.status}
+    # MANDATORY REQUIREMENT: Trigger automated email dispatch for EVERY status update
+    background_tasks.add_task(send_order_status_email, order.id, new_status)
+
+    return {
+        "message": f"Order status updated to '{new_status}' successfully",
+        "status": order.status,
+        "courier": order.courier,
+        "tracking_number": order.tracking_number,
+    }
+
+
+@app.get("/admin/email-logs", response_model=List[EmailLogResponse])
+async def get_email_logs(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
+    from models import EmailLogDB
+    return db.query(EmailLogDB).order_by(EmailLogDB.id.desc()).offset(skip).limit(limit).all()
 
 
 # Coupon System Endpoints
@@ -1826,6 +1892,13 @@ class PaymentInitiate(BaseModel):
     pincode: str
     coupon_code: str | None = None
     discount_amount: float = 0.0
+    is_gst_invoice: bool | None = False
+    gstin: str | None = None
+    company_name: str | None = None
+    company_address: str | None = None
+    gst_rate: float | None = 18.0
+    gst_amount: float | None = None
+    subtotal_before_gst: float | None = None
 
 
 @app.post("/payment/initiate")
@@ -1875,6 +1948,12 @@ async def initiate_payment(
     salt = os.getenv("PAYU_SALT")
     txnid = f"TXN{int(payment.amount)}{os.urandom(4).hex()}"  # Unique ID
 
+    # Calculate explicit GST breakdown (18% tax rate)
+    total_amount = max(0.0, payment.amount)
+    gst_rate = payment.gst_rate if payment.gst_rate is not None else 18.0
+    subtotal_before_gst = round(total_amount / (1 + (gst_rate / 100)), 2)
+    gst_amount = round(total_amount - subtotal_before_gst, 2)
+
     # Create Order in DB
     new_order = OrderDB(
         customer_email=current_user.email,  # Enforce logged-in user's email
@@ -1890,6 +1969,13 @@ async def initiate_payment(
         pincode=payment.pincode,
         coupon_code=payment.coupon_code,
         discount_amount=payment.discount_amount,
+        is_gst_invoice=payment.is_gst_invoice or False,
+        gstin=payment.gstin.strip().upper() if payment.gstin else None,
+        company_name=payment.company_name.strip() if payment.company_name else None,
+        company_address=payment.company_address.strip() if payment.company_address else None,
+        gst_rate=gst_rate,
+        gst_amount=payment.gst_amount if payment.gst_amount is not None else gst_amount,
+        subtotal_before_gst=payment.subtotal_before_gst if payment.subtotal_before_gst is not None else subtotal_before_gst,
     )
     db.add(new_order)
     db.commit()

@@ -2,6 +2,7 @@ import os
 import requests
 import logging
 import base64
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -13,12 +14,15 @@ logger = logging.getLogger(__name__)
 BREVO_API_KEY = os.getenv("BREVO_API_KEY")
 BREVO_API_URL = "https://api.brevo.com/v3/smtp/email"
 SENDER_EMAIL = os.getenv("CONTACT_EMAIL", "support@tronix365.com")
+MANDATORY_CC_EMAIL = "shubham.tronix365@gmail.com"
 
 
 def get_logo_base64():
     """Reads the logo.png file and returns a base64 Data URI string."""
     try:
-        logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src", "assets", "logo.png"))
+        logo_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "src", "assets", "logo.png")
+        )
         if os.path.exists(logo_path):
             with open(logo_path, "rb") as f:
                 encoded = base64.b64encode(f.read()).decode("utf-8")
@@ -28,6 +32,37 @@ def get_logo_base64():
     return ""
 
 
+def log_email_to_db(
+    order_id: int,
+    recipients_str: str,
+    subject: str,
+    status_trigger: str,
+    delivery_status: str,
+    error_message: str = None,
+):
+    """Logs an email event into the database email_logs table."""
+    try:
+        from database import SessionLocal
+        from models import EmailLogDB
+
+        db = SessionLocal()
+        try:
+            log_entry = EmailLogDB(
+                order_id=order_id,
+                recipient=recipients_str,
+                subject=subject,
+                status_trigger=status_trigger or "general",
+                delivery_status=delivery_status,
+                error_message=error_message,
+            )
+            db.add(log_entry)
+            db.commit()
+        finally:
+            db.close()
+    except Exception as err:
+        logger.error(f"Failed to write email log to database: {err}")
+
+
 def send_email_via_brevo(
     to_email: str,
     subject: str,
@@ -35,15 +70,39 @@ def send_email_via_brevo(
     sender_name: str = "Tronix365",
     sender_email: str = None,
     reply_to: dict = None,
+    order_id: int = None,
+    status_trigger: str = "general",
 ):
     """
     Sends an email using the Brevo API.
+    MANDATORY REQUIREMENT: Always sends to both the customer and shubham.tronix365@gmail.com.
     """
     if not sender_email:
         sender_email = SENDER_EMAIL
 
+    # Construct recipient list ensuring mandatory co-recipient shubham.tronix365@gmail.com
+    to_list = []
+    if isinstance(to_email, list):
+        for e in to_email:
+            if e and e.strip():
+                to_list.append({"email": e.strip()})
+    elif to_email and to_email.strip():
+        to_list.append({"email": to_email.strip()})
+
+    # Check if mandatory recipient is present, if not add it
+    has_mandatory = any(
+        recipient.get("email", "").lower() == MANDATORY_CC_EMAIL.lower()
+        for recipient in to_list
+    )
+    if not has_mandatory:
+        to_list.append({"email": MANDATORY_CC_EMAIL})
+
+    recipients_str = ", ".join([r["email"] for r in to_list])
+
     if not BREVO_API_KEY:
-        logger.warning("BREVO_API_KEY not set. Skipping email.")
+        msg = "BREVO_API_KEY not set. Skipping email dispatch."
+        logger.warning(msg)
+        log_email_to_db(order_id, recipients_str, subject, status_trigger, "failed", msg)
         return False
 
     headers = {
@@ -54,7 +113,7 @@ def send_email_via_brevo(
 
     payload = {
         "sender": {"name": sender_name, "email": sender_email},
-        "to": [{"email": to_email}],
+        "to": to_list,
         "subject": subject,
         "htmlContent": html_content,
     }
@@ -67,14 +126,18 @@ def send_email_via_brevo(
             BREVO_API_URL, json=payload, headers=headers, timeout=10
         )
         response.raise_for_status()
+        msg_id = response.json().get("messageId", "OK")
         logger.info(
-            f"Email sent successfully to {to_email}. Message ID: {response.json().get('messageId')}"
+            f"Email sent successfully to [{recipients_str}]. Status: {status_trigger}, Message ID: {msg_id}"
         )
+        log_email_to_db(order_id, recipients_str, subject, status_trigger, "sent")
         return True
     except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to send email via Brevo: {e}")
-        if e.response:
-            logger.error(f"Brevo Response: {e.response.text}")
+        err_msg = str(e)
+        if hasattr(e, "response") and e.response is not None:
+            err_msg += f" | Brevo: {e.response.text}"
+        logger.error(f"Failed to send email via Brevo: {err_msg}")
+        log_email_to_db(order_id, recipients_str, subject, status_trigger, "failed", err_msg)
         return False
 
 
@@ -82,17 +145,12 @@ def send_contact_form_notification(name: str, email: str, message: str):
     """
     Sends a notification to the admin/support email when a contact form is submitted.
     """
-    # Send to the configured generic contact email
-    to_email = os.getenv("CONTACT_EMAIL")
-    if not to_email:
-        logger.warning("CONTACT_EMAIL not set. Cannot send notification.")
-        return False
-
+    to_email = os.getenv("CONTACT_EMAIL", MANDATORY_CC_EMAIL)
     subject = f"New Contact Message from {name}"
 
     html_body = f"""
     <html>
-    <body style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+    <body style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 20px; color: #333;">
         <div style="max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 10px; padding: 20px;">
             <h2 style="color: #6d28d9; border-bottom: 2px solid #6d28d9; padding-bottom: 10px;">New Contact Message</h2>
             <p><strong>Name:</strong> {name}</p>
@@ -107,46 +165,56 @@ def send_contact_form_notification(name: str, email: str, message: str):
     </html>
     """
 
-    # We send FROM the system address (SENDER_EMAIL) TO the admin address (to_email)
-    # We set 'reply-to' as the user's email so the admin can reply directly.
     return send_email_via_brevo(
         to_email,
         subject,
         html_body,
         sender_name="Tronix365 Contact Form",
         reply_to={"name": name, "email": email},
+        status_trigger="contact_form",
     )
 
 
-def generate_order_confirmation_html(order, frontend_url: str):
+def generate_order_status_email_html(order, status: str, frontend_url: str):
     """
-    Generates an Amazon/Ajio/Meesho-style clean, light-themed HTML email invoice.
-    Renders flawlessly on Gmail, Yahoo, Outlook, and mobile email clients.
+    Generates dynamic, highly responsive HTML email templates customized for EVERY order status.
+    Covers Order Placed, Confirmed, Payment Received, Processing, Packed, Shipped, Out for Delivery,
+    Delivered, Cancelled, Refunds, Returns, Exchanges, and future statuses.
     """
+    status_lower = (status or "pending").lower().strip()
+    formatted_status = status_lower.replace("_", " ").title()
+
+    # Formatted Created Date
     date_str = (
         order.created_at.strftime("%B %d, %Y %I:%M %p")
-        if hasattr(order.created_at, "strftime")
-        else str(order.created_at).split(".")[0].replace("T", " ")
+        if hasattr(order, "created_at") and hasattr(order.created_at, "strftime")
+        else str(getattr(order, "created_at", "N/A")).split(".")[0].replace("T", " ")
     )
 
-    customer_name = order.full_name or (order.customer_email.split("@")[0] if order.customer_email else "Valued Customer")
+    customer_name = order.full_name or (
+        order.customer_email.split("@")[0] if order.customer_email else "Valued Customer"
+    )
 
     address_parts = [
         order.address_line,
         order.city,
         order.state,
-        f"PIN: {order.pincode}" if order.pincode else None
+        f"PIN: {order.pincode}" if order.pincode else None,
     ]
-    address_formatted = ", ".join([p for p in address_parts if p]) if any(address_parts) else "N/A"
+    address_formatted = (
+        ", ".join([p for p in address_parts if p]) if any(address_parts) else "N/A"
+    )
 
-    # Logo setup with image + text fallback
+    # Logo setup
     logo_base64 = get_logo_base64()
     if logo_base64:
         logo_img = f'<img src="{logo_base64}" alt="Tronix365 Logo" style="max-height: 42px; width: auto; vertical-align: middle;" />'
     else:
         logo_img = f'<img src="{frontend_url}/assets/logo.png" alt="Tronix365 Logo" style="max-height: 42px; width: auto; vertical-align: middle;" />'
 
-    items_subtotal = sum((item.price_at_purchase or 0.0) * item.quantity for item in order.items)
+    items_subtotal = sum(
+        (item.price_at_purchase or 0.0) * item.quantity for item in order.items
+    )
     discount_amount = getattr(order, "discount_amount", 0.0) or 0.0
     coupon_code = getattr(order, "coupon_code", None)
 
@@ -168,22 +236,23 @@ def generate_order_confirmation_html(order, frontend_url: str):
     for item in order.items:
         img_url = (
             item.product.image
-            if getattr(item.product, "image", None)
+            if getattr(item, "product", None) and getattr(item.product, "image", None)
             else "https://placehold.co/80?text=TRONIX365"
         )
         if img_url.startswith("/"):
             img_url = f"{frontend_url}{img_url}"
 
+        title = item.product.title if getattr(item, "product", None) else "Electronics Item"
         unit_price = item.price_at_purchase or 0.0
         line_total = unit_price * item.quantity
 
         item_rows += f"""
         <tr>
             <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; width: 64px; vertical-align: middle;">
-                <img src="{img_url}" alt="{item.product.title}" style="width: 56px; height: 56px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; display: block;" />
+                <img src="{img_url}" alt="{title}" style="width: 56px; height: 56px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; display: block;" />
             </td>
             <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; text-align: left; vertical-align: middle;">
-                <p style="margin: 0; font-weight: 700; color: #0f172a; font-size: 14px; line-height: 1.4;">{item.product.title}</p>
+                <p style="margin: 0; font-weight: 700; color: #0f172a; font-size: 14px; line-height: 1.4;">{title}</p>
                 <p style="margin: 4px 0 0; font-size: 13px; color: #64748b;">Qty: <strong style="color: #6d28d9;">{item.quantity}</strong> &nbsp;|&nbsp; Price: ₹{unit_price:,.2f}</p>
             </td>
             <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; text-align: right; vertical-align: middle; width: 110px;">
@@ -193,6 +262,323 @@ def generate_order_confirmation_html(order, frontend_url: str):
         """
 
     order_url = f"{frontend_url}/order/{order.id}"
+    user_dashboard_url = f"{frontend_url}/dashboard"
+
+    # Define status specific metadata (theme color, badge text, header title, body message, banner color)
+    status_config = {
+        "pending": {
+            "color": "#d97706",
+            "bg": "#fef3c7",
+            "border": "#fde68a",
+            "badge_text": "⏳ Order Received",
+            "title": "Order Received & Pending Processing",
+            "message": f"Hi <strong>{customer_name}</strong>, thank you for your order! Your purchase <strong style='color: #6d28d9;'>#order_tronix_{order.id:04d}</strong> has been received and is pending verification.",
+            "cta_text": "View Order Status",
+            "cta_url": order_url,
+        },
+        "confirmed": {
+            "color": "#16a34a",
+            "bg": "#dcfce7",
+            "border": "#bbf7d0",
+            "badge_text": "✔ Order Confirmed",
+            "title": "Order Confirmed!",
+            "message": f"Hi <strong>{customer_name}</strong>, your purchase <strong style='color: #6d28d9;'>#order_tronix_{order.id:04d}</strong> has been approved and is being prepared for packing.",
+            "cta_text": "Track Order & Invoice",
+            "cta_url": order_url,
+        },
+        "payment_received": {
+            "color": "#0284c7",
+            "bg": "#e0f2fe",
+            "border": "#bae6fd",
+            "badge_text": "💳 Payment Received",
+            "title": "Payment Confirmed",
+            "message": f"Hi <strong>{customer_name}</strong>, we have received your payment for order <strong style='color: #6d28d9;'>#order_tronix_{order.id:04d}</strong>. Transaction ID: <strong>{getattr(order, 'txnid', 'Verified')}</strong>.",
+            "cta_text": "View Receipt & Order Details",
+            "cta_url": order_url,
+        },
+        "processing": {
+            "color": "#6d28d9",
+            "bg": "#f3e8ff",
+            "border": "#e9d5ff",
+            "badge_text": "⚙ Processing Order",
+            "title": "Order is Being Processed",
+            "message": f"Hi <strong>{customer_name}</strong>, your order <strong style='color: #6d28d9;'>#order_tronix_{order.id:04d}</strong> is currently being assembled and quality checked by our technical team.",
+            "cta_text": "Check Live Progress",
+            "cta_url": order_url,
+        },
+        "packed": {
+            "color": "#0891b2",
+            "bg": "#cff4fc",
+            "border": "#99e9f2",
+            "badge_text": "📦 Order Packed",
+            "title": "Your Order is Packed & Sealed!",
+            "message": f"Hi <strong>{customer_name}</strong>, your items for order <strong style='color: #6d28d9;'>#order_tronix_{order.id:04d}</strong> are safely packed and ready for dispatch.",
+            "cta_text": "Track Order Details",
+            "cta_url": order_url,
+        },
+        "shipped": {
+            "color": "#2563eb",
+            "bg": "#dbeafe",
+            "border": "#bfdbfe",
+            "badge_text": "🚚 Order Shipped",
+            "title": "Your Package is On Its Way!",
+            "message": f"Hi <strong>{customer_name}</strong>, your order <strong style='color: #6d28d9;'>#order_tronix_{order.id:04d}</strong> has been handed over to our courier partner for delivery.",
+            "cta_text": "Track Delivery & Details",
+            "cta_url": order_url,
+        },
+        "out_for_delivery": {
+            "color": "#9333ea",
+            "bg": "#f3e8ff",
+            "border": "#e9d5ff",
+            "badge_text": "🛵 Out For Delivery",
+            "title": "Out For Delivery Today!",
+            "message": f"Hi <strong>{customer_name}</strong>, get ready! Your order <strong style='color: #6d28d9;'>#order_tronix_{order.id:04d}</strong> is out for delivery today.",
+            "cta_text": "Track Live Courier Status",
+            "cta_url": order_url,
+        },
+        "delivered": {
+            "color": "#16a34a",
+            "bg": "#dcfce7",
+            "border": "#bbf7d0",
+            "badge_text": "🎉 Order Delivered",
+            "title": "Delivered Successfully!",
+            "message": f"Hi <strong>{customer_name}</strong>, your order <strong style='color: #6d28d9;'>#order_tronix_{order.id:04d}</strong> has been delivered. Thank you for shopping with Tronix365!",
+            "cta_text": "Review Product & Invoice",
+            "cta_url": order_url,
+        },
+        "cancelled": {
+            "color": "#dc2626",
+            "bg": "#fee2e2",
+            "border": "#fca5a5",
+            "badge_text": "✖ Order Cancelled",
+            "title": "Order Cancellation Notice",
+            "message": f"Hi <strong>{customer_name}</strong>, your order <strong style='color: #dc2626;'>#order_tronix_{order.id:04d}</strong> has been cancelled.",
+            "cta_text": "Contact Support",
+            "cta_url": f"{frontend_url}/info/contact",
+        },
+        "deleted": {
+            "color": "#dc2626",
+            "bg": "#fee2e2",
+            "border": "#fca5a5",
+            "badge_text": "✖ Order Cancelled",
+            "title": "Order Cancellation Notice",
+            "message": f"Hi <strong>{customer_name}</strong>, your order <strong style='color: #dc2626;'>#order_tronix_{order.id:04d}</strong> has been cancelled.",
+            "cta_text": "Contact Support",
+            "cta_url": f"{frontend_url}/info/contact",
+        },
+        "refund_initiated": {
+            "color": "#0284c7",
+            "bg": "#e0f2fe",
+            "border": "#bae6fd",
+            "badge_text": "💸 Refund Initiated",
+            "title": "Refund Process Initiated",
+            "message": f"Hi <strong>{customer_name}</strong>, a refund for your order <strong style='color: #6d28d9;'>#order_tronix_{order.id:04d}</strong> has been initiated.",
+            "cta_text": "View Refund Details",
+            "cta_url": order_url,
+        },
+        "refund_completed": {
+            "color": "#16a34a",
+            "bg": "#dcfce7",
+            "border": "#bbf7d0",
+            "badge_text": "✅ Refund Completed",
+            "title": "Refund Transferred Successfully",
+            "message": f"Hi <strong>{customer_name}</strong>, your refund for order <strong style='color: #6d28d9;'>#order_tronix_{order.id:04d}</strong> has been processed successfully to your original payment method.",
+            "cta_text": "View Account Dashboard",
+            "cta_url": user_dashboard_url,
+        },
+        "failed_payment": {
+            "color": "#dc2626",
+            "bg": "#fee2e2",
+            "border": "#fca5a5",
+            "badge_text": "⚠️ Payment Failed",
+            "title": "Payment Transaction Failed",
+            "message": f"Hi <strong>{customer_name}</strong>, payment for your order <strong style='color: #dc2626;'>#order_tronix_{order.id:04d}</strong> could not be processed.",
+            "cta_text": "Retry Payment",
+            "cta_url": order_url,
+        },
+        "return_requested": {
+            "color": "#d97706",
+            "bg": "#fef3c7",
+            "border": "#fde68a",
+            "badge_text": "↩ Return Requested",
+            "title": "Return Request Received",
+            "message": f"Hi <strong>{customer_name}</strong>, we received your return request for order <strong style='color: #6d28d9;'>#order_tronix_{order.id:04d}</strong> and are currently reviewing it.",
+            "cta_text": "View Return Status",
+            "cta_url": order_url,
+        },
+        "return_approved": {
+            "color": "#16a34a",
+            "bg": "#dcfce7",
+            "border": "#bbf7d0",
+            "badge_text": "✔ Return Approved",
+            "title": "Return Request Approved",
+            "message": f"Hi <strong>{customer_name}</strong>, your return request for order <strong style='color: #6d28d9;'>#order_tronix_{order.id:04d}</strong> has been approved. Pickup will be scheduled shortly.",
+            "cta_text": "View Return Instructions",
+            "cta_url": order_url,
+        },
+        "return_rejected": {
+            "color": "#dc2626",
+            "bg": "#fee2e2",
+            "border": "#fca5a5",
+            "badge_text": "✖ Return Declined",
+            "title": "Return Request Update",
+            "message": f"Hi <strong>{customer_name}</strong>, your return request for order <strong style='color: #dc2626;'>#order_tronix_{order.id:04d}</strong> was reviewed and could not be approved.",
+            "cta_text": "Contact Support Team",
+            "cta_url": f"{frontend_url}/info/contact",
+        },
+        "exchange_approved": {
+            "color": "#16a34a",
+            "bg": "#dcfce7",
+            "border": "#bbf7d0",
+            "badge_text": "🔄 Exchange Approved",
+            "title": "Exchange Request Approved",
+            "message": f"Hi <strong>{customer_name}</strong>, your exchange request for order <strong style='color: #6d28d9;'>#order_tronix_{order.id:04d}</strong> has been approved.",
+            "cta_text": "Track Exchange Shipment",
+            "cta_url": order_url,
+        },
+        "exchange_rejected": {
+            "color": "#dc2626",
+            "bg": "#fee2e2",
+            "border": "#fca5a5",
+            "badge_text": "✖ Exchange Declined",
+            "title": "Exchange Request Update",
+            "message": f"Hi <strong>{customer_name}</strong>, your exchange request for order <strong style='color: #dc2626;'>#order_tronix_{order.id:04d}</strong> was reviewed and could not be approved.",
+            "cta_text": "Contact Customer Support",
+            "cta_url": f"{frontend_url}/info/contact",
+        },
+    }
+
+    # Default fallback for any unlisted or custom future status
+    cfg = status_config.get(
+        status_lower,
+        {
+            "color": "#6d28d9",
+            "bg": "#faf5ff",
+            "border": "#f3e8ff",
+            "badge_text": f"📌 Status: {formatted_status}",
+            "title": f"Order Status Update: {formatted_status}",
+            "message": f"Hi <strong>{customer_name}</strong>, your order <strong style='color: #6d28d9;'>#order_tronix_{order.id:04d}</strong> status has been updated to <strong>{formatted_status}</strong>.",
+            "cta_text": "View Order Details",
+            "cta_url": order_url,
+        },
+    )
+
+    # Build Shipping Info Card if courier/tracking available
+    courier_name = getattr(order, "courier", None)
+    tracking_num = getattr(order, "tracking_number", None)
+    est_date = getattr(order, "estimated_delivery_date", None)
+    est_time = getattr(order, "estimated_arrival_time", None)
+
+    shipping_card_html = ""
+    if courier_name or tracking_num or est_date or est_time or status_lower in ["shipped", "out_for_delivery"]:
+        shipping_card_html = f"""
+        <tr>
+            <td style="padding: 0 28px 20px;">
+                <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 16px;">
+                    <h4 style="margin: 0 0 10px; font-size: 13px; color: #1e40af; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                        🚚 Shipping & Tracking Information
+                    </h4>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 13px; color: #1e3a8a;">
+                        <tr>
+                            <td style="padding: 3px 0; width: 40%;"><strong>Shipping Method / Courier:</strong></td>
+                            <td style="padding: 3px 0; font-weight: 700;">{courier_name or 'Standard Courier Delivery'}</td>
+                        </tr>
+                        {'<tr><td style="padding: 3px 0;"><strong>Tracking Number:</strong></td><td style="padding: 3px 0; font-weight: 700; color: #2563eb;">' + tracking_num + '</td></tr>' if tracking_num else ''}
+                        {'<tr><td style="padding: 3px 0;"><strong>Estimated Delivery Date:</strong></td><td style="padding: 3px 0; font-weight: 700;">' + est_date + '</td></tr>' if est_date else ''}
+                        {'<tr><td style="padding: 3px 0;"><strong>Estimated Arrival Time:</strong></td><td style="padding: 3px 0; font-weight: 700;">' + est_time + '</td></tr>' if est_time else ''}
+                    </table>
+                </div>
+            </td>
+        </tr>
+        """
+
+    # Build Cancellation Card if cancelled
+    cancellation_reason = getattr(order, "cancellation_reason", None)
+    refund_status = getattr(order, "refund_status", None)
+    canc_date_str = (
+        order.cancellation_date.strftime("%B %d, %Y %I:%M %p")
+        if hasattr(order, "cancellation_date") and getattr(order, "cancellation_date", None) and hasattr(order.cancellation_date, "strftime")
+        else date_str
+    )
+
+    cancellation_card_html = ""
+    if status_lower in ["cancelled", "deleted"] or cancellation_reason or refund_status:
+        refund_info_text = (
+            refund_status
+            if refund_status
+            else "Payment will be refunded to original payment method within 3-7 working days."
+        )
+        cancellation_card_html = f"""
+        <tr>
+            <td style="padding: 0 28px 20px;">
+                <div style="background-color: #fef2f2; border: 1px solid #fca5a5; border-radius: 10px; padding: 16px;">
+                    <h4 style="margin: 0 0 10px; font-size: 13px; color: #991b1b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                        ⚠️ Cancellation & Refund Details
+                    </h4>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 13px; color: #7f1d1d;">
+                        <tr>
+                            <td style="padding: 3px 0; width: 35%;"><strong>Cancellation Date:</strong></td>
+                            <td style="padding: 3px 0;">{canc_date_str}</td>
+                        </tr>
+                        {'<tr><td style="padding: 3px 0;"><strong>Reason:</strong></td><td style="padding: 3px 0; font-weight: 700;">' + cancellation_reason + '</td></tr>' if cancellation_reason else ''}
+                        <tr>
+                            <td style="padding: 3px 0;"><strong>Refund Status:</strong></td>
+                            <td style="padding: 3px 0; font-weight: 700; color: #16a34a;">{refund_info_text}</td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+        """
+
+    # Build Return/Exchange Rejection Reason Card if applicable
+    rejection_reason = getattr(order, "rejection_reason", None)
+    return_reason = getattr(order, "return_reason", None)
+    reason_card_html = ""
+    if rejection_reason or return_reason:
+        reason_card_html = f"""
+        <tr>
+            <td style="padding: 0 28px 20px;">
+                <div style="background-color: #fffbeb; border: 1px solid #fcd34d; border-radius: 10px; padding: 16px;">
+                    <h4 style="margin: 0 0 10px; font-size: 13px; color: #92400e; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                        📋 Request Details & Notes
+                    </h4>
+                    {'<p style="margin: 0 0 4px; font-size: 13px; color: #78350f;"><strong>Return/Exchange Reason:</strong> ' + return_reason + '</p>' if return_reason else ''}
+                    {'<p style="margin: 0; font-size: 13px; color: #78350f;"><strong>Reviewer Feedback / Note:</strong> ' + rejection_reason + '</p>' if rejection_reason else ''}
+                </div>
+            </td>
+        </tr>
+        """
+    # Build B2B GST Information Card if GSTIN or B2B Billing requested
+    is_gst_invoice = getattr(order, "is_gst_invoice", False)
+    gstin_num = getattr(order, "gstin", None)
+    comp_name = getattr(order, "company_name", None)
+    comp_addr = getattr(order, "company_address", None)
+
+    gst_card_html = ""
+    if is_gst_invoice or gstin_num or comp_name:
+        gst_card_html = f"""
+        <tr>
+            <td style="padding: 0 28px 20px;">
+                <div style="background-color: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 10px; padding: 16px;">
+                    <h4 style="margin: 0 0 10px; font-size: 13px; color: #5b21b6; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                        🏢 Registered B2B GST Billing Information
+                    </h4>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 13px; color: #4c1d95;">
+                        {'<tr><td style="padding: 3px 0; width: 35%;"><strong>Company Name:</strong></td><td style="padding: 3px 0; font-weight: 700;">' + comp_name + '</td></tr>' if comp_name else ''}
+                        {'<tr><td style="padding: 3px 0;"><strong>Customer GSTIN:</strong></td><td style="padding: 3px 0; font-weight: 700; color: #6d28d9; letter-spacing: 1px;">' + gstin_num + '</td></tr>' if gstin_num else ''}
+                        {'<tr><td style="padding: 3px 0;"><strong>Registered Address:</strong></td><td style="padding: 3px 0;">' + comp_addr + '</td></tr>' if comp_addr else ''}
+                    </table>
+                </div>
+            </td>
+        </tr>
+        """
+
+    # Compute GST breakdown
+    explicit_subtotal = getattr(order, "subtotal_before_gst", 0.0) or (subtotal / 1.18)
+    explicit_gst = getattr(order, "gst_amount", 0.0) or (subtotal - explicit_subtotal)
+    cgst = explicit_gst / 2.0
+    sgst = explicit_gst / 2.0
 
     html_template = f"""
     <!DOCTYPE html>
@@ -200,7 +586,7 @@ def generate_order_confirmation_html(order, frontend_url: str):
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Order Confirmed - #order_tronix_{order.id:04d}</title>
+        <title>{cfg['title']} - #order_tronix_{order.id:04d}</title>
     </head>
     <body style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 30px 12px; color: #1f2937;">
         
@@ -218,8 +604,8 @@ def generate_order_confirmation_html(order, frontend_url: str):
                                 <span style="font-size: 22px; font-weight: 900; color: #6d28d9; letter-spacing: -0.5px; vertical-align: middle; margin-left: 8px;">TRONIX365</span>
                             </td>
                             <td style="text-align: right; vertical-align: middle;">
-                                <span style="background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-block;">
-                                    ✔ Order Confirmed
+                                <span style="background-color: {cfg['bg']}; color: {cfg['color']}; border: 1px solid {cfg['border']}; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-block;">
+                                    {cfg['badge_text']}
                                 </span>
                             </td>
                         </tr>
@@ -229,17 +615,29 @@ def generate_order_confirmation_html(order, frontend_url: str):
 
             <!-- Hero Banner Greeting -->
             <tr>
-                <td style="background-color: #faf5ff; padding: 24px 28px; border-bottom: 1px solid #f3e8ff;">
-                    <h1 style="margin: 0 0 8px; font-size: 20px; color: #581c87; font-weight: 800;">Order Confirmed!</h1>
-                    <p style="margin: 0; font-size: 14px; color: #6b21a8; line-height: 1.5;">
-                        Hi <strong>{customer_name}</strong>, thank you for your order! Your purchase <strong style="color: #6d28d9;">#order_tronix_{order.id:04d}</strong> is confirmed and currently being prepared for dispatch.
+                <td style="background-color: {cfg['bg']}; padding: 24px 28px; border-bottom: 1px solid {cfg['border']};">
+                    <h1 style="margin: 0 0 8px; font-size: 20px; color: {cfg['color']}; font-weight: 800;">{cfg['title']}</h1>
+                    <p style="margin: 0; font-size: 14px; color: #374151; line-height: 1.5;">
+                        {cfg['message']}
                     </p>
                 </td>
             </tr>
 
-            <!-- Shipping & Order Info Cards Grid -->
+            <!-- Shipping Info Card (if present) -->
+            {shipping_card_html}
+
+            <!-- Cancellation Card (if present) -->
+            {cancellation_card_html}
+
+            <!-- Reason & Notes Card (if present) -->
+            {reason_card_html}
+
+            <!-- B2B GST Card (if present) -->
+            {gst_card_html}
+
+            <!-- Delivery & Order Info Grid -->
             <tr>
-                <td style="padding: 24px 28px 12px;">
+                <td style="padding: 20px 28px 12px;">
                     <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: separate; border-spacing: 0;">
                         <tr>
                             <td style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; width: 48%; vertical-align: top;">
@@ -247,7 +645,7 @@ def generate_order_confirmation_html(order, frontend_url: str):
                                 <p style="margin: 0 0 4px; font-size: 14px; font-weight: 700; color: #111827;">{customer_name}</p>
                                 <p style="margin: 0; font-size: 13px; color: #4b5563; line-height: 1.4;">
                                     {address_formatted}<br>
-                                    Phone: {order.phone or 'N/A'}
+                                    Phone: {getattr(order, 'phone', 'N/A') or 'N/A'}
                                 </p>
                             </td>
                             <td style="width: 4%;"></td>
@@ -255,8 +653,8 @@ def generate_order_confirmation_html(order, frontend_url: str):
                                 <p style="margin: 0 0 6px; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Order Summary</p>
                                 <p style="margin: 0 0 2px; font-size: 13px; color: #374151;"><strong>Order ID:</strong> #order_tronix_{order.id:04d}</p>
                                 <p style="margin: 0 0 2px; font-size: 13px; color: #374151;"><strong>Date:</strong> {date_str}</p>
-                                <p style="margin: 0 0 2px; font-size: 13px; color: #374151;"><strong>Payment:</strong> {order.txnid or 'Paid / COD'}</p>
-                                <p style="margin: 0; font-size: 13px; color: #374151;"><strong>Status:</strong> <span style="color: #16a34a; font-weight: 700;">{order.status.upper()}</span></p>
+                                <p style="margin: 0 0 2px; font-size: 13px; color: #374151;"><strong>Payment:</strong> {getattr(order, 'txnid', None) or 'Paid / Online'}</p>
+                                <p style="margin: 0; font-size: 13px; color: #374151;"><strong>Status:</strong> <span style="color: {cfg['color']}; font-weight: 700;">{formatted_status}</span></p>
                             </td>
                         </tr>
                     </table>
@@ -275,26 +673,34 @@ def generate_order_confirmation_html(order, frontend_url: str):
                 </td>
             </tr>
 
-            <!-- Payment Calculation Box -->
+            <!-- Payment Calculation Box with GST Breakdown -->
             <tr>
                 <td style="padding: 20px 28px 24px;">
                     <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px;">
                         <table width="100%" cellpadding="0" cellspacing="0">
                             <tr>
-                                <td style="padding: 4px 0; font-size: 14px; color: #4b5563;">Items Subtotal</td>
-                                <td style="padding: 4px 0; font-size: 14px; color: #111827; text-align: right; font-weight: 600;">₹{items_subtotal:,.2f}</td>
+                                <td style="padding: 4px 0; font-size: 14px; color: #4b5563;">Subtotal (Excl. GST)</td>
+                                <td style="padding: 4px 0; font-size: 14px; color: #111827; text-align: right; font-weight: 600;">₹{explicit_subtotal:,.2f}</td>
                             </tr>
                             {discount_row}
                             <tr>
-                                <td style="padding: 4px 0; font-size: 14px; color: #4b5563;">Included GST (18%)</td>
-                                <td style="padding: 4px 0; font-size: 14px; color: #d97706; text-align: right; font-weight: 600;">₹{gst:,.2f}</td>
+                                <td style="padding: 4px 0; font-size: 13px; color: #64748b;">CGST (9%)</td>
+                                <td style="padding: 4px 0; font-size: 13px; color: #475569; text-align: right; font-weight: 600;">₹{cgst:,.2f}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 4px 0; font-size: 13px; color: #64748b;">SGST (9%)</td>
+                                <td style="padding: 4px 0; font-size: 13px; color: #475569; text-align: right; font-weight: 600;">₹{sgst:,.2f}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 4px 0; font-size: 14px; color: #d97706; font-weight: 600;">Total GST Collected (18%)</td>
+                                <td style="padding: 4px 0; font-size: 14px; color: #d97706; text-align: right; font-weight: 700;">₹{explicit_gst:,.2f}</td>
                             </tr>
                             <tr>
                                 <td style="padding: 4px 0; font-size: 14px; color: #4b5563;">Shipping Fee</td>
                                 <td style="padding: 4px 0; font-size: 14px; color: #16a34a; text-align: right; font-weight: 700;">FREE</td>
                             </tr>
                             <tr>
-                                <td style="padding-top: 10px; border-top: 2px solid #e5e7eb; font-size: 16px; color: #111827; font-weight: 800;">Total Amount Paid</td>
+                                <td style="padding-top: 10px; border-top: 2px solid #e5e7eb; font-size: 16px; color: #111827; font-weight: 800;">Total Amount (Incl. GST)</td>
                                 <td style="padding-top: 10px; border-top: 2px solid #e5e7eb; font-size: 18px; color: #6d28d9; text-align: right; font-weight: 900;">₹{order.total_amount:,.2f}</td>
                             </tr>
                         </table>
@@ -302,18 +708,15 @@ def generate_order_confirmation_html(order, frontend_url: str):
                 </td>
             </tr>
 
-            <!-- Authenticity & Refund Notice Card -->
+            <!-- Authenticity & Policy Notice Card -->
             <tr>
                 <td style="padding: 0 28px 24px;">
                     <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px 16px;">
                         <p style="margin: 0 0 4px; font-size: 13px; color: #15803d; font-weight: 700;">
                             🛡️ 100% Verified Authentic Hardware
                         </p>
-                        <p style="margin: 0 0 6px; font-size: 12px; color: #166534; line-height: 1.4;">
-                            All electronic products sold by Tronix365 are original and checked for quality assurance before packing.
-                        </p>
                         <p style="margin: 0; font-size: 12px; color: #166534; line-height: 1.4;">
-                            <strong>Cancellation & Refund Policy:</strong> If your order is cancelled, your payment will be refunded to your original payment mode within <strong>3-7 working days</strong>.
+                            All electronic products sold by Tronix365 are original and checked for quality assurance. Need assistance? Contact our 24/7 customer support.
                         </p>
                     </div>
                 </td>
@@ -322,8 +725,8 @@ def generate_order_confirmation_html(order, frontend_url: str):
             <!-- Call to Action Button -->
             <tr>
                 <td style="padding: 0 28px 32px; text-align: center;">
-                    <a href="{order_url}" target="_blank" style="display: inline-block; background-color: #6d28d9; color: #ffffff; text-decoration: none; padding: 14px 36px; font-size: 15px; font-weight: 700; border-radius: 8px; box-shadow: 0 4px 12px rgba(109, 40, 217, 0.25);">
-                        Track Order & Download Invoice
+                    <a href="{cfg['cta_url']}" target="_blank" style="display: inline-block; background-color: #6d28d9; color: #ffffff; text-decoration: none; padding: 14px 36px; font-size: 15px; font-weight: 700; border-radius: 8px; box-shadow: 0 4px 12px rgba(109, 40, 217, 0.25);">
+                        {cfg['cta_text']}
                     </a>
                 </td>
             </tr>
@@ -346,20 +749,45 @@ def generate_order_confirmation_html(order, frontend_url: str):
     return html_template
 
 
-def send_order_confirmation_email(order):
+def send_order_status_email(order_or_id, status: str):
     """
-    Orchestrates the HTML generation and email dispatch for a successful order.
-    Designed to be called via FastAPI BackgroundTasks.
+    Orchestrates order lifecycle email notifications.
+    Features:
+    1. Automatic deduplication check against recent email logs (60 seconds window).
+    2. Dedicated HTML template generation per status.
+    3. Mandatory delivery to both customer and shubham.tronix365@gmail.com.
     """
     from database import SessionLocal
-    from models import OrderDB, OrderItemDB
+    from models import OrderDB, OrderItemDB, EmailLogDB
     from sqlalchemy.orm import joinedload
 
-    order_id = order if isinstance(order, int) else order.id
+    order_id = order_or_id if isinstance(order_or_id, int) else order_or_id.id
+    status_lower = (status or "pending").lower().strip()
 
     db = SessionLocal()
     try:
-        # Reload order with eagerly loaded relationships to prevent DetachedInstanceError
+        # Check deduplication: avoid sending duplicate emails for the exact same status within 60 seconds
+        recent_log = (
+            db.query(EmailLogDB)
+            .filter(
+                EmailLogDB.order_id == order_id,
+                EmailLogDB.status_trigger == status_lower,
+                EmailLogDB.delivery_status == "sent",
+            )
+            .order_by(EmailLogDB.id.desc())
+            .first()
+        )
+        if recent_log and recent_log.created_at:
+            time_diff = (
+                datetime.utcnow() - recent_log.created_at.replace(tzinfo=None)
+            ).total_seconds()
+            if time_diff < 60:
+                logger.info(
+                    f"Duplicate email suppression: Email for order #{order_id} status '{status_lower}' sent {int(time_diff)}s ago. Skipping."
+                )
+                return True
+
+        # Fetch full order details with product relationships
         order_loaded = (
             db.query(OrderDB)
             .options(joinedload(OrderDB.items).joinedload(OrderItemDB.product))
@@ -367,29 +795,44 @@ def send_order_confirmation_email(order):
             .first()
         )
         if not order_loaded:
-            logger.error(f"Order ID {order_id} not found in database. Cannot send confirmation.")
+            logger.error(
+                f"Order ID {order_id} not found in database. Cannot send notification email."
+            )
             return False
 
         to_email = order_loaded.customer_email
         if not to_email:
-            logger.error(f"Order #{order_loaded.id} has no customer_email. Cannot send confirmation.")
+            logger.error(
+                f"Order #{order_loaded.id} has no customer_email. Cannot send notification."
+            )
             return False
 
         frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
-        if ("tronix365.in" in frontend_url or "tronix.in" in frontend_url) and "/e-commerse" not in frontend_url:
+        if (
+            "tronix365.in" in frontend_url or "tronix.in" in frontend_url
+        ) and "/e-commerse" not in frontend_url:
             frontend_url = f"{frontend_url}/e-commerse"
 
-        subject = f"Order Confirmation - #order_tronix_{order_loaded.id:04d} from Tronix365"
+        formatted_status = status_lower.replace("_", " ").title()
+        subject = f"Order #{order_loaded.id:04d} Update: {formatted_status} - Tronix365"
 
-        # Generate the pristine HTML payload
-        html_content = generate_order_confirmation_html(order_loaded, frontend_url)
+        # Generate dedicated status HTML payload
+        html_content = generate_order_status_email_html(
+            order_loaded, status_lower, frontend_url
+        )
 
-        # Dispatch using the Brevo hook
         return send_email_via_brevo(
-            to_email, subject, html_content, sender_name="Tronix365 Orders"
+            to_email,
+            subject,
+            html_content,
+            sender_name="Tronix365 Orders",
+            order_id=order_loaded.id,
+            status_trigger=status_lower,
         )
     except Exception as e:
-        logger.error(f"Failed to send order confirmation email for order #{order_id}: {e}")
+        logger.error(
+            f"Failed to dispatch order status email for order #{order_id}: {e}"
+        )
         import traceback
         logger.error(traceback.format_exc())
         return False
@@ -397,16 +840,19 @@ def send_order_confirmation_email(order):
         db.close()
 
 
+def send_order_confirmation_email(order):
+    """Backwards compatibility alias targeting order status email dispatch."""
+    return send_order_status_email(order, "confirmed")
+
+
 def generate_abandoned_cart_html(user_name, cart_items, frontend_url):
-    """
-    Generates a premium abandoned cart recovery email.
-    """
+    """Generates abandoned cart recovery email HTML."""
     item_rows = ""
     total = 0
     for item in cart_items:
         img_url = (
             item.product.image
-            if getattr(item.product, "image", None)
+            if getattr(item, "product", None) and getattr(item.product, "image", None)
             else "https://placehold.co/80?text=TRONIX365"
         )
         if img_url.startswith("/"):
@@ -495,26 +941,26 @@ def generate_abandoned_cart_html(user_name, cart_items, frontend_url):
 
 
 def send_abandoned_cart_email(user, cart_items):
-    """
-    Sends a recovery email for abandoned carts.
-    """
+    """Sends a recovery email for abandoned carts."""
     to_email = user.email
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
 
     subject = "Forget something? Your cart is waiting at Tronix365"
     html_content = generate_abandoned_cart_html(
-        user.full_name or "there", cart_items, frontend_url
+        getattr(user, "full_name", None) or "there", cart_items, frontend_url
     )
 
     return send_email_via_brevo(
-        to_email, subject, html_content, sender_name="Tronix365 Re-engagement"
+        to_email,
+        subject,
+        html_content,
+        sender_name="Tronix365 Re-engagement",
+        status_trigger="abandoned_cart",
     )
 
 
 def generate_otp_email_html(otp: str) -> str:
-    """
-    Generates a premium glassmorphic/neon HTML template for OTP emails.
-    """
+    """Generates a premium glassmorphic/neon HTML template for OTP emails."""
     return f"""
     <!DOCTYPE html>
     <html>
@@ -574,9 +1020,13 @@ def generate_otp_email_html(otp: str) -> str:
 
 
 def send_otp_email(email: str, otp: str):
-    """
-    Sends the OTP verification code to the user.
-    """
+    """Sends the OTP verification code to the user."""
     subject = f"{otp} is your Tronix365 Verification Code"
     html_content = generate_otp_email_html(otp)
-    return send_email_via_brevo(email, subject, html_content, sender_name="Tronix365 Security")
+    return send_email_via_brevo(
+        email,
+        subject,
+        html_content,
+        sender_name="Tronix365 Security",
+        status_trigger="otp_verification",
+    )

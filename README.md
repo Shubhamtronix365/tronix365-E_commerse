@@ -9,7 +9,11 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
 - **Modern Bento UI**: Beautiful, responsive layout with glassmorphic cards and dynamic animations.
 - **Fuzzy Search & Filters**: High-performance backend search, pagination, category sorting, and price range filters.
 - **Smart Shopping Cart**: Persistent cart state, client-side validation, and instant coupon/discount application.
-- **Admin Inventory & Order Management**: Live product updates, order review authority (orders stay pending until explicitly confirmed or cancelled by admin), and coupon generator.
+- **Admin Inventory & Order Management**: Live product updates, order review authority, custom shipping courier selection, and coupon generator.
+- **Automated Order Lifecycle Email System**: Branded, responsive HTML email templates for all order statuses (Order Placed, Confirmed, Shipped, Out for Delivery, Delivered, Cancelled, Refunds, Returns, Exchanges).
+- **Mandatory Dual Recipients**: Every order notification email is automatically sent to both the registered customer and `shubham.tronix365@gmail.com`.
+- **Database Email Audit Logging**: Records every sent/failed email with recipient details, subject, order ID, status trigger, and timestamp.
+- **Custom Courier & Logistics Options**: Preset couriers (Porter, Delhivery, DTDC, Blue Dart, India Post, DHL, FedEx, XpressBees, Shadowfax, etc.) and custom free-text shipping input ("Other").
 - **Mandatory 2FA (Password + Email OTP)**: Secure two-step authentication for user signup and login. OTPs are sent via Brevo SMTP and expire in exactly 2 minutes.
 - **Secure Authentication**: Encrypted password authentication (PBKDF2), JWT tokens, and Google OAuth integration.
 - **Rate Limiting & Caching**: Security features with Slowapi rate limiters and Redis/InMemory backend caching.
