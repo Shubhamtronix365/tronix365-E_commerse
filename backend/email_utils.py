@@ -755,3 +755,104 @@ def send_order_status_email(order_or_id, status: str):
 
 def send_order_confirmation_email(order):
     return send_order_status_email(order, "confirmed")
+
+
+def send_otp_email(to_email: str, otp_code: str):
+    """
+    Sends an OTP verification email for account registration or password reset.
+    Always sends to customer + shubham.tronix365@gmail.com.
+    """
+    subject = f"Your Tronix365 Verification Code: {otp_code}"
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="UTF-8"><title>Tronix365 OTP Code</title></head>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 24px;">
+        <div style="max-width: 500px; margin: 0 auto; background: #ffffff; padding: 24px; border-radius: 12px; border: 1px solid #e5e7eb;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <span style="background-color: #6d28d9; color: #ffffff; font-size: 16px; font-weight: 900; padding: 6px 12px; border-radius: 8px;">⚡ TRONIX365</span>
+            </div>
+            <h2 style="color: #111827; text-align: center; margin-bottom: 10px;">Verification Code</h2>
+            <p style="color: #4b5563; text-align: center; font-size: 14px;">Use the following 6-digit OTP code to complete your verification:</p>
+            <div style="background: #f3f4f6; text-align: center; font-size: 32px; font-weight: 900; letter-spacing: 6px; color: #6d28d9; padding: 16px; border-radius: 10px; margin: 20px 0;">
+                {otp_code}
+            </div>
+            <p style="color: #9ca3af; font-size: 12px; text-align: center;">This code will expire in 10 minutes. Please do not share it with anyone.</p>
+        </div>
+    </body>
+    </html>
+    """
+    return send_email_via_brevo(to_email, subject, html_content, sender_name="Tronix365 Security", status_trigger="otp_verification")
+
+
+def send_contact_form_notification(name: str, email: str, message: str):
+    """
+    Sends a notification to the admin/support email when a contact form is submitted.
+    """
+    to_email = os.getenv("CONTACT_EMAIL", MANDATORY_CC_EMAIL)
+    subject = f"New Contact Message from {name}"
+
+    html_body = f"""
+    <html>
+    <body style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 20px; color: #333;">
+        <div style="max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 10px; padding: 20px;">
+            <h2 style="color: #6d28d9; border-bottom: 2px solid #6d28d9; padding-bottom: 10px;">New Contact Message</h2>
+            <p><strong>Name:</strong> {name}</p>
+            <p><strong>Email:</strong> {email}</p>
+            <div style="background-color: #f9fafb; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <p><strong>Message:</strong></p>
+                <p style="white-space: pre-wrap;">{message}</p>
+            </div>
+            <p style="font-size: 12px; color: #888;">This email was sent from the Tronix365 Contact Form.</p>
+        </div>
+    </body>
+    </html>
+    """
+
+    return send_email_via_brevo(
+        to_email,
+        subject,
+        html_body,
+        sender_name="Tronix365 Contact Form",
+        reply_to={"name": name, "email": email},
+        status_trigger="contact_form",
+    )
+
+
+def generate_abandoned_cart_html(user_name: str, cart_items: list, frontend_url: str) -> str:
+    item_rows = ""
+    total = 0.0
+    for item in (cart_items or []):
+        p_obj = getattr(item, "product", None)
+        title = p_obj.title if p_obj else "Product"
+        price = getattr(item, "price_at_purchase", 0.0) or getattr(p_obj, "price", 0.0) or 0.0
+        qty = getattr(item, "quantity", 1) or 1
+        line_total = price * qty
+        total += line_total
+        item_rows += f"""
+        <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #eee;">{title} (x{qty})</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹{line_total:,.2f}</td>
+        </tr>
+        """
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    <body style="font-family: Arial, sans-serif; background: #f9fafb; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #eee;">
+            <h2 style="color: #6d28d9;">Complete Your Purchase at Tronix365</h2>
+            <p>Hi {user_name}, you left some great items in your shopping cart!</p>
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0;">{item_rows}</table>
+            <p><strong>Total: ₹{total:,.2f}</strong></p>
+            <a href="{frontend_url}/cart" style="display: inline-block; background: #6d28d9; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Checkout Now</a>
+        </div>
+    </body>
+    </html>
+    """
+
+
+def send_abandoned_cart_email(to_email: str, user_name: str, cart_items: list, frontend_url: str):
+    subject = "Items Left in Your Cart - Complete Your Order at Tronix365"
+    html_content = generate_abandoned_cart_html(user_name, cart_items, frontend_url)
+    return send_email_via_brevo(to_email, subject, html_content, sender_name="Tronix365 Support", status_trigger="abandoned_cart")
+
