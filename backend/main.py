@@ -148,6 +148,8 @@ app.add_middleware(
 
 # Mount static files
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+app.mount("/email-assets", StaticFiles(directory="email_assets"), name="email_assets")
+
 
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from auth import (

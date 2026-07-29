@@ -125,10 +125,14 @@ def send_email_via_brevo(
         return False
 
 
+# Public URL base for hosted email assets (logo, icons)
+EMAIL_ASSETS_BASE_URL = os.getenv("BACKEND_URL", "https://tronix365-e-commerse.onrender.com") + "/email-assets"
+
+
 def generate_order_status_email_html(order, status: str, frontend_url: str) -> str:
     """
     Generates dynamic, highly responsive HTML email templates for EVERY order status.
-    Uses lightweight inline CSS and high-contrast typography to ensure instant rendering across desktop & mobile.
+    Uses hosted logo image URL from /email-assets/logo.png matching the confirmation.png design.
     """
     status_lower = (status or "pending").lower().strip()
     formatted_status = status_lower.replace("_", " ").title()
@@ -138,7 +142,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str) -> s
     order_id_str = f"{order_id_num:04d}" if order_id_num > 0 else str(raw_id)
 
     date_str = (
-        order.created_at.strftime("%B %d, %Y %I:%M %p")
+        order.created_at.strftime("%B %d, %Y")
         if hasattr(order, "created_at") and hasattr(order.created_at, "strftime")
         else str(getattr(order, "created_at", "N/A")).split(".")[0].replace("T", " ")
     )
@@ -151,14 +155,15 @@ def generate_order_status_email_html(order, status: str, frontend_url: str) -> s
         getattr(order, "address_line", None),
         getattr(order, "city", None),
         getattr(order, "state", None),
-        f"PIN: {order.pincode}" if getattr(order, "pincode", None) else None,
+        f"- {order.pincode}" if getattr(order, "pincode", None) else None,
     ]
     address_formatted = (
         ", ".join([p for p in address_parts if p]) if any(address_parts) else "N/A"
     )
 
-    # Clean text brand badge
-    logo_badge = f'''<span style="background-color: #6d28d9; color: #ffffff; font-family: Arial, sans-serif; font-size: 16px; font-weight: 900; padding: 6px 12px; border-radius: 8px; display: inline-block; vertical-align: middle; letter-spacing: 0.5px;">⚡ TRONIX</span>'''
+    # Hosted logo image — served from /email-assets/logo.png on Render
+    logo_url = f"{EMAIL_ASSETS_BASE_URL}/logo.png"
+    logo_html = f'''<img src="{logo_url}" alt="TRONIX365" width="120" height="auto" style="display: block; border: 0; outline: none; max-width: 120px;" />'''
 
     order_items_list = getattr(order, "items", None) or []
     items_subtotal = sum(
@@ -215,7 +220,29 @@ def generate_order_status_email_html(order, status: str, frontend_url: str) -> s
         </tr>
         """
 
-    order_url = f"{frontend_url}/order/{order.id}"
+    order_url = f"{frontend_url}/orders"
+
+    # Per-status icon (inline SVG emoji fallback circles matching confirmation.png design)
+    status_icon_map = {
+        "pending":           ("⏳", "#f59e0b", "#fffbeb"),
+        "confirmed":         ("✅", "#16a34a", "#f0fdf4"),
+        "payment_received":  ("💳", "#16a34a", "#f0fdf4"),
+        "processing":        ("⚙️", "#2563eb", "#eff6ff"),
+        "packed":            ("📦", "#7c3aed", "#f5f3ff"),
+        "shipped":           ("🚚", "#2563eb", "#eff6ff"),
+        "out_for_delivery":  ("🛵", "#7c3aed", "#faf5ff"),
+        "delivered":         ("✅", "#16a34a", "#f0fdf4"),
+        "cancelled":         ("❌", "#dc2626", "#fef2f2"),
+        "refund_initiated":  ("₹", "#7c3aed", "#faf5ff"),
+        "refund_completed":  ("✅", "#16a34a", "#f0fdf4"),
+        "failed_payment":    ("⚠️", "#dc2626", "#fef2f2"),
+        "return_requested":  ("↩️", "#d97706", "#fffbeb"),
+        "return_approved":   ("✅", "#16a34a", "#f0fdf4"),
+        "return_rejected":   ("❌", "#dc2626", "#fef2f2"),
+        "exchange_approved": ("🔄", "#16a34a", "#f0fdf4"),
+        "exchange_rejected": ("❌", "#dc2626", "#fef2f2"),
+    }
+    s_icon, s_icon_color, s_icon_bg = status_icon_map.get(status_lower, ("📋", "#6d28d9", "#f5f3ff"))
 
     # Default Status Design Configurations
     cfg_map = {
@@ -502,26 +529,25 @@ def generate_order_status_email_html(order, status: str, frontend_url: str) -> s
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{cfg['title']} - #order_tronix_{order_id_str}</title>
+        <title>{cfg['title']} - #TRX{order_id_str}</title>
     </head>
-    <body style="margin: 0; padding: 0; background-color: #f4f6f8; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
-        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f6f8; padding: 24px 12px;">
+    <body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f1f5f9; padding: 28px 12px;">
             <tr>
                 <td align="center">
-                    <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 620px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.06); border: 1px solid #e5e7eb;">
-                        
-                        <!-- Header Section -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 580px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e2e8f0;">
+
+                        <!-- Logo Header -->
                         <tr>
-                            <td style="padding: 24px 28px; border-bottom: 1px solid #f1f5f9; background-color: #ffffff;">
+                            <td style="padding: 20px 28px; background-color: #ffffff; border-bottom: 2px solid #f1f5f9; text-align: left;">
                                 <table width="100%" cellpadding="0" cellspacing="0">
                                     <tr>
-                                        <td align="left">
-                                            {logo_badge}
-                                            <span style="font-size: 18px; font-weight: 800; color: #0f172a; margin-left: 8px; vertical-align: middle;">Tronix365</span>
+                                        <td align="left" style="vertical-align: middle;">
+                                            {logo_html}
                                         </td>
-                                        <td align="right">
-                                            <span style="display: inline-block; background-color: {cfg['badge_bg']}; color: {cfg['badge_color']}; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;">
-                                                {formatted_status}
+                                        <td align="right" style="vertical-align: middle;">
+                                            <span style="display: inline-block; background-color: {cfg['badge_bg']}; color: {cfg['badge_color']}; font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid {cfg['border']};">
+                                                {formatted_status.replace('_', ' ')}
                                             </span>
                                         </td>
                                     </tr>
@@ -529,15 +555,17 @@ def generate_order_status_email_html(order, status: str, frontend_url: str) -> s
                             </td>
                         </tr>
 
-                        <!-- Hero Banner Greeting -->
+                        <!-- Status Icon + Hero Heading -->
                         <tr>
-                            <td style="background-color: {cfg['bg']}; padding: 24px 28px; border-bottom: 1px solid {cfg['border']};">
-                                <h1 style="margin: 0 0 8px; font-size: 20px; color: {cfg['color']}; font-weight: 800;">{cfg['title']}</h1>
-                                <p style="margin: 0; font-size: 14px; color: #374151; line-height: 1.5;">
+                            <td style="background-color: {cfg['bg']}; padding: 28px 28px 24px; text-align: center; border-bottom: 1px solid {cfg['border']};">
+                                <div style="display: inline-block; width: 64px; height: 64px; border-radius: 50%; background-color: {s_icon_bg}; border: 2px solid {s_icon_color}; text-align: center; line-height: 60px; font-size: 28px; margin-bottom: 14px;">{s_icon}</div>
+                                <h1 style="margin: 0 0 10px; font-size: 22px; color: {cfg['color']}; font-weight: 900; letter-spacing: -0.3px;">{cfg['title']}</h1>
+                                <p style="margin: 0 auto; font-size: 14px; color: #374151; line-height: 1.6; max-width: 460px;">
                                     {cfg['message']}
                                 </p>
                             </td>
                         </tr>
+
 
                         {shipping_card_html}
                         {cancellation_card_html}
@@ -640,20 +668,41 @@ def generate_order_status_email_html(order, status: str, frontend_url: str) -> s
                             </td>
                         </tr>
 
-                        <!-- Footer Section -->
+                        <!-- Dark Footer matching confirmation.png design -->
                         <tr>
-                            <td style="background-color: #0f172a; padding: 28px; text-align: center; color: #94a3b8; font-size: 13px;">
-                                <p style="margin: 0 0 8px; font-size: 15px; font-weight: 800; color: #ffffff; letter-spacing: 0.5px;">TRONIX365</p>
-                                <p style="margin: 0 0 12px; color: #cbd5e1; font-size: 12px;">Your Trusted Store for Robotics & Industrial Electronic Components</p>
-                                <div style="margin-bottom: 16px;">
-                                    <a href="{frontend_url}" style="color: #a78bfa; text-decoration: none; margin: 0 8px; font-weight: 600;">Website</a> &bull;
-                                    <a href="{frontend_url}/contact" style="color: #a78bfa; text-decoration: none; margin: 0 8px; font-weight: 600;">Support</a> &bull;
-                                    <a href="mailto:shubham.tronix365@gmail.com" style="color: #a78bfa; text-decoration: none; margin: 0 8px; font-weight: 600;">Email Us</a>
-                                </div>
-                                <p style="margin: 0; font-size: 11px; color: #64748b;">
-                                    © {datetime.now().year} Tronix365. All Rights Reserved.<br>
-                                    Need help? Contact support at <a href="mailto:shubham.tronix365@gmail.com" style="color: #a78bfa;">shubham.tronix365@gmail.com</a>
-                                </p>
+                            <td style="background-color: #111827; padding: 28px 24px; text-align: center;">
+                                <table width="100%" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td align="center" style="padding-bottom: 16px;">
+                                            <img src="https://tronix365.in/assets/logo.png" alt="TRONIX365" width="80" style="display: inline-block; filter: brightness(0) invert(1); opacity: 0.85;" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="center" style="padding-bottom: 6px;">
+                                            <span style="font-size: 11px; color: #9ca3af; letter-spacing: 0.5px;">Need Help?</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="center" style="padding-bottom: 4px;">
+                                            <a href="mailto:support@tronix365.in" style="color: #a78bfa; font-size: 13px; text-decoration: none; font-weight: 600;">✉ support@tronix365.in</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="center" style="padding-bottom: 4px;">
+                                            <span style="color: #9ca3af; font-size: 13px;">📞 +91 7020 123 365</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="center" style="padding-bottom: 20px;">
+                                            <a href="{frontend_url}" style="color: #a78bfa; font-size: 13px; text-decoration: none; font-weight: 600;">🌐 www.tronix365.in</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="center" style="border-top: 1px solid #1f2937; padding-top: 16px;">
+                                            <p style="margin: 0; font-size: 11px; color: #4b5563;">© {datetime.now().year} Tronix365. All rights reserved.</p>
+                                        </td>
+                                    </tr>
+                                </table>
                             </td>
                         </tr>
 
