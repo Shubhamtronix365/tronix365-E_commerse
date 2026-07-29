@@ -572,8 +572,8 @@ async def update_order_status(
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
 
-    new_status = (status_update.status.lower().strip() if status_update.status else order.status.lower())
-    order.status = new_status
+    previous_status = order.status or "pending"
+    new_status = (status_update.status.lower().strip() if status_update.status else previous_status.lower())
 
     # Update Courier / Shipping Method (support custom shipping input if 'Other' chosen)
     if status_update.custom_courier and status_update.custom_courier.strip():
@@ -605,14 +605,14 @@ async def update_order_status(
 
     # Handle Stock Adjustments
     # If rejecting/cancelling, restore stock only if order was previously confirmed, shipped, or delivered
-    if new_status in ["deleted", "cancelled"] and order.status in ["confirmed", "shipped", "delivered", "out_for_delivery"]:
+    if new_status in ["deleted", "cancelled"] and previous_status.lower() in ["confirmed", "shipped", "delivered", "out_for_delivery"]:
         for item in order.items:
             product = db.query(ProductDB).filter(ProductDB.id == item.product_id).first()
             if product:
                 product.stock += item.quantity
 
     # If accepting (confirmed) from pending, decrement stock and handle coupon/bundle count
-    if new_status == "confirmed" and order.status == "pending":
+    if new_status == "confirmed" and previous_status.lower() == "pending":
         if order.items:
             for item in order.items:
                 product = db.query(ProductDB).filter(ProductDB.id == item.product_id).first()

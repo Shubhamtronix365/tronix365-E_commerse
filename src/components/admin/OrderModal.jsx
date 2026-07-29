@@ -221,7 +221,7 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                                     <div className="flex flex-wrap items-center gap-2">
                                         {order.status === 'pending' && (
                                             <button
-                                                onClick={() => onUpdateOrderStatus(order.id, 'confirmed')}
+                                                onClick={() => onUpdateOrderStatus(order.id, { status: 'confirmed' })}
                                                 className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-bold text-xs transition-colors shadow-lg shadow-emerald-500/20 flex items-center gap-1.5"
                                             >
                                                 <Check size={14} /> Confirm Order
@@ -245,7 +245,7 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                                         )}
                                         {(order.status === 'shipped' || order.status === 'out_for_delivery') && (
                                             <button
-                                                onClick={() => onUpdateOrderStatus(order.id, 'delivered')}
+                                                onClick={() => onUpdateOrderStatus(order.id, { status: 'delivered' })}
                                                 className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold text-xs transition-colors shadow-lg shadow-green-500/20 flex items-center gap-1.5"
                                             >
                                                 <Check size={14} /> Mark Delivered
