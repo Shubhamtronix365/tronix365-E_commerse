@@ -612,40 +612,44 @@ async def update_order_status(
         order.rejection_reason = status_update.rejection_reason.strip()
 
     # Handle Stock Adjustments
-    # If rejecting/cancelling, restore stock only if order was previously confirmed, shipped, or delivered
-    if new_status in ["deleted", "cancelled"] and previous_status.lower() in ["confirmed", "shipped", "delivered", "out_for_delivery"]:
-        for item in order.items:
-            product = db.query(ProductDB).filter(ProductDB.id == item.product_id).first()
-            if product:
-                product.stock += item.quantity
+    try:
+        if new_status in ["deleted", "cancelled"] and previous_status.lower() in ["confirmed", "shipped", "delivered", "out_for_delivery"]:
+            for item in (order.items or []):
+                if item.product_id:
+                    product = db.query(ProductDB).filter(ProductDB.id == item.product_id).first()
+                    if product:
+                        product.stock = (product.stock or 0) + item.quantity
 
-    # If accepting (confirmed) from pending, decrement stock and handle coupon/bundle count
-    if new_status == "confirmed" and previous_status.lower() == "pending":
-        if order.items:
-            for item in order.items:
-                product = db.query(ProductDB).filter(ProductDB.id == item.product_id).first()
-                if product:
-                    product.stock -= item.quantity
-                    if product.stock < 0:
-                        product.stock = 0  # Safety check
-        if order.coupon_code:
-            coupon = db.query(CouponDB).filter(CouponDB.code == order.coupon_code).first()
-            if coupon:
-                coupon.used_count += 1
+        if new_status == "confirmed" and previous_status.lower() == "pending":
+            for item in (order.items or []):
+                if item.product_id:
+                    product = db.query(ProductDB).filter(ProductDB.id == item.product_id).first()
+                    if product:
+                        product.stock = max(0, (product.stock or 0) - item.quantity)
+            if order.coupon_code:
+                coupon = db.query(CouponDB).filter(CouponDB.code == order.coupon_code).first()
+                if coupon:
+                    coupon.used_count = (coupon.used_count or 0) + 1
 
-        if order.items:
-            bundle_ids = {item.bundle_id for item in order.items if item.bundle_id}
+            bundle_ids = {item.bundle_id for item in (order.items or []) if item.bundle_id}
             for b_id in bundle_ids:
                 bundle = db.query(BundleDB).filter(BundleDB.id == b_id).first()
                 if bundle:
                     bundle.used_count = (bundle.used_count or 0) + 1
 
-    order.status = new_status
-    db.commit()
-    db.refresh(order)
+        order.status = new_status
+        db.commit()
+        db.refresh(order)
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to commit order #{order_id} status update: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update order status: {str(e)}")
 
     # MANDATORY REQUIREMENT: Trigger automated email dispatch for EVERY status update
-    background_tasks.add_task(send_order_status_email, order.id, new_status)
+    try:
+        background_tasks.add_task(send_order_status_email, order.id, new_status)
+    except Exception as e:
+        logger.error(f"Error queueing background email task for order #{order.id}: {e}")
 
     return {
         "message": f"Order status updated to '{new_status}' successfully",
