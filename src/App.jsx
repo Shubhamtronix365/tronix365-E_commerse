@@ -14,7 +14,6 @@ const Cart = React.lazy(() => import('./pages/Cart'));
 const Checkout = React.lazy(() => import('./pages/Checkout'));
 const Wishlist = React.lazy(() => import('./pages/Wishlist'));
 const OrderDetails = React.lazy(() => import('./pages/OrderDetails'));
-const Invoice = React.lazy(() => import('./pages/Invoice'));
 const Categories = React.lazy(() => import('./pages/Categories'));
 const PaymentStatus = React.lazy(() => import('./pages/PaymentStatus'));
 
@@ -104,7 +103,7 @@ const AppContent = () => {
     }
   }, [showMaintenanceModal]);
 
-  const isExcludedPage = location.pathname === '/login' || location.pathname === '/signup' || location.pathname.startsWith('/invoice');
+  const isExcludedPage = location.pathname === '/login' || location.pathname === '/signup';
 
   return (
     <>
@@ -143,11 +142,6 @@ const AppContent = () => {
               <Route path="/order/:id" element={
                 <ProtectedRoute>
                   <PageTransition><OrderDetails /></PageTransition>
-                </ProtectedRoute>
-              } />
-              <Route path="/invoice/:id" element={
-                <ProtectedRoute>
-                  <PageTransition><Invoice /></PageTransition>
                 </ProtectedRoute>
               } />
               <Route path="/admin" element={

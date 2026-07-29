@@ -64,15 +64,8 @@ const OrderDetails = () => {
                             <span className="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-violet-500/20 text-violet-300 border border-violet-500/30">
                                 {formattedStatus}
                             </span>
-                            <Link
-                                to={`/invoice/${order.id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg border border-white/10 text-sm font-medium transition-colors"
-                            >
-                                <FileText size={18} /> View Invoice
-                            </Link>
                         </div>
+
                     </div>
 
                     <div className="p-6 md:p-8">
