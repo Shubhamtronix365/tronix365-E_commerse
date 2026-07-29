@@ -12,6 +12,7 @@ from models import (
     OrderCreate,
     OrderDB,
     OrderItemDB,
+    OrderStatusUpdate,
     LoginRequest,
     ReviewDB,
     ReviewCreate,
@@ -42,6 +43,7 @@ from models import (
     EmailLogDB,
     EmailLogResponse,
 )
+
 import requests
 import hashlib
 import os
