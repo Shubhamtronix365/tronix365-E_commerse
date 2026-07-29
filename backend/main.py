@@ -592,10 +592,15 @@ async def update_order_status(
         order.estimated_arrival_time = status_update.estimated_arrival_time.strip()
 
     # Update Cancellation & Refund fields
-    if status_update.cancellation_reason is not None:
+    if status_update.cancellation_reason is not None and status_update.cancellation_reason.strip():
         order.cancellation_reason = status_update.cancellation_reason.strip()
-    if status_update.refund_status is not None:
+    elif new_status in ["cancelled", "deleted"] and not order.cancellation_reason:
+        order.cancellation_reason = "Cancelled by Store Administrator"
+
+    if status_update.refund_status is not None and status_update.refund_status.strip():
         order.refund_status = status_update.refund_status.strip()
+    elif new_status in ["cancelled", "deleted"] and not order.refund_status:
+        order.refund_status = "Full Refund Initiated (3-7 Working Days)"
 
     if new_status in ["cancelled", "deleted"]:
         if not order.cancellation_date:

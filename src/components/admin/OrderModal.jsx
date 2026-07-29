@@ -104,10 +104,17 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
 
     const handleConfirmCancel = (e) => {
         e.preventDefault();
+        const reason = cancelData.cancellation_reason && cancelData.cancellation_reason.trim()
+            ? cancelData.cancellation_reason.trim()
+            : 'Cancelled by Store Administrator';
+        const refund = cancelData.refund_status && cancelData.refund_status.trim()
+            ? cancelData.refund_status.trim()
+            : 'Full Refund Initiated (3-7 Working Days)';
+
         onUpdateOrderStatus(order.id, {
             status: 'cancelled',
-            cancellation_reason: cancelData.cancellation_reason,
-            refund_status: cancelData.refund_status
+            cancellation_reason: reason,
+            refund_status: refund
         });
         setIsCancelModalOpen(false);
     };

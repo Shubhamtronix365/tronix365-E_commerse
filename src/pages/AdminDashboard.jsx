@@ -270,7 +270,7 @@ const AdminDashboard = () => {
             const prevStatus = originalOrder ? originalOrder.status : 'pending';
 
             const payload = typeof statusPayload === 'string' ? { status: statusPayload } : statusPayload;
-            const newStatus = payload.status;
+            const newStatus = payload.status || prevStatus;
 
             const res = await client.put(`/admin/orders/${orderId}/status`, payload);
             
@@ -308,9 +308,6 @@ const AdminDashboard = () => {
             }
 
             toast.success(`Order marked as ${newStatus.replace('_', ' ').toUpperCase()} & notification dispatched!`);
-            if (['deleted', 'cancelled'].includes(newStatus)) {
-                setSelectedOrder(null);
-            }
         } catch (error) {
             console.error("Update order status error:", error);
             toast.error('Failed to update order status');

@@ -184,6 +184,10 @@ def generate_order_status_email_html(order, status: str, frontend_url: str):
     status_lower = (status or "pending").lower().strip()
     formatted_status = status_lower.replace("_", " ").title()
 
+    raw_id = getattr(order, "id", 0)
+    order_id_num = int(raw_id) if str(raw_id).isdigit() else 0
+    order_id_str = f"{order_id_num:04d}" if order_id_num > 0 else str(raw_id)
+
     # Formatted Created Date
     date_str = (
         order.created_at.strftime("%B %d, %Y %I:%M %p")
@@ -208,8 +212,9 @@ def generate_order_status_email_html(order, status: str, frontend_url: str):
     # Clean, lightweight email brand badge (prevents Gmail clipping & empty white boxes)
     logo_img = f'''<span style="background-color: #6d28d9; color: #ffffff; font-family: Arial, sans-serif; font-size: 16px; font-weight: 900; padding: 6px 12px; border-radius: 8px; display: inline-block; vertical-align: middle; letter-spacing: 0.5px;">⚡ TRONIX</span>'''
 
+    order_items_list = getattr(order, "items", None) or []
     items_subtotal = sum(
-        (item.price_at_purchase or 0.0) * item.quantity for item in order.items
+        (getattr(item, "price_at_purchase", 0.0) or 0.0) * (getattr(item, "quantity", 1) or 1) for item in order_items_list
     )
     discount_amount = getattr(order, "discount_amount", 0.0) or 0.0
     coupon_code = getattr(order, "coupon_code", None)
@@ -229,7 +234,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str):
 
     # Build Item Rows
     item_rows = ""
-    for item in order.items:
+    for item in order_items_list:
         img_url = (
             item.product.image
             if getattr(item, "product", None) and getattr(item.product, "image", None)
@@ -647,7 +652,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str):
                             <td style="width: 4%;"></td>
                             <td style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; width: 48%; vertical-align: top;">
                                 <p style="margin: 0 0 6px; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Order Summary</p>
-                                <p style="margin: 0 0 2px; font-size: 13px; color: #374151;"><strong>Order ID:</strong> #order_tronix_{order.id:04d}</p>
+                                <p style="margin: 0 0 2px; font-size: 13px; color: #374151;"><strong>Order ID:</strong> #order_tronix_{order_id_str}</p>
                                 <p style="margin: 0 0 2px; font-size: 13px; color: #374151;"><strong>Date:</strong> {date_str}</p>
                                 <p style="margin: 0 0 2px; font-size: 13px; color: #374151;"><strong>Payment:</strong> {getattr(order, 'txnid', None) or 'Paid / Online'}</p>
                                 <p style="margin: 0; font-size: 13px; color: #374151;"><strong>Status:</strong> <span style="color: {cfg['color']}; font-weight: 700;">{formatted_status}</span></p>
@@ -661,7 +666,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str):
             <tr>
                 <td style="padding: 12px 28px 0;">
                     <h3 style="margin: 0 0 12px; font-size: 14px; color: #111827; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #f3f4f6; padding-bottom: 8px;">
-                        Items Ordered ({len(order.items)})
+                        Items Ordered ({len(order_items_list)})
                     </h3>
                     <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
                         {item_rows}
@@ -810,7 +815,10 @@ def send_order_status_email(order_or_id, status: str):
             frontend_url = f"{frontend_url}/e-commerse"
 
         formatted_status = status_lower.replace("_", " ").title()
-        subject = f"Order #{order_loaded.id:04d} Update: {formatted_status} - Tronix365"
+        raw_id_sub = getattr(order_loaded, "id", 0)
+        order_id_num_sub = int(raw_id_sub) if str(raw_id_sub).isdigit() else 0
+        order_id_str_sub = f"{order_id_num_sub:04d}" if order_id_num_sub > 0 else str(raw_id_sub)
+        subject = f"Order #{order_id_str_sub} Update: {formatted_status} - Tronix365"
 
         # Generate dedicated status HTML payload
         html_content = generate_order_status_email_html(
