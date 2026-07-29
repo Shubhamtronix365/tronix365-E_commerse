@@ -17,7 +17,8 @@ const ProductTable = ({
                 <table className="w-full text-left text-sm text-gray-400 mb-4 min-w-[600px]">
                     <thead className="bg-white/5 text-white uppercase font-medium">
                         <tr>
-                            <th className="px-6 py-4 rounded-l-lg">Product</th>
+                            <th className="px-4 py-4 rounded-l-lg text-center">S.No.</th>
+                            <th className="px-6 py-4">Product</th>
                             <th className="px-6 py-4">SKV</th>
                             <th className="px-6 py-4">Category</th>
                             <th className="px-6 py-4">Price</th>
@@ -27,8 +28,9 @@ const ProductTable = ({
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
-                        {products.map((item) => (
+                        {products.map((item, index) => (
                             <tr key={item.id} className="hover:bg-white/5 transition-colors">
+                                <td className="px-4 py-4 text-center font-bold text-violet-300 text-xs">#{index + 1}</td>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center overflow-hidden">
@@ -68,7 +70,7 @@ const ProductTable = ({
                         ))}
                         {products.length === 0 && (
                             <tr>
-                                <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                                <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
                                     No products found matching "{searchQuery}"
                                 </td>
                             </tr>

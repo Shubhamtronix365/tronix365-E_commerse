@@ -152,6 +152,7 @@ const CouponTable = () => {
                 <table className="w-full text-left border-collapse min-w-[600px]">
                     <thead>
                         <tr className="border-b border-white/5 text-gray-400 text-sm uppercase tracking-wider">
+                            <th className="px-4 py-3 font-medium text-center">S.No.</th>
                             <th className="px-4 py-3 font-medium">Code</th>
                             <th className="px-4 py-3 font-medium">Discount</th>
                             <th className="px-4 py-3 font-medium">Min Purchase</th>
@@ -162,8 +163,9 @@ const CouponTable = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
-                        {coupons.map((coupon) => (
+                        {coupons.map((coupon, index) => (
                             <tr key={coupon.id} className="hover:bg-white/5 transition-colors group">
+                                <td className="px-4 py-4 text-center font-bold text-violet-300 text-xs">#{index + 1}</td>
                                 <td className="px-4 py-4">
                                     <div className="flex items-center gap-2">
                                         <Tag size={16} className="text-tronix-primary" />

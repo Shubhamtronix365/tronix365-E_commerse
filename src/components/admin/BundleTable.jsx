@@ -195,11 +195,12 @@ const BundleTable = ({ products }) => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {bundles.map((bundle) => (
+                {bundles.map((bundle, index) => (
                     <div key={bundle.id} className="bg-white/5 border border-white/10 rounded-xl p-5 hover:border-tronix-primary/50 transition-all">
                         <div className="flex justify-between items-start mb-4">
                             <div>
                                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                    <span className="px-2 py-0.5 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30 text-xs font-bold">S.No. #{index + 1}</span>
                                     {bundle.name}
                                     <button 
                                         onClick={() => {

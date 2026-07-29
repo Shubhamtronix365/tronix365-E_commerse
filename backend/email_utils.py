@@ -120,9 +120,8 @@ def send_contact_form_notification(name: str, email: str, message: str):
 
 def generate_order_confirmation_html(order, frontend_url: str):
     """
-    Generates a premium, verified HTML invoice & order confirmation email.
-    Includes the official Tronix365 logo, customer details, delivery address,
-    itemized pricing breakdown, tax, and authenticity/refund policy notices.
+    Generates an Amazon/Ajio/Meesho-style clean, light-themed HTML email invoice.
+    Renders flawlessly on Gmail, Yahoo, Outlook, and mobile email clients.
     """
     date_str = (
         order.created_at.strftime("%B %d, %Y %I:%M %p")
@@ -132,23 +131,21 @@ def generate_order_confirmation_html(order, frontend_url: str):
 
     customer_name = order.full_name or (order.customer_email.split("@")[0] if order.customer_email else "Valued Customer")
 
-    # Format delivery address
     address_parts = [
         order.address_line,
         order.city,
         order.state,
-        f"Pincode: {order.pincode}" if order.pincode else None
+        f"PIN: {order.pincode}" if order.pincode else None
     ]
     address_formatted = ", ".join([p for p in address_parts if p]) if any(address_parts) else "N/A"
 
-    # Logo setup: Embedded base64 logo with fallback URL
+    # Logo setup with image + text fallback
     logo_base64 = get_logo_base64()
     if logo_base64:
-        logo_img_tag = f'<img src="{logo_base64}" alt="Tronix365 Logo" style="max-height: 55px; width: auto; margin-bottom: 12px; display: inline-block;" />'
+        logo_img = f'<img src="{logo_base64}" alt="Tronix365 Logo" style="max-height: 42px; width: auto; vertical-align: middle;" />'
     else:
-        logo_img_tag = f'<img src="{frontend_url}/assets/logo.png" alt="Tronix365 Logo" style="max-height: 55px; width: auto; margin-bottom: 12px; display: inline-block;" />'
+        logo_img = f'<img src="{frontend_url}/assets/logo.png" alt="Tronix365 Logo" style="max-height: 42px; width: auto; vertical-align: middle;" />'
 
-    # Calculate item totals & discounts
     items_subtotal = sum((item.price_at_purchase or 0.0) * item.quantity for item in order.items)
     discount_amount = getattr(order, "discount_amount", 0.0) or 0.0
     coupon_code = getattr(order, "coupon_code", None)
@@ -158,16 +155,15 @@ def generate_order_confirmation_html(order, frontend_url: str):
         coupon_label = f"Discount ({coupon_code})" if coupon_code else "Discount"
         discount_row = f"""
         <tr>
-            <td style="padding: 6px 0; font-size: 14px; color: #4ade80;">{coupon_label}</td>
-            <td style="padding: 6px 0; font-size: 14px; color: #4ade80; text-align: right; font-weight: 600;">- ₹{discount_amount:,.2f}</td>
+            <td style="padding: 6px 0; font-size: 14px; color: #16a34a; font-weight: 500;">{coupon_label}</td>
+            <td style="padding: 6px 0; font-size: 14px; color: #16a34a; text-align: right; font-weight: 700;">- ₹{discount_amount:,.2f}</td>
         </tr>
         """
 
     subtotal = max(order.total_amount, 0.0)
-    # Estimate 18% GST component included in total
     gst = subtotal - (subtotal / 1.18) if subtotal > 0 else 0.0
 
-    # Generate Item Rows
+    # Build Item Rows
     item_rows = ""
     for item in order.items:
         img_url = (
@@ -183,15 +179,15 @@ def generate_order_confirmation_html(order, frontend_url: str):
 
         item_rows += f"""
         <tr>
-            <td style="padding: 14px 10px; border-bottom: 1px solid #1e293b; width: 70px;">
-                <img src="{img_url}" alt="{item.product.title}" style="width: 56px; height: 56px; object-fit: cover; border-radius: 8px; border: 1px solid #334155;" />
+            <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; width: 64px; vertical-align: middle;">
+                <img src="{img_url}" alt="{item.product.title}" style="width: 56px; height: 56px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; display: block;" />
             </td>
-            <td style="padding: 14px 10px; border-bottom: 1px solid #1e293b; text-align: left;">
-                <p style="margin: 0; font-weight: 700; color: #f8fafc; font-size: 14px; line-height: 1.4;">{item.product.title}</p>
-                <p style="margin: 4px 0 0; font-size: 12px; color: #94a3b8;">Qty: <strong style="color: #a78bfa;">{item.quantity}</strong> &nbsp;|&nbsp; Unit Price: ₹{unit_price:,.2f}</p>
+            <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; text-align: left; vertical-align: middle;">
+                <p style="margin: 0; font-weight: 700; color: #0f172a; font-size: 14px; line-height: 1.4;">{item.product.title}</p>
+                <p style="margin: 4px 0 0; font-size: 13px; color: #64748b;">Qty: <strong style="color: #6d28d9;">{item.quantity}</strong> &nbsp;|&nbsp; Price: ₹{unit_price:,.2f}</p>
             </td>
-            <td style="padding: 14px 10px; border-bottom: 1px solid #1e293b; text-align: right; width: 100px;">
-                <p style="margin: 0; font-weight: 700; color: #4ade80; font-size: 15px;">₹{line_total:,.2f}</p>
+            <td style="padding: 16px 12px; border-bottom: 1px solid #f1f5f9; text-align: right; vertical-align: middle; width: 110px;">
+                <p style="margin: 0; font-weight: 700; color: #0f172a; font-size: 15px;">₹{line_total:,.2f}</p>
             </td>
         </tr>
         """
@@ -200,92 +196,30 @@ def generate_order_confirmation_html(order, frontend_url: str):
 
     html_template = f"""
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Order Confirmation - #order_tronix_{order.id:04d}</title>
+        <title>Order Confirmed - #order_tronix_{order.id:04d}</title>
     </head>
-    <body style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0b0f19; margin: 0; padding: 40px 15px; color: #e2e8f0;">
+    <body style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 30px 12px; color: #1f2937;">
         
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 640px; margin: 0 auto; background: #131b2e; border-radius: 16px; overflow: hidden; border: 1px solid #1e293b; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08); border: 1px solid #e5e7eb;">
             
-            <!-- Header with Official Logo & Authenticity Badge -->
+            <!-- Top Header with Brand Logo -->
             <tr>
-                <td style="background: linear-gradient(135deg, #1e1b4b 0%, #311b92 50%, #4c1d95 100%); padding: 35px 30px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-                    {logo_img_tag}
-                    <div>
-                        <span style="display: inline-block; background: rgba(139, 92, 246, 0.25); border: 1px solid rgba(167, 139, 250, 0.4); color: #d8b4fe; padding: 4px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 6px;">
-                            Verified Authentic Invoice & Order Confirmation
-                        </span>
-                    </div>
-                </td>
-            </tr>
-
-            <!-- Welcome Greeting -->
-            <tr>
-                <td style="padding: 32px 30px 20px;">
-                    <h2 style="margin: 0 0 12px; font-size: 22px; color: #ffffff; font-weight: 700;">Hello {customer_name},</h2>
-                    <p style="margin: 0; font-size: 15px; color: #94a3b8; line-height: 1.6;">
-                        Thank you for shopping with <strong style="color: #a78bfa;">Tronix365</strong>! Your order has been officially confirmed by our team and is now being prepared for shipping. Below are your complete order details.
-                    </p>
-                </td>
-            </tr>
-
-            <!-- Key Order Info Summary Box -->
-            <tr>
-                <td style="padding: 0 30px 24px;">
-                    <table width="100%" cellpadding="0" cellspacing="0" style="background: #0f172a; border-radius: 12px; border: 1px solid #1e293b; padding: 18px 20px;">
+                <td style="padding: 24px 28px; background-color: #ffffff; border-bottom: 2px solid #f3f4f6;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
                         <tr>
-                            <td style="padding: 6px 0; width: 50%;">
-                                <span style="font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Order ID</span><br>
-                                <span style="font-size: 16px; color: #a78bfa; font-weight: 700; font-family: monospace;">#order_tronix_{order.id:04d}</span>
+                            <td style="vertical-align: middle;">
+                                <div style="display: inline-block; vertical-align: middle;">
+                                    {logo_img}
+                                </div>
+                                <span style="font-size: 22px; font-weight: 900; color: #6d28d9; letter-spacing: -0.5px; vertical-align: middle; margin-left: 8px;">TRONIX365</span>
                             </td>
-                            <td style="padding: 6px 0; width: 50%; text-align: right;">
-                                <span style="font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Order Date & Time</span><br>
-                                <span style="font-size: 14px; color: #f1f5f9; font-weight: 600;">{date_str}</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding-top: 12px; border-top: 1px solid #1e293b;" colspan="2">
-                                <table width="100%" cellpadding="0" cellspacing="0">
-                                    <tr>
-                                        <td>
-                                            <span style="font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Order Status</span><br>
-                                            <span style="display: inline-block; background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-top: 4px; text-transform: uppercase;">{order.status}</span>
-                                        </td>
-                                        <td style="text-align: right;">
-                                            <span style="font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Transaction ID</span><br>
-                                            <span style="font-size: 13px; color: #cbd5e1; font-family: monospace;">{order.txnid or 'Paid / COD'}</span>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-
-            <!-- Shipping & Customer Info Box -->
-            <tr>
-                <td style="padding: 0 30px 24px;">
-                    <table width="100%" cellpadding="0" cellspacing="0" style="background: #0f172a; border-radius: 12px; border: 1px solid #1e293b; padding: 18px 20px;">
-                        <tr>
-                            <td style="padding-bottom: 10px; border-bottom: 1px solid #1e293b;" colspan="2">
-                                <span style="font-size: 12px; color: #a78bfa; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">🚚 Shipping & Contact Information</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 12px 10px 4px 0; vertical-align: top; width: 50%;">
-                                <span style="font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 700;">Customer Details</span><br>
-                                <span style="font-size: 14px; color: #f1f5f9; font-weight: 600; display: block; margin-top: 2px;">{customer_name}</span>
-                                <span style="font-size: 13px; color: #94a3b8; display: block; margin-top: 2px;">{order.customer_email}</span>
-                                <span style="font-size: 13px; color: #94a3b8; display: block; margin-top: 2px;">Phone: {order.phone or 'N/A'}</span>
-                            </td>
-                            <td style="padding: 12px 0 4px 10px; vertical-align: top; width: 50%; text-align: right;">
-                                <span style="font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 700;">Delivery Address</span><br>
-                                <span style="font-size: 13px; color: #e2e8f0; line-height: 1.4; display: block; margin-top: 2px;">
-                                    {address_formatted}
+                            <td style="text-align: right; vertical-align: middle;">
+                                <span style="background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-block;">
+                                    ✔ Order Confirmed
                                 </span>
                             </td>
                         </tr>
@@ -293,57 +227,93 @@ def generate_order_confirmation_html(order, frontend_url: str):
                 </td>
             </tr>
 
-            <!-- Items Table Section Header -->
+            <!-- Hero Banner Greeting -->
             <tr>
-                <td style="padding: 0 30px 10px;">
-                    <h3 style="margin: 0; font-size: 15px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #1e293b; padding-bottom: 10px;">
-                        📦 Items Ordered ({len(order.items)})
-                    </h3>
+                <td style="background-color: #faf5ff; padding: 24px 28px; border-bottom: 1px solid #f3e8ff;">
+                    <h1 style="margin: 0 0 8px; font-size: 20px; color: #581c87; font-weight: 800;">Order Confirmed!</h1>
+                    <p style="margin: 0; font-size: 14px; color: #6b21a8; line-height: 1.5;">
+                        Hi <strong>{customer_name}</strong>, thank you for your order! Your purchase <strong style="color: #6d28d9;">#order_tronix_{order.id:04d}</strong> is confirmed and currently being prepared for dispatch.
+                    </p>
                 </td>
             </tr>
 
-            <!-- Items Rows -->
+            <!-- Shipping & Order Info Cards Grid -->
             <tr>
-                <td style="padding: 0 30px;">
+                <td style="padding: 24px 28px 12px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: separate; border-spacing: 0;">
+                        <tr>
+                            <td style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; width: 48%; vertical-align: top;">
+                                <p style="margin: 0 0 6px; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Delivery Address</p>
+                                <p style="margin: 0 0 4px; font-size: 14px; font-weight: 700; color: #111827;">{customer_name}</p>
+                                <p style="margin: 0; font-size: 13px; color: #4b5563; line-height: 1.4;">
+                                    {address_formatted}<br>
+                                    Phone: {order.phone or 'N/A'}
+                                </p>
+                            </td>
+                            <td style="width: 4%;"></td>
+                            <td style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; width: 48%; vertical-align: top;">
+                                <p style="margin: 0 0 6px; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Order Summary</p>
+                                <p style="margin: 0 0 2px; font-size: 13px; color: #374151;"><strong>Order ID:</strong> #order_tronix_{order.id:04d}</p>
+                                <p style="margin: 0 0 2px; font-size: 13px; color: #374151;"><strong>Date:</strong> {date_str}</p>
+                                <p style="margin: 0 0 2px; font-size: 13px; color: #374151;"><strong>Payment:</strong> {order.txnid or 'Paid / COD'}</p>
+                                <p style="margin: 0; font-size: 13px; color: #374151;"><strong>Status:</strong> <span style="color: #16a34a; font-weight: 700;">{order.status.upper()}</span></p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <!-- Items Table Section -->
+            <tr>
+                <td style="padding: 12px 28px 0;">
+                    <h3 style="margin: 0 0 12px; font-size: 14px; color: #111827; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #f3f4f6; padding-bottom: 8px;">
+                        Items Ordered ({len(order.items)})
+                    </h3>
                     <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
                         {item_rows}
                     </table>
                 </td>
             </tr>
 
-            <!-- Financial Summary Breakdown -->
+            <!-- Payment Calculation Box -->
             <tr>
-                <td style="padding: 20px 30px 24px;">
-                    <table width="100%" cellpadding="0" cellspacing="0" style="background: #0f172a; border-radius: 12px; border: 1px solid #1e293b; padding: 18px 20px;">
-                        <tr>
-                            <td style="padding: 6px 0; font-size: 14px; color: #94a3b8;">Items Subtotal</td>
-                            <td style="padding: 6px 0; font-size: 14px; color: #f1f5f9; text-align: right; font-weight: 600;">₹{items_subtotal:,.2f}</td>
-                        </tr>
-                        {discount_row}
-                        <tr>
-                            <td style="padding: 6px 0; font-size: 14px; color: #94a3b8;">Included GST (18%)</td>
-                            <td style="padding: 6px 0; font-size: 14px; color: #f59e0b; text-align: right; font-weight: 600;">₹{gst:,.2f}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding-top: 12px; border-top: 1px solid #1e293b; font-size: 15px; color: #ffffff; font-weight: 800;">Grand Total Paid</td>
-                            <td style="padding-top: 12px; border-top: 1px solid #1e293b; font-size: 18px; color: #4ade80; text-align: right; font-weight: 900;">₹{order.total_amount:,.2f}</td>
-                        </tr>
-                    </table>
+                <td style="padding: 20px 28px 24px;">
+                    <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px;">
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td style="padding: 4px 0; font-size: 14px; color: #4b5563;">Items Subtotal</td>
+                                <td style="padding: 4px 0; font-size: 14px; color: #111827; text-align: right; font-weight: 600;">₹{items_subtotal:,.2f}</td>
+                            </tr>
+                            {discount_row}
+                            <tr>
+                                <td style="padding: 4px 0; font-size: 14px; color: #4b5563;">Included GST (18%)</td>
+                                <td style="padding: 4px 0; font-size: 14px; color: #d97706; text-align: right; font-weight: 600;">₹{gst:,.2f}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 4px 0; font-size: 14px; color: #4b5563;">Shipping Fee</td>
+                                <td style="padding: 4px 0; font-size: 14px; color: #16a34a; text-align: right; font-weight: 700;">FREE</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-top: 10px; border-top: 2px solid #e5e7eb; font-size: 16px; color: #111827; font-weight: 800;">Total Amount Paid</td>
+                                <td style="padding-top: 10px; border-top: 2px solid #e5e7eb; font-size: 18px; color: #6d28d9; text-align: right; font-weight: 900;">₹{order.total_amount:,.2f}</td>
+                            </tr>
+                        </table>
+                    </div>
                 </td>
             </tr>
 
-            <!-- Policy & Authenticity Notice Box -->
+            <!-- Authenticity & Refund Notice Card -->
             <tr>
-                <td style="padding: 0 30px 24px;">
-                    <div style="background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 12px; padding: 16px 18px;">
-                        <p style="margin: 0 0 6px; font-size: 13px; color: #a78bfa; font-weight: 700;">
-                            🛡️ 100% Genuine Product & Quality Assurance
+                <td style="padding: 0 28px 24px;">
+                    <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px 16px;">
+                        <p style="margin: 0 0 4px; font-size: 13px; color: #15803d; font-weight: 700;">
+                            🛡️ 100% Verified Authentic Hardware
                         </p>
-                        <p style="margin: 0 0 8px; font-size: 12px; color: #94a3b8; line-height: 1.5;">
-                            All electronic hardware and components supplied by Tronix365 are strictly authentic and subjected to multi-point quality testing prior to shipment.
+                        <p style="margin: 0 0 6px; font-size: 12px; color: #166534; line-height: 1.4;">
+                            All electronic products sold by Tronix365 are original and checked for quality assurance before packing.
                         </p>
-                        <p style="margin: 0; font-size: 12px; color: #cbd5e1; line-height: 1.5;">
-                            <strong>Cancellation & Refund Policy:</strong> If your order is cancelled, refunds are processed back to your original payment mode within <strong>3-7 working days</strong>.
+                        <p style="margin: 0; font-size: 12px; color: #166534; line-height: 1.4;">
+                            <strong>Cancellation & Refund Policy:</strong> If your order is cancelled, your payment will be refunded to your original payment mode within <strong>3-7 working days</strong>.
                         </p>
                     </div>
                 </td>
@@ -351,20 +321,20 @@ def generate_order_confirmation_html(order, frontend_url: str):
 
             <!-- Call to Action Button -->
             <tr>
-                <td style="padding: 0 30px 30px; text-align: center;">
-                    <a href="{order_url}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #6d28d9 0%, #4f46e5 100%); color: #ffffff; text-decoration: none; padding: 14px 36px; font-size: 15px; font-weight: 700; border-radius: 10px; box-shadow: 0 10px 20px rgba(109, 40, 217, 0.3);">
-                        View Order Details & Download Invoice
+                <td style="padding: 0 28px 32px; text-align: center;">
+                    <a href="{order_url}" target="_blank" style="display: inline-block; background-color: #6d28d9; color: #ffffff; text-decoration: none; padding: 14px 36px; font-size: 15px; font-weight: 700; border-radius: 8px; box-shadow: 0 4px 12px rgba(109, 40, 217, 0.25);">
+                        Track Order & Download Invoice
                     </a>
                 </td>
             </tr>
 
-            <!-- Footer -->
+            <!-- Footer Section -->
             <tr>
-                <td style="background-color: #0b0f19; padding: 24px 30px; text-align: center; border-top: 1px solid #1e293b;">
-                    <p style="margin: 0 0 8px; font-size: 13px; color: #64748b;">
-                        Need help? Contact our support team at <a href="mailto:support@tronix365.com" style="color: #a78bfa; text-decoration: none;">support@tronix365.com</a>
+                <td style="background-color: #f9fafb; padding: 20px 28px; text-align: center; border-top: 1px solid #e5e7eb;">
+                    <p style="margin: 0 0 6px; font-size: 13px; color: #6b7280;">
+                        Questions? We're here to help! Email us at <a href="mailto:support@tronix365.com" style="color: #6d28d9; text-decoration: none; font-weight: 600;">support@tronix365.com</a>
                     </p>
-                    <p style="margin: 0; font-size: 11px; color: #475569;">
+                    <p style="margin: 0; font-size: 11px; color: #9ca3af;">
                         &copy; 2026 Tronix365 Technologies. All rights reserved.
                     </p>
                 </td>

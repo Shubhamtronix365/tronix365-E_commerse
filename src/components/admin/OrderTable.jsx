@@ -45,9 +45,12 @@ const OrderTable = ({
                                 }`}></div>
 
                             {/* Left section: ID & Email & Date */}
-                            <div className="flex items-center gap-4 pl-2">
-                                <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center border border-violet-500/20 text-violet-400 shrink-0">
-                                    <Package size={24} />
+                            <div className="flex items-center gap-3 pl-2">
+                                <span className="px-2.5 py-1 rounded-lg bg-violet-500/20 text-violet-300 border border-violet-500/30 text-xs font-bold shrink-0">
+                                    S.No. #{index + 1}
+                                </span>
+                                <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center border border-violet-500/20 text-violet-400 shrink-0">
+                                    <Package size={20} />
                                 </div>
                                 <div>
                                     <h3 className="text-white font-bold text-lg leading-tight flex items-center gap-2">
