@@ -205,12 +205,8 @@ def generate_order_status_email_html(order, status: str, frontend_url: str):
         ", ".join([p for p in address_parts if p]) if any(address_parts) else "N/A"
     )
 
-    # Logo setup
-    logo_base64 = get_logo_base64()
-    if logo_base64:
-        logo_img = f'<img src="{logo_base64}" alt="Tronix365 Logo" style="max-height: 42px; width: auto; vertical-align: middle;" />'
-    else:
-        logo_img = f'<img src="{frontend_url}/assets/logo.png" alt="Tronix365 Logo" style="max-height: 42px; width: auto; vertical-align: middle;" />'
+    # Clean, lightweight email brand badge (prevents Gmail clipping & empty white boxes)
+    logo_img = f'''<span style="background-color: #6d28d9; color: #ffffff; font-family: Arial, sans-serif; font-size: 16px; font-weight: 900; padding: 6px 12px; border-radius: 8px; display: inline-block; vertical-align: middle; letter-spacing: 0.5px;">⚡ TRONIX</span>'''
 
     items_subtotal = sum(
         (item.price_at_purchase or 0.0) * item.quantity for item in order.items

@@ -39,6 +39,8 @@ from models import (
     OTPDB,
     OTPSendRequest,
     OTPVerifyRequest,
+    EmailLogDB,
+    EmailLogResponse,
 )
 import requests
 import hashlib
