@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks, Request, Response
+from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks, Request, Response, Body
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional, Union
 from sqlalchemy.orm import Session, joinedload
@@ -563,11 +563,14 @@ async def create_order(
 @app.put("/admin/orders/{order_id}/status")
 async def update_order_status(
     order_id: int, 
-    status_update: OrderStatusUpdate, 
-    background_tasks: BackgroundTasks, 
+    background_tasks: BackgroundTasks,
+    status_update: Optional[OrderStatusUpdate] = Body(default=None), 
     db: Session = Depends(get_db),
     current_admin: UserDB = Depends(get_current_admin)
 ):
+    if status_update is None:
+        status_update = OrderStatusUpdate()
+
     order = db.query(OrderDB).filter(OrderDB.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
