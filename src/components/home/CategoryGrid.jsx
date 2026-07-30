@@ -6,19 +6,7 @@ import { useCategories } from '../../hooks/useCategories';
 import { ICON_MAP } from '../admin/CategoryTable';
 
 const CategoryGrid = () => {
-    const { categories, loading } = useCategories();
-
-    if (loading) {
-        return (
-            <section className="py-20 text-center text-gray-400">
-                Loading categories...
-            </section>
-        );
-    }
-
-    if (!categories || categories.length === 0) {
-        return null; // Hide category grid if admin hasn't created any categories yet
-    }
+    const { categories } = useCategories();
 
     return (
         <section className="py-20 relative overflow-hidden">
@@ -36,15 +24,15 @@ const CategoryGrid = () => {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6">
                     {categories.filter(c => c.is_active !== false).map((cat) => {
                         const IconComponent = ICON_MAP[cat.icon] || Package;
                         const slug = cat.name.toLowerCase().replace(/\s+/g, '-');
                         return (
-                            <Link to={`/category/${slug}`} key={cat.id}>
+                            <Link to={`/category/${slug}`} key={cat.id || cat.name}>
                                 <motion.div
                                     whileHover={{ y: -5 }}
-                                    className="glass-card p-6 rounded-2xl flex flex-col items-center justify-center text-center h-full group"
+                                    className="glass-card p-6 rounded-2xl flex flex-col items-center justify-center text-center h-full group border border-white/5 hover:border-tronix-primary/40 transition-all"
                                 >
                                     <div className={`p-4 rounded-full bg-gradient-to-br ${cat.color || 'from-slate-400 to-slate-600'} bg-opacity-10 mb-4 group-hover:scale-110 transition-transform duration-300`}>
                                         <IconComponent className="text-white w-8 h-8" />
