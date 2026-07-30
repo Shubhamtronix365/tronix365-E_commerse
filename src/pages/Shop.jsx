@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Filter, X } from 'lucide-react';
 import ProductCard from '../components/product/ProductCard';
@@ -82,8 +82,12 @@ const categorySeoData = {
 
 const Shop = () => {
     const { category } = useParams();
+    const location = useLocation();
     const { categories: dbCategories } = useCategories();
-    const categoryNames = dbCategories ? dbCategories.filter(c => c.is_active !== false).map(c => c.name) : [];
+
+    const categoryNames = useMemo(() => {
+        return dbCategories ? dbCategories.filter(c => c.is_active !== false).map(c => c.name) : [];
+    }, [dbCategories]);
 
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
@@ -94,17 +98,14 @@ const Shop = () => {
     // Initialize category from URL if present
     useEffect(() => {
         if (category) {
-            // Match against dynamic category names
             const targetCategory = categoryNames.find(c =>
                 c.toLowerCase().replace(/\s+/g, '-') === category.toLowerCase()
             );
 
             if (targetCategory) {
                 setSelectedCategory(targetCategory);
-            } else {
-                if (category.toLowerCase() === 'all') {
-                    setSelectedCategory('All');
-                }
+            } else if (category.toLowerCase() === 'all') {
+                setSelectedCategory('All');
             }
         } else {
             const savedCategory = sessionStorage.getItem('shop_category');
@@ -114,7 +115,7 @@ const Shop = () => {
                 setSelectedCategory('All');
             }
         }
-    }, [category, categoryNames]);
+    }, [category, categoryNames.join(',')]);
 
     const [priceRange, setPriceRange] = useState(() => {
         const storedPrice = sessionStorage.getItem('shop_priceRange');
@@ -166,7 +167,7 @@ const Shop = () => {
     // Initial Load & Filter Change
     useEffect(() => {
         fetchProducts(1, true);
-    }, [selectedCategory, debouncedPriceRange, sortBy, showInStockOnly, window.location.search]);
+    }, [selectedCategory, debouncedPriceRange, sortBy, showInStockOnly, location.search]);
 
     const fetchProducts = async (pageToFetch, reset = false) => {
         if (reset) {
