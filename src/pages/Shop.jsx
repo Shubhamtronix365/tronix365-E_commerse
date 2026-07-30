@@ -154,10 +154,19 @@ const Shop = () => {
     const [error, setError] = useState(null);
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
+    // Debounce priceRange to prevent API spam while sliding
+    const [debouncedPriceRange, setDebouncedPriceRange] = useState(priceRange);
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedPriceRange(priceRange);
+        }, 300);
+        return () => clearTimeout(handler);
+    }, [priceRange]);
+
     // Initial Load & Filter Change
     useEffect(() => {
         fetchProducts(1, true);
-    }, [selectedCategory, priceRange, sortBy, showInStockOnly, window.location.search]);
+    }, [selectedCategory, debouncedPriceRange, sortBy, showInStockOnly, window.location.search]);
 
     const fetchProducts = async (pageToFetch, reset = false) => {
         if (reset) {
@@ -180,7 +189,7 @@ const Shop = () => {
             const searchQuery = searchParams.get('search');
 
             if (selectedCategory !== 'All') params.category = selectedCategory;
-            if (priceRange < 10000) params.max_price = priceRange;
+            if (debouncedPriceRange < 10000) params.max_price = debouncedPriceRange;
             if (sortBy) params.sort_by = sortBy;
             if (searchQuery) params.search = searchQuery;
 
@@ -198,7 +207,7 @@ const Shop = () => {
 
             if (reset) {
                 setProducts(data);
-                setFilteredProducts(data); // Keeping filteredProducts for compatibility if needed, but distinct mainly for client-side search which we replaced
+                setFilteredProducts(data); // Keeping filteredProducts for compatibility
             } else {
                 setProducts(prev => [...prev, ...data]);
                 setFilteredProducts(prev => [...prev, ...data]);
@@ -280,8 +289,8 @@ const Shop = () => {
 
                     {/* Main Content Area */}
                     <div className="lg:col-span-3">
-                        {/* Loading State */}
-                        {loading ? (
+                        {/* Loading State on initial load */}
+                        {loading && products.length === 0 ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {[...Array(6)].map((_, i) => (
                                     <ProductCardSkeleton key={i} />
@@ -290,7 +299,7 @@ const Shop = () => {
                         ) : error ? (
                             <div className="text-center text-red-500 py-10">{error}</div>
                         ) : filteredProducts.length > 0 ? (
-                            <>
+                            <div className={`transition-opacity duration-200 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {filteredProducts.map((product) => (
                                         <ProductCard key={product.id} product={product} />
@@ -307,7 +316,7 @@ const Shop = () => {
                                         </button>
                                     </div>
                                 )}
-                            </>
+                            </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center py-20 text-gray-500">
                                 <Filter size={48} className="mb-4 opacity-50" />
