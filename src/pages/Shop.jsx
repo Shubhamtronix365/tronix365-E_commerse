@@ -66,7 +66,7 @@ const categorySeoData = {
     },
     'miscellaneous': {
         title: 'Miscellaneous Electronic Components & Accessories',
-        description: 'Browse our curated miscellaneous range of electronic components, accessories, and add-ons that don't fit a single category — perfect for makers and tinkerers.',
+        description: "Browse our curated miscellaneous range of electronic components, accessories, and add-ons that don't fit a single category — perfect for makers and tinkerers.",
         faqs: [
             { q: "What types of products are in Miscellaneous?", a: "Miscellaneous includes a wide range of electronic accessories, prototyping tools, breakout boards, and specialty components that span multiple categories." }
         ]
