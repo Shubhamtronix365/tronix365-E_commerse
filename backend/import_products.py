@@ -1,6 +1,13 @@
 import csv
 import sys
 import os
+
+# Increase CSV field size limit for large descriptions/specs
+try:
+    csv.field_size_limit(sys.maxsize)
+except OverflowError:
+    csv.field_size_limit(2147483647)
+
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine, Base
 from models import ProductDB
