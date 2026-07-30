@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { MapPin, CreditCard, ShieldCheck, Truck, ChevronRight, Loader, AlertCircle, Trash2 } from 'lucide-react';
+import { MapPin, CreditCard, ShieldCheck, Truck, ChevronRight, Loader, AlertCircle, Trash2, Zap, Store } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import client from '../api/client';
 import { getImageUrl } from '../utils/imageUtils';
@@ -18,6 +18,19 @@ const Checkout = () => {
     const [appliedCoupon, setAppliedCoupon] = useState(null);
     const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
     const navigate = useNavigate();
+
+    // ── Shipping Options ─────────────────────────────────────────
+    const SHIPPING_OPTIONS = [
+        { id: 'express', label: 'Express Shipping',        desc: '2 to 5 Working Days (Below 2Kg)', cost: 149, icon: Zap },
+        { id: 'surface', label: 'Surface Shipping',        desc: '4 to 7 Working Days',            cost: 69,  icon: Truck },
+        { id: 'pickup',  label: 'Store Pickup (Pune)',     desc: '9:30 AM – 6:00 PM, Pune Office', cost: 0,   icon: Store },
+    ];
+
+    const [selectedShipping, setSelectedShipping] = useState(() => {
+        try { return sessionStorage.getItem('tronix_shipping') || 'surface'; } catch { return 'surface'; }
+    });
+
+    const activeShipping = SHIPPING_OPTIONS.find(o => o.id === selectedShipping) || SHIPPING_OPTIONS[1];
 
     const standaloneItems = selectedItems.filter(item => !item.bundle_id);
     const bundleGroups = selectedItems.filter(item => item.bundle_id).reduce((acc, item) => {
@@ -114,9 +127,12 @@ const Checkout = () => {
     const subtotal = cartSubtotal; // Raw subtotal before bundle/coupon discounts
     const couponDiscount = appliedCoupon ? appliedCoupon.discount_amount : 0;
     const totalDiscount = bundleDiscounts + couponDiscount;
-    const gst = Math.round((subtotal - totalDiscount) * 0.18);
-    const shipping = 0; // Free shipping logic
-    const totalAmount = subtotal - totalDiscount + gst + shipping;
+    const taxableBase = subtotal - totalDiscount;         // base on which GST applies
+    const cgst = Math.round(taxableBase * 0.09);          // CGST 9%
+    const sgst = Math.round(taxableBase * 0.09);          // SGST 9%
+    const gst = cgst + sgst;                              // total GST 18%
+    const shipping = activeShipping.cost;                 // customer-selected shipping
+    const totalAmount = taxableBase + gst + shipping;
 
     const handleApplyCoupon = async () => {
         if (!couponCode) return;
@@ -191,7 +207,9 @@ const Checkout = () => {
                 company_address: address.isGstInvoice ? (address.companyAddress.trim() || address.addressLine) : null,
                 gst_rate: 18.0,
                 gst_amount: gst,
-                subtotal_before_gst: subtotal - totalDiscount,
+                subtotal_before_gst: taxableBase,
+                shipping_method: activeShipping.id,
+                shipping_cost: activeShipping.cost,
                 bypass: false
             });
 
@@ -382,10 +400,56 @@ const Checkout = () => {
                         </div>
                     </div>
 
-                    {/* STEP 2: PAYMENT */}
+                    {/* STEP 2: SHIPPING METHOD */}
                     <div className="bg-tronix-card border border-white/10 rounded-xl p-6 shadow-xl">
                         <div className="flex items-center gap-3 mb-6 border-b border-white/5 pb-4">
                             <span className="bg-tronix-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">2</span>
+                            <h2 className="text-xl font-bold text-white">Shipping Method</h2>
+                        </div>
+                        <div className="space-y-3">
+                            {SHIPPING_OPTIONS.map((opt) => {
+                                const Icon = opt.icon;
+                                const isActive = selectedShipping === opt.id;
+                                return (
+                                    <label
+                                        key={opt.id}
+                                        className={`flex items-center gap-4 p-4 border rounded-xl cursor-pointer transition-all ${
+                                            isActive
+                                                ? 'border-tronix-primary bg-tronix-primary/10'
+                                                : 'border-white/10 hover:border-white/30 bg-white/[0.02]'
+                                        }`}
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="checkout_shipping"
+                                            value={opt.id}
+                                            checked={isActive}
+                                            onChange={() => {
+                                                setSelectedShipping(opt.id);
+                                                try { sessionStorage.setItem('tronix_shipping', opt.id); } catch {}
+                                            }}
+                                            className="w-5 h-5 accent-tronix-primary"
+                                        />
+                                        <Icon size={20} className={isActive ? 'text-tronix-primary' : 'text-gray-500'} />
+                                        <div className="flex-1">
+                                            <p className={`font-semibold text-sm ${ isActive ? 'text-white' : 'text-gray-300'}`}>{opt.label}</p>
+                                            <p className="text-xs text-gray-500">{opt.desc}</p>
+                                        </div>
+                                        <span className={`font-bold text-sm shrink-0 ${
+                                            opt.cost === 0 ? 'text-emerald-400' : (isActive ? 'text-tronix-accent' : 'text-gray-400')
+                                        }`}>
+                                            {opt.cost === 0 ? 'FREE' : `₹${opt.cost}`}
+                                        </span>
+                                    </label>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* STEP 3: PAYMENT */}
+                    <div className="bg-tronix-card border border-white/10 rounded-xl p-6 shadow-xl">
+                        <div className="flex items-center gap-3 mb-6 border-b border-white/5 pb-4">
+                            <span className="bg-tronix-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">3</span>
                             <h2 className="text-xl font-bold text-white">Payment Method</h2>
                         </div>
 
@@ -517,26 +581,28 @@ const Checkout = () => {
                                     <span>Items ({selectedItems.length}):</span>
                                     <span>₹{subtotal}</span>
                                 </div>
-                                <div className="flex justify-between text-gray-400 text-sm">
-                                    <span>Delivery:</span>
-                                    <span className="text-green-400">FREE</span>
-                                </div>
-                                <div className="flex justify-between text-gray-400 text-sm">
-                                    <span>Tax (18% GST):</span>
-                                    <span>₹{gst}</span>
-                                </div>
-                                {bundleDiscounts > 0 && (
-                                    <div className="flex justify-between text-emerald-400 text-sm italic">
-                                        <span>Bundle Savings:</span>
-                                        <span>- ₹{bundleDiscounts}</span>
+                                {totalDiscount > 0 && (
+                                    <div className="flex justify-between text-emerald-400 text-sm font-medium">
+                                        <span>Discount:</span>
+                                        <span>- ₹{totalDiscount}</span>
                                     </div>
                                 )}
-                                {appliedCoupon && (
-                                    <div className="flex justify-between text-emerald-400 text-sm font-bold">
-                                        <span>Coupon ({appliedCoupon.code}):</span>
-                                        <span>- ₹{couponDiscount}</span>
-                                    </div>
-                                )}
+                                {/* CGST + SGST breakdown */}
+                                <div className="flex justify-between text-gray-400 text-sm">
+                                    <span>CGST (9%):</span>
+                                    <span>₹{cgst}</span>
+                                </div>
+                                <div className="flex justify-between text-gray-400 text-sm">
+                                    <span>SGST (9%):</span>
+                                    <span>₹{sgst}</span>
+                                </div>
+                                {/* Shipping */}
+                                <div className="flex justify-between text-gray-400 text-sm">
+                                    <span>Shipping ({activeShipping.label}):</span>
+                                    <span className={activeShipping.cost === 0 ? 'text-emerald-400' : 'text-white'}>
+                                        {activeShipping.cost === 0 ? 'FREE' : `₹${activeShipping.cost}`}
+                                    </span>
+                                </div>
                                 <div className="flex justify-between text-white font-bold text-lg pt-2 border-t border-white/10 mt-2">
                                     <span>Order Total:</span>
                                     <span className="text-tronix-accent">₹{totalAmount}</span>

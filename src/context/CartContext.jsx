@@ -296,7 +296,8 @@ export const CartProvider = ({ children }) => {
         const bundlesProcessed = new Set();
 
         cartItems.filter(item => item.selected !== false).forEach(item => {
-            subtotal += item.price * item.quantity;
+            const effectivePrice = item.price || item.sale_price || 0;
+            subtotal += effectivePrice * item.quantity;
             
             // If item is part of a bundle and we haven't processed this bundle yet
             if (item.bundle_id && item.bundle && !bundlesProcessed.has(item.bundle_id)) {

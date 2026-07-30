@@ -73,10 +73,10 @@ const ProductCard = ({ product }) => {
                     
                     {/* Price section */}
                     <div className="flex items-center gap-2 mt-2">
-                        {product.sale_price && product.sale_price < product.price ? (
+                        {product.mrp && Number(product.mrp) > Number(product.price) ? (
                             <>
-                                <span className="text-sm font-bold text-tronix-accent">₹{product.sale_price}</span>
-                                <span className="text-xs text-tronix-muted line-through">₹{product.price}</span>
+                                <span className="text-sm font-bold text-tronix-accent">₹{product.price}</span>
+                                <span className="text-xs text-tronix-muted line-through">₹{product.mrp}</span>
                             </>
                         ) : (
                             <span className="text-sm font-bold text-tronix-accent">₹{product.price}</span>

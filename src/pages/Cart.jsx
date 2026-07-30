@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { Trash2, Plus, Minus, ArrowRight, ShoppingBag } from 'lucide-react';
+import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, Truck, Zap, Store } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getImageUrl } from '../utils/imageUtils';
 
@@ -26,6 +26,45 @@ const Cart = () => {
     const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
 
+    // ── Shipping Options ──────────────────────────────────────────────────────
+    const SHIPPING_OPTIONS = [
+        {
+            id: 'express',
+            label: 'Express Shipping',
+            desc: '2 to 5 Working Days (Below 2Kg)',
+            cost: 149,
+            icon: Zap,
+        },
+        {
+            id: 'surface',
+            label: 'Surface Shipping',
+            desc: '4 to 7 Working Days',
+            cost: 69,
+            icon: Truck,
+        },
+        {
+            id: 'pickup',
+            label: 'Store Pickup (Pune Office)',
+            desc: '9:30 AM to 6:00 PM',
+            cost: 0,
+            icon: Store,
+        },
+    ];
+
+    // Default to surface; restore from session if user navigated back
+    const [selectedShipping, setSelectedShipping] = useState(() => {
+        try {
+            return sessionStorage.getItem('tronix_shipping') || 'surface';
+        } catch { return 'surface'; }
+    });
+
+    const handleShippingChange = (id) => {
+        setSelectedShipping(id);
+        try { sessionStorage.setItem('tronix_shipping', id); } catch {}
+    };
+
+    const activeShipping = SHIPPING_OPTIONS.find(o => o.id === selectedShipping) || SHIPPING_OPTIONS[1];
+
     const standaloneItems = cartItems.filter(item => !item.bundle_id);
     const bundleGroups = cartItems.filter(item => item.bundle_id).reduce((acc, item) => {
         if (!acc[item.bundle_id]) {
@@ -45,14 +84,16 @@ const Cart = () => {
 
     const handleCheckout = () => {
         if (!isAuthenticated) {
-            toast.error("Please login to proceed to checkout");
+            toast.error('Please login to proceed to checkout');
             navigate('/login', { state: { from: '/checkout' } });
             return;
         }
         if (selectedCount === 0) {
-            toast.error("Please select at least one item to checkout");
+            toast.error('Please select at least one item to checkout');
             return;
         }
+        // Persist chosen shipping so Checkout page can pre-select it
+        try { sessionStorage.setItem('tronix_shipping', selectedShipping); } catch {}
         navigate('/checkout');
     };
 
@@ -230,12 +271,13 @@ const Cart = () => {
                     {/* Order Summary */}
                     <div className="lg:col-span-1">
                         <div className="bg-tronix-card border border-white/5 rounded-2xl p-6 sticky top-24">
-                            <h3 className="font-display font-bold text-xl text-white mb-6">Order Summary</h3>
+                            <h3 className="font-display font-bold text-xl text-white mb-6">Cart Totals</h3>
 
-                            <div className="space-y-4 mb-6 pb-6 border-b border-white/5">
+                            {/* Subtotal */}
+                            <div className="space-y-3 mb-4 pb-4 border-b border-white/5">
                                 <div className="flex justify-between text-gray-400">
                                     <span>Subtotal ({selectedCount} items)</span>
-                                    <span className="text-white">₹{subtotal}</span>
+                                    <span className="text-white">₹{cartTotal}</span>
                                 </div>
                                 {bundleDiscounts > 0 && (
                                     <div className="flex justify-between text-emerald-400 font-medium">
@@ -243,35 +285,100 @@ const Cart = () => {
                                         <span>- ₹{bundleDiscounts}</span>
                                     </div>
                                 )}
-                                <div className="flex justify-between text-gray-400">
-                                    <span>Shipping</span>
-                                    <span className="text-green-400">Free</span>
-                                </div>
-                                <div className="flex justify-between text-gray-400">
-                                    <span>Tax (18% GST)</span>
-                                    <span className="text-white">₹{Math.round(cartTotal * 0.18)}</span>
+                            </div>
+
+                            {/* Shipping Options */}
+                            <div className="mb-4 pb-4 border-b border-white/5">
+                                <p className="text-gray-400 text-sm font-semibold mb-3">Shipment</p>
+                                <div className="space-y-2">
+                                    {SHIPPING_OPTIONS.map((opt) => {
+                                        const Icon = opt.icon;
+                                        const isActive = selectedShipping === opt.id;
+                                        return (
+                                            <label
+                                                key={opt.id}
+                                                className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                                                    isActive
+                                                        ? 'border-tronix-primary/60 bg-tronix-primary/10'
+                                                        : 'border-white/10 hover:border-white/25 bg-white/[0.02]'
+                                                }`}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name="cart_shipping"
+                                                    value={opt.id}
+                                                    checked={isActive}
+                                                    onChange={() => handleShippingChange(opt.id)}
+                                                    className="accent-tronix-primary mt-0.5 shrink-0"
+                                                />
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <Icon size={13} className={isActive ? 'text-tronix-primary' : 'text-gray-500'} />
+                                                        <span className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-gray-300'}`}>
+                                                            {opt.label}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-xs text-gray-500 mt-0.5">{opt.desc}</p>
+                                                </div>
+                                                <span className={`text-sm font-bold shrink-0 ${
+                                                    opt.cost === 0 ? 'text-emerald-400' : (isActive ? 'text-tronix-accent' : 'text-gray-400')
+                                                }`}>
+                                                    {opt.cost === 0 ? 'FREE' : `₹${opt.cost}`}
+                                                </span>
+                                            </label>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
-                            <div className="flex justify-between text-lg font-bold text-white mb-8">
-                                <span>Total</span>
-                                <span className="text-tronix-accent">₹{Math.round(cartTotal * 1.18)}</span>
-                            </div>
+                            {/* CGST + SGST Breakdown */}
+                            {(() => {
+                                const taxableBase = cartTotal; // after bundle discounts, before GST
+                                const cgst = Math.round(taxableBase * 0.09);
+                                const sgst = Math.round(taxableBase * 0.09);
+                                const grandTotal = taxableBase + cgst + sgst + activeShipping.cost;
+                                return (
+                                    <>
+                                        <div className="space-y-2 mb-4 pb-4 border-b border-white/5">
+                                            <div className="flex justify-between text-gray-400 text-sm">
+                                                <span>CGST (9%)</span>
+                                                <span className="text-white">₹{cgst}</span>
+                                            </div>
+                                            <div className="flex justify-between text-gray-400 text-sm">
+                                                <span>SGST (9%)</span>
+                                                <span className="text-white">₹{sgst}</span>
+                                            </div>
+                                            {activeShipping.cost > 0 && (
+                                                <div className="flex justify-between text-gray-400 text-sm">
+                                                    <span>Shipping ({activeShipping.label})</span>
+                                                    <span className="text-white">₹{activeShipping.cost}</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex justify-between text-lg font-bold text-white mb-8">
+                                            <span>Total</span>
+                                            <span className="text-tronix-accent">₹{grandTotal}</span>
+                                        </div>
+                                    </>
+                                );
+                            })()}
 
                             <button
                                 onClick={handleCheckout}
                                 disabled={selectedCount === 0}
-                                className={`w-full font-bold py-4 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg ${selectedCount === 0
-                                    ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                                    : 'bg-tronix-primary text-white hover:bg-violet-600 shadow-violet-500/20 group'
-                                    }`}
+                                className={`w-full font-bold py-4 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg ${
+                                    selectedCount === 0
+                                        ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                                        : 'bg-tronix-primary text-white hover:bg-violet-600 shadow-violet-500/20 group'
+                                }`}
                             >
                                 Proceed to Checkout
                                 {selectedCount > 0 && <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />}
                             </button>
 
                             <p className="text-center text-xs text-gray-500 mt-4">
-                                {selectedCount === 0 ? "Select items to checkout" : "Secure Checkout - 256-bit Encryption"}
+                                {selectedCount === 0 ? 'Select items to checkout' : 'Secure Checkout — 256-bit Encryption'}
                             </p>
                         </div>
                     </div>

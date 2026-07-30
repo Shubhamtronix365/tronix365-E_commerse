@@ -122,6 +122,10 @@ class OrderDB(Base):
     gst_amount = Column(Float, default=0.0)
     subtotal_before_gst = Column(Float, default=0.0)
 
+    # Customer-selected Shipping Method
+    shipping_method = Column(String, nullable=True)   # e.g. 'express', 'surface', 'pickup'
+    shipping_cost = Column(Float, default=0.0)         # shipping charge in ₹
+
 
 # Pydantic Schemas (API Request/Response)
 class ProductBase(BaseModel):
@@ -226,6 +230,8 @@ class OrderCreate(BaseModel):
     gst_rate: Optional[float] = 18.0
     gst_amount: Optional[float] = None
     subtotal_before_gst: Optional[float] = None
+    shipping_method: Optional[str] = None
+    shipping_cost: Optional[float] = 0.0
 
 
 class Order(OrderCreate):
@@ -250,6 +256,8 @@ class Order(OrderCreate):
     gst_rate: Optional[float] = 18.0
     gst_amount: Optional[float] = 0.0
     subtotal_before_gst: Optional[float] = 0.0
+    shipping_method: Optional[str] = None
+    shipping_cost: Optional[float] = 0.0
 
     class Config:
         from_attributes = True
@@ -623,3 +631,42 @@ class OTPVerifyRequest(BaseModel):
     email: str
     otp: str
     signup_session: Optional[str] = None
+
+
+class CategoryDB(Base):
+    __tablename__ = "categories"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, index=True)
+    icon = Column(String, default="Package")
+    color = Column(String, default="from-slate-400 to-slate-600")
+    sort_order = Column(Integer, default=0)
+    is_active = Column(Boolean, default=True)
+
+
+class CategoryBase(BaseModel):
+    name: str
+    icon: Optional[str] = "Package"
+    color: Optional[str] = "from-slate-400 to-slate-600"
+    sort_order: Optional[int] = 0
+    is_active: Optional[bool] = True
+
+
+class CategoryCreate(CategoryBase):
+    pass
+
+
+class CategoryUpdate(BaseModel):
+    name: Optional[str] = None
+    icon: Optional[str] = None
+    color: Optional[str] = None
+    sort_order: Optional[int] = None
+    is_active: Optional[bool] = None
+
+
+class CategoryResponse(CategoryBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+

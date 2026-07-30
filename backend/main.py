@@ -42,6 +42,10 @@ from models import (
     OTPVerifyRequest,
     EmailLogDB,
     EmailLogResponse,
+    CategoryDB,
+    CategoryCreate,
+    CategoryUpdate,
+    CategoryResponse,
 )
 
 import requests
@@ -121,6 +125,21 @@ async def startup():
         await run_in_threadpool(Base.metadata.create_all, bind=engine)
         await run_in_threadpool(auto_migrate)
         print("Database tables & schema columns verified/created.")
+
+        # Sync legacy sale_price to price in DB so outdated sale_price doesn't override updated product.price
+        def _sync_prices():
+            with Session(engine) as session:
+                prods = session.query(ProductDB).all()
+                dirty = False
+                for p in prods:
+                    if p.price is not None and p.sale_price is not None and p.sale_price != p.price:
+                        p.sale_price = p.price
+                        dirty = True
+                if dirty:
+                    session.commit()
+                    print("Synced legacy sale_prices to product.price in DB.")
+
+        await run_in_threadpool(_sync_prices)
     except Exception as e:
         print(f"Database connection error during startup: {e}")
 
@@ -218,6 +237,82 @@ async def read_root():
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
+
+
+# ============================================================
+# CATEGORY ENDPOINTS
+# ============================================================
+
+@app.get("/categories", response_model=List[CategoryResponse])
+async def get_categories(db: Session = Depends(get_db)):
+    """Fetch all active categories ordered by sort_order."""
+    return db.query(CategoryDB).order_by(CategoryDB.sort_order.asc(), CategoryDB.id.asc()).all()
+
+
+@app.post("/admin/categories", response_model=CategoryResponse, status_code=201)
+async def create_category(
+    category: CategoryCreate,
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
+    existing = db.query(CategoryDB).filter(func.lower(CategoryDB.name) == category.name.strip().lower()).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Category with this name already exists")
+    
+    new_cat = CategoryDB(
+        name=category.name.strip(),
+        icon=category.icon or "Package",
+        color=category.color or "from-slate-400 to-slate-600",
+        sort_order=category.sort_order or 0,
+        is_active=category.is_active if category.is_active is not None else True,
+    )
+    db.add(new_cat)
+    db.commit()
+    db.refresh(new_cat)
+    return new_cat
+
+
+@app.put("/admin/categories/{category_id}", response_model=CategoryResponse)
+async def update_category(
+    category_id: int,
+    category_update: CategoryUpdate,
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
+    cat = db.query(CategoryDB).filter(CategoryDB.id == category_id).first()
+    if not cat:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    if category_update.name is not None:
+        cat.name = category_update.name.strip()
+    if category_update.icon is not None:
+        cat.icon = category_update.icon
+    if category_update.color is not None:
+        cat.color = category_update.color
+    if category_update.sort_order is not None:
+        cat.sort_order = category_update.sort_order
+    if category_update.is_active is not None:
+        cat.is_active = category_update.is_active
+
+    db.commit()
+    db.refresh(cat)
+    return cat
+
+
+@app.delete("/admin/categories/{category_id}")
+async def delete_category(
+    category_id: int,
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
+    cat = db.query(CategoryDB).filter(CategoryDB.id == category_id).first()
+    if not cat:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    db.delete(cat)
+    db.commit()
+    return {"message": "Category deleted successfully"}
+
 
 
 @app.post("/upload")
@@ -453,6 +548,10 @@ async def update_product(
     for key, value in product_data.items():
         setattr(db_product, key, value)
 
+    # Sync sale_price to price so legacy sale_price does not override updated price
+    if "price" in product_data:
+        db_product.sale_price = db_product.price
+
     db.commit()
     db.refresh(db_product)
     await FastAPICache.clear(
@@ -517,6 +616,8 @@ async def create_order(
         gst_rate=gst_rate,
         gst_amount=order.gst_amount if order.gst_amount is not None else gst_amount,
         subtotal_before_gst=order.subtotal_before_gst if order.subtotal_before_gst is not None else subtotal_before_gst,
+        shipping_method=order.shipping_method or 'surface',
+        shipping_cost=order.shipping_cost if order.shipping_cost is not None else 0.0,
     )
 
     # Process Items
@@ -535,11 +636,11 @@ async def create_order(
                 detail=f"Insufficient stock for {product.title}. Only {product.stock} available.",
             )
 
-        # Determine price (sale price > mrp > 0)
+        # Determine price (product.price > sale_price > 0)
         price = (
-            product.sale_price
-            if product.sale_price
-            else (product.price if product.price else 0.0)
+            product.price
+            if product.price is not None
+            else (product.sale_price if product.sale_price else 0.0)
         )
 
         # Create Order Item linked to Order
@@ -561,6 +662,8 @@ async def create_order(
         "order_id": new_order.id,
         "status": "pending",
         "gst_amount": new_order.gst_amount,
+        "shipping_method": new_order.shipping_method,
+        "shipping_cost": new_order.shipping_cost,
     }
 
 
@@ -1958,7 +2061,7 @@ async def initiate_payment(
             bundle_id=item.bundle_id,
             quantity=item.quantity,
             price_at_purchase=(
-                product.sale_price if product.sale_price else product.price
+                product.price if product.price is not None else (product.sale_price or 0.0)
             ),
         )
         items_for_order.append(order_item)

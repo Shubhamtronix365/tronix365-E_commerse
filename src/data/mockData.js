@@ -80,7 +80,3 @@ export const products = [
         stock: 8
     }
 ];
-
-export const categories = [
-    "Development Boards", "Sensors", "Modules", "Motors", "Battery", "Displays"
-];

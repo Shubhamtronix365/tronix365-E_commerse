@@ -15,9 +15,12 @@ import AdminSettings from '../components/admin/AdminSettings';
 import CouponTable from '../components/admin/CouponTable';
 import BundleTable from '../components/admin/BundleTable';
 import ConfirmModal from '../components/admin/ConfirmModal';
+import CategoryTable from '../components/admin/CategoryTable';
+import { useCategories } from '../hooks/useCategories';
 
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('products');
+    const { categories, refetch: refetchCategories } = useCategories();
     const [stats, setStats] = useState({ total_revenue: 0, total_orders: 0, total_products: 0, active_users: 0, growth: 0 });
 
     // Data States
@@ -442,6 +445,12 @@ const AdminDashboard = () => {
                                 Orders
                             </button>
                             <button
+                                onClick={() => setActiveTab('categories')}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'categories' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
+                            >
+                                Categories
+                            </button>
+                            <button
                                 onClick={() => setActiveTab('coupons')}
                                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'coupons' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
                             >
@@ -497,6 +506,10 @@ const AdminDashboard = () => {
                                 loadMore={loadMore}
                                 loadingMore={loadingMore}
                             />
+                        )}
+
+                        {activeTab === 'categories' && (
+                            <CategoryTable categories={categories} onRefresh={refetchCategories} />
                         )}
 
                         {activeTab === 'coupons' && (

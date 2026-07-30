@@ -5,9 +5,9 @@ import { Filter, X } from 'lucide-react';
 import ProductCard from '../components/product/ProductCard';
 import ProductCardSkeleton from '../components/product/ProductCardSkeleton';
 import ProductFilter from '../components/shop/ProductFilter';
-import { categories, products as mockProducts } from '../data/mockData';
 import client from '../api/client';
 import SEO from '../components/common/SEO';
+import { useCategories } from '../hooks/useCategories';
 
 const categorySeoData = {
     'all': {
@@ -63,11 +63,28 @@ const categorySeoData = {
         faqs: [
             { q: "How do I interface an OLED display with Arduino?", a: "Most OLED modules use the I2C interface (SDA/SCL pins) and can be programmed using libraries like Adafruit SSD1306 in the Arduino IDE." }
         ]
+    },
+    'miscellaneous': {
+        title: 'Miscellaneous Electronic Components & Accessories',
+        description: 'Browse our curated miscellaneous range of electronic components, accessories, and add-ons that don't fit a single category — perfect for makers and tinkerers.',
+        faqs: [
+            { q: "What types of products are in Miscellaneous?", a: "Miscellaneous includes a wide range of electronic accessories, prototyping tools, breakout boards, and specialty components that span multiple categories." }
+        ]
+    },
+    'other': {
+        title: 'Other Products & Electronic Parts',
+        description: 'Explore other electronic products and parts at Tronix365 — unique components not fitting standard categories, great for custom builds and research projects.',
+        faqs: [
+            { q: "What is in the Other category?", a: "The Other category covers unique or specialty products that fall outside our standard catalog — including limited editions, import items, and experimental components." }
+        ]
     }
 };
 
 const Shop = () => {
     const { category } = useParams();
+    const { categories: dbCategories } = useCategories();
+    const categoryNames = dbCategories ? dbCategories.filter(c => c.is_active !== false).map(c => c.name) : [];
+
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(() => {
@@ -77,21 +94,19 @@ const Shop = () => {
     // Initialize category from URL if present
     useEffect(() => {
         if (category) {
-            // Robust matching: Find the category where slugified name matches the URL param
-            const targetCategory = categories.find(c =>
+            // Match against dynamic category names
+            const targetCategory = categoryNames.find(c =>
                 c.toLowerCase().replace(/\s+/g, '-') === category.toLowerCase()
             );
 
             if (targetCategory) {
                 setSelectedCategory(targetCategory);
             } else {
-                // If param doesn't match known categories, maybe it's "all" or invalid
                 if (category.toLowerCase() === 'all') {
                     setSelectedCategory('All');
                 }
             }
         } else {
-            // If accessed via /shop, use saved category or ensure 'All' is selected
             const savedCategory = sessionStorage.getItem('shop_category');
             if (savedCategory) {
                 setSelectedCategory(savedCategory);
@@ -99,7 +114,7 @@ const Shop = () => {
                 setSelectedCategory('All');
             }
         }
-    }, [category]);
+    }, [category, categoryNames]);
 
     const [priceRange, setPriceRange] = useState(() => {
         const storedPrice = sessionStorage.getItem('shop_priceRange');
@@ -251,7 +266,7 @@ const Shop = () => {
                     {/* Desktop Sidebar */}
                     <div className="hidden lg:block lg:col-span-1">
                         <ProductFilter
-                            categories={categories}
+                            categories={categoryNames}
                             selectedCategory={selectedCategory}
                             setSelectedCategory={setSelectedCategory}
                             priceRange={priceRange}
@@ -355,7 +370,7 @@ const Shop = () => {
                                     </button>
                                 </div>
                                 <ProductFilter
-                                    categories={categories}
+                                    categories={categoryNames}
                                     selectedCategory={selectedCategory}
                                     setSelectedCategory={setSelectedCategory}
                                     priceRange={priceRange}

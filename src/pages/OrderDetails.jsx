@@ -213,17 +213,24 @@ const OrderDetails = () => {
                                 </h3>
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-sm text-gray-300">
-                                        <span>Item(s) Subtotal:</span>
-                                        <span>₹{((order.total_amount + (order.discount_amount || 0)) / 1.18).toFixed(2)}</span>
+                                        <span>Item(s) Subtotal (excl. GST):</span>
+                                        <span>₹{(order.subtotal_before_gst ?? (order.total_amount - (order.gst_amount || 0))).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm text-yellow-400">
+                                        <span>CGST (9%):</span>
+                                        <span>+ ₹{((order.gst_amount || 0) / 2).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm text-yellow-400">
+                                        <span>SGST (9%):</span>
+                                        <span>+ ₹{((order.gst_amount || 0) / 2).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                                     </div>
                                     <div className="flex justify-between text-sm text-gray-300">
-                                        <span>GST (18%):</span>
-                                        <span className="text-yellow-400">₹{((order.total_amount + (order.discount_amount || 0)) - ((order.total_amount + (order.discount_amount || 0)) / 1.18)).toFixed(2)}</span>
+                                        <span>Shipping ({order.shipping_method ? order.shipping_method.charAt(0).toUpperCase() + order.shipping_method.slice(1) : 'Standard'}):</span>
+                                        <span className={order.shipping_cost > 0 ? 'text-white' : 'text-emerald-400'}>
+                                            {order.shipping_cost > 0 ? `₹${order.shipping_cost}` : 'Free'}
+                                        </span>
                                     </div>
-                                    <div className="flex justify-between text-sm text-gray-300">
-                                        <span>Shipping:</span>
-                                        <span className="text-emerald-400">Free</span>
-                                    </div>
+
                                     {order.discount_amount > 0 && (
                                         <div className="flex justify-between text-sm text-emerald-400 font-bold border-t border-white/5 pt-2">
                                             <span>
@@ -272,7 +279,7 @@ const OrderDetails = () => {
                                         </h4>
                                         <p className="text-sm text-gray-400">Sold by: Tronix365</p>
                                         <div className="text-sm text-white font-medium mt-2">
-                                            ₹{item.price_at_purchase || (item.product && (item.product.sale_price || item.product.price))}
+                                            ₹{item.price_at_purchase || (item.product && (item.product.price || item.product.sale_price))}
                                         </div>
                                     </div>
 

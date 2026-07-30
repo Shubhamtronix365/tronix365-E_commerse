@@ -131,7 +131,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                                             </div>
                                             <div className="text-right">
                                                 <p className="text-tronix-accent font-bold">₹{product.price}</p>
-                                                {product.sale_price && (
+                                                {product.mrp && Number(product.mrp) > Number(product.price) && (
                                                     <p className="text-[10px] text-gray-500 line-through">₹{product.mrp}</p>
                                                 )}
                                             </div>

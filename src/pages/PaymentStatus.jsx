@@ -228,12 +228,22 @@ const PaymentStatus = () => {
                                             <CreditCard size={14} className="text-tronix-accent" /> Payment Summary
                                         </h4>
                                         <div className="flex justify-between text-xs text-gray-400">
-                                            <span>Subtotal:</span>
-                                            <span>₹{order.total_amount - Math.round(order.total_amount * 0.18 / 1.18)}</span>
+                                            <span>Subtotal (excl. GST):</span>
+                                            <span>₹{(order.subtotal_before_gst ?? (order.total_amount - (order.gst_amount || 0))).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs text-yellow-400">
+                                            <span>CGST (9%):</span>
+                                            <span>+ ₹{((order.gst_amount || 0) / 2).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs text-yellow-400">
+                                            <span>SGST (9%):</span>
+                                            <span>+ ₹{((order.gst_amount || 0) / 2).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                                         </div>
                                         <div className="flex justify-between text-xs text-gray-400">
-                                            <span>GST (18%):</span>
-                                            <span>₹{Math.round(order.total_amount * 0.18 / 1.18)}</span>
+                                            <span>Shipping ({order.shipping_method ? order.shipping_method.charAt(0).toUpperCase() + order.shipping_method.slice(1) : 'Standard'}):</span>
+                                            <span className={order.shipping_cost > 0 ? 'text-white' : 'text-emerald-400'}>
+                                                {order.shipping_cost > 0 ? `₹${order.shipping_cost}` : 'FREE'}
+                                            </span>
                                         </div>
                                         {order.coupon_code && (
                                             <div className="flex justify-between text-xs text-emerald-400">

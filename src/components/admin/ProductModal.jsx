@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Edit, Plus, Info, Tag, Boxes, Package, List, DollarSign, Image as ImageIcon, Loader, Save } from 'lucide-react';
 import { getImageUrl } from '../../utils/imageUtils';
+import { useCategories } from '../../hooks/useCategories';
 
 const ProductModal = ({
     isOpen,
@@ -14,6 +15,7 @@ const ProductModal = ({
     uploading,
     fileInputRef
 }) => {
+    const { categories } = useCategories();
     return (
         <AnimatePresence>
             {isOpen && (
@@ -93,18 +95,23 @@ const ProductModal = ({
                                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
                                                         <Boxes size={18} />
                                                     </div>
-                                                    <select
-                                                        value={newProduct.category}
-                                                        onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                                                        className="w-full bg-black/20 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-white focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary focus:bg-white/5 transition-all outline-none appearance-none"
-                                                    >
-                                                        <option className="bg-tronix-card text-white">Development Boards</option>
-                                                        <option className="bg-tronix-card text-white">Sensors</option>
-                                                        <option className="bg-tronix-card text-white">Modules</option>
-                                                        <option className="bg-tronix-card text-white">Motors</option>
-                                                        <option className="bg-tronix-card text-white">Battery</option>
-                                                        <option className="bg-tronix-card text-white">Displays</option>
-                                                    </select>
+                                                     <select
+                                                         value={newProduct.category}
+                                                         onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                                                         className="w-full bg-black/20 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-white focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary focus:bg-white/5 transition-all outline-none appearance-none"
+                                                     >
+                                                         {categories.length === 0 ? (
+                                                             <option value={newProduct.category || ''} className="bg-tronix-card text-white">
+                                                                 {newProduct.category || 'Select Category'}
+                                                             </option>
+                                                         ) : (
+                                                             categories.map((cat) => (
+                                                                 <option key={cat.id} value={cat.name} className="bg-tronix-card text-white">
+                                                                     {cat.name}
+                                                                 </option>
+                                                             ))
+                                                         )}
+                                                     </select>
                                                 </div>
                                             </div>
                                             <div>
