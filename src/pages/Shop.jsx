@@ -192,14 +192,10 @@ const Shop = () => {
             if (debouncedPriceRange < 10000) params.max_price = debouncedPriceRange;
             if (sortBy) params.sort_by = sortBy;
             if (searchQuery) params.search = searchQuery;
+            if (showInStockOnly) params.in_stock_only = true;
 
             const response = await client.get('/products', { params });
             let data = response.data;
-
-            // Client-side Stock Filter (Ideally this should be backend too, but keeping for consistency)
-            if (showInStockOnly) {
-                data = data.filter(p => p.stock > 0);
-            }
 
             if (data.length < LIMIT) {
                 setHasMore(false);

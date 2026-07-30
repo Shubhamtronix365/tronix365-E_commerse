@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import client from '../../api/client';
 
-const ReviewSection = ({ productId }) => {
+const ReviewSection = ({ productId, onStatsChange }) => {
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({ average: 0, count: 0 });
@@ -29,9 +29,13 @@ const ReviewSection = ({ productId }) => {
             // Calculate Stats
             if (data.length > 0) {
                 const avg = data.reduce((acc, r) => acc + r.rating, 0) / data.length;
-                setStats({ average: avg, count: data.length });
+                const calculatedStats = { average: Math.round(avg * 10) / 10, count: data.length };
+                setStats(calculatedStats);
+                if (onStatsChange) onStatsChange(calculatedStats);
             } else {
-                setStats({ average: 0, count: 0 });
+                const calculatedStats = { average: 0, count: 0 };
+                setStats(calculatedStats);
+                if (onStatsChange) onStatsChange(calculatedStats);
             }
         } catch (error) {
             console.error('Failed to fetch reviews:', error);

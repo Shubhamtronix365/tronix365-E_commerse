@@ -361,10 +361,11 @@ async def get_products(
     max_price: float = None,
     sort_by: str = None,
     search: str = None,
+    in_stock_only: bool = False,
     db: Session = Depends(get_db),
 ):
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-    print(f"DEBUG: get_products skip={skip}, limit={limit}, sort_by={sort_by}")
+    print(f"DEBUG: get_products skip={skip}, limit={limit}, sort_by={sort_by}, in_stock_only={in_stock_only}")
     query = db.query(ProductDB)
 
     if search:
@@ -377,13 +378,21 @@ async def get_products(
         )
 
     if category and category != "All":
-        query = query.filter(ProductDB.category == category)
+        formatted_cat = category.replace('-', ' ')
+        query = query.filter(
+            (ProductDB.category == category)
+            | (ProductDB.category.ilike(category))
+            | (ProductDB.category.ilike(formatted_cat))
+        )
 
     if min_price is not None:
         query = query.filter(ProductDB.price >= min_price)
 
     if max_price is not None:
         query = query.filter(ProductDB.price <= max_price)
+
+    if in_stock_only:
+        query = query.filter(ProductDB.stock > 0)
 
     if sort_by:
         if sort_by == "price_asc":

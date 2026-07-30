@@ -63,6 +63,24 @@ const ProductDetails = () => {
         fetchProductData();
     }, [slug]);
 
+    const [reviewStats, setReviewStats] = useState({ average: 0, count: 0 });
+
+    useEffect(() => {
+        if (product?.id) {
+            client.get(`/products/${product.id}/reviews`)
+                .then(res => {
+                    const data = res.data || [];
+                    if (data.length > 0) {
+                        const avg = data.reduce((acc, r) => acc + r.rating, 0) / data.length;
+                        setReviewStats({ average: Math.round(avg * 10) / 10, count: data.length });
+                    } else {
+                        setReviewStats({ average: 0, count: 0 });
+                    }
+                })
+                .catch(() => setReviewStats({ average: 0, count: 0 }));
+        }
+    }, [product?.id]);
+
     if (loading) {
         return (
             <div className="min-h-screen pt-24 text-center text-white">
@@ -139,10 +157,17 @@ const ProductDetails = () => {
                         <div className="flex items-center gap-4 mb-6">
                             <div className="flex text-yellow-500">
                                 {[1, 2, 3, 4, 5].map((star) => (
-                                    <Star key={star} size={16} fill="currentColor" />
+                                    <Star
+                                        key={star}
+                                        size={16}
+                                        fill={star <= Math.round(reviewStats.average) ? "currentColor" : "none"}
+                                        className={star <= Math.round(reviewStats.average) ? "text-yellow-500" : "text-gray-600"}
+                                    />
                                 ))}
                             </div>
-                            <span className="text-gray-400 text-sm">(0 Reviews)</span>
+                            <span className="text-gray-400 text-sm font-medium">
+                                ({reviewStats.count} {reviewStats.count === 1 ? 'Review' : 'Reviews'})
+                            </span>
                             {product.stock > 0 ? (
                                 <span className="text-green-400 text-sm flex items-center gap-1">
                                     <Check size={16} /> In Stock ({product.stock})
@@ -327,7 +352,7 @@ const ProductDetails = () => {
                                 )}
                             </div>
                         ) : (
-                            <ReviewSection productId={product.id} />
+                            <ReviewSection productId={product.id} onStatsChange={(newStats) => setReviewStats(newStats)} />
                         )}
                     </div>
                 </div>
