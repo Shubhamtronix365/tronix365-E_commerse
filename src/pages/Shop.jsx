@@ -92,12 +92,16 @@ const Shop = () => {
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(() => {
+        if (category) {
+            return category.replace(/-/g, ' ');
+        }
         return sessionStorage.getItem('shop_category') || 'All';
     });
 
-    // Initialize category from URL if present
+    // Sync selected category if URL category parameter changes
     useEffect(() => {
         if (category) {
+            const formattedCategory = category.replace(/-/g, ' ');
             const targetCategory = categoryNames.find(c =>
                 c.toLowerCase().replace(/\s+/g, '-') === category.toLowerCase()
             );
@@ -106,16 +110,11 @@ const Shop = () => {
                 setSelectedCategory(targetCategory);
             } else if (category.toLowerCase() === 'all') {
                 setSelectedCategory('All');
-            }
-        } else {
-            const savedCategory = sessionStorage.getItem('shop_category');
-            if (savedCategory) {
-                setSelectedCategory(savedCategory);
             } else {
-                setSelectedCategory('All');
+                setSelectedCategory(formattedCategory);
             }
         }
-    }, [category, categoryNames.join(',')]);
+    }, [category]);
 
     const [priceRange, setPriceRange] = useState(() => {
         const storedPrice = sessionStorage.getItem('shop_priceRange');
