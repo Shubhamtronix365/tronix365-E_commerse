@@ -23,6 +23,8 @@ def auto_migrate():
                 return "TIMESTAMP WITH TIME ZONE"
             return "TIMESTAMP"
         elif "JSON" in type_name:
+            if engine.dialect.name == "sqlite":
+                return "JSON"
             return "JSONB"
         return type_name
 
