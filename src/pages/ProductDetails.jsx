@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Check, X as XIcon, ArrowLeft, Star, ShieldCheck, Truck, Heart, Share2 } from 'lucide-react';
+import { ShoppingCart, Check, X as XIcon, ArrowLeft, Star, ShieldCheck, Truck, Heart, Share2, FileText, Globe, Download, ExternalLink, Shield, HelpCircle, PackageCheck, Tag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useCartAnimation } from '../context/CartAnimationContext';
 import { motion } from 'framer-motion';
 import { products as mockProducts } from '../data/mockData';
 import ReviewSection from '../components/product/ReviewSection';
+import QnASection from '../components/product/QnASection';
 import client from '../api/client';
 import { getImageUrl } from '../utils/imageUtils';
 import RelatedProducts from '../components/product/RelatedProducts';
@@ -24,7 +25,7 @@ const ProductDetails = () => {
     const { toggleWishlist, isInWishlist } = useWishlist();
     const { animateToCart } = useCartAnimation();
     const [product, setProduct] = useState(null);
-    const [activeTab, setActiveTab] = useState('specs');
+    const [activeTab, setActiveTab] = useState('description');
     const [quantity, setQuantity] = useState(1);
     const [loading, setLoading] = useState(true);
     const [bundles, setBundles] = useState([]);
@@ -313,56 +314,285 @@ const ProductDetails = () => {
                     </motion.div>
                 </div>
 
-                {/* Spec Tabs */}
-                <div className="mt-20">
-                    <div className="flex items-center gap-8 border-b border-white/10 mb-8 overflow-x-auto scrollbar-hide">
-                        <button
-                            onClick={() => setActiveTab('specs')}
-                            className={`pb-4 text-lg font-medium transition-colors relative ${activeTab === 'specs' ? 'text-tronix-primary' : 'text-gray-400 hover:text-white'}`}
-                        >
-                            Specifications
-                            {activeTab === 'specs' && (
-                                <motion.div layoutId="underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-tronix-primary" />
-                            )}
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('reviews')}
-                            className={`pb-4 text-lg font-medium transition-colors relative ${activeTab === 'reviews' ? 'text-tronix-primary' : 'text-gray-400 hover:text-white'}`}
-                        >
-                            Reviews
-                            {activeTab === 'reviews' && (
-                                <motion.div layoutId="underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-tronix-primary" />
-                            )}
-                        </button>
+                {/* 7 Interactive Product Dossier Tabs */}
+                <div className="mt-16 sm:mt-20">
+                    <div className="flex items-center gap-4 sm:gap-8 border-b border-white/10 mb-8 overflow-x-auto custom-scrollbar pb-1">
+                        {[
+                            { id: 'description', label: 'Description', icon: FileText },
+                            { id: 'specs', label: 'Specification', icon: Tag },
+                            { id: 'warranty', label: 'Warranty', icon: Shield },
+                            { id: 'reviews', label: 'Reviews', icon: Star },
+                            { id: 'qna', label: 'QnA', icon: HelpCircle },
+                            { id: 'attachments', label: 'Attachments', icon: Download },
+                            { id: 'origin', label: 'Country Of Origin', icon: Globe }
+                        ].map((tab) => {
+                            const IconComponent = tab.icon;
+                            const isActive = activeTab === tab.id;
+                            return (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={`pb-4 text-sm sm:text-base font-bold transition-all relative flex items-center gap-2 shrink-0 ${
+                                        isActive ? 'text-violet-400 font-extrabold' : 'text-gray-400 hover:text-white'
+                                    }`}
+                                >
+                                    <IconComponent size={16} />
+                                    <span>{tab.label}</span>
+                                    {isActive && (
+                                        <motion.div layoutId="tabUnderline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-violet-500 shadow-lg shadow-violet-500/50" />
+                                    )}
+                                </button>
+                            );
+                        })}
                     </div>
 
-                    <div className="bg-tronix-card/30 rounded-2xl p-8 border border-white/5">
-                        {activeTab === 'specs' ? (
-                            <div>
-                                {product.features && product.features.length > 0 ? (
-                                    <div className="mb-8">
-                                        <h3 className="text-white font-bold mb-4">Features</h3>
-                                        <ul className="list-disc list-inside space-y-2 text-gray-300">
-                                            {product.features.map((feature, index) => (
-                                                <li key={index}>{feature}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                ) : null}
+                    {/* Tab Panels */}
+                    <div className="bg-tronix-card/40 rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl">
+                        {/* TAB 1: Description Panel */}
+                        {activeTab === 'description' && (
+                            <div className="space-y-8 text-gray-300 leading-relaxed text-sm">
+                                {/* Main Description */}
+                                <div>
+                                    <p className="text-gray-200 text-sm sm:text-base leading-relaxed">
+                                        {product.description}
+                                    </p>
+                                </div>
 
-                                {product.specs && (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
-                                        {Object.entries(product.specs).map(([key, value]) => (
-                                            <div key={key} className="flex items-center justify-between border-b border-white/5 py-3">
-                                                <span className="text-gray-400">{key}</span>
-                                                <span className="text-white font-medium">{value}</span>
+                                {/* Applications */}
+                                {(product.applications && product.applications.length > 0) ? (
+                                    <div className="space-y-3 pt-4 border-t border-white/10">
+                                        <h4 className="text-white font-extrabold text-base flex items-center gap-2">
+                                            <PackageCheck className="text-violet-400" size={18} /> Applications:
+                                        </h4>
+                                        <ol className="list-decimal list-inside space-y-2 pl-2 text-gray-300">
+                                            {product.applications.map((app, idx) => (
+                                                <li key={idx} className="leading-snug">{app}</li>
+                                            ))}
+                                        </ol>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3 pt-4 border-t border-white/10">
+                                        <h4 className="text-white font-extrabold text-base flex items-center gap-2">
+                                            <PackageCheck className="text-violet-400" size={18} /> Applications:
+                                        </h4>
+                                        <ol className="list-decimal list-inside space-y-2 pl-2 text-gray-300">
+                                            <li>Internet of Things (IoT) terminal & smart controller.</li>
+                                            <li>Robotics, Automation & STEM Education projects.</li>
+                                            <li>DIY electronic creation & rapid prototyping.</li>
+                                            <li>Smart home automation equipment.</li>
+                                        </ol>
+                                    </div>
+                                )}
+
+                                {/* Features */}
+                                {(product.features && product.features.length > 0) && (
+                                    <div className="space-y-3 pt-4 border-t border-white/10">
+                                        <h4 className="text-white font-extrabold text-base flex items-center gap-2">
+                                            <Check className="text-emerald-400" size={18} /> Key Features:
+                                        </h4>
+                                        <ol className="list-decimal list-inside space-y-2 pl-2 text-gray-300">
+                                            {product.features.map((feat, idx) => (
+                                                <li key={idx} className="leading-snug">{feat}</li>
+                                            ))}
+                                        </ol>
+                                    </div>
+                                )}
+
+                                {/* Useful Link */}
+                                {(product.useful_links && product.useful_links.length > 0) ? (
+                                    <div className="space-y-2 pt-4 border-t border-white/10">
+                                        <h4 className="text-white font-extrabold text-base flex items-center gap-2">
+                                            <ExternalLink className="text-sky-400" size={18} /> Useful Links:
+                                        </h4>
+                                        <div className="space-y-1.5 pl-2">
+                                            {product.useful_links.map((link, idx) => (
+                                                <a
+                                                    key={idx}
+                                                    href={typeof link === 'object' ? link.url : link}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-violet-400 hover:text-violet-300 text-sm underline flex items-center gap-1.5 transition-colors"
+                                                >
+                                                    <span>{typeof link === 'object' ? (link.title || link.name || link.url) : link}</span>
+                                                    <ExternalLink size={12} />
+                                                </a>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2 pt-4 border-t border-white/10">
+                                        <h4 className="text-white font-extrabold text-base flex items-center gap-2">
+                                            <ExternalLink className="text-sky-400" size={18} /> Useful Links:
+                                        </h4>
+                                        <a
+                                            href={`https://docs.tronix365.in/${slug}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-violet-400 hover:text-violet-300 text-sm underline flex items-center gap-1.5 pl-2"
+                                        >
+                                            https://docs.tronix365.in/{slug} <ExternalLink size={12} />
+                                        </a>
+                                    </div>
+                                )}
+
+                                {/* Package Includes */}
+                                {(product.package_includes && product.package_includes.length > 0) ? (
+                                    <div className="space-y-3 pt-4 border-t border-white/10">
+                                        <h4 className="text-white font-extrabold text-base flex items-center gap-2">
+                                            <Truck className="text-amber-400" size={18} /> Package Includes:
+                                        </h4>
+                                        <div className="space-y-1.5 pl-2 text-gray-300 font-medium">
+                                            {product.package_includes.map((item, idx) => (
+                                                <div key={idx} className="flex items-center gap-2">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                                                    <span>{item}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3 pt-4 border-t border-white/10">
+                                        <h4 className="text-white font-extrabold text-base flex items-center gap-2">
+                                            <Truck className="text-amber-400" size={18} /> Package Includes:
+                                        </h4>
+                                        <div className="space-y-1.5 pl-2 text-gray-300 font-medium">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                                                <span>1x {product.title}</span>
                                             </div>
-                                        ))}
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                                                <span>1x Quick Start Guide & Safety Manual</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
                             </div>
-                        ) : (
+                        )}
+
+                        {/* TAB 2: Specification Panel */}
+                        {activeTab === 'specs' && (
+                            <div>
+                                {product.specs && Object.keys(product.specs).length > 0 ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                                        {Object.entries(product.specs).map(([key, value]) => (
+                                            <div key={key} className="flex items-center justify-between border-b border-white/10 py-3">
+                                                <span className="text-gray-400 text-sm">{key}</span>
+                                                <span className="text-white font-bold text-sm">{value}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                                        <div className="flex items-center justify-between border-b border-white/10 py-3">
+                                            <span className="text-gray-400 text-sm">Category</span>
+                                            <span className="text-white font-bold text-sm">{product.category}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between border-b border-white/10 py-3">
+                                            <span className="text-gray-400 text-sm">SKU / Model</span>
+                                            <span className="text-white font-bold text-sm font-mono">{product.skv || `TRX-${product.id}`}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between border-b border-white/10 py-3">
+                                            <span className="text-gray-400 text-sm">Stock Availability</span>
+                                            <span className="text-emerald-400 font-bold text-sm">{product.stock > 0 ? 'In Stock' : 'Out of Stock'}</span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* TAB 3: Warranty Panel */}
+                        {activeTab === 'warranty' && (
+                            <div className="space-y-4 text-gray-300">
+                                <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
+                                    <Shield className="text-violet-400 shrink-0" size={28} />
+                                    <div>
+                                        <h4 className="text-white font-bold text-base">Manufacturer Warranty Coverage</h4>
+                                        <p className="text-xs text-gray-400 mt-0.5">
+                                            {product.warranty_info || "Standard 6 Months Replacement Warranty against manufacturing defects"}
+                                        </p>
+                                    </div>
+                                </div>
+                                <p className="text-xs text-gray-400 leading-relaxed pl-1">
+                                    All products sold on Tronix365 undergo multi-stage QA testing before dispatch. Warranty covers component failures under normal operating parameters. Physical damage, burnt components due to improper wiring, or unauthorized modifications are excluded.
+                                </p>
+                            </div>
+                        )}
+
+                        {/* TAB 4: Reviews Panel */}
+                        {activeTab === 'reviews' && (
                             <ReviewSection productId={product.id} onStatsChange={(newStats) => setReviewStats(newStats)} />
+                        )}
+
+                        {/* TAB 5: QnA Panel */}
+                        {activeTab === 'qna' && (
+                            <QnASection productId={product.id} />
+                        )}
+
+                        {/* TAB 6: Attachments Panel */}
+                        {activeTab === 'attachments' && (
+                            <div className="space-y-4">
+                                {(product.attachments && product.attachments.length > 0) ? (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        {product.attachments.map((att, idx) => (
+                                            <a
+                                                key={idx}
+                                                href={typeof att === 'object' ? att.url : att}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-violet-500/50 flex items-center justify-between transition-all group"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-xl bg-violet-500/20 text-violet-300 flex items-center justify-center font-bold">
+                                                        <Download size={18} />
+                                                    </div>
+                                                    <div>
+                                                        <h5 className="text-xs font-bold text-white group-hover:text-violet-300 transition-colors">
+                                                            {typeof att === 'object' ? (att.name || att.title || 'PDF Attachment') : 'Download Datasheet PDF'}
+                                                        </h5>
+                                                        <span className="text-[10px] text-gray-400">PDF Technical Document</span>
+                                                    </div>
+                                                </div>
+                                                <Download size={16} className="text-gray-400 group-hover:text-white transition-colors" />
+                                            </a>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="p-6 rounded-2xl bg-white/5 border border-white/10 text-center space-y-3">
+                                        <Download className="mx-auto text-violet-400" size={32} />
+                                        <h4 className="text-sm font-bold text-white">Datasheet & Technical Documentation</h4>
+                                        <p className="text-xs text-gray-400 max-w-md mx-auto">
+                                            Official PDF schematics, pinout diagrams, and software library code samples are available for instant download.
+                                        </p>
+                                        <a
+                                            href={`https://docs.tronix365.in/datasheet-${product.id}.pdf`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs rounded-xl transition-all shadow-lg shadow-violet-500/20"
+                                        >
+                                            <Download size={14} /> Download Technical Datasheet (PDF)
+                                        </a>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* TAB 7: Country Of Origin Panel */}
+                        {activeTab === 'origin' && (
+                            <div className="flex items-center gap-4 p-5 rounded-2xl bg-white/5 border border-white/10">
+                                <div className="w-12 h-12 rounded-2xl bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-sky-400 shrink-0">
+                                    <Globe size={24} />
+                                </div>
+                                <div>
+                                    <span className="text-[10px] uppercase font-bold tracking-wider text-gray-400 block">Country Of Origin</span>
+                                    <h4 className="text-base font-extrabold text-white">
+                                        {product.country_of_origin || "India (Designed & Assembled)"}
+                                    </h4>
+                                    <p className="text-xs text-gray-400 mt-0.5">
+                                        Complies with ISO 9001 quality standards and Indian RoHS electronics safety guidelines.
+                                    </p>
+                                </div>
+                            </div>
                         )}
                     </div>
                 </div>

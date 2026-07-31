@@ -173,7 +173,21 @@ const AdminDashboard = () => {
 
     const handleOpenAddModal = () => {
         setEditingProduct(null);
-        setNewProduct({ title: '', category: 'Development Boards', price: '', mrp: '', description: '', image: '', features: '' });
+        setNewProduct({ 
+            title: '', 
+            category: 'Development Boards', 
+            price: '', 
+            mrp: '', 
+            description: '', 
+            image: '', 
+            features: '',
+            applications: '',
+            package_includes: '',
+            useful_links: '',
+            attachments: '',
+            warranty_info: '',
+            country_of_origin: ''
+        });
         setIsAddProductOpen(true);
     };
 
@@ -181,16 +195,23 @@ const AdminDashboard = () => {
         setEditingProduct(product);
         setNewProduct({
             ...product,
-            features: product.features && Array.isArray(product.features) ? product.features.join('\n') : ''
+            features: product.features && Array.isArray(product.features) ? product.features.join('\n') : (product.features || ''),
+            applications: product.applications && Array.isArray(product.applications) ? product.applications.join('\n') : (product.applications || ''),
+            package_includes: product.package_includes && Array.isArray(product.package_includes) ? product.package_includes.join('\n') : (product.package_includes || ''),
+            useful_links: product.useful_links && Array.isArray(product.useful_links) 
+                ? product.useful_links.map(l => typeof l === 'object' ? `${l.title || l.name || ''} | ${l.url || ''}` : l).join('\n') 
+                : (product.useful_links || ''),
+            attachments: product.attachments && Array.isArray(product.attachments) 
+                ? product.attachments.map(a => typeof a === 'object' ? `${a.name || a.title || ''} | ${a.url || ''}` : a).join('\n') 
+                : (product.attachments || ''),
+            warranty_info: product.warranty_info || '',
+            country_of_origin: product.country_of_origin || ''
         }); // Pre-fill form
         setIsAddProductOpen(true);
     };
 
     const handleSaveProduct = async (e) => {
         e.preventDefault();
-        console.log("DEBUG: handleSaveProduct called. Event target:", e.target);
-        console.log("DEBUG: editingProduct state:", editingProduct);
-        console.log("DEBUG: newProduct state:", newProduct);
         try {
             const payload = { 
                 ...newProduct,
@@ -202,24 +223,47 @@ const AdminDashboard = () => {
             if (typeof payload.features === 'string') {
                 payload.features = payload.features.split('\n').map(f => f.trim()).filter(f => f);
             }
+            if (typeof payload.applications === 'string') {
+                payload.applications = payload.applications.split('\n').map(f => f.trim()).filter(f => f);
+            }
+            if (typeof payload.package_includes === 'string') {
+                payload.package_includes = payload.package_includes.split('\n').map(f => f.trim()).filter(f => f);
+            }
+            if (typeof payload.useful_links === 'string') {
+                payload.useful_links = payload.useful_links.split('\n').map(line => {
+                    const parts = line.split('|');
+                    if (parts.length > 1) {
+                        return { title: parts[0].trim(), url: parts[1].trim() };
+                    }
+                    return { title: 'Documentation Link', url: line.trim() };
+                }).filter(l => l.url);
+            }
+            if (typeof payload.attachments === 'string') {
+                payload.attachments = payload.attachments.split('\n').map(line => {
+                    const parts = line.split('|');
+                    if (parts.length > 1) {
+                        return { name: parts[0].trim(), url: parts[1].trim() };
+                    }
+                    return { name: 'Download Attachment / Datasheet', url: line.trim() };
+                }).filter(a => a.url);
+            }
 
             if (editingProduct) {
                 // Update existing
-                console.log("DEBUG: Calling PUT /products with payload:", payload);
                 const res = await client.put(`/products/${editingProduct.id}`, payload);
-                console.log("DEBUG: PUT /products response:", res.data);
                 setProducts(products.map(p => p.id === editingProduct.id ? res.data : p));
                 toast.success('Product updated successfully');
             } else {
                 // Create new
-                console.log("DEBUG: Calling POST /products with payload:", payload);
                 const res = await client.post('/products', payload);
-                console.log("DEBUG: POST /products response:", res.data);
                 setProducts([res.data, ...products]);
                 toast.success('Product added successfully');
             }
             setIsAddProductOpen(false);
-            setNewProduct({ title: '', category: 'Development Boards', price: '', mrp: '', description: '', image: '', features: '' });
+            setNewProduct({ 
+                title: '', category: 'Development Boards', price: '', mrp: '', description: '', image: '', features: '',
+                applications: '', package_includes: '', useful_links: '', attachments: '', warranty_info: '', country_of_origin: ''
+            });
         } catch (error) {
             console.error("DEBUG: Save product error:", error);
             toast.error('Failed to save product');

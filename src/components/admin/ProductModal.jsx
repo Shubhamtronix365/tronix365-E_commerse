@@ -152,23 +152,106 @@ const ProductModal = ({
                                             <textarea
                                                 rows="3"
                                                 placeholder="Detailed description of the product..."
-                                                value={newProduct.description}
+                                                value={newProduct.description || ''}
                                                 onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
                                                 className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary focus:bg-white/5 transition-all outline-none resize-none custom-scrollbar"
                                             />
                                         </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-300 mb-1.5 pl-1 flex items-center justify-between">
-                                                <span>Features</span>
-                                                <span className="text-xs text-gray-500 font-normal">One per line</span>
-                                            </label>
-                                            <textarea
-                                                rows="4"
-                                                placeholder="e.g. Wi-Fi Enabled&#10;Bluetooth 5.0&#10;Rechargeable Battery"
-                                                value={newProduct.features}
-                                                onChange={(e) => setNewProduct({ ...newProduct, features: e.target.value })}
-                                                className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary focus:bg-white/5 transition-all outline-none resize-none custom-scrollbar font-mono text-sm leading-relaxed"
-                                            />
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-300 mb-1.5 pl-1 flex items-center justify-between">
+                                                    <span>Features</span>
+                                                    <span className="text-xs text-gray-500 font-normal">One per line</span>
+                                                </label>
+                                                <textarea
+                                                    rows="3"
+                                                    placeholder="e.g. ESP32-based Wi-Fi/Bluetooth&#10;16M Flash, 8M PSRAM"
+                                                    value={newProduct.features || ''}
+                                                    onChange={(e) => setNewProduct({ ...newProduct, features: e.target.value })}
+                                                    className="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-gray-600 focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary outline-none resize-none font-mono text-xs"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-300 mb-1.5 pl-1 flex items-center justify-between">
+                                                    <span>Applications</span>
+                                                    <span className="text-xs text-gray-500 font-normal">One per line</span>
+                                                </label>
+                                                <textarea
+                                                    rows="3"
+                                                    placeholder="e.g. IoT Terminal Controller&#10;STEM Education&#10;DIY Creation"
+                                                    value={newProduct.applications || ''}
+                                                    onChange={(e) => setNewProduct({ ...newProduct, applications: e.target.value })}
+                                                    className="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-gray-600 focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary outline-none resize-none font-mono text-xs"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-300 mb-1.5 pl-1 flex items-center justify-between">
+                                                    <span>Package Includes</span>
+                                                    <span className="text-xs text-gray-500 font-normal">One per line</span>
+                                                </label>
+                                                <textarea
+                                                    rows="3"
+                                                    placeholder="e.g. 1x M5Stack Core2 Board&#10;1x Type-C USB (20cm)"
+                                                    value={newProduct.package_includes || ''}
+                                                    onChange={(e) => setNewProduct({ ...newProduct, package_includes: e.target.value })}
+                                                    className="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-gray-600 focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary outline-none resize-none font-mono text-xs"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-300 mb-1.5 pl-1 flex items-center justify-between">
+                                                    <span>Useful Links</span>
+                                                    <span className="text-xs text-gray-500 font-normal">Title | URL</span>
+                                                </label>
+                                                <textarea
+                                                    rows="3"
+                                                    placeholder="e.g. Official Docs | https://docs.m5stack.com"
+                                                    value={newProduct.useful_links || ''}
+                                                    onChange={(e) => setNewProduct({ ...newProduct, useful_links: e.target.value })}
+                                                    className="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-gray-600 focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary outline-none resize-none font-mono text-xs"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-300 mb-1.5 pl-1 flex items-center justify-between">
+                                                    <span>Attachments / PDF Datasheets</span>
+                                                    <span className="text-xs text-gray-500 font-normal">Name | PDF URL</span>
+                                                </label>
+                                                <textarea
+                                                    rows="2"
+                                                    placeholder="e.g. Core2 Datasheet PDF | https://example.com/sheet.pdf"
+                                                    value={newProduct.attachments || ''}
+                                                    onChange={(e) => setNewProduct({ ...newProduct, attachments: e.target.value })}
+                                                    className="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-gray-600 focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary outline-none resize-none font-mono text-xs"
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <div>
+                                                    <label className="block text-xs font-medium text-gray-300 mb-1 pl-1">Warranty Info</label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="e.g. 6 Months Warranty"
+                                                        value={newProduct.warranty_info || ''}
+                                                        onChange={(e) => setNewProduct({ ...newProduct, warranty_info: e.target.value })}
+                                                        className="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:border-tronix-primary outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-medium text-gray-300 mb-1 pl-1">Country Of Origin</label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="e.g. India / Taiwan"
+                                                        value={newProduct.country_of_origin || ''}
+                                                        onChange={(e) => setNewProduct({ ...newProduct, country_of_origin: e.target.value })}
+                                                        className="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-600 focus:border-tronix-primary outline-none"
+                                                    />
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

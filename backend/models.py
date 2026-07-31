@@ -32,6 +32,12 @@ class ProductDB(Base):
     sale_price = Column(Float, nullable=True)  # Discounted Price
     features = Column(JSON, nullable=True)  # Bullet points
     stock = Column(Integer, default=100)  # Real Stock Quantity
+    applications = Column(JSON, nullable=True)  # Applications list
+    warranty_info = Column(String, nullable=True)  # e.g. "6 Months Manufacturer Warranty"
+    country_of_origin = Column(String, nullable=True)  # e.g. "India"
+    useful_links = Column(JSON, nullable=True)  # List of dicts/strings
+    package_includes = Column(JSON, nullable=True)  # Items in box
+    attachments = Column(JSON, nullable=True)  # Downloadable PDFs/Manuals/Schematics
 
 
 class UserDB(Base):
@@ -151,25 +157,18 @@ class ProductBase(BaseModel):
     sale_price: Optional[float] = None
     features: Optional[List[str]] = None
     stock: int = 0
+    applications: Optional[List[str]] = None
+    warranty_info: Optional[str] = None
+    country_of_origin: Optional[str] = None
+    useful_links: Optional[Any] = None
+    package_includes: Optional[List[str]] = None
+    attachments: Optional[Any] = None
 
-    @field_validator("specs", mode="before")
+    @field_validator("specs", "features", "applications", "useful_links", "package_includes", "attachments", mode="before")
     @classmethod
-    def parse_specs(cls, v):
+    def parse_json_fields(cls, v):
         if isinstance(v, str):
             import json
-
-            try:
-                return json.loads(v)
-            except:
-                pass
-        return v
-
-    @field_validator("features", mode="before")
-    @classmethod
-    def parse_features(cls, v):
-        if isinstance(v, str):
-            import json
-
             try:
                 return json.loads(v)
             except:
@@ -193,6 +192,12 @@ class ProductUpdate(BaseModel):
     sale_price: Optional[float] = None
     features: Optional[List[str]] = None
     stock: Optional[int] = None
+    applications: Optional[List[str]] = None
+    warranty_info: Optional[str] = None
+    country_of_origin: Optional[str] = None
+    useful_links: Optional[Any] = None
+    package_includes: Optional[List[str]] = None
+    attachments: Optional[Any] = None
 
 
 class Product(ProductBase):
