@@ -14,12 +14,12 @@ const OrderTable = ({
     return (
         <>
             {/* Order Status Tabs */}
-            <div className="flex flex-wrap gap-2 mb-6">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-6">
                 {['All', 'pending', 'confirmed', 'shipped', 'delivered', 'deleted'].map((status) => (
                     <button
                         key={status}
                         onClick={() => setOrderStatusFilter(status)}
-                        className={`px-5 py-2 rounded-full text-sm font-semibold transition-all shadow-sm ${orderStatusFilter === status
+                        className={`px-3 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold transition-all shadow-sm ${orderStatusFilter === status
                             ? 'bg-violet-500 text-white border border-violet-400'
                             : 'bg-white/5 hover:bg-white/10 text-gray-400 border border-white/10 hover:text-white'
                             }`}
@@ -35,7 +35,7 @@ const OrderTable = ({
                         <div
                             key={index}
                             onClick={() => setSelectedOrder(order)}
-                            className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-all group flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden cursor-pointer hover:border-violet-500/40"
+                            className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-5 hover:bg-white/10 transition-all group flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 relative overflow-hidden cursor-pointer hover:border-violet-500/40"
                             title="Click to view full order details & clickable product specs"
                         >
                             {/* Left Margin Accent Line */}
@@ -47,15 +47,15 @@ const OrderTable = ({
                                 }`}></div>
 
                             {/* Left section: ID & Email & Date */}
-                            <div className="flex items-center gap-3 pl-2">
-                                <span className="px-2.5 py-1 rounded-lg bg-violet-500/20 text-violet-300 border border-violet-500/30 text-xs font-bold shrink-0">
+                            <div className="flex items-center gap-2.5 sm:gap-3 pl-2">
+                                <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg bg-violet-500/20 text-violet-300 border border-violet-500/30 text-[10px] sm:text-xs font-bold shrink-0">
                                     S.No. #{index + 1}
                                 </span>
-                                <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center border border-violet-500/20 text-violet-400 shrink-0">
-                                    <Package size={20} />
+                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-violet-500/10 flex items-center justify-center border border-violet-500/20 text-violet-400 shrink-0">
+                                    <Package size={18} className="sm:w-5 sm:h-5" />
                                 </div>
                                 <div>
-                                    <h3 className="text-white font-bold text-lg leading-tight flex items-center gap-2">
+                                    <h3 className="text-white font-bold text-sm sm:text-lg leading-tight flex flex-wrap items-center gap-1.5 sm:gap-2">
                                         Order #order_tronix_{String(order.id).padStart(4, '0')}
                                         <span className="text-xs font-normal text-gray-500 flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded-md border border-white/5">
                                             <Calendar size={12} />

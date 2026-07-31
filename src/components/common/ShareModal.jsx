@@ -111,7 +111,7 @@ const ShareModal = ({ isOpen, onClose, product }) => {
                         initial={{ opacity: 0, scale: 0.95, y: 15 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                        className="relative w-full max-w-lg bg-gray-900 border border-violet-500/30 rounded-3xl p-6 shadow-2xl shadow-violet-500/20 z-10 space-y-5 overflow-hidden"
+                        className="relative w-full max-w-lg max-h-[90vh] bg-gray-900 border border-violet-500/30 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl shadow-violet-500/20 z-10 space-y-4 sm:space-y-5 overflow-y-auto custom-scrollbar my-auto"
                     >
                         {/* Background glow accent */}
                         <div className="absolute top-0 right-0 w-48 h-48 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />

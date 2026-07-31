@@ -193,7 +193,7 @@ const ProductDetails = () => {
                             {product.description}
                         </p>
 
-                        <div className="flex items-center gap-4 mb-8">
+                        <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-8">
                             <div className="flex items-center border border-white/10 rounded-lg">
                                 <button
                                     onClick={() => setQuantity(Math.max(1, quantity - 1))}

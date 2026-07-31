@@ -189,15 +189,15 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                             className="relative w-full max-w-4xl max-h-[85vh] bg-gray-900 border border-white/15 rounded-2xl shadow-2xl z-10 overflow-hidden flex flex-col my-auto border-violet-500/20"
                         >
                             {/* Modal Header */}
-                            <div className="px-6 py-4 border-b border-white/10 bg-white/5 flex items-center justify-between shrink-0">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-violet-500/20 border border-violet-500/30 flex items-center justify-center text-violet-400 font-bold">
-                                        <Package size={20} />
+                            <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-white/10 bg-white/5 flex items-center justify-between shrink-0">
+                                <div className="flex items-center gap-2.5 sm:gap-3">
+                                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-violet-500/20 border border-violet-500/30 flex items-center justify-center text-violet-400 font-bold shrink-0">
+                                        <Package size={18} className="sm:w-5 sm:h-5" />
                                     </div>
                                     <div>
-                                        <h2 className="text-lg font-extrabold text-white flex items-center gap-2">
+                                        <h2 className="text-sm sm:text-lg font-extrabold text-white flex flex-wrap items-center gap-1.5 sm:gap-2">
                                             Order #order_tronix_{String(order.id).padStart(4, '0')}
-                                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
+                                            <span className={`px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider ${
                                                 order.status === 'confirmed' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
                                                 order.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
                                                 order.status === 'shipped' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
@@ -207,7 +207,7 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                                                 {order.status}
                                             </span>
                                         </h2>
-                                        <p className="text-xs text-gray-400 flex items-center gap-2 mt-0.5">
+                                        <p className="text-[10px] sm:text-xs text-gray-400 flex items-center gap-1.5 mt-0.5">
                                             <Calendar size={12} />
                                             {order.created_at ? new Date(order.created_at).toLocaleString() : 'N/A'}
                                         </p>
