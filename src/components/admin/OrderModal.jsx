@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { 
     X, Check, Truck, AlertTriangle, Package, Calendar, Mail, Phone, 
-    MapPin, Building, CreditCard, ShieldCheck, Tag, ChevronRight 
+    MapPin, Building, CreditCard, ShieldCheck, Tag, ChevronRight, Eye, ExternalLink
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getImageUrl } from '../../utils/imageUtils';
+import { slugify } from '../../utils/slugify';
 
 const PRESET_COURIERS = [
     "Porter",
@@ -41,6 +43,30 @@ const ORDER_STATUS_OPTIONS = [
     { value: "exchange_rejected", label: "Exchange Declined" }
 ];
 
+const formatShippingMethod = (order) => {
+    if (!order) return 'Standard Delivery';
+    const method = (order.shipping_method || '').toLowerCase().trim();
+    if (method === 'express') return 'Express Air Shipping (1-3 Days)';
+    if (method === 'surface') return 'Surface Shipping (4-7 Days)';
+    if (method === 'pickup') return 'Store Pickup (Pune Office)';
+    if (order.shipping_method) {
+        return order.shipping_method.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    }
+    if (order.courier) {
+        return order.courier;
+    }
+    return 'Standard Logistics';
+};
+
+const getProductStorefrontUrl = (prod) => {
+    if (!prod) return '#';
+    const slug = (prod.title ? slugify(prod.title) : null) || prod.slug || prod.id;
+    const basePath = (typeof window !== 'undefined' && window.location.pathname.startsWith('/e-commerse'))
+        ? '/e-commerse'
+        : (import.meta.env.BASE_URL ? import.meta.env.BASE_URL.replace(/\/$/, '') : '');
+    return `${basePath}/product/${slug}`;
+};
+
 const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
     // Shipping Modal State
     const [isShippingModalOpen, setIsShippingModalOpen] = useState(false);
@@ -59,6 +85,9 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
         cancellation_reason: 'Cancelled by Store Administrator',
         refund_status: 'Full Refund Initiated (3-7 Working Days)'
     });
+
+    // Product Details Preview Popup Modal State
+    const [selectedProductPreview, setSelectedProductPreview] = useState(null);
 
     // Custom Status Change Dropdown State
     const [selectedNewStatus, setSelectedNewStatus] = useState('');
@@ -97,7 +126,6 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
         const finalCourier = shippingData.courier === 'Other' 
             ? (shippingData.custom_courier && shippingData.custom_courier.trim() ? shippingData.custom_courier.trim() : 'Local Transport') 
             : shippingData.courier;
-
 
         onUpdateOrderStatus(order.id, {
             status: shippingData.targetStatus,
@@ -143,14 +171,14 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
         <>
             <AnimatePresence>
                 {isOpen && (
-                    <div className="fixed inset-0 z-40 flex items-center justify-center p-3 sm:p-4 text-white overflow-y-auto">
+                    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-3 sm:p-6 text-white overflow-y-auto pt-16 sm:pt-20">
                         {/* Backdrop */}
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={onClose}
-                            className="fixed inset-0 bg-black/80 backdrop-blur-md"
+                            className="fixed inset-0 bg-black/85 backdrop-blur-md"
                         />
 
                         {/* Main Order Modal Container */}
@@ -158,7 +186,7 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                             initial={{ opacity: 0, scale: 0.95, y: 10 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            className="relative w-full max-w-4xl max-h-[90vh] bg-gray-900 border border-white/10 rounded-2xl shadow-2xl z-10 overflow-hidden flex flex-col my-auto"
+                            className="relative w-full max-w-4xl max-h-[85vh] bg-gray-900 border border-white/15 rounded-2xl shadow-2xl z-10 overflow-hidden flex flex-col my-auto border-violet-500/20"
                         >
                             {/* Modal Header */}
                             <div className="px-6 py-4 border-b border-white/10 bg-white/5 flex items-center justify-between shrink-0">
@@ -194,7 +222,7 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                             </div>
 
                             {/* Modal Content Scrollable Area */}
-                            <div className="p-6 overflow-y-auto space-y-6 flex-1 text-sm">
+                            <div className="p-6 overflow-y-auto space-y-6 flex-1 text-sm custom-scrollbar">
                                 
                                 {/* Quick Status Management Bar */}
                                 <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
@@ -267,7 +295,7 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                                 {(order.courier || order.tracking_number || order.estimated_delivery_date) && (
                                     <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 space-y-2">
                                         <p className="text-xs uppercase tracking-wider font-bold text-blue-400 flex items-center gap-1.5">
-                                            <Truck size={14} /> Active Logistics & Shipping Details
+                                            <Truck size={14} /> Active Logistics & Dispatch Partner
                                         </p>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                                             <div>
@@ -359,30 +387,58 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
 
                                 {/* Order Items Table */}
                                 <div className="space-y-3">
-                                    <h4 className="text-xs uppercase tracking-wider font-bold text-gray-400">
-                                        Purchased Items ({Array.isArray(order.items) ? order.items.length : 0})
-                                    </h4>
+                                    <div className="flex items-center justify-between">
+                                        <h4 className="text-xs uppercase tracking-wider font-bold text-gray-400">
+                                            Purchased Items ({Array.isArray(order.items) ? order.items.length : 0})
+                                        </h4>
+                                        <span className="text-[11px] text-violet-400 font-semibold flex items-center gap-1">
+                                            <Eye size={12} /> Click any item to open product popup
+                                        </span>
+                                    </div>
                                     <div className="border border-white/10 rounded-xl overflow-hidden divide-y divide-white/10 bg-white/5">
-                                        {Array.isArray(order.items) && order.items.map((item, idx) => (
-                                            <div key={idx} className="p-3 flex items-center justify-between gap-4">
-                                                <div className="flex items-center gap-3">
-                                                    <img
-                                                        src={item.product?.image || 'https://placehold.co/80?text=TRONIX365'}
-                                                        alt={item.product?.title || 'Product'}
-                                                        className="w-12 h-12 rounded-lg object-cover bg-black/40 border border-white/10 shrink-0"
-                                                    />
-                                                    <div>
-                                                        <p className="font-bold text-white text-sm">{item.product?.title || 'Electronics Product'}</p>
-                                                        <p className="text-xs text-gray-400">
-                                                            Qty: <span className="text-violet-300 font-bold">{item.quantity}</span> &times; ₹{Number(item.price_at_purchase || 0).toLocaleString()}
+                                        {Array.isArray(order.items) && order.items.map((item, idx) => {
+                                            const productObj = item.product || {
+                                                id: item.product_id,
+                                                title: item.title || `Product #${item.product_id}`,
+                                                image: item.image,
+                                                price: item.price_at_purchase,
+                                                sale_price: item.price_at_purchase,
+                                                category: item.category || 'Electronics'
+                                            };
+                                            return (
+                                                <div 
+                                                    key={idx} 
+                                                    onClick={() => setSelectedProductPreview(productObj)}
+                                                    className="p-3 flex items-center justify-between gap-4 hover:bg-white/10 transition-all cursor-pointer group"
+                                                    title="Click to open product details popup"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <img
+                                                            src={getImageUrl(productObj.image) || 'https://placehold.co/80?text=TRONIX365'}
+                                                            alt={productObj.title || 'Product'}
+                                                            className="w-12 h-12 rounded-lg object-cover bg-black/40 border border-white/10 shrink-0 group-hover:border-violet-400 transition-colors"
+                                                        />
+                                                        <div>
+                                                            <p className="font-bold text-white text-sm group-hover:text-violet-300 transition-colors flex items-center gap-1.5">
+                                                                {productObj.title || 'Electronics Product'}
+                                                                <Eye size={14} className="text-violet-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                            </p>
+                                                            <p className="text-xs text-gray-400">
+                                                                Qty: <span className="text-violet-300 font-bold">{item.quantity}</span> &times; ₹{Number(item.price_at_purchase || 0).toLocaleString()}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="font-bold text-emerald-400 text-sm">
+                                                            ₹{(Number(item.price_at_purchase || 0) * (item.quantity || 1)).toLocaleString()}
                                                         </p>
+                                                        <span className="text-[10px] text-violet-400 opacity-80 group-hover:underline flex items-center justify-end gap-1">
+                                                            Inspect specs &rarr;
+                                                        </span>
                                                     </div>
                                                 </div>
-                                                <p className="font-bold text-emerald-400 text-sm">
-                                                    ₹{(Number(item.price_at_purchase || 0) * (item.quantity || 1)).toLocaleString()}
-                                                </p>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </div>
 
@@ -410,8 +466,20 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                                         <span>Total GST Collected (18%)</span>
                                         <span>₹{Number(order.gst_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                     </div>
+
+                                    {/* User Selected Shipping Method & Dynamic Shipping Cost */}
+                                    <div className="flex justify-between text-xs text-gray-300 font-medium pt-1.5 border-t border-white/5">
+                                        <span className="flex items-center gap-1.5">
+                                            <Truck size={14} className="text-blue-400" />
+                                            Selected Shipping Option (<strong className="text-white">{formatShippingMethod(order)}</strong>):
+                                        </span>
+                                        <span className={Number(order.shipping_cost || 0) > 0 ? 'text-white font-bold' : 'text-emerald-400 font-bold'}>
+                                            {Number(order.shipping_cost || 0) > 0 ? `+ ₹${Number(order.shipping_cost).toLocaleString(undefined, { minimumFractionDigits: 2 })}` : 'FREE (₹0.00)'}
+                                        </span>
+                                    </div>
+
                                     <div className="pt-2 border-t border-white/10 flex justify-between text-base font-extrabold text-white">
-                                        <span>Total Paid (Incl. 18% GST)</span>
+                                        <span>Total Paid (Incl. 18% GST & Shipping)</span>
                                         <span className="text-emerald-400">₹{Number(order.total_amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                     </div>
                                 </div>
@@ -421,10 +489,130 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                 )}
             </AnimatePresence>
 
+            {/* Product Details Preview Popup Modal */}
+            <AnimatePresence>
+                {selectedProductPreview && (
+                    <div className="fixed inset-0 z-[1200] flex items-center justify-center p-4 text-white">
+                        <motion.div 
+                            initial={{ opacity: 0 }} 
+                            animate={{ opacity: 1 }} 
+                            exit={{ opacity: 0 }} 
+                            onClick={() => setSelectedProductPreview(null)} 
+                            className="absolute inset-0 bg-black/85 backdrop-blur-md" 
+                        />
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95, y: 10 }} 
+                            animate={{ opacity: 1, scale: 1, y: 0 }} 
+                            exit={{ opacity: 0, scale: 0.95, y: 10 }} 
+                            className="relative w-full max-w-2xl bg-gray-900 border border-violet-500/40 rounded-2xl p-6 shadow-2xl z-10 space-y-4 max-h-[85vh] overflow-y-auto custom-scrollbar"
+                        >
+                            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                                <h3 className="text-base font-bold text-violet-400 flex items-center gap-2">
+                                    <Package className="text-violet-500" size={20} /> Ordered Product Specification Popup
+                                </h3>
+                                <button 
+                                    onClick={() => setSelectedProductPreview(null)} 
+                                    className="p-1 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 items-start">
+                                {/* Image */}
+                                <div className="sm:col-span-5 aspect-square bg-black/50 border border-white/10 rounded-xl overflow-hidden flex items-center justify-center p-2">
+                                    <img 
+                                        src={getImageUrl(selectedProductPreview.image) || 'https://placehold.co/300?text=TRONIX365'} 
+                                        alt={selectedProductPreview.title} 
+                                        className="max-w-full max-h-full object-contain"
+                                    />
+                                </div>
+
+                                {/* Meta */}
+                                <div className="sm:col-span-7 space-y-3 text-xs">
+                                    <div>
+                                        <span className="px-2 py-0.5 rounded-md bg-violet-500/20 text-violet-300 font-bold uppercase tracking-wider text-[10px] border border-violet-500/30">
+                                            {selectedProductPreview.category || 'Electronics Component'}
+                                        </span>
+                                        <h4 className="text-lg font-extrabold text-white mt-1 leading-snug">
+                                            {selectedProductPreview.title || 'Electronics Product'}
+                                        </h4>
+                                        {selectedProductPreview.sku && (
+                                            <p className="text-gray-400 text-[11px] mt-0.5">SKU / Code: <span className="font-mono text-gray-200 font-bold">{selectedProductPreview.sku}</span></p>
+                                        )}
+                                    </div>
+
+                                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+                                        <div>
+                                            <span className="text-gray-400 block text-[10px]">Selling Price</span>
+                                            <span className="text-emerald-400 font-bold text-base">
+                                                ₹{Number(selectedProductPreview.sale_price || selectedProductPreview.price || 0).toLocaleString()}
+                                            </span>
+                                            {selectedProductPreview.mrp > (selectedProductPreview.sale_price || selectedProductPreview.price) && (
+                                                <span className="text-gray-500 line-through text-xs ml-2">₹{selectedProductPreview.mrp}</span>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <span className="text-gray-400 block text-[10px]">Stock Status</span>
+                                            <span className={`font-bold ${selectedProductPreview.stock > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                {selectedProductPreview.stock > 0 ? `${selectedProductPreview.stock} Units` : 'Out of Stock'}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {selectedProductPreview.description && (
+                                        <div>
+                                            <h5 className="font-bold text-gray-300 mb-1">Description:</h5>
+                                            <p className="text-gray-400 leading-relaxed text-[11px] max-h-24 overflow-y-auto custom-scrollbar">
+                                                {selectedProductPreview.description}
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {selectedProductPreview.features && (
+                                        <div>
+                                            <h5 className="font-bold text-gray-300 mb-1">Key Specs & Features:</h5>
+                                            <div className="text-gray-300 text-[11px] space-y-1">
+                                                {String(selectedProductPreview.features).split('\n').slice(0, 4).map((f, i) => (
+                                                    <div key={i} className="flex items-center gap-1.5">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
+                                                        <span>{f}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="pt-3 border-t border-white/10 flex justify-end gap-3">
+                                <button 
+                                    type="button" 
+                                    onClick={() => setSelectedProductPreview(null)} 
+                                    className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-gray-300 text-xs font-bold transition-colors"
+                                >
+                                    Close Preview
+                                </button>
+                                {selectedProductPreview && (
+                                    <a 
+                                        href={getProductStorefrontUrl(selectedProductPreview)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-violet-500/20 flex items-center gap-1.5 transition-all"
+                                    >
+                                        <ExternalLink size={14} /> Open Storefront Product Page
+                                    </a>
+                                )}
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
             {/* Logistics & Shipping Configuration Modal */}
             <AnimatePresence>
                 {isShippingModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 text-white">
+                    <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4 text-white">
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsShippingModalOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-lg bg-gray-900 border border-blue-500/40 rounded-2xl p-6 shadow-2xl z-10 space-y-4">
                             <div className="flex items-center justify-between border-b border-white/10 pb-3">
@@ -510,7 +698,7 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
             {/* Order Cancellation Modal */}
             <AnimatePresence>
                 {isCancelModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 text-white">
+                    <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4 text-white">
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsCancelModalOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-lg bg-gray-900 border border-red-500/40 rounded-2xl p-6 shadow-2xl z-10 space-y-4">
                             <div className="flex items-center justify-between border-b border-white/10 pb-3">

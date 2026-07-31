@@ -34,7 +34,9 @@ const OrderTable = ({
                     orders.map((order, index) => (
                         <div
                             key={index}
-                            className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-all group flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden"
+                            onClick={() => setSelectedOrder(order)}
+                            className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-all group flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden cursor-pointer hover:border-violet-500/40"
+                            title="Click to view full order details & clickable product specs"
                         >
                             {/* Left Margin Accent Line */}
                             <div className={`absolute left-0 top-0 bottom-0 w-1 ${order.status === 'confirmed' ? 'bg-green-500' :

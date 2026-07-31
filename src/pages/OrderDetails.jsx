@@ -214,7 +214,7 @@ const OrderDetails = () => {
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-sm text-gray-300">
                                         <span>Item(s) Subtotal (excl. GST):</span>
-                                        <span>₹{(order.subtotal_before_gst ?? (order.total_amount - (order.gst_amount || 0))).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                                        <span>₹{(order.subtotal_before_gst ?? (order.total_amount - (order.shipping_cost || 0) - (order.gst_amount || 0))).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                                     </div>
                                     <div className="flex justify-between text-sm text-yellow-400">
                                         <span>CGST (9%):</span>
@@ -225,9 +225,17 @@ const OrderDetails = () => {
                                         <span>+ ₹{((order.gst_amount || 0) / 2).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                                     </div>
                                     <div className="flex justify-between text-sm text-gray-300">
-                                        <span>Shipping ({order.shipping_method ? order.shipping_method.charAt(0).toUpperCase() + order.shipping_method.slice(1) : 'Standard'}):</span>
-                                        <span className={order.shipping_cost > 0 ? 'text-white' : 'text-emerald-400'}>
-                                            {order.shipping_cost > 0 ? `₹${order.shipping_cost}` : 'Free'}
+                                        <span>
+                                            Selected Shipping Option ({
+                                                order.shipping_method === 'express' ? 'Express Air Shipping' :
+                                                order.shipping_method === 'surface' ? 'Surface Shipping' :
+                                                order.shipping_method === 'pickup' ? 'Store Pickup (Pune Office)' :
+                                                order.shipping_method ? order.shipping_method.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') :
+                                                'Standard Logistics'
+                                            }):
+                                        </span>
+                                        <span className={order.shipping_cost > 0 ? 'text-white font-bold' : 'text-emerald-400 font-bold'}>
+                                            {order.shipping_cost > 0 ? `+ ₹${order.shipping_cost}` : 'FREE (₹0.00)'}
                                         </span>
                                     </div>
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Check, X as XIcon, ArrowLeft, Star, ShieldCheck, Truck, Heart } from 'lucide-react';
+import { ShoppingCart, Check, X as XIcon, ArrowLeft, Star, ShieldCheck, Truck, Heart, Share2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useCartAnimation } from '../context/CartAnimationContext';
@@ -15,6 +15,7 @@ import SEO from '../components/common/SEO';
 import ProductSchema from '../components/common/ProductSchema';
 import Breadcrumbs from '../components/common/Breadcrumbs';
 import Image from '../components/common/Image';
+import ShareModal from '../components/common/ShareModal';
 
 const ProductDetails = () => {
     const { slug } = useParams();
@@ -27,6 +28,7 @@ const ProductDetails = () => {
     const [quantity, setQuantity] = useState(1);
     const [loading, setLoading] = useState(true);
     const [bundles, setBundles] = useState([]);
+    const [isShareOpen, setIsShareOpen] = useState(false);
 
     useEffect(() => {
         const fetchProductData = async () => {
@@ -226,8 +228,16 @@ const ProductDetails = () => {
                                     }
                                 }}
                                 className={`p-3 rounded-lg border border-white/10 transition-colors ${isInWishlist(product.id) ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-white/5 hover:bg-white/10 text-white'}`}
+                                title={isInWishlist(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
                             >
                                 <Heart size={24} fill={isInWishlist(product.id) ? "currentColor" : "none"} />
+                            </button>
+                            <button
+                                onClick={() => setIsShareOpen(true)}
+                                className="p-3 rounded-lg border border-white/10 bg-white/5 hover:bg-violet-600/30 hover:border-violet-500/50 text-white transition-colors cursor-pointer"
+                                title="Share Product"
+                            >
+                                <Share2 size={24} />
                             </button>
                         </div>
                         <button
@@ -360,6 +370,13 @@ const ProductDetails = () => {
                 {/* Recommendations Section */}
                 <RelatedProducts productId={product.id} />
             </div>
+
+            {/* Share Modal */}
+            <ShareModal
+                isOpen={isShareOpen}
+                onClose={() => setIsShareOpen(false)}
+                product={product}
+            />
         </div>
     );
 };

@@ -603,9 +603,11 @@ async def create_order(
 ):
     # Calculate explicit GST breakdown (18% tax rate)
     total_amount = max(0.0, order.total_amount)
+    shipping_cost = order.shipping_cost if order.shipping_cost is not None else 0.0
+    items_total_with_gst = max(0.0, total_amount - shipping_cost)
     gst_rate = order.gst_rate if order.gst_rate is not None else 18.0
-    subtotal_before_gst = round(total_amount / (1 + (gst_rate / 100)), 2)
-    gst_amount = round(total_amount - subtotal_before_gst, 2)
+    subtotal_before_gst = round(items_total_with_gst / (1 + (gst_rate / 100)), 2)
+    gst_amount = round(items_total_with_gst - subtotal_before_gst, 2)
 
     # Create Order
     new_order = OrderDB(
@@ -2030,6 +2032,8 @@ class PaymentInitiate(BaseModel):
     gst_rate: float | None = 18.0
     gst_amount: float | None = None
     subtotal_before_gst: float | None = None
+    shipping_method: str | None = 'surface'
+    shipping_cost: float | None = 0.0
 
 
 @app.post("/payment/initiate")
@@ -2081,9 +2085,11 @@ async def initiate_payment(
 
     # Calculate explicit GST breakdown (18% tax rate)
     total_amount = max(0.0, payment.amount)
+    shipping_cost = payment.shipping_cost if payment.shipping_cost is not None else 0.0
+    items_total_with_gst = max(0.0, total_amount - shipping_cost)
     gst_rate = payment.gst_rate if payment.gst_rate is not None else 18.0
-    subtotal_before_gst = round(total_amount / (1 + (gst_rate / 100)), 2)
-    gst_amount = round(total_amount - subtotal_before_gst, 2)
+    subtotal_before_gst = round(items_total_with_gst / (1 + (gst_rate / 100)), 2)
+    gst_amount = round(items_total_with_gst - subtotal_before_gst, 2)
 
     # Create Order in DB
     new_order = OrderDB(
@@ -2107,6 +2113,8 @@ async def initiate_payment(
         gst_rate=gst_rate,
         gst_amount=payment.gst_amount if payment.gst_amount is not None else gst_amount,
         subtotal_before_gst=payment.subtotal_before_gst if payment.subtotal_before_gst is not None else subtotal_before_gst,
+        shipping_method=payment.shipping_method or 'surface',
+        shipping_cost=shipping_cost,
     )
     db.add(new_order)
     db.commit()
