@@ -765,7 +765,7 @@ async def update_order_status(
 
     # MANDATORY REQUIREMENT: Trigger automated email dispatch for EVERY status update
     try:
-        background_tasks.add_task(send_order_status_email, order.id, new_status)
+        background_tasks.add_task(send_order_status_email, order.id, new_status, True)
     except Exception as e:
         logger.error(f"Error queueing background email task for order #{order.id}: {e}")
 
@@ -775,6 +775,20 @@ async def update_order_status(
         "courier": order.courier,
         "tracking_number": order.tracking_number,
     }
+
+
+@app.post("/admin/orders/{order_id}/send-email")
+async def admin_send_order_email(
+    order_id: int,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
+    order = db.query(OrderDB).filter(OrderDB.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    background_tasks.add_task(send_order_status_email, order.id, order.status, True)
+    return {"message": f"Email dispatch queued for order #{order_id}"}
 
 
 @app.get("/admin/email-logs", response_model=List[EmailLogResponse])

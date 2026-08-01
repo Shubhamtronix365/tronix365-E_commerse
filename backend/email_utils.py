@@ -841,7 +841,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
     return html_template
 
 
-def send_order_status_email(order_or_id, status: str):
+def send_order_status_email(order_or_id, status: str, force_send: bool = False):
     """
     Orchestrates order lifecycle email notifications.
     1. Automatic deduplication check against recent email logs (60 seconds window).
@@ -861,26 +861,27 @@ def send_order_status_email(order_or_id, status: str):
 
     db = SessionLocal()
     try:
-        # Check deduplication within 60 seconds
-        recent_log = (
-            db.query(EmailLogDB)
-            .filter(
-                EmailLogDB.order_id == order_id,
-                EmailLogDB.status_trigger == status_lower,
-                EmailLogDB.delivery_status == "sent",
-            )
-            .order_by(EmailLogDB.id.desc())
-            .first()
-        )
-        if recent_log and recent_log.created_at:
-            time_diff = (
-                datetime.utcnow() - recent_log.created_at.replace(tzinfo=None)
-            ).total_seconds()
-            if time_diff < 60:
-                logger.info(
-                    f"Duplicate email suppression: Email for order #{order_id} status '{status_lower}' sent {int(time_diff)}s ago. Skipping."
+        # Check deduplication within 60 seconds (bypassed if force_send is True)
+        if not force_send:
+            recent_log = (
+                db.query(EmailLogDB)
+                .filter(
+                    EmailLogDB.order_id == order_id,
+                    EmailLogDB.status_trigger == status_lower,
+                    EmailLogDB.delivery_status == "sent",
                 )
-                return True
+                .order_by(EmailLogDB.id.desc())
+                .first()
+            )
+            if recent_log and recent_log.created_at:
+                time_diff = (
+                    datetime.utcnow() - recent_log.created_at.replace(tzinfo=None)
+                ).total_seconds()
+                if 0 <= time_diff < 60:
+                    logger.info(
+                        f"Duplicate email suppression: Email for order #{order_id} status '{status_lower}' sent {int(time_diff)}s ago. Skipping."
+                    )
+                    return True
 
         # Fetch full order details with product relationships
         order_loaded = (
@@ -890,8 +891,11 @@ def send_order_status_email(order_or_id, status: str):
             .first()
         )
         if not order_loaded:
-            logger.error(f"Order ID {order_id} not found in database. Cannot send notification email.")
-            return False
+            if hasattr(order_or_id, "customer_email"):
+                order_loaded = order_or_id
+            else:
+                logger.error(f"Order ID {order_id} not found in database. Cannot send notification email.")
+                return False
 
         to_email = order_loaded.customer_email
         if not to_email:
