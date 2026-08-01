@@ -127,13 +127,64 @@ def send_email_via_brevo(
 
 # Public URL base for hosted email assets (logo, icons)
 EMAIL_ASSETS_BASE_URL = os.getenv("BACKEND_URL", "https://tronix365-e-commerse.onrender.com") + "/email-assets"
+LOGO_PUBLIC_URL = "https://cdn.jsdelivr.net/gh/bhaveshburad729/tronix365-E_commerse@main/src/assets/logo.png"
 
 
-def generate_order_status_email_html(order, status: str, frontend_url: str) -> str:
+def get_canonical_frontend_url(url_str: Optional[str] = None) -> str:
+    """
+    Returns the canonical frontend base URL with /e-commerse route guaranteed.
+    Prevents Vite base URL mismatch error (e.g. 'did you mean to visit /e-commerse/shop').
+    """
+    base = (url_str or os.getenv("FRONTEND_URL", "https://www.tronix365.in/e-commerse")).rstrip("/")
+    if "/e-commerse" not in base:
+        base = f"{base}/e-commerse"
+    return base
+
+
+def resolve_email_image_url(raw_img_url: Optional[str], frontend_url: str) -> str:
+    """
+    Resolves product or asset image URLs to 100% public, HTTPS-accessible URLs for email clients.
+    """
+    backend_base = os.getenv("BACKEND_URL", "https://tronix365-e-commerse.onrender.com").rstrip("/")
+    logo_cdn = LOGO_PUBLIC_URL
+
+    if not raw_img_url or not isinstance(raw_img_url, str):
+        return logo_cdn
+
+    url = raw_img_url.strip()
+    if not url or "placehold.co" in url or "placeholder" in url or "tronix365.in/assets" in url:
+        return logo_cdn
+
+    # Replace localhost/127.0.0.1 in image URLs with backend public URL
+    if "localhost:" in url or "127.0.0.1:" in url:
+        import re
+        match = re.search(r"https?://[^/]+(/.*)", url)
+        if match:
+            url = match.group(1)
+
+    if url.startswith("/uploads/") or url.startswith("uploads/"):
+        rel_path = url if url.startswith("/") else f"/{url}"
+        return f"{backend_base}{rel_path}"
+
+    if url.startswith("/assets/") or url.startswith("assets/"):
+        rel_path = url if url.startswith("/") else f"/{url}"
+        return f"{frontend_url}{rel_path}"
+
+    if url.startswith("/"):
+        return f"{frontend_url}{url}"
+
+    if url.startswith("http://") or url.startswith("https://"):
+        return url
+
+    return logo_cdn
+
+
+def generate_order_status_email_html(order, status: str, frontend_url: str = None) -> str:
     """
     Generates dynamic, highly responsive HTML email templates for EVERY order status.
-    Uses hosted logo image URL from /email-assets/logo.png matching the confirmation.png design.
+    Uses high-availability jsDelivr CDN logo image matching the confirmation.png design.
     """
+    frontend_url = get_canonical_frontend_url(frontend_url)
     status_lower = (status or "pending").lower().strip()
     formatted_status = status_lower.replace("_", " ").title()
 
@@ -162,7 +213,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str) -> s
     )
 
     # Hosted logo image — high availability public CDN with fallback text
-    logo_url = os.getenv("EMAIL_LOGO_URL", "https://raw.githubusercontent.com/bhaveshburad729/tronix365-E_commerse/main/src/assets/logo.png")
+    logo_url = LOGO_PUBLIC_URL
     logo_html = f'''<a href="{frontend_url}" style="text-decoration: none; display: inline-flex; align-items: center;"><img src="{logo_url}" alt="TRONIX365" width="42" height="42" style="display: inline-block; border: 0; outline: none; vertical-align: middle; border-radius: 8px;" /><span style="font-family: Arial, sans-serif; font-size: 20px; font-weight: 900; color: #0f172a; letter-spacing: 1px; vertical-align: middle; margin-left: 8px;">TRONIX<span style="color: #6d28d9;">365</span></span></a>'''
 
     order_items_list = getattr(order, "items", None) or []
@@ -198,15 +249,8 @@ def generate_order_status_email_html(order, status: str, frontend_url: str) -> s
         else:
             product_url = f"{frontend_url}/shop"
 
-        img_url = (
-            getattr(p_obj, "image", None)
-            if p_obj and getattr(p_obj, "image", None)
-            else None
-        )
-        if not img_url or "placehold.co" in img_url or "placeholder" in img_url:
-            img_url = logo_url
-        elif img_url.startswith("/"):
-            img_url = f"{frontend_url}{img_url}"
+        raw_img = getattr(p_obj, "image", None) if p_obj else None
+        img_url = resolve_email_image_url(raw_img, frontend_url)
 
         title = getattr(p_obj, "title", "Electronics Item") if p_obj else "Electronics Item"
         unit_price = getattr(item, "price_at_purchase", 0.0) or 0.0
@@ -826,8 +870,8 @@ def send_otp_email(to_email: str, otp_code: str):
     Sends an OTP verification email for account registration or password reset.
     Always sends to customer + shubham.tronix365@gmail.com.
     """
-    frontend_url = os.getenv("FRONTEND_URL", "https://www.tronix365.in/e-commerse").rstrip("/")
-    logo_url = os.getenv("EMAIL_LOGO_URL", "https://raw.githubusercontent.com/bhaveshburad729/tronix365-E_commerse/main/src/assets/logo.png")
+    frontend_url = get_canonical_frontend_url()
+    logo_url = LOGO_PUBLIC_URL
 
     subject = f"Your Tronix365 Verification Code: {otp_code}"
     html_content = f"""
@@ -885,8 +929,8 @@ def send_contact_form_notification(name: str, email: str, message: str):
     Sends a notification to the admin/support email when a contact form is submitted.
     """
     to_email = os.getenv("CONTACT_EMAIL", MANDATORY_CC_EMAIL)
-    frontend_url = os.getenv("FRONTEND_URL", "https://www.tronix365.in/e-commerse").rstrip("/")
-    logo_url = os.getenv("EMAIL_LOGO_URL", "https://raw.githubusercontent.com/bhaveshburad729/tronix365-E_commerse/main/src/assets/logo.png")
+    frontend_url = get_canonical_frontend_url()
+    logo_url = LOGO_PUBLIC_URL
 
     subject = f"New Contact Message from {name}"
 
@@ -946,8 +990,9 @@ def send_contact_form_notification(name: str, email: str, message: str):
     )
 
 
-def generate_abandoned_cart_html(user_name: str, cart_items: list, frontend_url: str) -> str:
-    logo_url = os.getenv("EMAIL_LOGO_URL", "https://raw.githubusercontent.com/bhaveshburad729/tronix365-E_commerse/main/src/assets/logo.png")
+def generate_abandoned_cart_html(user_name: str, cart_items: list, frontend_url: str = None) -> str:
+    frontend_url = get_canonical_frontend_url(frontend_url)
+    logo_url = LOGO_PUBLIC_URL
     
     item_rows = ""
     total = 0.0
@@ -957,19 +1002,16 @@ def generate_abandoned_cart_html(user_name: str, cart_items: list, frontend_url:
             price = float(item.get("price", 0.0))
             qty = int(item.get("quantity", 1))
             prod_id = item.get("id") or item.get("product_id")
-            img_url = item.get("image") or logo_url
+            raw_img = item.get("image")
         else:
             p_obj = getattr(item, "product", None)
             title = p_obj.title if p_obj else "Product"
             price = getattr(item, "price_at_purchase", 0.0) or getattr(p_obj, "price", 0.0) or 0.0
             qty = getattr(item, "quantity", 1) or 1
             prod_id = getattr(p_obj, "id", None) or getattr(item, "product_id", None)
-            img_url = getattr(p_obj, "image", None) if p_obj else None
+            raw_img = getattr(p_obj, "image", None) if p_obj else None
 
-        if not img_url or "placehold.co" in img_url or "placeholder" in img_url:
-            img_url = logo_url
-        elif img_url.startswith("/"):
-            img_url = f"{frontend_url}{img_url}"
+        img_url = resolve_email_image_url(raw_img, frontend_url)
 
         if prod_id:
             product_url = f"{frontend_url}/product/{prod_id}"

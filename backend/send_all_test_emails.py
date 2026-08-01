@@ -17,14 +17,17 @@ from email_utils import (
 
 TARGET_EMAIL = "bhaveshburad729@gmail.com"
 
+LOGO_CDN = "https://cdn.jsdelivr.net/gh/bhaveshburad729/tronix365-E_commerse@main/src/assets/logo.png"
+
 class DummyProduct:
-    def __init__(self, title, image_url):
+    def __init__(self, id, title, image):
+        self.id = id
         self.title = title
-        self.image_url = image_url
+        self.image = image
 
 class DummyItem:
-    def __init__(self, title, price, qty, image_url):
-        self.product = DummyProduct(title, image_url)
+    def __init__(self, id, title, price, qty, image):
+        self.product = DummyProduct(id, title, image)
         self.price_at_purchase = price
         self.quantity = qty
 
@@ -49,14 +52,14 @@ class DummyOrder:
         self.txnid = "PAY_TXN_99887766"
         self.created_at = datetime.now()
         self.items = [
-            DummyItem("Arduino Uno R3 Microcontroller Board", 499.00, 2, "https://tronix365.in/assets/logo.png"),
-            DummyItem("ESP32 Wi-Fi + Bluetooth Dev Board", 501.00, 1, "https://tronix365.in/assets/logo.png")
+            DummyItem(1, "Arduino Uno R3 Microcontroller Board", 499.00, 2, LOGO_CDN),
+            DummyItem(2, "ESP32 Wi-Fi + Bluetooth Dev Board", 501.00, 1, LOGO_CDN)
         ]
 
 def run_test_email_dispatch():
     print(f"Starting test email dispatch to: {TARGET_EMAIL}")
     results = {}
-    frontend_url = os.getenv("FRONTEND_URL", "https://www.tronix365.in/e-commerse")
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173/e-commerse")
 
     # 1. OTP Email
     print("\n[1/12] Sending OTP Verification Email...")
@@ -77,8 +80,8 @@ def run_test_email_dispatch():
     # 3. Abandoned Cart Email
     print("\n[3/12] Sending Abandoned Cart Reminder Email...")
     cart_items = [
-        {"title": "Raspberry Pi 4 Model B (4GB)", "price": 4500.0, "quantity": 1, "image": "https://tronix365.in/assets/logo.png"},
-        {"title": "OLED Display Module 0.96 inch", "price": 250.0, "quantity": 2, "image": "https://tronix365.in/assets/logo.png"}
+        {"id": 1, "title": "Raspberry Pi 4 Model B (4GB)", "price": 4500.0, "quantity": 1, "image": LOGO_CDN},
+        {"id": 2, "title": "OLED Display Module 0.96 inch", "price": 250.0, "quantity": 2, "image": LOGO_CDN}
     ]
     res_cart = send_abandoned_cart_email(TARGET_EMAIL, "Bhavesh Burad", cart_items, frontend_url)
     results["Abandoned Cart Reminder"] = res_cart
