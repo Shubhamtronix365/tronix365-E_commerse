@@ -161,9 +161,9 @@ def generate_order_status_email_html(order, status: str, frontend_url: str) -> s
         ", ".join([p for p in address_parts if p]) if any(address_parts) else "N/A"
     )
 
-    # Hosted logo image — served from /email-assets/logo.png on Render
-    logo_url = f"{EMAIL_ASSETS_BASE_URL}/logo.png"
-    logo_html = f'''<img src="{logo_url}" alt="TRONIX365" width="120" height="auto" style="display: block; border: 0; outline: none; max-width: 120px;" />'''
+    # Hosted logo image — high availability public CDN with fallback text
+    logo_url = os.getenv("EMAIL_LOGO_URL", "https://raw.githubusercontent.com/bhaveshburad729/tronix365-E_commerse/main/src/assets/logo.png")
+    logo_html = f'''<a href="{frontend_url}" style="text-decoration: none; display: inline-flex; align-items: center;"><img src="{logo_url}" alt="TRONIX365" width="42" height="42" style="display: inline-block; border: 0; outline: none; vertical-align: middle; border-radius: 8px;" /><span style="font-family: Arial, sans-serif; font-size: 20px; font-weight: 900; color: #0f172a; letter-spacing: 1px; vertical-align: middle; margin-left: 8px;">TRONIX<span style="color: #6d28d9;">365</span></span></a>'''
 
     order_items_list = getattr(order, "items", None) or []
     items_subtotal = sum(
@@ -188,19 +188,27 @@ def generate_order_status_email_html(order, status: str, frontend_url: str) -> s
     cgst = explicit_gst / 2.0
     sgst = explicit_gst / 2.0
 
-    # Build Item Rows
+    # Build Item Rows with Clickable Links and Visible Images
     item_rows = ""
     for item in order_items_list:
         p_obj = getattr(item, "product", None)
+        prod_id = getattr(p_obj, "id", None) or getattr(item, "product_id", None)
+        if prod_id:
+            product_url = f"{frontend_url}/product/{prod_id}"
+        else:
+            product_url = f"{frontend_url}/shop"
+
         img_url = (
-            p_obj.image
+            getattr(p_obj, "image", None)
             if p_obj and getattr(p_obj, "image", None)
-            else "https://placehold.co/80?text=TRONIX365"
+            else None
         )
-        if img_url.startswith("/"):
+        if not img_url or "placehold.co" in img_url or "placeholder" in img_url:
+            img_url = logo_url
+        elif img_url.startswith("/"):
             img_url = f"{frontend_url}{img_url}"
 
-        title = p_obj.title if p_obj else "Electronics Item"
+        title = getattr(p_obj, "title", "Electronics Item") if p_obj else "Electronics Item"
         unit_price = getattr(item, "price_at_purchase", 0.0) or 0.0
         qty = getattr(item, "quantity", 1) or 1
         line_total = unit_price * qty
@@ -208,10 +216,14 @@ def generate_order_status_email_html(order, status: str, frontend_url: str) -> s
         item_rows += f"""
         <tr>
             <td style="padding: 14px 12px; border-bottom: 1px solid #f1f5f9; width: 56px; vertical-align: middle;">
-                <img src="{img_url}" alt="{title}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; display: block;" />
+                <a href="{product_url}" style="text-decoration: none; display: block;">
+                    <img src="{img_url}" alt="{title}" width="50" height="50" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; display: block;" />
+                </a>
             </td>
             <td style="padding: 14px 12px; border-bottom: 1px solid #f1f5f9; text-align: left; vertical-align: middle;">
-                <p style="margin: 0; font-weight: 700; color: #0f172a; font-size: 14px; line-height: 1.4;">{title}</p>
+                <a href="{product_url}" style="text-decoration: none; color: #0f172a;">
+                    <p style="margin: 0; font-weight: 700; color: #0f172a; font-size: 14px; line-height: 1.4;">{title}</p>
+                </a>
                 <p style="margin: 4px 0 0; font-size: 13px; color: #64748b;">Qty: <strong style="color: #6d28d9;">{qty}</strong> &nbsp;|&nbsp; Price: ₹{unit_price:,.2f}</p>
             </td>
             <td style="padding: 14px 12px; border-bottom: 1px solid #f1f5f9; text-align: right; vertical-align: middle; width: 110px;">
@@ -674,7 +686,10 @@ def generate_order_status_email_html(order, status: str, frontend_url: str) -> s
                                 <table width="100%" cellpadding="0" cellspacing="0">
                                     <tr>
                                         <td align="center" style="padding-bottom: 16px;">
-                                            <img src="https://tronix365.in/assets/logo.png" alt="TRONIX365" width="80" style="display: inline-block; filter: brightness(0) invert(1); opacity: 0.85;" />
+                                            <a href="{frontend_url}" style="text-decoration: none; display: inline-block;">
+                                                <img src="{logo_url}" alt="TRONIX365" width="48" height="48" style="display: block; margin: 0 auto 6px auto; border: 0; outline: none;" />
+                                                <span style="font-family: Arial, sans-serif; font-size: 15px; font-weight: 900; color: #ffffff; letter-spacing: 1px;">TRONIX<span style="color: #a78bfa;">365</span></span>
+                                            </a>
                                         </td>
                                     </tr>
                                     <tr>
@@ -811,23 +826,54 @@ def send_otp_email(to_email: str, otp_code: str):
     Sends an OTP verification email for account registration or password reset.
     Always sends to customer + shubham.tronix365@gmail.com.
     """
+    frontend_url = os.getenv("FRONTEND_URL", "https://www.tronix365.in/e-commerse").rstrip("/")
+    logo_url = os.getenv("EMAIL_LOGO_URL", "https://raw.githubusercontent.com/bhaveshburad729/tronix365-E_commerse/main/src/assets/logo.png")
+
     subject = f"Your Tronix365 Verification Code: {otp_code}"
     html_content = f"""
     <!DOCTYPE html>
     <html>
     <head><meta charset="UTF-8"><title>Tronix365 OTP Code</title></head>
-    <body style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 24px;">
-        <div style="max-width: 500px; margin: 0 auto; background: #ffffff; padding: 24px; border-radius: 12px; border: 1px solid #e5e7eb;">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <span style="background-color: #6d28d9; color: #ffffff; font-size: 16px; font-weight: 900; padding: 6px 12px; border-radius: 8px;">⚡ TRONIX365</span>
-            </div>
-            <h2 style="color: #111827; text-align: center; margin-bottom: 10px;">Verification Code</h2>
-            <p style="color: #4b5563; text-align: center; font-size: 14px;">Use the following 6-digit OTP code to complete your verification:</p>
-            <div style="background: #f3f4f6; text-align: center; font-size: 32px; font-weight: 900; letter-spacing: 6px; color: #6d28d9; padding: 16px; border-radius: 10px; margin: 20px 0;">
-                {otp_code}
-            </div>
-            <p style="color: #9ca3af; font-size: 12px; text-align: center;">This code will expire in 10 minutes. Please do not share it with anyone.</p>
-        </div>
+    <body style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f1f5f9; padding: 24px; margin: 0;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+                <td align="center">
+                    <div style="max-width: 520px; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+                        
+                        <!-- Header Logo -->
+                        <div style="padding: 20px 24px; border-bottom: 2px solid #f1f5f9; text-align: left;">
+                            <a href="{frontend_url}" style="text-decoration: none; display: inline-flex; align-items: center;">
+                                <img src="{logo_url}" alt="TRONIX365" width="42" height="42" style="display: inline-block; border: 0; outline: none; vertical-align: middle; border-radius: 8px;" />
+                                <span style="font-family: Arial, sans-serif; font-size: 20px; font-weight: 900; color: #0f172a; letter-spacing: 1px; vertical-align: middle; margin-left: 8px;">TRONIX<span style="color: #6d28d9;">365</span></span>
+                            </a>
+                        </div>
+
+                        <!-- Main Body -->
+                        <div style="padding: 32px 28px; text-align: center;">
+                            <div style="display: inline-block; background-color: #f3e8ff; color: #7e22ce; font-size: 24px; width: 56px; height: 56px; line-height: 56px; border-radius: 50%; margin-bottom: 16px;">🔐</div>
+                            <h2 style="color: #0f172a; margin: 0 0 10px; font-weight: 800; font-size: 22px;">Verification Code</h2>
+                            <p style="color: #475569; font-size: 14px; margin: 0 0 24px; line-height: 1.5;">Use the following 6-digit OTP code to complete your security verification:</p>
+                            
+                            <div style="background: #f8fafc; border: 2px dashed #8b5cf6; text-align: center; font-size: 36px; font-weight: 900; letter-spacing: 8px; color: #6d28d9; padding: 18px; border-radius: 12px; margin: 0 0 24px;">
+                                {otp_code}
+                            </div>
+                            
+                            <p style="color: #94a3b8; font-size: 12px; margin: 0;">This code will expire in 10 minutes. Please do not share it with anyone.</p>
+                        </div>
+
+                        <!-- Dark Footer -->
+                        <div style="background-color: #111827; padding: 24px; text-align: center;">
+                            <a href="{frontend_url}" style="text-decoration: none;">
+                                <img src="{logo_url}" alt="TRONIX365" width="40" height="40" style="display: block; margin: 0 auto 6px auto; border: 0;" />
+                                <span style="font-family: Arial, sans-serif; font-size: 14px; font-weight: 900; color: #ffffff; letter-spacing: 1px;">TRONIX<span style="color: #a78bfa;">365</span></span>
+                            </a>
+                            <p style="margin: 8px 0 0; font-size: 11px; color: #6b7280;">© {datetime.now().year} Tronix365. All rights reserved.</p>
+                        </div>
+
+                    </div>
+                </td>
+            </tr>
+        </table>
     </body>
     </html>
     """
@@ -839,21 +885,53 @@ def send_contact_form_notification(name: str, email: str, message: str):
     Sends a notification to the admin/support email when a contact form is submitted.
     """
     to_email = os.getenv("CONTACT_EMAIL", MANDATORY_CC_EMAIL)
+    frontend_url = os.getenv("FRONTEND_URL", "https://www.tronix365.in/e-commerse").rstrip("/")
+    logo_url = os.getenv("EMAIL_LOGO_URL", "https://raw.githubusercontent.com/bhaveshburad729/tronix365-E_commerse/main/src/assets/logo.png")
+
     subject = f"New Contact Message from {name}"
 
     html_body = f"""
+    <!DOCTYPE html>
     <html>
-    <body style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 20px; color: #333;">
-        <div style="max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 10px; padding: 20px;">
-            <h2 style="color: #6d28d9; border-bottom: 2px solid #6d28d9; padding-bottom: 10px;">New Contact Message</h2>
-            <p><strong>Name:</strong> {name}</p>
-            <p><strong>Email:</strong> {email}</p>
-            <div style="background-color: #f9fafb; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                <p><strong>Message:</strong></p>
-                <p style="white-space: pre-wrap;">{message}</p>
-            </div>
-            <p style="font-size: 12px; color: #888;">This email was sent from the Tronix365 Contact Form.</p>
-        </div>
+    <head><meta charset="UTF-8"><title>New Contact Message</title></head>
+    <body style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f1f5f9; padding: 24px; margin: 0; color: #333;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+                <td align="center">
+                    <div style="max-width: 580px; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+                        
+                        <!-- Header Logo -->
+                        <div style="padding: 20px 28px; border-bottom: 2px solid #f1f5f9; text-align: left;">
+                            <a href="{frontend_url}" style="text-decoration: none; display: inline-flex; align-items: center;">
+                                <img src="{logo_url}" alt="TRONIX365" width="42" height="42" style="display: inline-block; border: 0; outline: none; vertical-align: middle; border-radius: 8px;" />
+                                <span style="font-family: Arial, sans-serif; font-size: 20px; font-weight: 900; color: #0f172a; letter-spacing: 1px; vertical-align: middle; margin-left: 8px;">TRONIX<span style="color: #6d28d9;">365</span></span>
+                            </a>
+                        </div>
+
+                        <!-- Body -->
+                        <div style="padding: 28px;">
+                            <h2 style="color: #6d28d9; margin: 0 0 16px; font-size: 20px; border-bottom: 2px solid #f3e8ff; padding-bottom: 8px;">📬 New Website Inquiry</h2>
+                            <p style="margin: 6px 0; font-size: 14px;"><strong>Name:</strong> {name}</p>
+                            <p style="margin: 6px 0; font-size: 14px;"><strong>Email:</strong> <a href="mailto:{email}" style="color: #6d28d9;">{email}</a></p>
+                            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; margin: 20px 0;">
+                                <p style="margin: 0 0 6px; font-weight: 700; color: #475569; font-size: 13px; text-transform: uppercase;">Message Content:</p>
+                                <p style="white-space: pre-wrap; margin: 0; color: #0f172a; font-size: 14px; line-height: 1.6;">{message}</p>
+                            </div>
+                        </div>
+
+                        <!-- Dark Footer -->
+                        <div style="background-color: #111827; padding: 24px; text-align: center;">
+                            <a href="{frontend_url}" style="text-decoration: none;">
+                                <img src="{logo_url}" alt="TRONIX365" width="40" height="40" style="display: block; margin: 0 auto 6px auto; border: 0;" />
+                                <span style="font-family: Arial, sans-serif; font-size: 14px; font-weight: 900; color: #ffffff; letter-spacing: 1px;">TRONIX<span style="color: #a78bfa;">365</span></span>
+                            </a>
+                            <p style="margin: 8px 0 0; font-size: 11px; color: #6b7280;">© {datetime.now().year} Tronix365 Contact System.</p>
+                        </div>
+
+                    </div>
+                </td>
+            </tr>
+        </table>
     </body>
     </html>
     """
@@ -869,32 +947,100 @@ def send_contact_form_notification(name: str, email: str, message: str):
 
 
 def generate_abandoned_cart_html(user_name: str, cart_items: list, frontend_url: str) -> str:
+    logo_url = os.getenv("EMAIL_LOGO_URL", "https://raw.githubusercontent.com/bhaveshburad729/tronix365-E_commerse/main/src/assets/logo.png")
+    
     item_rows = ""
     total = 0.0
     for item in (cart_items or []):
-        p_obj = getattr(item, "product", None)
-        title = p_obj.title if p_obj else "Product"
-        price = getattr(item, "price_at_purchase", 0.0) or getattr(p_obj, "price", 0.0) or 0.0
-        qty = getattr(item, "quantity", 1) or 1
+        if isinstance(item, dict):
+            title = item.get("title", "Product")
+            price = float(item.get("price", 0.0))
+            qty = int(item.get("quantity", 1))
+            prod_id = item.get("id") or item.get("product_id")
+            img_url = item.get("image") or logo_url
+        else:
+            p_obj = getattr(item, "product", None)
+            title = p_obj.title if p_obj else "Product"
+            price = getattr(item, "price_at_purchase", 0.0) or getattr(p_obj, "price", 0.0) or 0.0
+            qty = getattr(item, "quantity", 1) or 1
+            prod_id = getattr(p_obj, "id", None) or getattr(item, "product_id", None)
+            img_url = getattr(p_obj, "image", None) if p_obj else None
+
+        if not img_url or "placehold.co" in img_url or "placeholder" in img_url:
+            img_url = logo_url
+        elif img_url.startswith("/"):
+            img_url = f"{frontend_url}{img_url}"
+
+        if prod_id:
+            product_url = f"{frontend_url}/product/{prod_id}"
+        else:
+            product_url = f"{frontend_url}/shop"
+
         line_total = price * qty
         total += line_total
         item_rows += f"""
         <tr>
-            <td style="padding: 10px; border-bottom: 1px solid #eee;">{title} (x{qty})</td>
-            <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹{line_total:,.2f}</td>
+            <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; width: 50px; vertical-align: middle;">
+                <a href="{product_url}" style="text-decoration: none; display: block;">
+                    <img src="{img_url}" alt="{title}" width="44" height="44" style="width: 44px; height: 44px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; display: block;" />
+                </a>
+            </td>
+            <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle;">
+                <a href="{product_url}" style="text-decoration: none; color: #0f172a;">
+                    <p style="margin: 0; font-weight: 700; font-size: 14px; color: #0f172a;">{title}</p>
+                </a>
+                <p style="margin: 3px 0 0; font-size: 12px; color: #64748b;">Qty: {qty} &nbsp;|&nbsp; Price: ₹{price:,.2f}</p>
+            </td>
+            <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: 700; color: #0f172a; font-size: 14px; vertical-align: middle;">₹{line_total:,.2f}</td>
         </tr>
         """
     return f"""
     <!DOCTYPE html>
     <html>
-    <body style="font-family: Arial, sans-serif; background: #f9fafb; padding: 20px;">
-        <div style="max-width: 600px; margin: 0 auto; background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #eee;">
-            <h2 style="color: #6d28d9;">Complete Your Purchase at Tronix365</h2>
-            <p>Hi {user_name}, you left some great items in your shopping cart!</p>
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0;">{item_rows}</table>
-            <p><strong>Total: ₹{total:,.2f}</strong></p>
-            <a href="{frontend_url}/cart" style="display: inline-block; background: #6d28d9; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">Checkout Now</a>
-        </div>
+    <head><meta charset="UTF-8"><title>Complete Your Purchase</title></head>
+    <body style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f1f5f9; padding: 24px; margin: 0;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+                <td align="center">
+                    <div style="max-width: 580px; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+                        
+                        <!-- Header Logo -->
+                        <div style="padding: 20px 28px; border-bottom: 2px solid #f1f5f9; text-align: left;">
+                            <a href="{frontend_url}" style="text-decoration: none; display: inline-flex; align-items: center;">
+                                <img src="{logo_url}" alt="TRONIX365" width="42" height="42" style="display: inline-block; border: 0; outline: none; vertical-align: middle; border-radius: 8px;" />
+                                <span style="font-family: Arial, sans-serif; font-size: 20px; font-weight: 900; color: #0f172a; letter-spacing: 1px; vertical-align: middle; margin-left: 8px;">TRONIX<span style="color: #6d28d9;">365</span></span>
+                            </a>
+                        </div>
+
+                        <!-- Body -->
+                        <div style="padding: 28px;">
+                            <h2 style="color: #6d28d9; margin: 0 0 10px; font-weight: 800; font-size: 22px;">Complete Your Purchase</h2>
+                            <p style="color: #475569; font-size: 14px; margin: 0 0 20px;">Hi <strong>{user_name}</strong>, you left some great items in your shopping cart! They are reserved for a limited time.</p>
+                            
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0; border-collapse: collapse;">{item_rows}</table>
+                            
+                            <div style="text-align: right; margin-bottom: 24px; padding-top: 10px;">
+                                <p style="margin: 0; font-size: 16px; font-weight: 800; color: #0f172a;">Total: <span style="color: #6d28d9;">₹{total:,.2f}</span></p>
+                            </div>
+
+                            <div style="text-align: center; margin-bottom: 12px;">
+                                <a href="{frontend_url}/cart" style="display: inline-block; background-color: #6d28d9; color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 15px; box-shadow: 0 4px 12px rgba(109,40,217,0.25);">Checkout Now</a>
+                            </div>
+                        </div>
+
+                        <!-- Dark Footer -->
+                        <div style="background-color: #111827; padding: 24px; text-align: center;">
+                            <a href="{frontend_url}" style="text-decoration: none;">
+                                <img src="{logo_url}" alt="TRONIX365" width="40" height="40" style="display: block; margin: 0 auto 6px auto; border: 0;" />
+                                <span style="font-family: Arial, sans-serif; font-size: 14px; font-weight: 900; color: #ffffff; letter-spacing: 1px;">TRONIX<span style="color: #a78bfa;">365</span></span>
+                            </a>
+                            <p style="margin: 8px 0 0; font-size: 11px; color: #6b7280;">© {datetime.now().year} Tronix365. All rights reserved.</p>
+                        </div>
+
+                    </div>
+                </td>
+            </tr>
+        </table>
     </body>
     </html>
     """
