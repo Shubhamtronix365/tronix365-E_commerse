@@ -122,7 +122,7 @@ First, make sure you have the following installed on your machine:
    ```
 
    This will output `Successfully seeded products and admin user!`.
-   - **Default Admin Account:** `admin@tronix365.com`
+   - **Default Admin Account:** `admin@tronix365.in`
    - **Default Admin Password:** `adminpassword123`
 
    _(Optional)_ To create a custom admin user, run:

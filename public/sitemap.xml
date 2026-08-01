@@ -66,6 +66,31 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://www.tronix365.in/e-commerse/product/female-jack-dc-socket-022-round-nut-white-colour</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/40-pin-dip-ic-socket-base-adaptor</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/male-to-female-jumper-single-wires</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/female-to-female-jumper-wires-set-of-40</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/male-to-male-jumper-wires-set-of-40</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://www.tronix365.in/e-commerse/product/obstacle-avoiding-robotics-diy-kit</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -121,17 +146,17 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/f-m-wire</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/male-to-female-jumper-wires-set-of-40</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/f-f-wire</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/female-to-female-jumper-single-wires</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/m-m-wire</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/male-to-male-jumper-single-wires</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -161,77 +186,77 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/2x40-female-berg-strip</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/female-berg-strip-40x1</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/male-burgstrip</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/male-berg-strip-male-pin-header</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/28-pin-ic-socket</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/28-pin-wide-dip-ic-socket-base-adaptor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/20-pin-ic-socket</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/20-pin-dip-ic-socket-base-adaptor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/18-pin-ic-socket</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/18-pin-dip-ic-socket-base-adaptor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/16-pin-ic-socket</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/16-pin-dip-ic-socket-base-adaptor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/14-pin-ic-socket</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/14-pin-dip-ic-socket-base-adaptor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/8-pin-ic-socket</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/8-pin-dip-ic-socket-base-adapter</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/6-pin-ic-socket</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/6-pin-dip-ic-socket-base</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/whiteled</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/5mm-led-white-color</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/blue-led</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/5mm-led-blue-color</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/green-led</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/5mm-led-green-color</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/orange-led</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/5mm-led-white-orange-color</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/yellow-led</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/5mm-led-yellow-color</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/red-led</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/5mm-led-red-color</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -251,27 +276,27 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/glue-stick</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/hot-melt-glue-stick</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/buzzer</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/5v-passive-buzzer</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/dc-pin-male-to-female</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/dc-jack-male-power-connector-with-wire</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/dc-pin-male</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/dc-jack-female-power-connector-with-wire</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/dc-power-jack</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/female-dc-power-supply-connector-dc-jack</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -286,7 +311,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/on-off-switch-big-2-pin</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/onoff-rocker-switch-spst-2-pin-switch</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -296,7 +321,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/npn-2n2222</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/2n2222-npn-transistor</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>

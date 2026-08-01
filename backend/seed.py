@@ -176,7 +176,7 @@ def seed_data():
         from auth import get_password_hash
         from models import UserDB
 
-        admin_email = "admin@tronix365.com"
+        admin_email = "admin@tronix365.in"
         # Check if exists (though we dropped tables so likely not)
         if not db.query(UserDB).filter(UserDB.email == admin_email).first():
             print("Seeding Admin User...")

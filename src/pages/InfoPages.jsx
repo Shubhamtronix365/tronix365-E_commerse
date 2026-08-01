@@ -82,21 +82,21 @@ export const Contact = () => {
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                <div className="bg-white/5 p-6 rounded-xl flex flex-col items-center text-center">
-                    <MapPin className="text-tronix-primary mb-4" size={32} />
+                <a href="https://maps.app.goo.gl/V65P7a6YWds7MqNN6" target="_blank" rel="noopener noreferrer" className="bg-white/5 hover:bg-white/10 transition-colors p-6 rounded-xl flex flex-col items-center text-center group cursor-pointer border border-white/5 hover:border-violet-500/30">
+                    <MapPin className="text-tronix-primary mb-4 group-hover:scale-110 transition-transform" size={32} />
                     <h3 className="text-white font-bold mb-2">Visit Us</h3>
-                    <p className="text-sm">123 Tech Park, Innovation St<br />Silicon Valley, India</p>
-                </div>
-                <div className="bg-white/5 p-6 rounded-xl flex flex-col items-center text-center">
-                    <Mail className="text-tronix-primary mb-4" size={32} />
+                    <p className="text-sm text-gray-300 group-hover:text-white transition-colors">Tronix365, Near Datta Mandir<br />Sinhgad College Campus, Vadgaon Budruk<br />Pune, Maharashtra 411041</p>
+                </a>
+                <a href="mailto:admin@tronix365.in" className="bg-white/5 hover:bg-white/10 transition-colors p-6 rounded-xl flex flex-col items-center text-center group cursor-pointer border border-white/5 hover:border-violet-500/30">
+                    <Mail className="text-tronix-primary mb-4 group-hover:scale-110 transition-transform" size={32} />
                     <h3 className="text-white font-bold mb-2">Email Us</h3>
-                    <p className="text-sm">support@tronix365.com<br />sales@tronix365.com</p>
-                </div>
-                <div className="bg-white/5 p-6 rounded-xl flex flex-col items-center text-center">
-                    <Phone className="text-tronix-primary mb-4" size={32} />
+                    <p className="text-sm text-gray-300 group-hover:text-white transition-colors">admin@tronix365.in<br />support@tronix365.in</p>
+                </a>
+                <a href="tel:+918830153805" className="bg-white/5 hover:bg-white/10 transition-colors p-6 rounded-xl flex flex-col items-center text-center group cursor-pointer border border-white/5 hover:border-violet-500/30">
+                    <Phone className="text-tronix-primary mb-4 group-hover:scale-110 transition-transform" size={32} />
                     <h3 className="text-white font-bold mb-2">Call Us</h3>
-                    <p className="text-sm">+91 98765 43210<br />Mon-Fri, 9am - 6pm</p>
-                </div>
+                    <p className="text-sm text-gray-300 group-hover:text-white transition-colors">+91 88301 53805<br />Mon-Sat, 9:30am - 6:00pm</p>
+                </a>
             </div>
 
             <h3 className="text-xl font-bold text-white mb-4">Send us a Message</h3>

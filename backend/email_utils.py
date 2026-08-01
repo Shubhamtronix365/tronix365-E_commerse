@@ -684,12 +684,12 @@ def generate_order_status_email_html(order, status: str, frontend_url: str) -> s
                                     </tr>
                                     <tr>
                                         <td align="center" style="padding-bottom: 4px;">
-                                            <a href="mailto:support@tronix365.in" style="color: #a78bfa; font-size: 13px; text-decoration: none; font-weight: 600;">✉ support@tronix365.in</a>
+                                            <a href="mailto:admin@tronix365.in" style="color: #a78bfa; font-size: 13px; text-decoration: none; font-weight: 600;">✉ admin@tronix365.in</a>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td align="center" style="padding-bottom: 4px;">
-                                            <span style="color: #9ca3af; font-size: 13px;">📞 +91 7020 123 365</span>
+                                            <a href="tel:+918830153805" style="color: #9ca3af; font-size: 13px; text-decoration: none;">📞 +91 88301 53805</a>
                                         </td>
                                     </tr>
                                     <tr>

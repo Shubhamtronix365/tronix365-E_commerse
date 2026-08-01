@@ -139,23 +139,42 @@ export const ContactSection = () => {
 
                         <div className="space-y-6 pt-6 border-t border-white/5">
                             {[
-                                { icon: <MapPin size={24} />, text: "123 Innovation Park, Silicon Valley, India", label: "Headquarters" },
-                                { icon: <Mail size={24} />, text: "support@tronix365.com", label: "Email Support" },
-                                { icon: <Phone size={24} />, text: "+91 98765 43210", label: "Sales & Inquiries" }
+                                { 
+                                    icon: <MapPin size={24} />, 
+                                    text: "Tronix365, Near Datta Mandir, Sinhgad College Campus, Vadgaon Budruk, Pune, Maharashtra 411041", 
+                                    label: "Headquarters",
+                                    href: "https://maps.app.goo.gl/V65P7a6YWds7MqNN6",
+                                    external: true
+                                },
+                                { 
+                                    icon: <Mail size={24} />, 
+                                    text: "admin@tronix365.in", 
+                                    label: "Email Support",
+                                    href: "mailto:admin@tronix365.in" 
+                                },
+                                { 
+                                    icon: <Phone size={24} />, 
+                                    text: "+91 88301 53805", 
+                                    label: "Sales & Inquiries",
+                                    href: "tel:+918830153805" 
+                                }
                             ].map((item, index) => (
-                                <motion.div
+                                <motion.a
                                     key={index}
+                                    href={item.href}
+                                    target={item.external ? "_blank" : undefined}
+                                    rel={item.external ? "noopener noreferrer" : undefined}
                                     whileHover={{ x: 5 }}
-                                    className="flex items-start gap-5 group cursor-default"
+                                    className="flex items-start gap-5 group cursor-pointer"
                                 >
                                     <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-tronix-primary shrink-0 border border-white/5 group-hover:border-violet-500/30 group-hover:bg-violet-500/10 transition-all shadow-lg">
                                         {item.icon}
                                     </div>
                                     <div>
                                         <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">{item.label}</p>
-                                        <p className="text-base text-gray-200 font-medium">{item.text}</p>
+                                        <p className="text-base text-gray-200 group-hover:text-white font-medium transition-colors">{item.text}</p>
                                     </div>
-                                </motion.div>
+                                </motion.a>
                             ))}
                         </div>
                     </motion.div>
