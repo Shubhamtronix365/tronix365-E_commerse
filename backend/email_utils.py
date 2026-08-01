@@ -130,6 +130,18 @@ EMAIL_ASSETS_BASE_URL = os.getenv("BACKEND_URL", "https://tronix365-e-commerse.o
 LOGO_PUBLIC_URL = "https://cdn.jsdelivr.net/gh/bhaveshburad729/tronix365-E_commerse@main/src/assets/logo.png"
 
 
+def slugify(text: str) -> str:
+    if not text:
+        return ""
+    import re
+    text = str(text).lower().strip()
+    text = text.replace("_", "-")
+    text = re.sub(r"\s+", "-", text)
+    text = re.sub(r"[^\w\-]+", "", text)
+    text = re.sub(r"\-\-+", "-", text)
+    return text.strip("-")
+
+
 def get_canonical_frontend_url(url_str: Optional[str] = None) -> str:
     """
     Returns the canonical frontend base URL with /e-commerse route guaranteed.
@@ -144,7 +156,9 @@ def get_canonical_frontend_url(url_str: Optional[str] = None) -> str:
 def resolve_email_image_url(raw_img_url: Optional[str], frontend_url: str) -> str:
     """
     Resolves product or asset image URLs to 100% public, HTTPS-accessible URLs for email clients.
+    Encodes spaces and special characters so Gmail proxy never fails to render.
     """
+    import urllib.parse
     backend_base = os.getenv("BACKEND_URL", "https://tronix365-e-commerse.onrender.com").rstrip("/")
     logo_cdn = LOGO_PUBLIC_URL
 
@@ -152,7 +166,7 @@ def resolve_email_image_url(raw_img_url: Optional[str], frontend_url: str) -> st
         return logo_cdn
 
     url = raw_img_url.strip()
-    if not url or "placehold.co" in url or "placeholder" in url or "tronix365.in/assets" in url:
+    if not url or "placehold.co" in url or "placeholder" in url:
         return logo_cdn
 
     # Replace localhost/127.0.0.1 in image URLs with backend public URL
@@ -164,17 +178,20 @@ def resolve_email_image_url(raw_img_url: Optional[str], frontend_url: str) -> st
 
     if url.startswith("/uploads/") or url.startswith("uploads/"):
         rel_path = url if url.startswith("/") else f"/{url}"
-        return f"{backend_base}{rel_path}"
+        full_url = f"{backend_base}{rel_path}"
+        return urllib.parse.quote(full_url, safe="/:?=&")
 
     if url.startswith("/assets/") or url.startswith("assets/"):
         rel_path = url if url.startswith("/") else f"/{url}"
-        return f"{frontend_url}{rel_path}"
+        full_url = f"{frontend_url}{rel_path}"
+        return urllib.parse.quote(full_url, safe="/:?=&")
 
     if url.startswith("/"):
-        return f"{frontend_url}{url}"
+        full_url = f"{frontend_url}{url}"
+        return urllib.parse.quote(full_url, safe="/:?=&")
 
     if url.startswith("http://") or url.startswith("https://"):
-        return url
+        return urllib.parse.quote(url, safe="/:?=&")
 
     return logo_cdn
 
@@ -239,13 +256,14 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
     cgst = explicit_gst / 2.0
     sgst = explicit_gst / 2.0
 
-    # Build Item Rows with Clickable Links and Visible Images
+    # Build Item Rows with Clickable Slug Links and Visible Upload Images
     item_rows = ""
     for item in order_items_list:
         p_obj = getattr(item, "product", None)
-        prod_id = getattr(p_obj, "id", None) or getattr(item, "product_id", None)
-        if prod_id:
-            product_url = f"{frontend_url}/product/{prod_id}"
+        title = getattr(p_obj, "title", "Electronics Item") if p_obj else "Electronics Item"
+        prod_slug = getattr(p_obj, "slug", None) or slugify(title) or getattr(p_obj, "id", None) or getattr(item, "product_id", None)
+        if prod_slug:
+            product_url = f"{frontend_url}/product/{prod_slug}"
         else:
             product_url = f"{frontend_url}/shop"
 
@@ -1013,8 +1031,11 @@ def generate_abandoned_cart_html(user_name: str, cart_items: list, frontend_url:
 
         img_url = resolve_email_image_url(raw_img, frontend_url)
 
-        if prod_id:
-            product_url = f"{frontend_url}/product/{prod_id}"
+        prod_slug = item.get("slug") if isinstance(item, dict) else (getattr(p_obj, "slug", None) if p_obj else None)
+        if not prod_slug:
+            prod_slug = slugify(title) or prod_id
+        if prod_slug:
+            product_url = f"{frontend_url}/product/{prod_slug}"
         else:
             product_url = f"{frontend_url}/shop"
 
