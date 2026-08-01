@@ -295,6 +295,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
         """
 
     order_url = f"{frontend_url}/order/{order_id_num}" if order_id_num > 0 else f"{frontend_url}/dashboard"
+    order_link_html = f'''<a href="{order_url}" target="_blank" style="color: #6d28d9; text-decoration: underline; font-weight: 800;">#order_tronix_{order_id_str}</a>'''
 
     # Per-status icon (inline SVG emoji fallback circles matching confirmation.png design)
     status_icon_map = {
@@ -327,7 +328,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
             "color": "#92400e",
             "badge_bg": "#fef3c7",
             "badge_color": "#b45309",
-            "message": f"Hi <strong>{customer_name}</strong>, thank you for your order! Your purchase <strong>#order_tronix_{order_id_str}</strong> has been received and is pending verification.",
+            "message": f"Hi <strong>{customer_name}</strong>, thank you for your order! Your purchase {order_link_html} has been received and is pending verification.",
             "cta_text": "Track Order Status",
             "cta_url": order_url,
         },
@@ -338,7 +339,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
             "color": "#065f46",
             "badge_bg": "#d1fae5",
             "badge_color": "#047857",
-            "message": f"Hi <strong>{customer_name}</strong>, your purchase <strong>#order_tronix_{order_id_str}</strong> has been approved and is being prepared for packing.",
+            "message": f"Hi <strong>{customer_name}</strong>, your purchase {order_link_html} has been approved and is being prepared for packing.",
             "cta_text": "View Order Details",
             "cta_url": order_url,
         },
@@ -349,7 +350,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
             "color": "#065f46",
             "badge_bg": "#d1fae5",
             "badge_color": "#047857",
-            "message": f"Hi <strong>{customer_name}</strong>, we have received your payment for order <strong>#order_tronix_{order_id_str}</strong>. Transaction ID: <strong>{getattr(order, 'txnid', 'Verified')}</strong>.",
+            "message": f"Hi <strong>{customer_name}</strong>, we have received your payment for order {order_link_html}. Transaction ID: <strong>{getattr(order, 'txnid', 'Verified')}</strong>.",
             "cta_text": "Download Tax Invoice",
             "cta_url": order_url,
         },
@@ -360,7 +361,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
             "color": "#1e40af",
             "badge_bg": "#dbeafe",
             "badge_color": "#1d4ed8",
-            "message": f"Hi <strong>{customer_name}</strong>, your order <strong>#order_tronix_{order_id_str}</strong> is currently being assembled and quality checked by our technical team.",
+            "message": f"Hi <strong>{customer_name}</strong>, your order {order_link_html} is currently being assembled and quality checked by our technical team.",
             "cta_text": "View Order Progress",
             "cta_url": order_url,
         },
@@ -371,7 +372,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
             "color": "#166534",
             "badge_bg": "#dcfce7",
             "badge_color": "#15803d",
-            "message": f"Hi <strong>{customer_name}</strong>, your items for order <strong>#order_tronix_{order_id_str}</strong> are safely packed and ready for dispatch.",
+            "message": f"Hi <strong>{customer_name}</strong>, your items for order {order_link_html} are safely packed and ready for dispatch.",
             "cta_text": "Track Shipment",
             "cta_url": order_url,
         },
@@ -382,7 +383,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
             "color": "#1e40af",
             "badge_bg": "#dbeafe",
             "badge_color": "#1d4ed8",
-            "message": f"Great news <strong>{customer_name}</strong>! Your order <strong>#order_tronix_{order_id_str}</strong> has been shipped via <strong>{getattr(order, 'courier', 'Courier Service')}</strong>.",
+            "message": f"Great news <strong>{customer_name}</strong>! Your order {order_link_html} has been shipped via <strong>{getattr(order, 'courier', 'Courier Service')}</strong>.",
             "cta_text": "Track Package Live",
             "cta_url": order_url,
         },
@@ -393,7 +394,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
             "color": "#6b21a8",
             "badge_bg": "#f3e8ff",
             "badge_color": "#7e22ce",
-            "message": f"Get ready <strong>{customer_name}</strong>! Your order <strong>#order_tronix_{order_id_str}</strong> is out for delivery today with our logistics partner.",
+            "message": f"Get ready <strong>{customer_name}</strong>! Your order {order_link_html} is out for delivery today with our logistics partner.",
             "cta_text": "Track Delivery Arrival",
             "cta_url": order_url,
         },
@@ -404,7 +405,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
             "color": "#065f46",
             "badge_bg": "#d1fae5",
             "badge_color": "#047857",
-            "message": f"Hi <strong>{customer_name}</strong>, your order <strong>#order_tronix_{order_id_str}</strong> has been delivered. Thank you for shopping with Tronix365!",
+            "message": f"Hi <strong>{customer_name}</strong>, your order {order_link_html} has been delivered. Thank you for shopping with Tronix365!",
             "cta_text": "Write a Product Review",
             "cta_url": f"{frontend_url}/shop",
         },
@@ -415,7 +416,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
             "color": "#991b1b",
             "badge_bg": "#fee2e2",
             "badge_color": "#b91c1c",
-            "message": f"Hi <strong>{customer_name}</strong>, your order <strong style='color: #dc2626;'>#order_tronix_{order_id_str}</strong> has been cancelled.",
+            "message": f"Hi <strong>{customer_name}</strong>, your order {order_link_html} has been cancelled.",
             "cta_text": "Contact Support",
             "cta_url": f"{frontend_url}/contact",
         },
@@ -426,7 +427,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
             "color": "#9a3412",
             "badge_bg": "#ffedd5",
             "badge_color": "#c2410c",
-            "message": f"Hi <strong>{customer_name}</strong>, a refund for your order <strong>#order_tronix_{order_id_str}</strong> has been initiated.",
+            "message": f"Hi <strong>{customer_name}</strong>, a refund for your order {order_link_html} has been initiated.",
             "cta_text": "Check Refund Status",
             "cta_url": order_url,
         },
@@ -437,7 +438,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
             "color": "#065f46",
             "badge_bg": "#d1fae5",
             "badge_color": "#047857",
-            "message": f"Hi <strong>{customer_name}</strong>, your refund for order <strong>#order_tronix_{order_id_str}</strong> has been processed successfully.",
+            "message": f"Hi <strong>{customer_name}</strong>, your refund for order {order_link_html} has been processed successfully.",
             "cta_text": "View Account Dashboard",
             "cta_url": f"{frontend_url}/dashboard",
         },
@@ -521,9 +522,56 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
         "cta_url": order_url,
     })
 
+    # Real-Time Visual Progress Bar
+    progress_bar_html = f"""
+    <tr>
+        <td style="padding: 20px 28px 10px;">
+            <a href="{order_url}" target="_blank" style="text-decoration: none; display: block;">
+                <div style="background-color: #faf5ff; border: 1px solid #e9d5ff; border-radius: 12px; padding: 16px 12px; text-align: center; box-shadow: 0 2px 8px rgba(109, 40, 217, 0.05);">
+                    <p style="margin: 0 0 12px; font-size: 11px; font-weight: 800; color: #6d28d9; text-transform: uppercase; letter-spacing: 1px; background-color: #ffffff; display: inline-block; padding: 4px 12px; border-radius: 12px; border: 1px solid #ddd6fe;">
+                        ⚡ Real-Time Order Tracking (Click to View Live Map)
+                    </p>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
+                        <tr>
+                            <td align="center" style="vertical-align: top; padding: 0 2px;">
+                                <div style="width: 28px; height: 28px; border-radius: 50%; background-color: {'#16a34a' if status_lower in ['confirmed','payment_received','processing','packed','shipped','out_for_delivery','delivered'] else '#6d28d9'}; color: #ffffff; font-size: 12px; line-height: 28px; font-weight: 900; margin: 0 auto 6px auto; text-align: center;">✓</div>
+                                <span style="font-size: 11px; font-weight: 700; color: #16a34a; display: block; line-height: 1.2;">Placed</span>
+                            </td>
+                            <td align="center" style="vertical-align: top; padding: 0 2px;">
+                                <div style="width: 28px; height: 28px; border-radius: 50%; background-color: {'#16a34a' if status_lower in ['processing','packed','shipped','out_for_delivery','delivered'] else ('#6d28d9' if status_lower in ['confirmed','payment_received'] else '#f1f5f9')}; color: {'#ffffff' if status_lower in ['confirmed','payment_received','processing','packed','shipped','out_for_delivery','delivered'] else '#94a3b8'}; border: 1px solid {'#16a34a' if status_lower in ['processing','packed','shipped','out_for_delivery','delivered'] else ('#6d28d9' if status_lower in ['confirmed','payment_received'] else '#cbd5e1')}; font-size: 12px; line-height: 28px; font-weight: 900; margin: 0 auto 6px auto; text-align: center;">{'✓' if status_lower in ['processing','packed','shipped','out_for_delivery','delivered'] else '2'}</div>
+                                <span style="font-size: 11px; font-weight: {'800' if status_lower in ['confirmed','payment_received'] else ('700' if status_lower in ['processing','packed','shipped','out_for_delivery','delivered'] else '500')}; color: {'#6d28d9' if status_lower in ['confirmed','payment_received'] else ('#16a34a' if status_lower in ['processing','packed','shipped','out_for_delivery','delivered'] else '#94a3b8')}; display: block; line-height: 1.2;">Confirmed</span>
+                            </td>
+                            <td align="center" style="vertical-align: top; padding: 0 2px;">
+                                <div style="width: 28px; height: 28px; border-radius: 50%; background-color: {'#16a34a' if status_lower in ['shipped','out_for_delivery','delivered'] else ('#6d28d9' if status_lower in ['processing','packed'] else '#f1f5f9')}; color: {'#ffffff' if status_lower in ['processing','packed','shipped','out_for_delivery','delivered'] else '#94a3b8'}; border: 1px solid {'#16a34a' if status_lower in ['shipped','out_for_delivery','delivered'] else ('#6d28d9' if status_lower in ['processing','packed'] else '#cbd5e1')}; font-size: 12px; line-height: 28px; font-weight: 900; margin: 0 auto 6px auto; text-align: center;">{'✓' if status_lower in ['shipped','out_for_delivery','delivered'] else '3'}</div>
+                                <span style="font-size: 11px; font-weight: {'800' if status_lower in ['processing','packed'] else ('700' if status_lower in ['shipped','out_for_delivery','delivered'] else '500')}; color: {'#6d28d9' if status_lower in ['processing','packed'] else ('#16a34a' if status_lower in ['shipped','out_for_delivery','delivered'] else '#94a3b8')}; display: block; line-height: 1.2;">Packed</span>
+                            </td>
+                            <td align="center" style="vertical-align: top; padding: 0 2px;">
+                                <div style="width: 28px; height: 28px; border-radius: 50%; background-color: {'#16a34a' if status_lower == 'delivered' else ('#6d28d9' if status_lower in ['shipped','out_for_delivery'] else '#f1f5f9')}; color: {'#ffffff' if status_lower in ['shipped','out_for_delivery','delivered'] else '#94a3b8'}; border: 1px solid {'#16a34a' if status_lower == 'delivered' else ('#6d28d9' if status_lower in ['shipped','out_for_delivery'] else '#cbd5e1')}; font-size: 12px; line-height: 28px; font-weight: 900; margin: 0 auto 6px auto; text-align: center;">{'✓' if status_lower == 'delivered' else '4'}</div>
+                                <span style="font-size: 11px; font-weight: {'800' if status_lower in ['shipped','out_for_delivery'] else ('700' if status_lower == 'delivered' else '500')}; color: {'#6d28d9' if status_lower in ['shipped','out_for_delivery'] else ('#16a34a' if status_lower == 'delivered' else '#94a3b8')}; display: block; line-height: 1.2;">Shipped</span>
+                            </td>
+                            <td align="center" style="vertical-align: top; padding: 0 2px;">
+                                <div style="width: 28px; height: 28px; border-radius: 50%; background-color: {'#16a34a' if status_lower == 'delivered' else '#f1f5f9'}; color: {'#ffffff' if status_lower == 'delivered' else '#94a3b8'}; border: 1px solid {'#16a34a' if status_lower == 'delivered' else '#cbd5e1'}; font-size: 12px; line-height: 28px; font-weight: 900; margin: 0 auto 6px auto; text-align: center;">{'✓' if status_lower == 'delivered' else '5'}</div>
+                                <span style="font-size: 11px; font-weight: {'800' if status_lower == 'delivered' else '500'}; color: {'#16a34a' if status_lower == 'delivered' else '#94a3b8'}; display: block; line-height: 1.2;">Delivered</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </a>
+        </td>
+    </tr>
+    """
+
     # Optional Shipping Details Card
     shipping_card_html = ""
     if getattr(order, "courier", None) or getattr(order, "tracking_number", None) or getattr(order, "estimated_delivery_date", None):
+        t_num = getattr(order, 'tracking_number', None)
+        c_name = getattr(order, 'courier', 'Delhivery Express') or 'Delhivery Express'
+        if t_num:
+            t_url = f"https://www.delhivery.com/track/package/{t_num}" if "delhivery" in c_name.lower() else order_url
+            t_link = f'<a href="{t_url}" target="_blank" style="color: #6d28d9; text-decoration: underline; font-weight: 800;">{t_num}</a>'
+        else:
+            t_link = '<span style="color: #94a3b8; font-weight: 600;">Pending Generation</span>'
+
         shipping_card_html = f"""
         <tr>
             <td style="padding: 0 28px 20px;">
@@ -531,8 +579,8 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
                     <p style="margin: 0 0 10px; font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Logistics & Shipment Details</p>
                     <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 13px; color: #334155;">
                         <tr>
-                            <td style="padding: 4px 0;"><strong>Shipping Partner:</strong> {getattr(order, 'courier', 'Courier Service')}</td>
-                            <td style="padding: 4px 0; text-align: right;"><strong>Tracking #:</strong> <span style="color: #6d28d9; font-weight: 700;">{getattr(order, 'tracking_number', None) or 'Pending Generation'}</span></td>
+                            <td style="padding: 4px 0;"><strong>Shipping Partner:</strong> {c_name}</td>
+                            <td style="padding: 4px 0; text-align: right;"><strong>Tracking #:</strong> {t_link}</td>
                         </tr>
                         <tr>
                             <td style="padding: 4px 0;"><strong>Estimated Delivery:</strong> {getattr(order, 'estimated_delivery_date', None) or '3-5 Working Days'}</td>
@@ -640,7 +688,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
                             </td>
                         </tr>
 
-
+                        {progress_bar_html}
                         {shipping_card_html}
                         {cancellation_card_html}
                         {reason_card_html}
@@ -662,7 +710,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
                                         <td style="width: 4%;"></td>
                                         <td style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; width: 48%; vertical-align: top;">
                                             <p style="margin: 0 0 6px; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Order Summary</p>
-                                            <p style="margin: 0 0 2px; font-size: 13px; color: #374151;"><strong>Order ID:</strong> #order_tronix_{order_id_str}</p>
+                                            <p style="margin: 0 0 2px; font-size: 13px; color: #374151;"><strong>Order ID:</strong> {order_link_html}</p>
                                             <p style="margin: 0 0 2px; font-size: 13px; color: #374151;"><strong>Date:</strong> {date_str}</p>
                                             <p style="margin: 0 0 2px; font-size: 13px; color: #374151;"><strong>Payment:</strong> {getattr(order, 'txnid', None) or 'Paid / Online'}</p>
                                             <p style="margin: 0; font-size: 13px; color: #374151;"><strong>Status:</strong> <span style="color: {cfg['color']}; font-weight: 700;">{formatted_status}</span></p>
