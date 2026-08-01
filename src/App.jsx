@@ -1,6 +1,6 @@
 import React from 'react';
 import { Toaster } from 'react-hot-toast';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 const Home = React.lazy(() => import('./pages/Home'));
@@ -142,6 +142,16 @@ const AppContent = () => {
               <Route path="/order/:id" element={
                 <ProtectedRoute>
                   <PageTransition><OrderDetails /></PageTransition>
+                </ProtectedRoute>
+              } />
+              <Route path="/orders/:id" element={
+                <ProtectedRoute>
+                  <PageTransition><OrderDetails /></PageTransition>
+                </ProtectedRoute>
+              } />
+              <Route path="/orders" element={
+                <ProtectedRoute>
+                  <PageTransition><UserDashboard /></PageTransition>
                 </ProtectedRoute>
               } />
               <Route path="/admin" element={

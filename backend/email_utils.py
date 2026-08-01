@@ -127,7 +127,7 @@ def send_email_via_brevo(
 
 # Public URL base for hosted email assets (logo, icons)
 EMAIL_ASSETS_BASE_URL = os.getenv("BACKEND_URL", "https://tronix365-e-commerse.onrender.com") + "/email-assets"
-LOGO_PUBLIC_URL = "https://cdn.jsdelivr.net/gh/bhaveshburad729/tronix365-E_commerse@main/src/assets/logo.png"
+LOGO_PUBLIC_URL = os.getenv("EMAIL_LOGO_URL", "https://tronix365-e-commerse.onrender.com/email-assets/logo.png")
 
 
 def slugify(text: str) -> str:
@@ -294,7 +294,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
         </tr>
         """
 
-    order_url = f"{frontend_url}/orders"
+    order_url = f"{frontend_url}/order/{order_id_num}" if order_id_num > 0 else f"{frontend_url}/dashboard"
 
     # Per-status icon (inline SVG emoji fallback circles matching confirmation.png design)
     status_icon_map = {

@@ -52,8 +52,8 @@ class DummyOrder:
         self.txnid = "PAY_TXN_99887766"
         self.created_at = datetime.now()
         self.items = [
-            DummyItem(1, "Arduino Uno R3 Microcontroller Board", 499.00, 2, "/uploads/Arduino_Uno R3.jpg"),
-            DummyItem(2, "ESP32 Wi-Fi + Bluetooth Dev Board", 501.00, 1, "/uploads/ESP8266 NodeMCU.webp")
+            DummyItem(1, "Arduino Uno R3", 499.00, 2, "/uploads/Arduino_Uno R3.jpg"),
+            DummyItem(160, "ESP32 -30 PIN", 501.00, 1, "/uploads/ESP8266 NodeMCU.webp")
         ]
 
 def run_test_email_dispatch():
@@ -80,8 +80,8 @@ def run_test_email_dispatch():
     # 3. Abandoned Cart Email
     print("\n[3/12] Sending Abandoned Cart Reminder Email...")
     cart_items = [
-        {"id": 1, "title": "Raspberry Pi 4 Model B (4GB)", "price": 4500.0, "quantity": 1, "image": "/uploads/Raspberry Pi 4 Model B (4GB).jpg"},
-        {"id": 2, "title": "OLED Display Module 0.96 inch", "price": 250.0, "quantity": 2, "image": "/uploads/OLED-Display.jpg"}
+        {"id": 2, "title": "Raspberry Pi 4 Model B (4GB)", "price": 4500.0, "quantity": 1, "image": "/uploads/Raspberry Pi 4 Model B (4GB).jpg"},
+        {"id": 8, "title": "OLED-Display", "price": 250.0, "quantity": 2, "image": "/uploads/OLED-Display.jpg"}
     ]
     res_cart = send_abandoned_cart_email(TARGET_EMAIL, "Bhavesh Burad", cart_items, frontend_url)
     results["Abandoned Cart Reminder"] = res_cart
