@@ -37,10 +37,10 @@ const ProductCard = ({ product }) => {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="group relative bg-tronix-card border border-white/5 rounded-2xl overflow-hidden hover:border-tronix-primary/50 transition-all duration-300 h-full flex flex-col justify-between"
+                className="group relative bg-[#0a0d24]/75 border border-slate-800/80 rounded-2xl overflow-hidden hover:border-purple-500/50 hover:shadow-xl hover:shadow-purple-500/10 backdrop-blur-md transition-all duration-300 h-full flex flex-col justify-between"
             >
                 {/* Image & Quick Action Overlay Container */}
-                <div className="relative h-44 sm:h-48 overflow-hidden bg-tronix-dark/60 p-3 flex items-center justify-center border-b border-white/5">
+                <div className="relative h-44 sm:h-48 overflow-hidden bg-gradient-to-b from-purple-950/20 via-slate-950/70 to-slate-950/90 p-3 flex items-center justify-center border-b border-white/5">
                     {/* Top Floating Glassmorphic Action Bar (Share & Wishlist) */}
                     <div className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1 bg-black/50 backdrop-blur-md p-1 rounded-full border border-white/10 shadow-lg">
                         <button
@@ -75,7 +75,7 @@ const ProductCard = ({ product }) => {
                     {/* Main Image Link */}
                     <Link 
                         to={`/product/${slugify(product.title)}`} 
-                        className="w-full h-full bg-white rounded-xl p-2.5 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-500 overflow-hidden"
+                        className="w-full h-full bg-white/95 rounded-xl p-2.5 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-500 overflow-hidden"
                     >
                         <Image
                             src={getImageUrl(product.image)}
@@ -105,11 +105,11 @@ const ProductCard = ({ product }) => {
                 {/* Content Details */}
                 <div className="p-3.5 sm:p-4 flex-1 flex flex-col justify-between space-y-3">
                     <div>
-                        <div className="text-[11px] sm:text-xs text-tronix-primary font-medium mb-1 truncate">
-                            {product.category || 'Electronics'}
+                        <div className="text-[11px] sm:text-xs text-purple-400 font-medium mb-1 truncate">
+                            {product.category || 'Development Boards'}
                         </div>
                         <Link to={`/product/${slugify(product.title)}`} className="block">
-                            <h3 className="text-white font-medium text-xs sm:text-sm md:text-base leading-snug line-clamp-2 group-hover:text-tronix-primary transition-colors min-h-[2.5rem]">
+                            <h3 className="text-white font-medium text-xs sm:text-sm md:text-base leading-snug line-clamp-2 group-hover:text-purple-300 transition-colors min-h-[2.5rem]">
                                 {product.title}
                             </h3>
                         </Link>
@@ -118,11 +118,11 @@ const ProductCard = ({ product }) => {
                         <div className="flex items-center gap-2 mt-2">
                             {product.mrp && Number(product.mrp) > Number(product.price) ? (
                                 <>
-                                    <span className="text-sm sm:text-base font-bold text-tronix-accent">₹{Number(product.price).toLocaleString()}</span>
+                                    <span className="text-sm sm:text-base font-bold text-cyan-400">₹{Number(product.price).toLocaleString()}</span>
                                     <span className="text-xs text-tronix-muted line-through">₹{Number(product.mrp).toLocaleString()}</span>
                                 </>
                             ) : (
-                                <span className="text-sm sm:text-base font-bold text-tronix-accent">₹{Number(product.price).toLocaleString()}</span>
+                                <span className="text-sm sm:text-base font-bold text-cyan-400">₹{Number(product.price).toLocaleString()}</span>
                             )}
                         </div>
                     </div>
@@ -132,7 +132,7 @@ const ProductCard = ({ product }) => {
                         <button
                             onClick={handleAddToCart}
                             disabled={product.stock === 0}
-                            className="w-full bg-white/5 hover:bg-tronix-primary text-white text-xs sm:text-sm font-bold py-2.5 px-3 rounded-xl border border-white/10 hover:border-tronix-primary transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:bg-white/5 cursor-pointer shadow-sm"
+                            className="w-full bg-slate-900/60 hover:bg-purple-600 text-white text-xs sm:text-sm font-semibold py-2.5 px-3 rounded-xl border border-slate-700/80 hover:border-purple-500 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:bg-slate-900/60 cursor-pointer shadow-md"
                         >
                             <ShoppingCart size={15} />
                             <span>{product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}</span>

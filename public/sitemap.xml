@@ -66,12 +66,37 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/bhavesh</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/espressif-esp-wroom-02d-n4-4mb-wifi-module-esp8266ex-24ghz-wireless-mcu-module</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.tronix365.in/e-commerse/product/bhavesh</loc>
+    <loc>https://www.tronix365.in/e-commerse/product/espressif-esp32-wroom-32e-n4-wifi-bluetooth-soc-module-4mb-flash-onboard-pcb-antenna-dual-core-mcu</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/esp32-wrover-ie-n16r8-wifi-bluetooth-ble-module-16mb-flash-8mb-psram-ipex-external-antenna-espressif-original</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/espressif-esp32-wrover-ie-n4r8-wifi-bluetooth-module-4mb-flash-8mb-psram-external-antenna</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/24-inch-spi-interface-240x320-tft-display-module</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/28-inch-spi-touch-screen-module-tft-interface-240320</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.tronix365.in/e-commerse/product/hi-link-hlk-5m12-12v-5w-ac-dc-switch-power-supply-module</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
