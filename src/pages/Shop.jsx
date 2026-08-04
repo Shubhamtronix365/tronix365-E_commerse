@@ -8,6 +8,7 @@ import ProductFilter from '../components/shop/ProductFilter';
 import client from '../api/client';
 import SEO from '../components/common/SEO';
 import { useCategories } from '../hooks/useCategories';
+import featuredBg from '../assets/featured_bg.png';
 
 const categorySeoData = {
     'all': {
@@ -227,7 +228,17 @@ const Shop = () => {
     const activeSeo = categorySeoData[categoryKey] || categorySeoData['all'];
 
     return (
-        <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-[#070919]">
+            {/* High-Tech Background Image & Ambient Overlay */}
+            <div className="absolute inset-0 pointer-events-none z-0">
+                <img 
+                    src={featuredBg} 
+                    alt="Shop Tech Background" 
+                    className="w-full h-full object-cover object-center opacity-100"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#070919]/60 via-[#070919]/40 to-[#070919]/80" />
+            </div>
+
             <SEO
                 title={activeSeo.title}
                 description={activeSeo.description}
@@ -249,7 +260,7 @@ const Shop = () => {
                     })}
                 </script>
             )}
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-7xl mx-auto relative z-10">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                     <div>
