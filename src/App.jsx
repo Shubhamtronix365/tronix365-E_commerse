@@ -33,7 +33,7 @@ import PageTransition from './components/common/PageTransition';
 import { AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { MaintenanceModal } from './components/common/MaintenanceNotice';
-import { Agentation } from 'agentation';
+// import { Agentation } from 'agentation';
 
 // Wrapper to scroll to top on route change
 const ScrollToTop = () => {
@@ -179,7 +179,7 @@ const AppContent = () => {
             border: '1px solid rgba(255,255,255,0.1)'
           }
         }} />
-        <Agentation />
+        {/* <Agentation /> */}
       </div>
     </>
   );
