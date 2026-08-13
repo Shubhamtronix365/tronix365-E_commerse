@@ -109,23 +109,29 @@ const ProductDetails = () => {
         }
     };
 
+    const isPlaceholderImage = (img) => {
+        return !img || img.includes('placehold.co') || img.includes('No+Image') || img.includes('No Image');
+    };
+    const realProductImage = isPlaceholderImage(product.image) ? null : getImageUrl(product.image);
+
     return (
         <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8">
             <SEO
-                title={product.title}
+                title={`${product.title} | Buy Online`}
                 description={product.description}
-                image={getImageUrl(product.image)}
+                image={realProductImage}
                 url={`https://www.tronix365.in/e-commerse/product/${slug}`}
                 type="product"
             />
             <ProductSchema
                 name={product.title}
                 description={product.description}
-                image={getImageUrl(product.image)}
+                image={realProductImage}
                 price={product.price}
                 sku={product.skv}
                 category={product.category}
                 inStock={product.stock > 0}
+                url={`https://www.tronix365.in/e-commerse/product/${slug}`}
             />
             <div className="max-w-7xl mx-auto">
                 <Breadcrumbs category={product.category} productName={product.title} />

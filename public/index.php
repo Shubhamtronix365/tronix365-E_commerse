@@ -5,25 +5,40 @@
 $baseUrl = "https://www.tronix365.in/e-commerse";
 $apiUrl = "https://tronix365-e-commerse.onrender.com";
 
-// 1. Determine request path
-$requestUri = $_SERVER['REQUEST_URI'];
-// Remove subdirectory path /e-commerse/ from request robustly (only from the start of path)
-$path = parse_url($requestUri, PHP_URL_PATH);
-if (strpos($path, '/e-commerse') === 0) {
-    $path = substr($path, strlen('/e-commerse'));
+// Helper to load DATABASE_URL from environment or local .env files
+function getDatabaseUrl() {
+    $url = getenv('DATABASE_URL');
+    if ($url) return $url;
+    
+    $paths = [
+        __DIR__ . '/.env',
+        __DIR__ . '/../.env',
+        __DIR__ . '/../backend/.env',
+        __DIR__ . '/backend/.env',
+    ];
+    
+    foreach ($paths as $path) {
+        if (file_exists($path)) {
+            $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ($lines as $line) {
+                if (strpos(trim($line), '#') === 0) continue;
+                $parts = explode('=', $line, 2);
+                if (count($parts) === 2 && trim($parts[0]) === 'DATABASE_URL') {
+                    return trim($parts[1], " \t\n\r\0\x0B\"'");
+                }
+            }
+        }
+    }
+    return null;
 }
-$path = trim($path, '/');
 
-// Defaults
-$title = "Tronix365 | Premium Electronic Components";
-$description = "Shop high-quality Arduino boards, sensors, ESP32 modules, robotics parts, and IoT devices at Tronix365.";
-$image = $baseUrl . "/Tronix3650final_circular.png";
-$url = "https://www.tronix365.in" . $_SERVER['REQUEST_URI'];
-$extraHead = "";
-
-// Helper to sanitize text for meta tags
-function escapeMeta($text) {
-    return htmlspecialchars(strip_tags(trim($text)), ENT_QUOTES, 'UTF-8');
+// Normalize function for PHP title matching
+function phpNormalize($s) {
+    if (!$s) return "";
+    $t = strtolower($s);
+    $t = preg_replace('/[^a-z0-9\s_-]/', '', $t);
+    $t = preg_replace('/[\s_-]+/', '-', $t);
+    return trim($t, '-');
 }
 
 // Robust URL fetching using cURL (fallback to file_get_contents)
@@ -33,7 +48,6 @@ function fetchUrl($url, $timeout = 5.0) {
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-        // Disable SSL certificate verification (safeguard for shared hosting cURL issues with Render APIs)
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -57,37 +71,220 @@ function fetchUrl($url, $timeout = 5.0) {
     }
 }
 
+// Initialize direct PostgreSQL connection using PDO (highly available, bypasses Render cold starts)
+$pdo = null;
+$dbUrl = getDatabaseUrl();
+if ($dbUrl) {
+    $parsedUrl = parse_url($dbUrl);
+    if ($parsedUrl) {
+        $host = $parsedUrl['host'];
+        $port = $parsedUrl['port'] ?? 5432;
+        $dbname = ltrim($parsedUrl['path'], '/');
+        $user = $parsedUrl['user'];
+        $pass = $parsedUrl['pass'];
+        
+        $sslmode = "require";
+        if (isset($parsedUrl['query'])) {
+            parse_str($parsedUrl['query'], $queryParams);
+            if (isset($queryParams['sslmode'])) {
+                $sslmode = $queryParams['sslmode'];
+            }
+        }
+        
+        $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;sslmode=$sslmode";
+        try {
+            $pdo = new PDO($dsn, $user, $pass, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::TIMEOUT => 3
+            ]);
+        } catch (PDOException $e) {
+            error_log("Database connection failed: " . $e->getMessage());
+        }
+    }
+}
+
+// 1. Determine request path
+$requestUri = $_SERVER['REQUEST_URI'];
+$parsedRequestUrl = parse_url($requestUri);
+$cleanPath = $parsedRequestUrl['path'];
+
+// Remove subdirectory path /e-commerse/ from request robustly (only from the start of path)
+$path = $cleanPath;
+if (strpos($path, '/e-commerse') === 0) {
+    $path = substr($path, strlen('/e-commerse'));
+}
+$path = trim($path, '/');
+
+// DYNAMIC SITEMAP INTERCEPTION (Queries Neon DB directly to avoid Render timeouts)
+if ($path === 'sitemap.xml') {
+    header("Content-Type: application/xml; charset=utf-8");
+    
+    $products = null;
+    if ($pdo) {
+        try {
+            $stmt = $pdo->query("SELECT id, title, category, skv, image, price, stock FROM products");
+            $products = $stmt->fetchAll();
+        } catch (PDOException $e) {
+            $products = null;
+        }
+    }
+    
+    // Fallback 1: Fetch via Render API
+    if (!$products) {
+        $response = fetchUrl("$apiUrl/products?limit=1000", 3.0);
+        if ($response) {
+            $products = json_decode($response, true);
+        }
+    }
+    
+    // Fallback 2: Local metadata JSON
+    if (!$products) {
+        $jsonPath = __DIR__ . '/products_metadata.json';
+        if (file_exists($jsonPath)) {
+            $products = json_decode(file_get_contents($jsonPath), true);
+        }
+    }
+    
+    $staticRoutes = ['', '/shop', '/categories', '/about', '/contact', '/terms', '/privacy', '/return-refund'];
+    $categoryRoutes = [
+        '/category/development-boards',
+        '/category/sensors',
+        '/category/modules',
+        '/category/motors',
+        '/category/battery',
+        '/category/displays'
+    ];
+    
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+    
+    foreach ($staticRoutes as $r) {
+        $priority = ($r === '') ? '1.0' : (($r === '/shop' || $r === '/categories') ? '0.8' : '0.5');
+        $xml .= "  <url>\n    <loc>$baseUrl$r</loc>\n    <changefreq>daily</changefreq>\n    <priority>$priority</priority>\n  </url>\n";
+    }
+    
+    foreach ($categoryRoutes as $r) {
+        $xml .= "  <url>\n    <loc>$baseUrl$r</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.7</priority>\n  </url>\n";
+    }
+    
+    if (is_array($products)) {
+        foreach ($products as $p) {
+            $slug = phpNormalize($p['title']);
+            if (!empty($slug)) {
+                $xml .= "  <url>\n    <loc>$baseUrl/product/$slug</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.6</priority>\n  </url>\n";
+            }
+        }
+    }
+    
+    $xml .= '</urlset>';
+    echo $xml;
+    exit;
+}
+
+// Defaults
+$title = "Tronix365 | Premium Electronic Components";
+$description = "Shop high-quality Arduino boards, sensors, ESP32 modules, robotics parts, and IoT devices at Tronix365.";
+$image = $baseUrl . "/Tronix3650final_circular.png";
+
+// Canonical URL cleanup: remove query parameters and trailing slashes consistently
+$url = "https://www.tronix365.in" . rtrim($cleanPath, '/');
+if ($cleanPath === '/e-commerse' || $cleanPath === '/e-commerse/') {
+    $url = "https://www.tronix365.in/e-commerse/";
+}
+$extraHead = "";
+
+// Helper to sanitize text for meta tags
+function escapeMeta($text) {
+    return htmlspecialchars(strip_tags(trim($text)), ENT_QUOTES, 'UTF-8');
+}
+
+// Dynamic fallback description generator
+function phpGenerateDescription($title, $category) {
+    $voltage = '';
+    if (preg_match('/(\d+(?:\.\d+)?)\s*[Vv]\b/', $title, $matches)) {
+        $voltage = $matches[0];
+    }
+    
+    $voltageStr = $voltage ? "operating at a stable $voltage" : "with standard operating voltage";
+    $cat = $category ? $category : "Electronics";
+    
+    $desc = "The " . $title . " is a professional-grade " . strtolower($cat) . " component $voltageStr, designed for reliable and high-performance electronics prototyping.";
+    
+    if ($cat === "Development Boards") {
+        $desc .= " Ideal for custom IoT systems, microcontroller programming, and smart home automation projects.";
+    } elseif ($cat === "Sensors") {
+        $desc .= " Perfect for real-time environment monitoring, telemetry collection, and robotic sensory inputs.";
+    } elseif ($cat === "Modules") {
+        $desc .= " Engineered for clean breadboard integration, wireless communication routing, or device expansion setups.";
+    } else {
+        $desc .= " Perfect for student learning labs, custom PCB designs, and advanced DIY electronics experiments.";
+    }
+    
+    return $desc;
+}
+
 // 2. Route Matching
 if (preg_match('/^product\/([a-zA-Z0-9_-]+)$/', $path, $matches)) {
     // Product Page
     $slugOrId = $matches[1];
     $isId = ctype_digit($slugOrId);
-    $fetchUrl = $isId ? "$apiUrl/products/$slugOrId" : "$apiUrl/products/slug/$slugOrId";
-
-    // 1. Try to load product locally from metadata JSON first (high performance & offline fallback)
+    
     $product = null;
-    $jsonPath = __DIR__ . '/products_metadata.json';
-    if (file_exists($jsonPath)) {
-        $jsonData = json_decode(file_get_contents($jsonPath), true);
-        if (is_array($jsonData)) {
-            foreach ($jsonData as $item) {
-                if ($isId) {
-                    if (isset($item['id']) && $item['id'] == $slugOrId) {
-                        $product = $item;
+    
+    // 1. Direct query database (highly available, bypasses Render sleep)
+    if ($pdo) {
+        try {
+            if ($isId) {
+                $stmt = $pdo->prepare("SELECT * FROM products WHERE id = :id");
+                $stmt->execute(['id' => $slugOrId]);
+                $product = $stmt->fetch();
+            } else {
+                $stmt = $pdo->query("SELECT * FROM products");
+                $allProds = $stmt->fetchAll();
+                $target = phpNormalize($slugOrId);
+                foreach ($allProds as $p) {
+                    if (!empty($p['title']) && phpNormalize($p['title']) === $target) {
+                        $product = $p;
                         break;
                     }
-                } else {
-                    if (isset($item['slug']) && strcasecmp($item['slug'], $slugOrId) === 0) {
-                        $product = $item;
+                    if (!empty($p['skv']) && strcasecmp($p['skv'], $slugOrId) === 0) {
+                        $product = $p;
                         break;
+                    }
+                }
+            }
+        } catch (PDOException $e) {
+            $product = null;
+        }
+    }
+
+    // 2. Fallback: Load product locally from metadata JSON
+    if (!$product) {
+        $jsonPath = __DIR__ . '/products_metadata.json';
+        if (file_exists($jsonPath)) {
+            $jsonData = json_decode(file_get_contents($jsonPath), true);
+            if (is_array($jsonData)) {
+                foreach ($jsonData as $item) {
+                    if ($isId) {
+                        if (isset($item['id']) && $item['id'] == $slugOrId) {
+                            $product = $item;
+                            break;
+                        }
+                    } else {
+                        if (isset($item['slug']) && strcasecmp($item['slug'], $slugOrId) === 0) {
+                            $product = $item;
+                            break;
+                        }
                     }
                 }
             }
         }
     }
 
-    // 2. Fallback to FastAPI backend cURL if not found locally
+    // 3. Fallback: Fetch via FastAPI backend cURL
     if (!$product) {
+        $fetchUrl = $isId ? "$apiUrl/products/$slugOrId" : "$apiUrl/products/slug/$slugOrId";
         $response = fetchUrl($fetchUrl, 5.0);
         if ($response) {
             $product = json_decode($response, true);
@@ -96,24 +293,34 @@ if (preg_match('/^product\/([a-zA-Z0-9_-]+)$/', $path, $matches)) {
     
     if ($product) {
         $pName = escapeMeta($product['title']);
-        $title = "$pName | Tronix365";
-        $description = escapeMeta(substr($product['description'], 0, 160));
-        if (!empty($product['image'])) {
+        // Format title intelligently with Buy Online
+        $title = "$pName | Buy Online | Tronix365";
+        
+        // Dynamic fallback description check
+        $descRaw = (!empty($product['description']) && strlen(trim($product['description'])) >= 30) ? $product['description'] : phpGenerateDescription($product['title'], $product['category'] ?? 'Electronics');
+        $description = escapeMeta(substr($descRaw, 0, 160));
+        
+        $isPlaceholder = empty($product['image']) || strpos($product['image'], 'placehold.co') !== false || strpos($product['image'], 'No+Image') !== false || strpos($product['image'], 'No Image') !== false || strpos($product['image'], 'data:') === 0;
+        
+        if ($isPlaceholder) {
+            $image = $baseUrl . "/Tronix3650final_circular.png";
+        } else {
             // Check if absolute URL or relative
             $image = (strpos($product['image'], 'http') === 0) ? $product['image'] : "$apiUrl/" . ltrim($product['image'], '/');
         }
         
         // Build Schema.org Product JSON-LD
-        $sku = !empty($product['skv']) ? $product['skv'] : "SKU-" . strtoupper(preg_replace('/[^A-Z0-9]/', '-', $pName));
+        // Fix SKU generation by converting to uppercase first and collapsing hyphens with dynamic prefix
+        $prefix = "TRX-" . (!empty($product['category']) ? strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $product['category']), 0, 3)) : "MSC");
+        $sku = !empty($product['skv']) ? $product['skv'] : $prefix . "-" . trim(preg_replace('/[^A-Z0-9]+/', '-', strtoupper($pName)), '-');
         $stockStatus = ($product['stock'] > 0) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock";
         
         $productSchema = [
             "@context" => "https://schema.org",
             "@type" => "Product",
             "name" => $pName,
-            "description" => $description,
-            "image" => $image,
-            "category" => escapeMeta($product['category']),
+            "description" => escapeMeta($descRaw),
+            "category" => escapeMeta($product['category'] ?? 'Electronics'),
             "sku" => $sku,
             "brand" => [
                 "@type" => "Brand",
@@ -128,6 +335,11 @@ if (preg_match('/^product\/([a-zA-Z0-9_-]+)$/', $path, $matches)) {
                 "availability" => $stockStatus
             ]
         ];
+
+        // Omit image property if it is a placeholder
+        if (!$isPlaceholder) {
+            $productSchema["image"] = $image;
+        }
         
         // Build BreadcrumbList JSON-LD
         $breadcrumbSchema = [

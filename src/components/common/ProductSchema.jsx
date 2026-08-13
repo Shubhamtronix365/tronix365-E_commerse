@@ -1,5 +1,28 @@
 import React from 'react';
 
+// Helper to determine if image is a placeholder or empty
+const isPlaceholderImage = (img) => {
+  if (!img) return true;
+  return img.includes('placehold.co') || img.includes('No+Image') || img.includes('No Image') || img.startsWith('data:');
+};
+
+const jsGenerateDescription = (title, category) => {
+  const voltageMatch = title ? title.match(/(\d+(?:\.\d+)?)\s*[Vv]\b/) : null;
+  const voltageStr = voltageMatch ? `operating at a stable ${voltageMatch[0]}` : "with standard operating voltage";
+  const cat = category || "Electronics";
+  let desc = `The ${title || 'product'} is a professional-grade ${cat.toLowerCase()} component ${voltageStr}, designed for reliable and high-performance electronics prototyping.`;
+  if (cat === "Development Boards") {
+    desc += " Ideal for custom IoT systems, microcontroller programming, and smart home automation projects.";
+  } else if (cat === "Sensors") {
+    desc += " Perfect for real-time environment monitoring, telemetry collection, and robotic sensory inputs.";
+  } else if (cat === "Modules") {
+    desc += " Engineered for clean breadboard integration, wireless communication routing, or device expansion setups.";
+  } else {
+    desc += " Perfect for student learning labs, custom PCB designs, and advanced DIY electronics experiments.";
+  }
+  return desc;
+};
+
 const ProductSchema = ({
   name,
   description,
@@ -10,14 +33,17 @@ const ProductSchema = ({
   inStock = true,
   url,
 }) => {
+  // Clean name for SKU generation
+  const cleanSKU = sku || (name ? `TRX-${(category || 'MSC').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3)}-${name.toUpperCase().replace(/[^A-Z0-9]+/g, '-').replace(/^-+|-+$/g, '')}` : '');
+  const cleanDescription = (description && description.trim().length >= 30) ? description : jsGenerateDescription(name, category);
+
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     'name': name,
-    'description': description,
-    'image': image,
+    'description': cleanDescription,
     'category': category,
-    'sku': sku || `SKU-${name.toUpperCase().replace(/[^A-Z0-9]/g, '-')}`,
+    'sku': cleanSKU,
     'brand': {
       '@type': 'Brand',
       'name': 'Tronix365',
@@ -33,6 +59,11 @@ const ProductSchema = ({
         : 'https://schema.org/OutOfStock',
     },
   };
+
+  // Only include image if it is a real image and not a placeholder
+  if (!isPlaceholderImage(image)) {
+    schema.image = image;
+  }
 
   return (
     <script type="application/ld+json">
