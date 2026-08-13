@@ -60,10 +60,9 @@ const ProductSchema = ({
     },
   };
 
-  // Only include image if it is a real image and not a placeholder
-  if (!isPlaceholderImage(image)) {
-    schema.image = image;
-  }
+  // Always include image (using fallback store logo if placeholder) to comply with Google Search rules
+  const fallbackImage = 'https://www.tronix365.in/e-commerse/Tronix3650final_circular.png';
+  schema.image = isPlaceholderImage(image) ? fallbackImage : image;
 
   return (
     <script type="application/ld+json">

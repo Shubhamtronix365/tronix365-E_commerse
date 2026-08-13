@@ -336,10 +336,8 @@ if (preg_match('/^product\/([a-zA-Z0-9_-]+)$/', $path, $matches)) {
             ]
         ];
 
-        // Omit image property if it is a placeholder
-        if (!$isPlaceholder) {
-            $productSchema["image"] = $image;
-        }
+        // Always include image (using fallback store logo if placeholder) to comply with Google Search rules
+        $productSchema["image"] = $image;
         
         // Build BreadcrumbList JSON-LD
         $breadcrumbSchema = [
