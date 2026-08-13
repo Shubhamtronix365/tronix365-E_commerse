@@ -402,7 +402,42 @@ if (preg_match('/^product\/([a-zA-Z0-9_-]+)$/', $path, $matches)) {
                 "priceCurrency" => "INR",
                 "price" => $product['price'],
                 "itemCondition" => "https://schema.org/NewCondition",
-                "availability" => $stockStatus
+                "availability" => $stockStatus,
+                "shippingDetails" => [
+                    "@type" => "OfferShippingDetails",
+                    "shippingRate" => [
+                        "@type" => "MonetaryAmount",
+                        "value" => 69,
+                        "currency" => "INR"
+                    ],
+                    "shippingDestination" => [
+                        "@type" => "DefinedRegion",
+                        "addressCountry" => "IN"
+                    ],
+                    "deliveryTime" => [
+                        "@type" => "ShippingDeliveryTime",
+                        "handlingTime" => [
+                            "@type" => "QuantitativeValue",
+                            "minValue" => 0,
+                            "maxValue" => 1,
+                            "unitCode" => "DAY"
+                        ],
+                        "transitTime" => [
+                            "@type" => "QuantitativeValue",
+                            "minValue" => 4,
+                            "maxValue" => 7,
+                            "unitCode" => "DAY"
+                        ]
+                    ]
+                ],
+                "hasMerchantReturnPolicy" => [
+                    "@type" => "MerchantReturnPolicy",
+                    "applicableCountry" => "IN",
+                    "returnPolicyCategory" => "https://schema.org/MerchantReturnFiniteReturnPeriod",
+                    "merchantReturnDays" => 5,
+                    "returnMethod" => "https://schema.org/ReturnByMail",
+                    "returnFees" => "https://schema.org/ReturnShippingFees"
+                ]
             ],
             "aggregateRating" => $aggregateSchema,
             "review" => $reviewSchema
