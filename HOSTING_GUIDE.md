@@ -70,7 +70,7 @@ Vite uses compile-time environment variables. The repository is pre-configured w
      ```bash
      npm run build
      ```
-   * This generates a `dist` directory. The build script automatically copies static configuration files (`.htaccess`, `index.php`, `robots.txt`, and `sitemap.xml`) from `public/` into `dist/`.
+     *(Note: This automatically triggers `node scripts/generate-sitemap.cjs` to generate a fresh `sitemap.xml` mapping all your products, before Vite compiles the production frontend into the `dist/` directory, copying over configuration files like `.htaccess`, `index.php`, `robots.txt`, and the fresh `sitemap.xml` automatically)*.
 
 2. **Upload to Hostinger**:
    * Connect to your Hostinger hosting control panel (hPanel) or use FTP.

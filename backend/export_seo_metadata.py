@@ -24,10 +24,12 @@ load_dotenv(dotenv_path=dotenv_path)
 def make_slug(title: str) -> str:
     if not title:
         return ""
-    t = title.lower()
-    t = re.sub(r'[^a-z0-9\s-]', '', t)
-    t = re.sub(r'[\s-]+', '-', t)
-    return t.strip('-')
+    t = str(title).lower().strip()
+    t = t.replace("_", "-")
+    t = re.sub(r"\s+", "-", t)
+    t = re.sub(r"[^\w\-]+", "", t)
+    t = re.sub(r"\-\-+", "-", t)
+    return t.strip("-")
 
 def main():
     db: Session = SessionLocal()

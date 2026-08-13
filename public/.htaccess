@@ -1,6 +1,10 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /e-commerse/
+
+  # Route sitemap.xml to index.php for dynamic database-driven product mapping
+  RewriteRule ^sitemap\.xml$ index.php [L]
+
   RewriteRule ^index\.php$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
