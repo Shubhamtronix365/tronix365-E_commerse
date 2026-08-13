@@ -132,6 +132,9 @@ const ProductDetails = () => {
                 category={product.category}
                 inStock={product.stock > 0}
                 url={`https://www.tronix365.in/e-commerse/product/${slug}`}
+                ratingValue={reviewStats.average}
+                reviewCount={reviewStats.count}
+                productId={product.id}
             />
             <div className="max-w-7xl mx-auto">
                 <Breadcrumbs category={product.category} productName={product.title} />
