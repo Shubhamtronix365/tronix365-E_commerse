@@ -54,6 +54,11 @@ This guide describes the steps required to deploy the **Tronix365 E-commerce Pla
    | `GOOGLE_CLIENT_SECRET` | Google OAuth Client Secret |
    | `GEMINI_API_KEY` | Gemini API Key for chatbot integrations |
 
+4. **Health Check & Render Keep-Alive (Prevent Spin-Down for SEO)**:
+   * The backend includes a lightweight `/health` route (`GET /health`) returning `{"status": "ok"}` with HTTP `200 OK` instantly.
+   * **Preventing Free-Tier Spin-Down**: Render's free tier automatically spins down web services after 15 minutes of inactivity. When the backend spins down, incoming requests—including search engine crawlers (such as Googlebot) fetching dynamic metadata or sitemaps—experience 30+ second cold-start delays or timeouts, negatively affecting SEO crawling and user experience.
+   * **Recommended Setup**: Configure a free uptime monitoring service (e.g., [UptimeRobot](https://uptimerobot.com), [Cron-Job.org](https://cron-job.org), or [Better Stack](https://betterstack.com)) to ping `https://<your-render-app>.onrender.com/health` every **10 minutes**. This keeps the backend warm and ensures instant responses for SEO crawlers and live traffic.
+
 ---
 
 ## 💻 Part 3: Frontend Deployment (Hostinger)

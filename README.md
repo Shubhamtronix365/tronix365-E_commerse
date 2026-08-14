@@ -27,8 +27,9 @@ For a full step-by-step tutorial on hosting this project in production:
 - **Database**: Serverless PostgreSQL via **NeonDB**
 - **Backend API**: Python FastAPI via **Render**
 - **Frontend Client**: React Single Page Application via **Hostinger**
+- **Health Check & SEO Protection**: Instant `GET /health` endpoint returning `200 OK`. Set up a 10-minute ping schedule (e.g. via UptimeRobot) to prevent Render free-tier spin-down from affecting search engine crawlers (Googlebot) and user response times.
 
-Refer to our complete [Hosting & Configuration Guide](file:///c:/Users/Hi/Desktop/tronix365-E_commerse/HOSTING_GUIDE.md) for details.
+Refer to our complete [Hosting & Configuration Guide](HOSTING_GUIDE.md) for details.
 
 ---
 

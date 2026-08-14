@@ -234,8 +234,15 @@ async def read_root():
     return {"message": "Welcome to Tronix365 API", "status": "running"}
 
 
-@app.get("/health")
+@app.get("/health", status_code=200)
 async def health_check():
+    """
+    Instant health check endpoint returning 200 OK.
+    
+    This endpoint should be pinged every 10 minutes (via UptimeRobot, Cron-Job.org, etc.)
+    to keep the Render free-tier instance active, preventing cold-start delays that
+    could impact search engine crawlers (SEO) and user experience.
+    """
     return {"status": "ok"}
 
 
