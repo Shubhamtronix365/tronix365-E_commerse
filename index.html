@@ -12,6 +12,18 @@
     <link rel="preconnect" href="https://tronix365-e-commerse.onrender.com" crossorigin />
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
     <title>tronix365</title>
+    <!-- Google Customer Reviews Badge Widget -->
+    <script id="merchantWidgetScript" src="https://www.gstatic.com/shopping/merchant/merchantwidget.js" defer></script>
+    <script>
+      merchantWidgetScript.addEventListener('load', function () {
+        if (window.merchantwidget && window.merchantwidget.start) {
+          window.merchantwidget.start({
+            merchant_id: 5820417048,
+            position: "BOTTOM_LEFT"
+          });
+        }
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>
