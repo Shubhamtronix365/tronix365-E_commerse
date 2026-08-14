@@ -484,12 +484,39 @@ async def get_recommendations(product_id: int, db: Session = Depends(get_db)):
     return recommendations
 
 
+def get_product_variants_list(product, db):
+    target_parent_id = product.parent_id
+    if not target_parent_id:
+        return []
+    
+    siblings = (
+        db.query(ProductDB)
+        .filter(ProductDB.parent_id == target_parent_id)
+        .order_by(ProductDB.id.asc())
+        .all()
+    )
+    
+    variant_data = []
+    for v in siblings:
+        variant_data.append({
+            "id": v.id,
+            "title": v.title,
+            "price": v.price,
+            "stock": v.stock,
+            "variant_name": v.variant_name or v.title,
+            "variant_type": v.variant_type or "Option",
+            "image": v.image
+        })
+    return variant_data
+
+
 @app.get("/products/{product_id}", response_model=Product)
 @cache(expire=3600, namespace="products")
 async def get_product(product_id: int, db: Session = Depends(get_db)):
     product = db.query(ProductDB).filter(ProductDB.id == product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
+    product.variants = get_product_variants_list(product, db)
     return product
 
 
@@ -509,22 +536,32 @@ async def get_product_by_slug(slug: str, db: Session = Depends(get_db)):
     target = normalize(slug)
     products = db.query(ProductDB).all()
 
+    found_product = None
     # 1. Match normalized title slug
     for p in products:
         if p.title and normalize(p.title) == target:
-            return p
+            found_product = p
+            break
 
     # 2. Match normalized SKV or product ID
-    for p in products:
-        if p.skv and (normalize(p.skv) == target or p.skv.lower() == slug.lower()):
-            return p
+    if not found_product:
+        for p in products:
+            if p.skv and (normalize(p.skv) == target or p.skv.lower() == slug.lower()):
+                found_product = p
+                break
 
     # 3. Match exact or lower title
-    for p in products:
-        if p.title and p.title.lower().strip() == slug.lower().strip():
-            return p
+    if not found_product:
+        for p in products:
+            if p.title and p.title.lower().strip() == slug.lower().strip():
+                found_product = p
+                break
 
-    raise HTTPException(status_code=404, detail="Product not found")
+    if not found_product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    found_product.variants = get_product_variants_list(found_product, db)
+    return found_product
 
 
 

@@ -17,6 +17,7 @@ import ProductSchema from '../components/common/ProductSchema';
 import Breadcrumbs from '../components/common/Breadcrumbs';
 import Image from '../components/common/Image';
 import ShareModal from '../components/common/ShareModal';
+import VariantSelector from '../components/product/VariantSelector';
 
 const ProductDetails = () => {
     const { slug } = useParams();
@@ -100,6 +101,22 @@ const ProductDetails = () => {
             </div>
         );
     }
+
+    const handleSelectVariant = async (selectedVariant) => {
+        if (!selectedVariant || selectedVariant.id === product.id) return;
+        try {
+            setLoading(true);
+            const res = await client.get(`/products/${selectedVariant.id}`);
+            setProduct(res.data);
+            const { slugify } = await import('../utils/slugify');
+            navigate(`/product/${slugify(res.data.title)}`, { replace: true });
+        } catch (err) {
+            console.error("Error switching variant:", err);
+            toast.error("Failed to load selected variant");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleAddToCart = (e) => {
         const success = addToCart(product, quantity);
@@ -190,6 +207,13 @@ const ProductDetails = () => {
                                 </span>
                             )}
                         </div>
+
+                        {/* Interactive Variant Selector */}
+                        <VariantSelector
+                            product={product}
+                            activeVariantId={product.id}
+                            onSelectVariant={handleSelectVariant}
+                        />
 
                         <div className="flex items-end gap-3 mb-8">
                             <div className="flex flex-col">
@@ -607,7 +631,7 @@ const ProductDetails = () => {
                 </div>
 
                 {/* Recommendations Section */}
-                <RelatedProducts productId={product.id} />
+                <RelatedProducts productId={product.id} category={product.category} />
             </div>
 
             {/* Share Modal */}

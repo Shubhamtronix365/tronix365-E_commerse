@@ -38,6 +38,9 @@ class ProductDB(Base):
     useful_links = Column(JSON, nullable=True)  # List of dicts/strings
     package_includes = Column(JSON, nullable=True)  # Items in box
     attachments = Column(JSON, nullable=True)  # Downloadable PDFs/Manuals/Schematics
+    parent_id = Column(Integer, ForeignKey("products.id"), nullable=True)  # Parent product ID for variants
+    variant_name = Column(String, nullable=True)  # e.g. "4 PIN", "100 RPM", "0.1 uF"
+    variant_type = Column(String, nullable=True)  # e.g. "Pin Count", "Speed (RPM)", "Capacitance"
 
 
 class UserDB(Base):
@@ -163,6 +166,9 @@ class ProductBase(BaseModel):
     useful_links: Optional[Any] = None
     package_includes: Optional[List[str]] = None
     attachments: Optional[Any] = None
+    parent_id: Optional[int] = None
+    variant_name: Optional[str] = None
+    variant_type: Optional[str] = None
 
     @field_validator("specs", "features", "applications", "useful_links", "package_includes", "attachments", mode="before")
     @classmethod
@@ -198,10 +204,14 @@ class ProductUpdate(BaseModel):
     useful_links: Optional[Any] = None
     package_includes: Optional[List[str]] = None
     attachments: Optional[Any] = None
+    parent_id: Optional[int] = None
+    variant_name: Optional[str] = None
+    variant_type: Optional[str] = None
 
 
 class Product(ProductBase):
     id: int
+    variants: Optional[List[Any]] = None
 
     class Config:
         from_attributes = True

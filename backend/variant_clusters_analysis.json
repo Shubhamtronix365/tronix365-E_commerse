@@ -1,0 +1,428 @@
+[
+  {
+    "cluster_name": "Ceramic & Electrolytic Capacitors",
+    "count": 14,
+    "products": [
+      {
+        "id": 177,
+        "title": "100 PF 50V",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "C31D",
+        "category": "Miscellaneous"
+      },
+      {
+        "id": 201,
+        "title": "9V BATTERY CAP CONNECTOR",
+        "price": 8.0,
+        "stock": 100,
+        "skv": "C47A",
+        "category": "Battery"
+      },
+      {
+        "id": 173,
+        "title": "33PF 50V CAPACOTIOR",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "C31",
+        "category": "Miscellaneous"
+      },
+      {
+        "id": 174,
+        "title": "0.001 UF 50V CAP",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "C31A",
+        "category": "Miscellaneous"
+      },
+      {
+        "id": 175,
+        "title": "0.01UF 50V CAP",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "C31B",
+        "category": "Miscellaneous"
+      },
+      {
+        "id": 176,
+        "title": "0.1 UF 50V CAP",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "C31C",
+        "category": "Miscellaneous"
+      },
+      {
+        "id": 179,
+        "title": "22 PF 50V",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "C31F",
+        "category": "Miscellaneous"
+      },
+      {
+        "id": 180,
+        "title": "1 UF CAP",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "C32",
+        "category": "Miscellaneous"
+      },
+      {
+        "id": 181,
+        "title": "2.2 UF CAP",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "C33",
+        "category": "Miscellaneous"
+      },
+      {
+        "id": 182,
+        "title": "4.7 UF CAP",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "C34",
+        "category": "Miscellaneous"
+      },
+      {
+        "id": 184,
+        "title": "22UF 50v CAP",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "C36",
+        "category": "Miscellaneous"
+      },
+      {
+        "id": 185,
+        "title": "100UF CAP",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "C37",
+        "category": "Miscellaneous"
+      },
+      {
+        "id": 186,
+        "title": "470 UF CAP",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "C38",
+        "category": "Miscellaneous"
+      },
+      {
+        "id": 187,
+        "title": "1000UF CAP",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "C39",
+        "category": "Miscellaneous"
+      }
+    ]
+  },
+  {
+    "cluster_name": "Relimate Connectors",
+    "count": 9,
+    "products": [
+      {
+        "id": 125,
+        "title": "12 PIN RELIMATE",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "B15",
+        "category": "Connector"
+      },
+      {
+        "id": 126,
+        "title": "16 PIN RELIMATE",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "B15A",
+        "category": "Connector"
+      },
+      {
+        "id": 118,
+        "title": "2pin Relimate Connector (Male+Female set)",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "B11",
+        "category": "Connector"
+      },
+      {
+        "id": 119,
+        "title": "3 Pin Female To Female Relimate Connector",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "B11A",
+        "category": "Connector"
+      },
+      {
+        "id": 120,
+        "title": "4 PIN RELIMATE",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "B12",
+        "category": "Connector"
+      },
+      {
+        "id": 121,
+        "title": "5 PIN RELIMATE",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "B12A",
+        "category": "Connector"
+      },
+      {
+        "id": 122,
+        "title": "6 PIN RELIMATE",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "B13",
+        "category": "Connector"
+      },
+      {
+        "id": 123,
+        "title": "7 PIN RELIMATE",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "B13A",
+        "category": "Connector"
+      },
+      {
+        "id": 124,
+        "title": "8 PIN RELIMATE",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "B14",
+        "category": "Connector"
+      }
+    ]
+  },
+  {
+    "cluster_name": "DC Geared Motors (RPM Variants)",
+    "count": 8,
+    "products": [
+      {
+        "id": 127,
+        "title": "3.5 RPM  DC Motor",
+        "price": 200.0,
+        "stock": 100,
+        "skv": "B16",
+        "category": "Motors"
+      },
+      {
+        "id": 129,
+        "title": "10 rpm 12v dc gear motor",
+        "price": 250.0,
+        "stock": 100,
+        "skv": "B17",
+        "category": "Motors"
+      },
+      {
+        "id": 130,
+        "title": "30 RPM 12V Centre Shaft DC Geared Motor",
+        "price": 140.0,
+        "stock": 100,
+        "skv": "B18",
+        "category": "Motors"
+      },
+      {
+        "id": 131,
+        "title": "60 RPM DC MOTOR 12V",
+        "price": 250.0,
+        "stock": 100,
+        "skv": "B19",
+        "category": "Motors"
+      },
+      {
+        "id": 132,
+        "title": "100 RPM DC MOTOR",
+        "price": 140.0,
+        "stock": 100,
+        "skv": "B20",
+        "category": "Motors"
+      },
+      {
+        "id": 136,
+        "title": "200 RPM DC MOTOR",
+        "price": 140.0,
+        "stock": 100,
+        "skv": "B24",
+        "category": "Motors"
+      },
+      {
+        "id": 137,
+        "title": "500 RPM DC MOTOR",
+        "price": 140.0,
+        "stock": 100,
+        "skv": "B25A",
+        "category": "Motors"
+      },
+      {
+        "id": 139,
+        "title": "BLDC MOTOR 1000KVA",
+        "price": 600.0,
+        "stock": 100,
+        "skv": "B27",
+        "category": "Motors"
+      }
+    ]
+  },
+  {
+    "cluster_name": "Relay Modules (Channel Count Variants)",
+    "count": 6,
+    "products": [
+      {
+        "id": 61,
+        "title": "1 channel 5V single Chanel Relay Module",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "TRX-MSC-61",
+        "category": "Relays"
+      },
+      {
+        "id": 65,
+        "title": "4 Channel Relay Module",
+        "price": 140.0,
+        "stock": 100,
+        "skv": "M13",
+        "category": "Relays"
+      },
+      {
+        "id": 66,
+        "title": "8 Channel Relay Module",
+        "price": 260.0,
+        "stock": 100,
+        "skv": "M13A",
+        "category": "Relays"
+      },
+      {
+        "id": 62,
+        "title": "1 channel 5V Relay Control Board Module with Optocoupler",
+        "price": 45.0,
+        "stock": 100,
+        "skv": "M11",
+        "category": "Relays"
+      },
+      {
+        "id": 64,
+        "title": "2 Channel 5V Relay Module With Optocoupler",
+        "price": 80.0,
+        "stock": 100,
+        "skv": "M12",
+        "category": "Relays"
+      },
+      {
+        "id": 63,
+        "title": "1 channel 24V Relay Control Board Module with Optocoupler",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "M11A",
+        "category": "Relays"
+      }
+    ]
+  },
+  {
+    "cluster_name": "Arduino Boards",
+    "count": 5,
+    "products": [
+      {
+        "id": 1,
+        "title": "Arduino Uno R3",
+        "price": 450.0,
+        "stock": 100,
+        "skv": "SKV-ARD-001",
+        "category": "Development Boards"
+      },
+      {
+        "id": 156,
+        "title": "ARDUINO UNO SMD",
+        "price": 200.0,
+        "stock": 100,
+        "skv": "C11",
+        "category": "Development Boards"
+      },
+      {
+        "id": 157,
+        "title": "ARDUINO UNO DIP",
+        "price": 390.0,
+        "stock": 100,
+        "skv": "C11A",
+        "category": "Development Boards"
+      },
+      {
+        "id": 158,
+        "title": "ARDUINO NANO",
+        "price": 200.0,
+        "stock": 100,
+        "skv": "C12",
+        "category": "Development Boards"
+      },
+      {
+        "id": 159,
+        "title": "ARDUINO MEGA",
+        "price": 1170.0,
+        "stock": 100,
+        "skv": "C13",
+        "category": "Development Boards"
+      }
+    ]
+  },
+  {
+    "cluster_name": "Servo Motors",
+    "count": 3,
+    "products": [
+      {
+        "id": 5,
+        "title": "SG90 Micro Servo Motor",
+        "price": 120.0,
+        "stock": 100,
+        "skv": "SKV-MOT-005",
+        "category": "Motors"
+      },
+      {
+        "id": 143,
+        "title": "MG995 SERVO MOTOR",
+        "price": 250.0,
+        "stock": 100,
+        "skv": "B30",
+        "category": "Motors"
+      },
+      {
+        "id": 144,
+        "title": "MG90S SERVO MOTOR",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "B30B",
+        "category": "Motors"
+      }
+    ]
+  },
+  {
+    "cluster_name": "Battery Holders",
+    "count": 3,
+    "products": [
+      {
+        "id": 168,
+        "title": "3-cell- battery holder",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "C24A",
+        "category": "Miscellaneous"
+      },
+      {
+        "id": 169,
+        "title": "2-cell-battery-holder",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "C24B",
+        "category": "Miscellaneous"
+      },
+      {
+        "id": 170,
+        "title": "1 CELL BATTERY HOLDER",
+        "price": 50.0,
+        "stock": 100,
+        "skv": "C24C",
+        "category": "Miscellaneous"
+      }
+    ]
+  }
+]

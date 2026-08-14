@@ -1,0 +1,1673 @@
+{
+  "total_products": 249,
+  "short_description_count": 66,
+  "high_similarity_match_count": 181,
+  "time_taken_seconds": 3.1,
+  "short_descriptions": [
+    {
+      "id": 1,
+      "title": "Arduino Uno R3",
+      "word_count": 12,
+      "snippet": "The classic microcontroller board for your projects. Reliable and easy to use."
+    },
+    {
+      "id": 4,
+      "title": "ESP8266 NodeMCU",
+      "word_count": 6,
+      "snippet": "WiFi enabled microcontroller for IoT applications."
+    },
+    {
+      "id": 5,
+      "title": "SG90 Micro Servo Motor",
+      "word_count": 11,
+      "snippet": "Tiny and lightweight with high output power. Ideal for RC projects."
+    },
+    {
+      "id": 6,
+      "title": "Li-Po Battery 3.7V 1000mAh",
+      "word_count": 6,
+      "snippet": "High capacity rechargeable lithium polymer battery."
+    },
+    {
+      "id": 7,
+      "title": "DHT11 Temperature & Humidity Sensor",
+      "word_count": 6,
+      "snippet": "Basic digital temperature and humidity sensor."
+    },
+    {
+      "id": 8,
+      "title": "OLED-Display",
+      "word_count": 8,
+      "snippet": "I2C OLED display module for Arduino and Pi."
+    },
+    {
+      "id": 15,
+      "title": "AD8232 ECG with Heart Rate Sensor",
+      "word_count": 43,
+      "snippet": "The Heart Rate Monitor Kit with AD8232 ECG sensor module Kit For Arduino is a cost-effective board use to measure the el..."
+    },
+    {
+      "id": 18,
+      "title": "Float Level Control Switch Plastic Float Switch",
+      "word_count": 49,
+      "snippet": "A float switch is a device used to sense the level of liquid within a tank.The switch may actuate a pump, an indicator, ..."
+    },
+    {
+      "id": 113,
+      "title": "ISD1820-voice-recording",
+      "word_count": 47,
+      "snippet": "The ISD1820-voice-recording is a professional-grade modules component with standard operating voltage designed for relia..."
+    },
+    {
+      "id": 30,
+      "title": "Eyeblink sensor",
+      "word_count": 48,
+      "snippet": "The eyeâblink sensor works by illuminating the eye and eyelid area with infrared light, then monitoring the changes in..."
+    },
+    {
+      "id": 65,
+      "title": "4 Channel Relay Module",
+      "word_count": 41,
+      "snippet": "The 4 Channel Relay Module is a convenient board that can be used to control high voltage, high current loads such as mo..."
+    },
+    {
+      "id": 39,
+      "title": "MQ2 Sensor",
+      "word_count": 45,
+      "snippet": "The MQ2 Sensor is a professional-grade sensors component with standard operating voltage designed for reliable and high-..."
+    },
+    {
+      "id": 42,
+      "title": "MQ5 Sensor",
+      "word_count": 22,
+      "snippet": "This Gas Sensor module is sensitive to LPG, natural Gas & Town Gas. it is also small sensitivity to alcohol & smoke."
+    },
+    {
+      "id": 50,
+      "title": "Turbidity Sensor with  Modules",
+      "word_count": 46,
+      "snippet": "The Water Turbidity Sensor is designed to measure the turbidity of water, helping to detect suspended particles or pollu..."
+    },
+    {
+      "id": 115,
+      "title": "INMP SOUND SENSOR",
+      "word_count": 45,
+      "snippet": "The INMP SOUND SENSOR is a professional-grade sensors component with standard operating voltage designed for reliable an..."
+    },
+    {
+      "id": 68,
+      "title": "SIM800C GSM Module",
+      "word_count": 37,
+      "snippet": "Discover a world of possibilities with the GSM Module GPRS SMS Voice Phone Development Board SIM800C. Designed to fulfil..."
+    },
+    {
+      "id": 117,
+      "title": "Tec1 12706 Thermoelectric Peltier Module",
+      "word_count": 47,
+      "snippet": "The Tec1 12706 Thermoelectric Peltier Module is a professional-grade sensors component with standard operating voltage d..."
+    },
+    {
+      "id": 74,
+      "title": "Micro SD Card Reader Module",
+      "word_count": 39,
+      "snippet": "SD cards are often used along with microcontrollers to store and retrieve the huge amount of data, mostly in data loggin..."
+    },
+    {
+      "id": 141,
+      "title": "5V STEPPER MOTOR",
+      "word_count": 47,
+      "snippet": "The 5V STEPPER MOTOR is a professional-grade motors component operating at a stable 5V designed for reliable and high-pe..."
+    },
+    {
+      "id": 102,
+      "title": "WIRLESS phone CHARGING MODULE",
+      "word_count": 48,
+      "snippet": "The WIRLESS phone CHARGING MODULE is a professional-grade modules component with standard operating voltage designed for..."
+    },
+    {
+      "id": 158,
+      "title": "ARDUINO NANO",
+      "word_count": 46,
+      "snippet": "The ARDUINO NANO is a professional-grade development boards component with standard operating voltage designed for relia..."
+    },
+    {
+      "id": 163,
+      "title": "NODE MCU CPU 02",
+      "word_count": 48,
+      "snippet": "The NODE MCU CPU 02 is a professional-grade development boards component with standard operating voltage designed for re..."
+    },
+    {
+      "id": 134,
+      "title": "TOY MOTOR",
+      "word_count": 49,
+      "snippet": "The TOY MOTOR is a professional-grade motors component with standard operating voltage designed for reliable and high-pe..."
+    },
+    {
+      "id": 159,
+      "title": "ARDUINO MEGA",
+      "word_count": 47,
+      "snippet": "The ARDUINO MEGA is a professional-grade development boards component with standard operating voltage designed for relia..."
+    },
+    {
+      "id": 161,
+      "title": "ESP CAM MODULE",
+      "word_count": 47,
+      "snippet": "The ESP CAM MODULE is a professional-grade development boards component with standard operating voltage designed for rel..."
+    },
+    {
+      "id": 192,
+      "title": "On/Off Rocker Switch SPST 2 Pin Switch",
+      "word_count": 16,
+      "snippet": "On/Off Rocker Switch SPST 2 Pin Switch\" provides information about a specific type of rocker switch."
+    },
+    {
+      "id": 20,
+      "title": "water-flow-sensor-0.125-inch-yf-s401-400x400",
+      "word_count": 46,
+      "snippet": "The water-flow-sensor-0.125-inch-yf-s401-400x400 is a professional-grade sensors component with standard operating volta..."
+    },
+    {
+      "id": 24,
+      "title": "Vibration sensor module",
+      "word_count": 48,
+      "snippet": "The Vibration sensor module is a professional-grade sensors component with standard operating voltage designed for relia..."
+    },
+    {
+      "id": 177,
+      "title": "100 PF 50V",
+      "word_count": 47,
+      "snippet": "The 100 PF 50V is a professional-grade miscellaneous component operating at a stable 50V designed for reliable and high-..."
+    },
+    {
+      "id": 2,
+      "title": "Raspberry Pi 4 Model B (4GB)",
+      "word_count": 9,
+      "snippet": "A powerful mini-computer for IoT, media centers, and more."
+    },
+    {
+      "id": 69,
+      "title": "EM18 RFID Module",
+      "word_count": 47,
+      "snippet": "EM18 RFID Reader is a module which reads the ID information stored in RFID TAGS. This ID information is unique for every..."
+    },
+    {
+      "id": 70,
+      "title": "Laser Sensor Module",
+      "word_count": 40,
+      "snippet": "LASER MODULE 650NM 5V is a compact and efficient laser module suitable for a variety of applications. It is widely used ..."
+    },
+    {
+      "id": 94,
+      "title": "5v-step-up-power-module-lithium-battery-charging",
+      "word_count": 45,
+      "snippet": "This is 5V Step-Up Power Module Lithium Battery Charging Protection Board USB For DIY Charger 134N3P. Itâs a Lithium B..."
+    },
+    {
+      "id": 149,
+      "title": "METAL STUDD",
+      "word_count": 47,
+      "snippet": "The METAL STUDD is a professional-grade miscellaneous component with standard operating voltage designed for reliable an..."
+    },
+    {
+      "id": 154,
+      "title": "PVC HEATSINK SLIVES",
+      "word_count": 48,
+      "snippet": "The PVC HEATSINK SLIVES is a professional-grade miscellaneous component with standard operating voltage designed for rel..."
+    },
+    {
+      "id": 169,
+      "title": "2-cell-battery-holder",
+      "word_count": 49,
+      "snippet": "The 2-cell-battery-holder is a professional-grade miscellaneous component with standard operating voltage designed for r..."
+    },
+    {
+      "id": 173,
+      "title": "33PF 50V CAPACOTIOR",
+      "word_count": 47,
+      "snippet": "The 33PF 50V CAPACOTIOR is a professional-grade miscellaneous component operating at a stable 50V designed for reliable ..."
+    },
+    {
+      "id": 175,
+      "title": "0.01UF 50V CAP",
+      "word_count": 49,
+      "snippet": "The 0.01UF 50V CAP is a professional-grade miscellaneous component operating at a stable 50V designed for reliable and h..."
+    },
+    {
+      "id": 179,
+      "title": "22 PF 50V",
+      "word_count": 47,
+      "snippet": "The 22 PF 50V is a professional-grade miscellaneous component operating at a stable 50V designed for reliable and high-p..."
+    },
+    {
+      "id": 181,
+      "title": "2.2 UF CAP",
+      "word_count": 47,
+      "snippet": "The 2.2 UF CAP is a professional-grade miscellaneous component with standard operating voltage designed for reliable and..."
+    },
+    {
+      "id": 182,
+      "title": "4.7 UF CAP",
+      "word_count": 47,
+      "snippet": "The 4.7 UF CAP is a professional-grade miscellaneous component with standard operating voltage designed for reliable and..."
+    },
+    {
+      "id": 184,
+      "title": "22UF 50v CAP",
+      "word_count": 48,
+      "snippet": "The 22UF 50v CAP is a professional-grade miscellaneous component operating at a stable 50v designed for reliable and hig..."
+    },
+    {
+      "id": 190,
+      "title": "2N2222 NPN Transistor",
+      "word_count": 18,
+      "snippet": "2N2222 is an NPN Transistor. It has a gain value of 110 and a collector current of 600mA."
+    },
+    {
+      "id": 189,
+      "title": "BC558 PNP transistor",
+      "word_count": 46,
+      "snippet": "The BC558 is a general-purpose PNP bipolar junction transistor (BJT) designed for low-noise amplification and switching ..."
+    },
+    {
+      "id": 186,
+      "title": "470 UF CAP",
+      "word_count": 47,
+      "snippet": "The 470 UF CAP is a professional-grade miscellaneous component with standard operating voltage designed for reliable and..."
+    },
+    {
+      "id": 187,
+      "title": "1000UF CAP",
+      "word_count": 46,
+      "snippet": "The 1000UF CAP is a professional-grade miscellaneous component with standard operating voltage designed for reliable and..."
+    },
+    {
+      "id": 188,
+      "title": "bc547-npn-transistor",
+      "word_count": 45,
+      "snippet": "The bc547-npn-transistor is a professional-grade miscellaneous component with standard operating voltage designed for re..."
+    },
+    {
+      "id": 202,
+      "title": "SPEAKER",
+      "word_count": 44,
+      "snippet": "The SPEAKER is a professional-grade miscellaneous component with standard operating voltage designed for reliable and hi..."
+    },
+    {
+      "id": 218,
+      "title": " Female Berg Strip 40x1",
+      "word_count": 29,
+      "snippet": "This is 40 pins single row female berg strip/header. It can be cut into any desired sizes with the wire cutter. The pitc..."
+    },
+    {
+      "id": 231,
+      "title": "GY-BME280-5V Temperature Humidity Pressure Sensor Module - I2C SPI Environmental Sensor",
+      "word_count": 42,
+      "snippet": "The GY-BME280-5V Environmental Sensor Module is a high-precision digital sensor capable of measuring temperature, humidi..."
+    },
+    {
+      "id": 95,
+      "title": "ESP01-wifi-module",
+      "word_count": 45,
+      "snippet": "The ESP01-wifi-module is a professional-grade modules component with standard operating voltage designed for reliable an..."
+    },
+    {
+      "id": 128,
+      "title": "Dummy WHEEL",
+      "word_count": 47,
+      "snippet": "The Dummy WHEEL is a professional-grade motors component with standard operating voltage designed for reliable and high-..."
+    },
+    {
+      "id": 234,
+      "title": "Original ESP32-WROOM-32D-N4 Module - 4MB Flash - WiFi BLE - Espressif",
+      "word_count": 41,
+      "snippet": "The ESP32-WROOM-32D-N4 is an original Espressif Wi-Fi and Bluetooth module featuring a dual-core Xtensa LX6 processor, 4..."
+    },
+    {
+      "id": 144,
+      "title": "MG90S SERVO MOTOR",
+      "word_count": 49,
+      "snippet": "The MG90S SERVO MOTOR is a professional-grade motors component with standard operating voltage designed for reliable and..."
+    },
+    {
+      "id": 162,
+      "title": "ENC28J60",
+      "word_count": 47,
+      "snippet": "The ENC28J60 is a professional-grade development boards component with standard operating voltage designed for reliable ..."
+    },
+    {
+      "id": 167,
+      "title": "18650-li-ion-2600mah-cell",
+      "word_count": 47,
+      "snippet": "The 18650-li-ion-2600mah-cell is a professional-grade miscellaneous component with standard operating voltage designed f..."
+    },
+    {
+      "id": 180,
+      "title": "1 UF CAP",
+      "word_count": 47,
+      "snippet": "The 1 UF CAP is a professional-grade miscellaneous component with standard operating voltage designed for reliable and h..."
+    },
+    {
+      "id": 183,
+      "title": "capacitor-10uf100v",
+      "word_count": 46,
+      "snippet": "The capacitor-10uf100v is a professional-grade miscellaneous component operating at a stable 100v designed for reliable ..."
+    },
+    {
+      "id": 185,
+      "title": "100UF CAP",
+      "word_count": 46,
+      "snippet": "The 100UF CAP is a professional-grade miscellaneous component with standard operating voltage designed for reliable and ..."
+    },
+    {
+      "id": 191,
+      "title": "limit-switch-2",
+      "word_count": 49,
+      "snippet": "The limit-switch-2 is a professional-grade switches component with standard operating voltage designed for reliable and ..."
+    },
+    {
+      "id": 229,
+      "title": "GY-SHT40 Digital Temperature &amp; Humidity Sensor Module - I2C - Sensirion SHT40 - High Accuracy",
+      "word_count": 47,
+      "snippet": "The GY-SHT40 Digital Temperature & Humidity Sensor Module is based on the Sensirion SHT40 sensor, offering high-precisio..."
+    },
+    {
+      "id": 230,
+      "title": "SENSIRION SEN66-SIN-T Environmental Sensor Module -CO Air Quality Sensor-I2C",
+      "word_count": 48,
+      "snippet": "The Sensirion SEN66-SIN-T is a high-accuracy environmental sensor module designed for CO₂ measurement from 0 to 40,000 p..."
+    },
+    {
+      "id": 232,
+      "title": "Espressif ESP32-WROOM-32UE WiFi Bluetooth Module - 4MB Flash - IPEX Connector",
+      "word_count": 41,
+      "snippet": "The ESP32-WROOM-32UE is a high-performance Wi-Fi and Bluetooth module from Espressif featuring a dual-core processor, 4M..."
+    },
+    {
+      "id": 233,
+      "title": "Espressif ESP32-WROVER-E-N16R8 Wireless Module - WiFi Bluetooth - 16MB Flash",
+      "word_count": 40,
+      "snippet": "The ESP32-WROVER-E-N16R8 is a high-performance wireless module from Espressif featuring dual-core processing, 16MB Flash..."
+    },
+    {
+      "id": 235,
+      "title": "ESPRESSIF ESP32-C3-MINI-1-N4 WiFi + Bluetooth 5 Module - 4MB Flash - PCB Antenna",
+      "word_count": 41,
+      "snippet": "The ESP32-C3-MINI-1-N4 is a compact, general-purpose wireless module from Espressif featuring a 32-bit RISC-V processor,..."
+    },
+    {
+      "id": 236,
+      "title": "DWIN 7 Inch Capacitive HMI Display DMG80480C070_04WTC",
+      "word_count": 40,
+      "snippet": "The DWIN DMG80480C070_04WTC is a 7-inch intelligent HMI TFT LCD display featuring 800×480 resolution, capacitive touch, ..."
+    }
+  ],
+  "similarity_matches": [
+    {
+      "prod1_id": 130,
+      "prod1_title": "30 RPM 12V Centre Shaft DC Geared Motor",
+      "prod2_id": 131,
+      "prod2_title": "60 RPM DC MOTOR 12V",
+      "similarity": 91.48
+    },
+    {
+      "prod1_id": 130,
+      "prod1_title": "30 RPM 12V Centre Shaft DC Geared Motor",
+      "prod2_id": 129,
+      "prod2_title": "10 rpm 12v dc gear motor",
+      "similarity": 88.17
+    },
+    {
+      "prod1_id": 61,
+      "prod1_title": "1 channel 5V single Chanel Relay Module",
+      "prod2_id": 64,
+      "prod2_title": "2 Channel 5V Relay Module With Optocoupler",
+      "similarity": 91.04
+    },
+    {
+      "prod1_id": 61,
+      "prod1_title": "1 channel 5V single Chanel Relay Module",
+      "prod2_id": 62,
+      "prod2_title": "1 channel 5V Relay Control Board Module with Optocoupler",
+      "similarity": 88.41
+    },
+    {
+      "prod1_id": 61,
+      "prod1_title": "1 channel 5V single Chanel Relay Module",
+      "prod2_id": 111,
+      "prod2_title": "12V RELAY QUBE",
+      "similarity": 80.92
+    },
+    {
+      "prod1_id": 44,
+      "prod1_title": "MQ7 carbon monoxide gas sensor module",
+      "prod2_id": 45,
+      "prod2_title": "MQ-8 Hydrogen Gas Sensor Module",
+      "similarity": 85.46
+    },
+    {
+      "prod1_id": 64,
+      "prod1_title": "2 Channel 5V Relay Module With Optocoupler",
+      "prod2_id": 62,
+      "prod2_title": "1 channel 5V Relay Control Board Module with Optocoupler",
+      "similarity": 94.53
+    },
+    {
+      "prod1_id": 64,
+      "prod1_title": "2 Channel 5V Relay Module With Optocoupler",
+      "prod2_id": 111,
+      "prod2_title": "12V RELAY QUBE",
+      "similarity": 80.65
+    },
+    {
+      "prod1_id": 132,
+      "prod1_title": "100 RPM DC MOTOR",
+      "prod2_id": 136,
+      "prod2_title": "200 RPM DC MOTOR",
+      "similarity": 99.47
+    },
+    {
+      "prod1_id": 132,
+      "prod1_title": "100 RPM DC MOTOR",
+      "prod2_id": 137,
+      "prod2_title": "500 RPM DC MOTOR",
+      "similarity": 99.47
+    },
+    {
+      "prod1_id": 132,
+      "prod1_title": "100 RPM DC MOTOR",
+      "prod2_id": 131,
+      "prod2_title": "60 RPM DC MOTOR 12V",
+      "similarity": 91.27
+    },
+    {
+      "prod1_id": 132,
+      "prod1_title": "100 RPM DC MOTOR",
+      "prod2_id": 134,
+      "prod2_title": "TOY MOTOR",
+      "similarity": 89.91
+    },
+    {
+      "prod1_id": 132,
+      "prod1_title": "100 RPM DC MOTOR",
+      "prod2_id": 129,
+      "prod2_title": "10 rpm 12v dc gear motor",
+      "similarity": 85.41
+    },
+    {
+      "prod1_id": 132,
+      "prod1_title": "100 RPM DC MOTOR",
+      "prod2_id": 144,
+      "prod2_title": "MG90S SERVO MOTOR",
+      "similarity": 83.75
+    },
+    {
+      "prod1_id": 136,
+      "prod1_title": "200 RPM DC MOTOR",
+      "prod2_id": 137,
+      "prod2_title": "500 RPM DC MOTOR",
+      "similarity": 99.47
+    },
+    {
+      "prod1_id": 136,
+      "prod1_title": "200 RPM DC MOTOR",
+      "prod2_id": 131,
+      "prod2_title": "60 RPM DC MOTOR 12V",
+      "similarity": 91.27
+    },
+    {
+      "prod1_id": 136,
+      "prod1_title": "200 RPM DC MOTOR",
+      "prod2_id": 134,
+      "prod2_title": "TOY MOTOR",
+      "similarity": 89.91
+    },
+    {
+      "prod1_id": 136,
+      "prod1_title": "200 RPM DC MOTOR",
+      "prod2_id": 129,
+      "prod2_title": "10 rpm 12v dc gear motor",
+      "similarity": 85.15
+    },
+    {
+      "prod1_id": 136,
+      "prod1_title": "200 RPM DC MOTOR",
+      "prod2_id": 144,
+      "prod2_title": "MG90S SERVO MOTOR",
+      "similarity": 83.75
+    },
+    {
+      "prod1_id": 137,
+      "prod1_title": "500 RPM DC MOTOR",
+      "prod2_id": 131,
+      "prod2_title": "60 RPM DC MOTOR 12V",
+      "similarity": 91.27
+    },
+    {
+      "prod1_id": 137,
+      "prod1_title": "500 RPM DC MOTOR",
+      "prod2_id": 134,
+      "prod2_title": "TOY MOTOR",
+      "similarity": 89.91
+    },
+    {
+      "prod1_id": 137,
+      "prod1_title": "500 RPM DC MOTOR",
+      "prod2_id": 129,
+      "prod2_title": "10 rpm 12v dc gear motor",
+      "similarity": 84.89
+    },
+    {
+      "prod1_id": 137,
+      "prod1_title": "500 RPM DC MOTOR",
+      "prod2_id": 144,
+      "prod2_title": "MG90S SERVO MOTOR",
+      "similarity": 83.75
+    },
+    {
+      "prod1_id": 141,
+      "prod1_title": "5V STEPPER MOTOR",
+      "prod2_id": 131,
+      "prod2_title": "60 RPM DC MOTOR 12V",
+      "similarity": 80.27
+    },
+    {
+      "prod1_id": 141,
+      "prod1_title": "5V STEPPER MOTOR",
+      "prod2_id": 143,
+      "prod2_title": "MG995 SERVO MOTOR",
+      "similarity": 81.45
+    },
+    {
+      "prod1_id": 226,
+      "prod1_title": "Male To Female Jumper Wires (set of 40)",
+      "prod2_id": 246,
+      "prod2_title": "Male To Female Jumper Single Wires",
+      "similarity": 98.26
+    },
+    {
+      "prod1_id": 151,
+      "prod1_title": "5V BIDC FAN",
+      "prod2_id": 150,
+      "prod2_title": "12 V BIDC FAN",
+      "similarity": 98.12
+    },
+    {
+      "prod1_id": 156,
+      "prod1_title": "ARDUINO UNO SMD",
+      "prod2_id": 158,
+      "prod2_title": "ARDUINO NANO",
+      "similarity": 96.2
+    },
+    {
+      "prod1_id": 156,
+      "prod1_title": "ARDUINO UNO SMD",
+      "prod2_id": 157,
+      "prod2_title": "ARDUINO UNO DIP",
+      "similarity": 95.45
+    },
+    {
+      "prod1_id": 156,
+      "prod1_title": "ARDUINO UNO SMD",
+      "prod2_id": 159,
+      "prod2_title": "ARDUINO MEGA",
+      "similarity": 94.59
+    },
+    {
+      "prod1_id": 158,
+      "prod1_title": "ARDUINO NANO",
+      "prod2_id": 163,
+      "prod2_title": "NODE MCU CPU 02",
+      "similarity": 85.71
+    },
+    {
+      "prod1_id": 158,
+      "prod1_title": "ARDUINO NANO",
+      "prod2_id": 157,
+      "prod2_title": "ARDUINO UNO DIP",
+      "similarity": 95.84
+    },
+    {
+      "prod1_id": 158,
+      "prod1_title": "ARDUINO NANO",
+      "prod2_id": 159,
+      "prod2_title": "ARDUINO MEGA",
+      "similarity": 96.77
+    },
+    {
+      "prod1_id": 158,
+      "prod1_title": "ARDUINO NANO",
+      "prod2_id": 160,
+      "prod2_title": "ESP32 -30 PIN",
+      "similarity": 87.52
+    },
+    {
+      "prod1_id": 131,
+      "prod1_title": "60 RPM DC MOTOR 12V",
+      "prod2_id": 134,
+      "prod2_title": "TOY MOTOR",
+      "similarity": 80.65
+    },
+    {
+      "prod1_id": 131,
+      "prod1_title": "60 RPM DC MOTOR 12V",
+      "prod2_id": 129,
+      "prod2_title": "10 rpm 12v dc gear motor",
+      "similarity": 92.47
+    },
+    {
+      "prod1_id": 133,
+      "prod1_title": "BO MOTOR",
+      "prod2_id": 134,
+      "prod2_title": "TOY MOTOR",
+      "similarity": 91.44
+    },
+    {
+      "prod1_id": 133,
+      "prod1_title": "BO MOTOR",
+      "prod2_id": 135,
+      "prod2_title": "N20 MOTOR",
+      "similarity": 91.41
+    },
+    {
+      "prod1_id": 133,
+      "prod1_title": "BO MOTOR",
+      "prod2_id": 138,
+      "prod2_title": "DC PUMP",
+      "similarity": 84.38
+    },
+    {
+      "prod1_id": 133,
+      "prod1_title": "BO MOTOR",
+      "prod2_id": 127,
+      "prod2_title": "3.5 RPM  DC Motor",
+      "similarity": 90.67
+    },
+    {
+      "prod1_id": 134,
+      "prod1_title": "TOY MOTOR",
+      "prod2_id": 135,
+      "prod2_title": "N20 MOTOR",
+      "similarity": 90.91
+    },
+    {
+      "prod1_id": 134,
+      "prod1_title": "TOY MOTOR",
+      "prod2_id": 129,
+      "prod2_title": "10 rpm 12v dc gear motor",
+      "similarity": 80.11
+    },
+    {
+      "prod1_id": 134,
+      "prod1_title": "TOY MOTOR",
+      "prod2_id": 139,
+      "prod2_title": "BLDC MOTOR 1000KVA",
+      "similarity": 85.27
+    },
+    {
+      "prod1_id": 134,
+      "prod1_title": "TOY MOTOR",
+      "prod2_id": 138,
+      "prod2_title": "DC PUMP",
+      "similarity": 87.94
+    },
+    {
+      "prod1_id": 134,
+      "prod1_title": "TOY MOTOR",
+      "prod2_id": 127,
+      "prod2_title": "3.5 RPM  DC Motor",
+      "similarity": 89.04
+    },
+    {
+      "prod1_id": 134,
+      "prod1_title": "TOY MOTOR",
+      "prod2_id": 144,
+      "prod2_title": "MG90S SERVO MOTOR",
+      "similarity": 81.62
+    },
+    {
+      "prod1_id": 135,
+      "prod1_title": "N20 MOTOR",
+      "prod2_id": 138,
+      "prod2_title": "DC PUMP",
+      "similarity": 84.3
+    },
+    {
+      "prod1_id": 135,
+      "prod1_title": "N20 MOTOR",
+      "prod2_id": 127,
+      "prod2_title": "3.5 RPM  DC Motor",
+      "similarity": 87.61
+    },
+    {
+      "prod1_id": 135,
+      "prod1_title": "N20 MOTOR",
+      "prod2_id": 144,
+      "prod2_title": "MG90S SERVO MOTOR",
+      "similarity": 80.1
+    },
+    {
+      "prod1_id": 225,
+      "prod1_title": "Female to Female Jumper Single Wires",
+      "prod2_id": 245,
+      "prod2_title": "Female to Female Jumper Wires (Set of 40)",
+      "similarity": 100.0
+    },
+    {
+      "prod1_id": 143,
+      "prod1_title": "MG995 SERVO MOTOR",
+      "prod2_id": 127,
+      "prod2_title": "3.5 RPM  DC Motor",
+      "similarity": 81.73
+    },
+    {
+      "prod1_id": 143,
+      "prod1_title": "MG995 SERVO MOTOR",
+      "prod2_id": 144,
+      "prod2_title": "MG90S SERVO MOTOR",
+      "similarity": 94.23
+    },
+    {
+      "prod1_id": 244,
+      "prod1_title": "Male to Male Jumper Wires (Set of 40)",
+      "prod2_id": 224,
+      "prod2_title": "Male to Male Jumper Single Wires",
+      "similarity": 100.0
+    },
+    {
+      "prod1_id": 146,
+      "prod1_title": "BO MOTOR WHEEL",
+      "prod2_id": 145,
+      "prod2_title": "CLUSTER WHEEL",
+      "similarity": 81.79
+    },
+    {
+      "prod1_id": 146,
+      "prod1_title": "BO MOTOR WHEEL",
+      "prod2_id": 147,
+      "prod2_title": "DC MOTOR WHEEL",
+      "similarity": 90.96
+    },
+    {
+      "prod1_id": 150,
+      "prod1_title": "12 V BIDC FAN",
+      "prod2_id": 153,
+      "prod2_title": "12 V LED",
+      "similarity": 86.81
+    },
+    {
+      "prod1_id": 212,
+      "prod1_title": "16 Pin DIP IC Socket Base Adaptor",
+      "prod2_id": 247,
+      "prod2_title": "40 Pin DIP IC Socket Base Adaptor",
+      "similarity": 99.11
+    },
+    {
+      "prod1_id": 212,
+      "prod1_title": "16 Pin DIP IC Socket Base Adaptor",
+      "prod2_id": 213,
+      "prod2_title": "18 Pin DIP IC Socket Base Adaptor",
+      "similarity": 99.45
+    },
+    {
+      "prod1_id": 212,
+      "prod1_title": "16 Pin DIP IC Socket Base Adaptor",
+      "prod2_id": 214,
+      "prod2_title": "20 Pin DIP IC Socket Base Adaptor",
+      "similarity": 99.11
+    },
+    {
+      "prod1_id": 157,
+      "prod1_title": "ARDUINO UNO DIP",
+      "prod2_id": 159,
+      "prod2_title": "ARDUINO MEGA",
+      "similarity": 93.73
+    },
+    {
+      "prod1_id": 207,
+      "prod1_title": "5mm LED - Blue Color",
+      "prod2_id": 206,
+      "prod2_title": "5mm LED - Green Color",
+      "similarity": 93.46
+    },
+    {
+      "prod1_id": 207,
+      "prod1_title": "5mm LED - Blue Color",
+      "prod2_id": 205,
+      "prod2_title": "5mm LED - White Orange Color",
+      "similarity": 92.2
+    },
+    {
+      "prod1_id": 207,
+      "prod1_title": "5mm LED - Blue Color",
+      "prod2_id": 204,
+      "prod2_title": "5mm LED - Yellow Color",
+      "similarity": 93.35
+    },
+    {
+      "prod1_id": 207,
+      "prod1_title": "5mm LED - Blue Color",
+      "prod2_id": 203,
+      "prod2_title": "5mm LED - Red Color",
+      "similarity": 93.79
+    },
+    {
+      "prod1_id": 206,
+      "prod1_title": "5mm LED - Green Color",
+      "prod2_id": 205,
+      "prod2_title": "5mm LED - White Orange Color",
+      "similarity": 96.3
+    },
+    {
+      "prod1_id": 206,
+      "prod1_title": "5mm LED - Green Color",
+      "prod2_id": 204,
+      "prod2_title": "5mm LED - Yellow Color",
+      "similarity": 93.59
+    },
+    {
+      "prod1_id": 206,
+      "prod1_title": "5mm LED - Green Color",
+      "prod2_id": 203,
+      "prod2_title": "5mm LED - Red Color",
+      "similarity": 97.4
+    },
+    {
+      "prod1_id": 164,
+      "prod1_title": "UNO CABLE",
+      "prod2_id": 165,
+      "prod2_title": "NANO CABLE",
+      "similarity": 96.75
+    },
+    {
+      "prod1_id": 164,
+      "prod1_title": "UNO CABLE",
+      "prod2_id": 166,
+      "prod2_title": "ESP32 CABLE",
+      "similarity": 90.46
+    },
+    {
+      "prod1_id": 165,
+      "prod1_title": "NANO CABLE",
+      "prod2_id": 166,
+      "prod2_title": "ESP32 CABLE",
+      "similarity": 91.76
+    },
+    {
+      "prod1_id": 247,
+      "prod1_title": "40 Pin DIP IC Socket Base Adaptor",
+      "prod2_id": 213,
+      "prod2_title": "18 Pin DIP IC Socket Base Adaptor",
+      "similarity": 98.78
+    },
+    {
+      "prod1_id": 247,
+      "prod1_title": "40 Pin DIP IC Socket Base Adaptor",
+      "prod2_id": 214,
+      "prod2_title": "20 Pin DIP IC Socket Base Adaptor",
+      "similarity": 99.56
+    },
+    {
+      "prod1_id": 205,
+      "prod1_title": "5mm LED - White Orange Color",
+      "prod2_id": 204,
+      "prod2_title": "5mm LED - Yellow Color",
+      "similarity": 89.04
+    },
+    {
+      "prod1_id": 205,
+      "prod1_title": "5mm LED - White Orange Color",
+      "prod2_id": 203,
+      "prod2_title": "5mm LED - Red Color",
+      "similarity": 96.18
+    },
+    {
+      "prod1_id": 24,
+      "prod1_title": "Vibration sensor module",
+      "prod2_id": 34,
+      "prod2_title": "MC-38 Wired Door Window Sensor Magnetic Switch",
+      "similarity": 80.49
+    },
+    {
+      "prod1_id": 31,
+      "prod1_title": "5mm LDR",
+      "prod2_id": 21,
+      "prod2_title": "Force Sensor Resistor 14.7mm Round Pressure Sensor 0.5 Inch",
+      "similarity": 84.53
+    },
+    {
+      "prod1_id": 177,
+      "prod1_title": "100 PF 50V",
+      "prod2_id": 173,
+      "prod2_title": "33PF 50V CAPACOTIOR",
+      "similarity": 96.89
+    },
+    {
+      "prod1_id": 177,
+      "prod1_title": "100 PF 50V",
+      "prod2_id": 174,
+      "prod2_title": "0.001 UF 50V CAP",
+      "similarity": 93.24
+    },
+    {
+      "prod1_id": 177,
+      "prod1_title": "100 PF 50V",
+      "prod2_id": 175,
+      "prod2_title": "0.01UF 50V CAP",
+      "similarity": 94.81
+    },
+    {
+      "prod1_id": 177,
+      "prod1_title": "100 PF 50V",
+      "prod2_id": 178,
+      "prod2_title": "CAP01 O.OO1 UF 50V",
+      "similarity": 93.81
+    },
+    {
+      "prod1_id": 177,
+      "prod1_title": "100 PF 50V",
+      "prod2_id": 179,
+      "prod2_title": "22 PF 50V",
+      "similarity": 98.57
+    },
+    {
+      "prod1_id": 177,
+      "prod1_title": "100 PF 50V",
+      "prod2_id": 187,
+      "prod2_title": "1000UF CAP",
+      "similarity": 86.43
+    },
+    {
+      "prod1_id": 177,
+      "prod1_title": "100 PF 50V",
+      "prod2_id": 176,
+      "prod2_title": "0.1 UF 50V CAP",
+      "similarity": 94.81
+    },
+    {
+      "prod1_id": 177,
+      "prod1_title": "100 PF 50V",
+      "prod2_id": 183,
+      "prod2_title": "capacitor-10uf100v",
+      "similarity": 88.24
+    },
+    {
+      "prod1_id": 177,
+      "prod1_title": "100 PF 50V",
+      "prod2_id": 185,
+      "prod2_title": "100UF CAP",
+      "similarity": 86.94
+    },
+    {
+      "prod1_id": 121,
+      "prod1_title": "5 PIN RELIMATE",
+      "prod2_id": 118,
+      "prod2_title": "2pin Relimate Connector (Male+Female set)",
+      "similarity": 93.49
+    },
+    {
+      "prod1_id": 121,
+      "prod1_title": "5 PIN RELIMATE",
+      "prod2_id": 120,
+      "prod2_title": "4 PIN RELIMATE",
+      "similarity": 99.02
+    },
+    {
+      "prod1_id": 121,
+      "prod1_title": "5 PIN RELIMATE",
+      "prod2_id": 124,
+      "prod2_title": "8 PIN RELIMATE",
+      "similarity": 99.02
+    },
+    {
+      "prod1_id": 121,
+      "prod1_title": "5 PIN RELIMATE",
+      "prod2_id": 125,
+      "prod2_title": "12 PIN RELIMATE",
+      "similarity": 98.54
+    },
+    {
+      "prod1_id": 121,
+      "prod1_title": "5 PIN RELIMATE",
+      "prod2_id": 119,
+      "prod2_title": "3 Pin Female To Female Relimate Connector",
+      "similarity": 85.2
+    },
+    {
+      "prod1_id": 121,
+      "prod1_title": "5 PIN RELIMATE",
+      "prod2_id": 122,
+      "prod2_title": "6 PIN RELIMATE",
+      "similarity": 99.02
+    },
+    {
+      "prod1_id": 121,
+      "prod1_title": "5 PIN RELIMATE",
+      "prod2_id": 123,
+      "prod2_title": "7 PIN RELIMATE",
+      "similarity": 99.02
+    },
+    {
+      "prod1_id": 121,
+      "prod1_title": "5 PIN RELIMATE",
+      "prod2_id": 126,
+      "prod2_title": "16 PIN RELIMATE",
+      "similarity": 98.54
+    },
+    {
+      "prod1_id": 116,
+      "prod1_title": "6-12V Piezo Buzzer",
+      "prod2_id": 153,
+      "prod2_title": "12 V LED",
+      "similarity": 82.78
+    },
+    {
+      "prod1_id": 118,
+      "prod1_title": "2pin Relimate Connector (Male+Female set)",
+      "prod2_id": 120,
+      "prod2_title": "4 PIN RELIMATE",
+      "similarity": 93.49
+    },
+    {
+      "prod1_id": 118,
+      "prod1_title": "2pin Relimate Connector (Male+Female set)",
+      "prod2_id": 124,
+      "prod2_title": "8 PIN RELIMATE",
+      "similarity": 93.49
+    },
+    {
+      "prod1_id": 118,
+      "prod1_title": "2pin Relimate Connector (Male+Female set)",
+      "prod2_id": 125,
+      "prod2_title": "12 PIN RELIMATE",
+      "similarity": 93.99
+    },
+    {
+      "prod1_id": 118,
+      "prod1_title": "2pin Relimate Connector (Male+Female set)",
+      "prod2_id": 119,
+      "prod2_title": "3 Pin Female To Female Relimate Connector",
+      "similarity": 86.47
+    },
+    {
+      "prod1_id": 118,
+      "prod1_title": "2pin Relimate Connector (Male+Female set)",
+      "prod2_id": 122,
+      "prod2_title": "6 PIN RELIMATE",
+      "similarity": 93.49
+    },
+    {
+      "prod1_id": 118,
+      "prod1_title": "2pin Relimate Connector (Male+Female set)",
+      "prod2_id": 123,
+      "prod2_title": "7 PIN RELIMATE",
+      "similarity": 93.49
+    },
+    {
+      "prod1_id": 118,
+      "prod1_title": "2pin Relimate Connector (Male+Female set)",
+      "prod2_id": 126,
+      "prod2_title": "16 PIN RELIMATE",
+      "similarity": 93.05
+    },
+    {
+      "prod1_id": 120,
+      "prod1_title": "4 PIN RELIMATE",
+      "prod2_id": 124,
+      "prod2_title": "8 PIN RELIMATE",
+      "similarity": 99.02
+    },
+    {
+      "prod1_id": 120,
+      "prod1_title": "4 PIN RELIMATE",
+      "prod2_id": 125,
+      "prod2_title": "12 PIN RELIMATE",
+      "similarity": 98.54
+    },
+    {
+      "prod1_id": 120,
+      "prod1_title": "4 PIN RELIMATE",
+      "prod2_id": 119,
+      "prod2_title": "3 Pin Female To Female Relimate Connector",
+      "similarity": 85.2
+    },
+    {
+      "prod1_id": 120,
+      "prod1_title": "4 PIN RELIMATE",
+      "prod2_id": 122,
+      "prod2_title": "6 PIN RELIMATE",
+      "similarity": 99.02
+    },
+    {
+      "prod1_id": 120,
+      "prod1_title": "4 PIN RELIMATE",
+      "prod2_id": 123,
+      "prod2_title": "7 PIN RELIMATE",
+      "similarity": 99.02
+    },
+    {
+      "prod1_id": 120,
+      "prod1_title": "4 PIN RELIMATE",
+      "prod2_id": 126,
+      "prod2_title": "16 PIN RELIMATE",
+      "similarity": 98.54
+    },
+    {
+      "prod1_id": 124,
+      "prod1_title": "8 PIN RELIMATE",
+      "prod2_id": 125,
+      "prod2_title": "12 PIN RELIMATE",
+      "similarity": 98.54
+    },
+    {
+      "prod1_id": 124,
+      "prod1_title": "8 PIN RELIMATE",
+      "prod2_id": 119,
+      "prod2_title": "3 Pin Female To Female Relimate Connector",
+      "similarity": 85.2
+    },
+    {
+      "prod1_id": 124,
+      "prod1_title": "8 PIN RELIMATE",
+      "prod2_id": 122,
+      "prod2_title": "6 PIN RELIMATE",
+      "similarity": 99.02
+    },
+    {
+      "prod1_id": 124,
+      "prod1_title": "8 PIN RELIMATE",
+      "prod2_id": 123,
+      "prod2_title": "7 PIN RELIMATE",
+      "similarity": 99.02
+    },
+    {
+      "prod1_id": 124,
+      "prod1_title": "8 PIN RELIMATE",
+      "prod2_id": 126,
+      "prod2_title": "16 PIN RELIMATE",
+      "similarity": 98.54
+    },
+    {
+      "prod1_id": 125,
+      "prod1_title": "12 PIN RELIMATE",
+      "prod2_id": 119,
+      "prod2_title": "3 Pin Female To Female Relimate Connector",
+      "similarity": 84.8
+    },
+    {
+      "prod1_id": 125,
+      "prod1_title": "12 PIN RELIMATE",
+      "prod2_id": 122,
+      "prod2_title": "6 PIN RELIMATE",
+      "similarity": 98.54
+    },
+    {
+      "prod1_id": 125,
+      "prod1_title": "12 PIN RELIMATE",
+      "prod2_id": 123,
+      "prod2_title": "7 PIN RELIMATE",
+      "similarity": 98.54
+    },
+    {
+      "prod1_id": 125,
+      "prod1_title": "12 PIN RELIMATE",
+      "prod2_id": 126,
+      "prod2_title": "16 PIN RELIMATE",
+      "similarity": 99.03
+    },
+    {
+      "prod1_id": 138,
+      "prod1_title": "DC PUMP",
+      "prod2_id": 127,
+      "prod2_title": "3.5 RPM  DC Motor",
+      "similarity": 83.27
+    },
+    {
+      "prod1_id": 148,
+      "prod1_title": "AQUA PUMP",
+      "prod2_id": 202,
+      "prod2_title": "SPEAKER",
+      "similarity": 81.24
+    },
+    {
+      "prod1_id": 169,
+      "prod1_title": "2-cell-battery-holder",
+      "prod2_id": 170,
+      "prod2_title": "1 CELL BATTERY HOLDER",
+      "similarity": 94.1
+    },
+    {
+      "prod1_id": 173,
+      "prod1_title": "33PF 50V CAPACOTIOR",
+      "prod2_id": 174,
+      "prod2_title": "0.001 UF 50V CAP",
+      "similarity": 93.86
+    },
+    {
+      "prod1_id": 173,
+      "prod1_title": "33PF 50V CAPACOTIOR",
+      "prod2_id": 175,
+      "prod2_title": "0.01UF 50V CAP",
+      "similarity": 95.42
+    },
+    {
+      "prod1_id": 173,
+      "prod1_title": "33PF 50V CAPACOTIOR",
+      "prod2_id": 178,
+      "prod2_title": "CAP01 O.OO1 UF 50V",
+      "similarity": 92.52
+    },
+    {
+      "prod1_id": 173,
+      "prod1_title": "33PF 50V CAPACOTIOR",
+      "prod2_id": 179,
+      "prod2_title": "22 PF 50V",
+      "similarity": 97.17
+    },
+    {
+      "prod1_id": 173,
+      "prod1_title": "33PF 50V CAPACOTIOR",
+      "prod2_id": 176,
+      "prod2_title": "0.1 UF 50V CAP",
+      "similarity": 95.42
+    },
+    {
+      "prod1_id": 173,
+      "prod1_title": "33PF 50V CAPACOTIOR",
+      "prod2_id": 183,
+      "prod2_title": "capacitor-10uf100v",
+      "similarity": 81.26
+    },
+    {
+      "prod1_id": 174,
+      "prod1_title": "0.001 UF 50V CAP",
+      "prod2_id": 175,
+      "prod2_title": "0.01UF 50V CAP",
+      "similarity": 97.56
+    },
+    {
+      "prod1_id": 174,
+      "prod1_title": "0.001 UF 50V CAP",
+      "prod2_id": 178,
+      "prod2_title": "CAP01 O.OO1 UF 50V",
+      "similarity": 97.61
+    },
+    {
+      "prod1_id": 174,
+      "prod1_title": "0.001 UF 50V CAP",
+      "prod2_id": 179,
+      "prod2_title": "22 PF 50V",
+      "similarity": 94.05
+    },
+    {
+      "prod1_id": 174,
+      "prod1_title": "0.001 UF 50V CAP",
+      "prod2_id": 176,
+      "prod2_title": "0.1 UF 50V CAP",
+      "similarity": 97.56
+    },
+    {
+      "prod1_id": 174,
+      "prod1_title": "0.001 UF 50V CAP",
+      "prod2_id": 183,
+      "prod2_title": "capacitor-10uf100v",
+      "similarity": 85.29
+    },
+    {
+      "prod1_id": 175,
+      "prod1_title": "0.01UF 50V CAP",
+      "prod2_id": 178,
+      "prod2_title": "CAP01 O.OO1 UF 50V",
+      "similarity": 95.14
+    },
+    {
+      "prod1_id": 175,
+      "prod1_title": "0.01UF 50V CAP",
+      "prod2_id": 179,
+      "prod2_title": "22 PF 50V",
+      "similarity": 95.64
+    },
+    {
+      "prod1_id": 175,
+      "prod1_title": "0.01UF 50V CAP",
+      "prod2_id": 187,
+      "prod2_title": "1000UF CAP",
+      "similarity": 80.27
+    },
+    {
+      "prod1_id": 175,
+      "prod1_title": "0.01UF 50V CAP",
+      "prod2_id": 176,
+      "prod2_title": "0.1 UF 50V CAP",
+      "similarity": 99.72
+    },
+    {
+      "prod1_id": 175,
+      "prod1_title": "0.01UF 50V CAP",
+      "prod2_id": 183,
+      "prod2_title": "capacitor-10uf100v",
+      "similarity": 86.68
+    },
+    {
+      "prod1_id": 175,
+      "prod1_title": "0.01UF 50V CAP",
+      "prod2_id": 185,
+      "prod2_title": "100UF CAP",
+      "similarity": 80.49
+    },
+    {
+      "prod1_id": 178,
+      "prod1_title": "CAP01 O.OO1 UF 50V",
+      "prod2_id": 179,
+      "prod2_title": "22 PF 50V",
+      "similarity": 94.07
+    },
+    {
+      "prod1_id": 178,
+      "prod1_title": "CAP01 O.OO1 UF 50V",
+      "prod2_id": 176,
+      "prod2_title": "0.1 UF 50V CAP",
+      "similarity": 94.32
+    },
+    {
+      "prod1_id": 179,
+      "prod1_title": "22 PF 50V",
+      "prod2_id": 187,
+      "prod2_title": "1000UF CAP",
+      "similarity": 85.0
+    },
+    {
+      "prod1_id": 179,
+      "prod1_title": "22 PF 50V",
+      "prod2_id": 176,
+      "prod2_title": "0.1 UF 50V CAP",
+      "similarity": 94.51
+    },
+    {
+      "prod1_id": 179,
+      "prod1_title": "22 PF 50V",
+      "prod2_id": 183,
+      "prod2_title": "capacitor-10uf100v",
+      "similarity": 82.39
+    },
+    {
+      "prod1_id": 179,
+      "prod1_title": "22 PF 50V",
+      "prod2_id": 185,
+      "prod2_title": "100UF CAP",
+      "similarity": 85.24
+    },
+    {
+      "prod1_id": 181,
+      "prod1_title": "2.2 UF CAP",
+      "prod2_id": 182,
+      "prod2_title": "4.7 UF CAP",
+      "similarity": 98.38
+    },
+    {
+      "prod1_id": 181,
+      "prod1_title": "2.2 UF CAP",
+      "prod2_id": 184,
+      "prod2_title": "22UF 50v CAP",
+      "similarity": 91.72
+    },
+    {
+      "prod1_id": 181,
+      "prod1_title": "2.2 UF CAP",
+      "prod2_id": 186,
+      "prod2_title": "470 UF CAP",
+      "similarity": 98.38
+    },
+    {
+      "prod1_id": 181,
+      "prod1_title": "2.2 UF CAP",
+      "prod2_id": 187,
+      "prod2_title": "1000UF CAP",
+      "similarity": 97.98
+    },
+    {
+      "prod1_id": 181,
+      "prod1_title": "2.2 UF CAP",
+      "prod2_id": 176,
+      "prod2_title": "0.1 UF 50V CAP",
+      "similarity": 85.29
+    },
+    {
+      "prod1_id": 181,
+      "prod1_title": "2.2 UF CAP",
+      "prod2_id": 180,
+      "prod2_title": "1 UF CAP",
+      "similarity": 98.92
+    },
+    {
+      "prod1_id": 181,
+      "prod1_title": "2.2 UF CAP",
+      "prod2_id": 185,
+      "prod2_title": "100UF CAP",
+      "similarity": 98.25
+    },
+    {
+      "prod1_id": 182,
+      "prod1_title": "4.7 UF CAP",
+      "prod2_id": 184,
+      "prod2_title": "22UF 50v CAP",
+      "similarity": 90.64
+    },
+    {
+      "prod1_id": 182,
+      "prod1_title": "4.7 UF CAP",
+      "prod2_id": 186,
+      "prod2_title": "470 UF CAP",
+      "similarity": 99.46
+    },
+    {
+      "prod1_id": 182,
+      "prod1_title": "4.7 UF CAP",
+      "prod2_id": 187,
+      "prod2_title": "1000UF CAP",
+      "similarity": 97.98
+    },
+    {
+      "prod1_id": 182,
+      "prod1_title": "4.7 UF CAP",
+      "prod2_id": 176,
+      "prod2_title": "0.1 UF 50V CAP",
+      "similarity": 85.29
+    },
+    {
+      "prod1_id": 182,
+      "prod1_title": "4.7 UF CAP",
+      "prod2_id": 180,
+      "prod2_title": "1 UF CAP",
+      "similarity": 98.92
+    },
+    {
+      "prod1_id": 182,
+      "prod1_title": "4.7 UF CAP",
+      "prod2_id": 185,
+      "prod2_title": "100UF CAP",
+      "similarity": 98.25
+    },
+    {
+      "prod1_id": 184,
+      "prod1_title": "22UF 50v CAP",
+      "prod2_id": 186,
+      "prod2_title": "470 UF CAP",
+      "similarity": 90.64
+    },
+    {
+      "prod1_id": 184,
+      "prod1_title": "22UF 50v CAP",
+      "prod2_id": 187,
+      "prod2_title": "1000UF CAP",
+      "similarity": 90.51
+    },
+    {
+      "prod1_id": 184,
+      "prod1_title": "22UF 50v CAP",
+      "prod2_id": 176,
+      "prod2_title": "0.1 UF 50V CAP",
+      "similarity": 93.0
+    },
+    {
+      "prod1_id": 184,
+      "prod1_title": "22UF 50v CAP",
+      "prod2_id": 180,
+      "prod2_title": "1 UF CAP",
+      "similarity": 91.13
+    },
+    {
+      "prod1_id": 184,
+      "prod1_title": "22UF 50v CAP",
+      "prod2_id": 183,
+      "prod2_title": "capacitor-10uf100v",
+      "similarity": 95.53
+    },
+    {
+      "prod1_id": 184,
+      "prod1_title": "22UF 50v CAP",
+      "prod2_id": 185,
+      "prod2_title": "100UF CAP",
+      "similarity": 90.76
+    },
+    {
+      "prod1_id": 186,
+      "prod1_title": "470 UF CAP",
+      "prod2_id": 187,
+      "prod2_title": "1000UF CAP",
+      "similarity": 98.25
+    },
+    {
+      "prod1_id": 186,
+      "prod1_title": "470 UF CAP",
+      "prod2_id": 176,
+      "prod2_title": "0.1 UF 50V CAP",
+      "similarity": 85.29
+    },
+    {
+      "prod1_id": 186,
+      "prod1_title": "470 UF CAP",
+      "prod2_id": 180,
+      "prod2_title": "1 UF CAP",
+      "similarity": 98.92
+    },
+    {
+      "prod1_id": 186,
+      "prod1_title": "470 UF CAP",
+      "prod2_id": 185,
+      "prod2_title": "100UF CAP",
+      "similarity": 98.52
+    },
+    {
+      "prod1_id": 187,
+      "prod1_title": "1000UF CAP",
+      "prod2_id": 180,
+      "prod2_title": "1 UF CAP",
+      "similarity": 99.05
+    },
+    {
+      "prod1_id": 187,
+      "prod1_title": "1000UF CAP",
+      "prod2_id": 183,
+      "prod2_title": "capacitor-10uf100v",
+      "similarity": 89.13
+    },
+    {
+      "prod1_id": 187,
+      "prod1_title": "1000UF CAP",
+      "prod2_id": 185,
+      "prod2_title": "100UF CAP",
+      "similarity": 99.73
+    },
+    {
+      "prod1_id": 204,
+      "prod1_title": "5mm LED - Yellow Color",
+      "prod2_id": 203,
+      "prod2_title": "5mm LED - Red Color",
+      "similarity": 97.52
+    },
+    {
+      "prod1_id": 213,
+      "prod1_title": "18 Pin DIP IC Socket Base Adaptor",
+      "prod2_id": 214,
+      "prod2_title": "20 Pin DIP IC Socket Base Adaptor",
+      "similarity": 98.78
+    },
+    {
+      "prod1_id": 127,
+      "prod1_title": "3.5 RPM  DC Motor",
+      "prod2_id": 144,
+      "prod2_title": "MG90S SERVO MOTOR",
+      "similarity": 82.07
+    },
+    {
+      "prod1_id": 111,
+      "prod1_title": "12V RELAY QUBE",
+      "prod2_id": 153,
+      "prod2_title": "12 V LED",
+      "similarity": 84.24
+    },
+    {
+      "prod1_id": 119,
+      "prod1_title": "3 Pin Female To Female Relimate Connector",
+      "prod2_id": 122,
+      "prod2_title": "6 PIN RELIMATE",
+      "similarity": 82.1
+    },
+    {
+      "prod1_id": 119,
+      "prod1_title": "3 Pin Female To Female Relimate Connector",
+      "prod2_id": 123,
+      "prod2_title": "7 PIN RELIMATE",
+      "similarity": 82.1
+    },
+    {
+      "prod1_id": 119,
+      "prod1_title": "3 Pin Female To Female Relimate Connector",
+      "prod2_id": 126,
+      "prod2_title": "16 PIN RELIMATE",
+      "similarity": 81.71
+    },
+    {
+      "prod1_id": 122,
+      "prod1_title": "6 PIN RELIMATE",
+      "prod2_id": 123,
+      "prod2_title": "7 PIN RELIMATE",
+      "similarity": 99.02
+    },
+    {
+      "prod1_id": 122,
+      "prod1_title": "6 PIN RELIMATE",
+      "prod2_id": 126,
+      "prod2_title": "16 PIN RELIMATE",
+      "similarity": 99.51
+    },
+    {
+      "prod1_id": 123,
+      "prod1_title": "7 PIN RELIMATE",
+      "prod2_id": 126,
+      "prod2_title": "16 PIN RELIMATE",
+      "similarity": 98.54
+    },
+    {
+      "prod1_id": 176,
+      "prod1_title": "0.1 UF 50V CAP",
+      "prod2_id": 183,
+      "prod2_title": "capacitor-10uf100v",
+      "similarity": 86.68
+    },
+    {
+      "prod1_id": 180,
+      "prod1_title": "1 UF CAP",
+      "prod2_id": 183,
+      "prod2_title": "capacitor-10uf100v",
+      "similarity": 89.19
+    },
+    {
+      "prod1_id": 180,
+      "prod1_title": "1 UF CAP",
+      "prod2_id": 185,
+      "prod2_title": "100UF CAP",
+      "similarity": 99.32
+    }
+  ]
+}
