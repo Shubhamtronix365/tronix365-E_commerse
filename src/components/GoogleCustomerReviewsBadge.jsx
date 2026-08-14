@@ -12,7 +12,11 @@ const GoogleCustomerReviewsBadge = ({ position = 'BOTTOM_LEFT', region = 'IN' })
         const merchantId = Number(import.meta.env.VITE_GOOGLE_MERCHANT_ID || DEFAULT_MERCHANT_ID);
 
         const initBadge = () => {
+            if (window.__gcr_badge_initialized) {
+                return;
+            }
             if (window.merchantwidget && window.merchantwidget.start) {
+                window.__gcr_badge_initialized = true;
                 console.log('[GCR Badge] Initializing Google Customer Reviews Badge:', {
                     merchant_id: merchantId,
                     position,
@@ -35,15 +39,36 @@ const GoogleCustomerReviewsBadge = ({ position = 'BOTTOM_LEFT', region = 'IN' })
 
         if (window.merchantwidget && window.merchantwidget.start) {
             initBadge();
-        } else if (script) {
-            script.addEventListener('load', initBadge);
         } else {
-            script = document.createElement('script');
-            script.id = scriptId;
-            script.src = 'https://www.gstatic.com/shopping/merchant/merchantwidget.js';
-            script.defer = true;
-            script.addEventListener('load', initBadge);
-            document.head.appendChild(script);
+            if (script) {
+                script.addEventListener('load', initBadge);
+            } else {
+                script = document.createElement('script');
+                script.id = scriptId;
+                script.src = 'https://www.gstatic.com/shopping/merchant/merchantwidget.js';
+                script.defer = true;
+                script.addEventListener('load', initBadge);
+                document.head.appendChild(script);
+            }
+
+            // Polling fallback if event listener misses load
+            let attempts = 0;
+            const interval = setInterval(() => {
+                attempts += 1;
+                if (window.merchantwidget && window.merchantwidget.start) {
+                    initBadge();
+                    clearInterval(interval);
+                } else if (attempts >= 10) {
+                    clearInterval(interval);
+                }
+            }, 300);
+
+            return () => {
+                clearInterval(interval);
+                if (script) {
+                    script.removeEventListener('load', initBadge);
+                }
+            };
         }
 
         return () => {

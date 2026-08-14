@@ -15,14 +15,29 @@
     <!-- Google Customer Reviews Badge Widget -->
     <script id="merchantWidgetScript" src="https://www.gstatic.com/shopping/merchant/merchantwidget.js" defer></script>
     <script>
-      merchantWidgetScript.addEventListener('load', function () {
-        if (window.merchantwidget && window.merchantwidget.start) {
-          window.merchantwidget.start({
-            merchant_id: 5820417048,
-            position: "BOTTOM_LEFT"
-          });
+      (function() {
+        function initGcrBadge() {
+          if (window.__gcr_badge_initialized) return;
+          if (window.merchantwidget && window.merchantwidget.start) {
+            try {
+              window.__gcr_badge_initialized = true;
+              window.merchantwidget.start({
+                merchant_id: 5820417048,
+                position: "BOTTOM_LEFT"
+              });
+            } catch (e) {
+              console.error("[GCR Badge] Error starting merchant widget:", e);
+            }
+          }
         }
-      });
+        var script = document.getElementById('merchantWidgetScript');
+        if (script) {
+          script.addEventListener('load', initGcrBadge);
+        }
+        if (window.merchantwidget && window.merchantwidget.start) {
+          initGcrBadge();
+        }
+      })();
     </script>
   </head>
   <body>
