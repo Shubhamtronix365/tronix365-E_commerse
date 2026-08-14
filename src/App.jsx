@@ -33,6 +33,7 @@ import PageTransition from './components/common/PageTransition';
 import { AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { MaintenanceModal } from './components/common/MaintenanceNotice';
+import GoogleCustomerReviewsBadge from './components/GoogleCustomerReviewsBadge';
 // import { Agentation } from 'agentation';
 
 // Wrapper to scroll to top on route change
@@ -172,6 +173,7 @@ const AppContent = () => {
           </React.Suspense>
         </main>
         {!isExcludedPage && <Footer />}
+        <GoogleCustomerReviewsBadge position="BOTTOM_LEFT" region="IN" />
         <Toaster position="bottom-right" toastOptions={{
           style: {
             background: '#1a1a2e',

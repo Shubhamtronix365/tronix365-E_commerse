@@ -18,6 +18,7 @@ import toast from 'react-hot-toast';
 import { useCart } from '../context/CartContext';
 import client from '../api/client';
 import { getImageUrl } from '../utils/imageUtils';
+import GoogleCustomerReviewsOptIn from '../components/GoogleCustomerReviewsOptIn';
 
 const PaymentStatus = () => {
     const [searchParams] = useSearchParams();
@@ -107,6 +108,7 @@ const PaymentStatus = () => {
 
     return (
         <div className="min-h-screen pt-24 pb-16 px-4 bg-[#0F172A] flex items-center justify-center">
+            {isSuccess && order && <GoogleCustomerReviewsOptIn order={order} />}
             <div className="max-w-3xl w-full space-y-6">
                 
                 {/* Header Card */}
