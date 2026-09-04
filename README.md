@@ -15,7 +15,15 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
 - **Database Email Audit Logging**: Records every sent/failed email with recipient details, subject, order ID, status trigger, and timestamp.
 - **Custom Courier & Logistics Options**: Preset couriers (Porter, Delhivery, DTDC, Blue Dart, India Post, DHL, FedEx, XpressBees, Shadowfax, etc.) and custom free-text shipping input ("Other").
 - **Mandatory 2FA (Password + Email OTP)**: Secure two-step authentication for user signup and login. OTPs are sent via Brevo SMTP and expire in exactly 2 minutes.
-- **Secure Authentication**: Encrypted password authentication (PBKDF2), JWT tokens, and Google OAuth integration.
+- **Tower Orders & On-Demand Factory Sourcing (B2B Procurement)**: Specialized manufacturing workflow for backorders, bulk indent orders, and non-inventory parts arranged directly through factory contacts with split-fulfillment capabilities.
+  - **Split Fulfillment Architecture**: Immediate warehouse shipping for in-stock quantities + backorder factory indent for remaining quantities.
+  - **6-Step Transparent Sourcing Workflow**:
+    1. *Customer places Tower Order* (Customer details, Qty, Target Price) — Website.
+    2. *Sales engineering team review & contact* — Internal operations.
+    3. *Proforma Invoice (P.I.) / Official Quotation dispatch* — Internal operations.
+    4. *Customer bank transfer* (NEFT / RTGS / IMPS reference entry).
+    5. *Payment verification & factory production initiation* — Auto-calculates dispatch and delivery windows.
+    6. *Consignment shipment & live logistics tracker* — (Factory Lead Time + Shipping Transit Time tracked on customer portal).
 - **Google Customer Reviews Opt-In Integration**: Official Google Merchant Center post-checkout survey integration (Merchant ID: `5820417048`) on the order confirmation screen.
 - **Google Customer Reviews Badge**: Official Google Merchant Center seller rating badge floating widget (`merchantwidget.js`) displayed site-wide.
 - **Rate Limiting & Caching**: Security features with Slowapi rate limiters and Redis/InMemory backend caching.
@@ -301,6 +309,17 @@ FastAPI generates interactive documentation at [http://127.0.0.1:8000/docs](http
   - `GET /cart` / `POST /cart` - Retrieve or modify active shopping items
   - `GET /wishlist` / `POST /wishlist` - Manage bookmark listings
   - `POST /orders` - Process checks, verify stocks, and submit orders
+- **Tower Orders (B2B Factory Procurement & On-Demand Sourcing)**:
+  - `POST /tower-orders` - Place new Tower Order with split fulfillment quantities, target price, and customer specs
+  - `GET /tower-orders/user` - Fetch active customer's Tower Orders and lifecycle milestones
+  - `GET /tower-orders/{order_ref}` - Detailed inquiry inspection (by ID or `TO-YYMMDD-XXXX` format)
+  - `POST /tower-orders/{order_id}/payment-proof` - Customer submits bank transfer reference (NEFT/RTGS UTR)
+  - `GET /tower-products` - Fetch factory catalog products flagged as on-demand sourcing only
+  - `GET /admin/tower-orders` - Admin view with status filtering (`requested`, `contacted`, `quotation_sent`, `payment_pending`, `in_production`, `shipped`, `completed`)
+  - `PUT /admin/tower-orders/{order_id}/status` - Step 2: Update sales contact notes & status
+  - `PUT /admin/tower-orders/{order_id}/quotation` - Step 3: Issue official P.I. number, quoted unit price, total, and lead days
+  - `PUT /admin/tower-orders/{order_id}/verify-payment` - Step 5: Mark funds verified, transition to `in_production`, auto-calculate dispatch and delivery dates
+  - `PUT /admin/tower-orders/{order_id}/shipment` - Step 6: Dispatch goods with courier name, tracking number, and live tracking URL
 
 ---
 
