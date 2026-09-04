@@ -41,6 +41,13 @@ class ProductDB(Base):
     parent_id = Column(Integer, ForeignKey("products.id"), nullable=True)  # Parent product ID for variants
     variant_name = Column(String, nullable=True)  # e.g. "4 PIN", "100 RPM", "0.1 uF"
     variant_type = Column(String, nullable=True)  # e.g. "Pin Count", "Speed (RPM)", "Capacitance"
+    # Tower Order & On-Demand Sourcing Fields
+    is_tower_order_eligible = Column(Boolean, default=True)
+    tower_order_only = Column(Boolean, default=False)  # Sourced on-demand, not sold via direct cart checkout
+    factory_lead_days = Column(Integer, default=7)  # Factory production/procurement time
+    shipping_lead_days = Column(Integer, default=3)  # Shipping transit time
+    moq = Column(Integer, default=1)  # Minimum Order Quantity for Tower Orders
+
 
 
 class UserDB(Base):
@@ -169,6 +176,11 @@ class ProductBase(BaseModel):
     parent_id: Optional[int] = None
     variant_name: Optional[str] = None
     variant_type: Optional[str] = None
+    is_tower_order_eligible: Optional[bool] = True
+    tower_order_only: Optional[bool] = False
+    factory_lead_days: Optional[int] = 7
+    shipping_lead_days: Optional[int] = 3
+    moq: Optional[int] = 1
 
     @field_validator("specs", "features", "applications", "useful_links", "package_includes", "attachments", mode="before")
     @classmethod
@@ -207,6 +219,12 @@ class ProductUpdate(BaseModel):
     parent_id: Optional[int] = None
     variant_name: Optional[str] = None
     variant_type: Optional[str] = None
+    is_tower_order_eligible: Optional[bool] = None
+    tower_order_only: Optional[bool] = None
+    factory_lead_days: Optional[int] = None
+    shipping_lead_days: Optional[int] = None
+    moq: Optional[int] = None
+
 
 
 class Product(ProductBase):
@@ -684,4 +702,196 @@ class CategoryResponse(CategoryBase):
 
     class Config:
         from_attributes = True
+
+
+class TowerOrderDB(Base):
+    __tablename__ = "tower_orders"
+
+    id = Column(Integer, primary_key=True, index=True)
+    order_number = Column(String, unique=True, index=True)  # e.g. "TO-2026-1001"
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    product_id = Column(Integer, ForeignKey("products.id"), nullable=True)
+    product_name = Column(String)
+    product_sku = Column(String, nullable=True)
+    product_image = Column(String, nullable=True)
+
+    # Step 1: Customer Details, Quantities & Target Price
+    customer_name = Column(String)
+    customer_email = Column(String, index=True)
+    customer_phone = Column(String)
+    company_name = Column(String, nullable=True)
+    gstin = Column(String, nullable=True)
+    delivery_address = Column(String, nullable=True)
+    delivery_city = Column(String, nullable=True)
+    delivery_state = Column(String, nullable=True)
+    delivery_pincode = Column(String, nullable=True)
+
+    requested_qty = Column(Integer)
+    immediate_qty = Column(Integer, default=0)
+    backorder_qty = Column(Integer)
+    target_price = Column(Float)
+    target_total = Column(Float, nullable=True)
+    customer_notes = Column(String, nullable=True)
+    required_by_date = Column(String, nullable=True)
+
+    # Step 2: Sales Team Contact
+    sales_rep_notes = Column(String, nullable=True)
+    contacted_at = Column(DateTime(timezone=True), nullable=True)
+
+    # Step 3: Proforma Invoice / Quotation
+    pi_number = Column(String, nullable=True)
+    quoted_unit_price = Column(Float, nullable=True)
+    quoted_total_amount = Column(Float, nullable=True)
+    quotation_notes = Column(String, nullable=True)
+    pi_file_url = Column(String, nullable=True)
+    quotation_sent_at = Column(DateTime(timezone=True), nullable=True)
+
+    # Step 4 & 5: Customer Payment (NEFT/RTGS/IMPS) & Admin Verification
+    payment_mode = Column(String, nullable=True)  # NEFT, RTGS, IMPS, UPI
+    payment_ref_utr = Column(String, nullable=True)
+    payment_amount_received = Column(Float, nullable=True)
+    payment_receipt_url = Column(String, nullable=True)
+    payment_received_at = Column(DateTime(timezone=True), nullable=True)
+    payment_status = Column(String, default="pending")  # pending, submitted, verified
+
+    # Step 6: Material Shipping & Lead Time
+    factory_lead_days = Column(Integer, default=7)
+    shipping_lead_days = Column(Integer, default=3)
+    estimated_dispatch_date = Column(String, nullable=True)
+    estimated_delivery_date = Column(String, nullable=True)
+    courier_name = Column(String, nullable=True)
+    tracking_number = Column(String, nullable=True)
+    tracking_url = Column(String, nullable=True)
+    shipped_at = Column(DateTime(timezone=True), nullable=True)
+    delivered_at = Column(DateTime(timezone=True), nullable=True)
+
+    # Overall Status: requested, contacted, quotation_sent, payment_pending, payment_received, in_production, shipped, delivered, cancelled
+    status = Column(String, default="requested")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    user = relationship("UserDB")
+    product = relationship("ProductDB")
+
+
+# Pydantic Schemas for Tower Orders
+class TowerOrderCreate(BaseModel):
+    product_id: Optional[int] = None
+    product_name: str
+    product_sku: Optional[str] = None
+    product_image: Optional[str] = None
+    customer_name: str
+    customer_email: str
+    customer_phone: str
+    company_name: Optional[str] = None
+    gstin: Optional[str] = None
+    delivery_address: Optional[str] = None
+    delivery_city: Optional[str] = None
+    delivery_state: Optional[str] = None
+    delivery_pincode: Optional[str] = None
+    requested_qty: int
+    immediate_qty: Optional[int] = 0
+    backorder_qty: Optional[int] = None
+    target_price: float
+    target_total: Optional[float] = None
+    customer_notes: Optional[str] = None
+    required_by_date: Optional[str] = None
+
+    @field_validator("customer_name", "product_name", "customer_notes", mode="before")
+    @classmethod
+    def sanitize_inputs(cls, v):
+        if isinstance(v, str):
+            return sanitize_html(v)
+        return v
+
+
+class TowerOrderStatusUpdate(BaseModel):
+    status: str
+    sales_rep_notes: Optional[str] = None
+
+
+class TowerOrderQuotationUpdate(BaseModel):
+    pi_number: Optional[str] = None
+    quoted_unit_price: float
+    quoted_total_amount: float
+    quotation_notes: Optional[str] = None
+    pi_file_url: Optional[str] = None
+    factory_lead_days: Optional[int] = None
+    shipping_lead_days: Optional[int] = None
+
+
+class TowerOrderPaymentSubmit(BaseModel):
+    payment_mode: str  # NEFT / RTGS / IMPS
+    payment_ref_utr: str
+    payment_receipt_url: Optional[str] = None
+
+
+class TowerOrderPaymentVerify(BaseModel):
+    payment_amount_received: float
+    payment_status: str = "verified"
+    status: str = "payment_received"
+
+
+class TowerOrderShipmentUpdate(BaseModel):
+    courier_name: str
+    tracking_number: str
+    tracking_url: Optional[str] = None
+    estimated_delivery_date: Optional[str] = None
+    status: str = "shipped"
+
+
+class TowerOrderResponse(BaseModel):
+    id: int
+    order_number: str
+    user_id: Optional[int] = None
+    product_id: Optional[int] = None
+    product_name: str
+    product_sku: Optional[str] = None
+    product_image: Optional[str] = None
+    customer_name: str
+    customer_email: str
+    customer_phone: str
+    company_name: Optional[str] = None
+    gstin: Optional[str] = None
+    delivery_address: Optional[str] = None
+    delivery_city: Optional[str] = None
+    delivery_state: Optional[str] = None
+    delivery_pincode: Optional[str] = None
+    requested_qty: int
+    immediate_qty: Optional[int] = 0
+    backorder_qty: Optional[int] = None
+    target_price: float
+    target_total: Optional[float] = None
+    customer_notes: Optional[str] = None
+    required_by_date: Optional[str] = None
+    sales_rep_notes: Optional[str] = None
+    contacted_at: Optional[datetime] = None
+    pi_number: Optional[str] = None
+    quoted_unit_price: Optional[float] = None
+    quoted_total_amount: Optional[float] = None
+    quotation_notes: Optional[str] = None
+    pi_file_url: Optional[str] = None
+    quotation_sent_at: Optional[datetime] = None
+    payment_mode: Optional[str] = None
+    payment_ref_utr: Optional[str] = None
+    payment_amount_received: Optional[float] = None
+    payment_receipt_url: Optional[str] = None
+    payment_received_at: Optional[datetime] = None
+    payment_status: Optional[str] = "pending"
+    factory_lead_days: Optional[int] = 7
+    shipping_lead_days: Optional[int] = 3
+    estimated_dispatch_date: Optional[str] = None
+    estimated_delivery_date: Optional[str] = None
+    courier_name: Optional[str] = None
+    tracking_number: Optional[str] = None
+    tracking_url: Optional[str] = None
+    shipped_at: Optional[datetime] = None
+    delivered_at: Optional[datetime] = None
+    status: str
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
 
