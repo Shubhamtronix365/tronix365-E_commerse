@@ -78,6 +78,23 @@ const TowerOrderAdminModal = ({
         setQuotedTotal(Math.round(Number(price) * Number(order.requested_qty)));
     };
 
+    const broadcastTowerOrderUpdate = (orderId, newStatus) => {
+        try {
+            if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+                const ch = new BroadcastChannel('tronix_tower_orders_channel');
+                ch.postMessage({ type: 'ORDER_STATUS_CHANGED', orderId, status: newStatus, timestamp: Date.now() });
+                ch.close();
+            }
+        } catch (e) {
+            // ignore
+        }
+        try {
+            localStorage.setItem('tronix_tower_order_update_trigger', `${orderId}_${newStatus}_${Date.now()}`);
+        } catch (e) {
+            // ignore
+        }
+    };
+
     // Step 2 Action: Update Status & Sales Notes
     const handleSaveSalesNotes = async () => {
         try {
@@ -87,6 +104,7 @@ const TowerOrderAdminModal = ({
                 sales_rep_notes: salesNotes
             });
             toast.success("Sales review notes updated!");
+            broadcastTowerOrderUpdate(order.id, res.data.status);
             onOrderUpdated(res.data);
         } catch (err) {
             console.error(err);
@@ -115,6 +133,7 @@ const TowerOrderAdminModal = ({
                 shipping_lead_days: Number(shippingLead),
             });
             toast.success("Quotation & Proforma Invoice issued!");
+            broadcastTowerOrderUpdate(order.id, res.data.status);
             onOrderUpdated(res.data);
         } catch (err) {
             console.error(err);
@@ -139,6 +158,7 @@ const TowerOrderAdminModal = ({
                 status: "in_production"
             });
             toast.success("Payment confirmed! Order moved to In-Production / Factory Sourcing.");
+            broadcastTowerOrderUpdate(order.id, res.data.status);
             onOrderUpdated(res.data);
         } catch (err) {
             console.error(err);
@@ -165,6 +185,7 @@ const TowerOrderAdminModal = ({
                 status: "shipped"
             });
             toast.success("Material marked as Shipped with live tracker updated!");
+            broadcastTowerOrderUpdate(order.id, res.data.status);
             onOrderUpdated(res.data);
         } catch (err) {
             console.error(err);
