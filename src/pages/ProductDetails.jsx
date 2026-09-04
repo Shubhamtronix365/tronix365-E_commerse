@@ -89,6 +89,20 @@ const ProductDetails = () => {
         }
     }, [product?.id]);
 
+    // Reopen Tower Order Modal if user just returned from logging in with a saved draft
+    useEffect(() => {
+        try {
+            const draft = sessionStorage.getItem('tronix_tower_order_draft');
+            const token = localStorage.getItem('tronix_token');
+            if (draft && token) {
+                const parsed = JSON.parse(draft);
+                if (!parsed.product_id || (product && parsed.product_id === product.id)) {
+                    setIsTowerModalOpen(true);
+                }
+            }
+        } catch (e) {}
+    }, [product]);
+
     if (loading) {
         return (
             <div className="min-h-screen pt-24 text-center text-white">

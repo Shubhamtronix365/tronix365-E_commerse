@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { MapPin, CreditCard, ShieldCheck, Truck, ChevronRight, Loader, AlertCircle, Trash2, Zap, Store, Check, Plus, Home, Building, Warehouse, Edit2 } from 'lucide-react';
+import { MapPin, CreditCard, ShieldCheck, Truck, ChevronRight, Loader, AlertCircle, Trash2, Zap, Store, Check, Plus, Home, Building, Warehouse, Edit2, Lock } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import client from '../api/client';
 import { getImageUrl } from '../utils/imageUtils';
@@ -79,6 +79,33 @@ const Checkout = () => {
 
     // Auto-fill from logged-in user & fetch saved addresses
     useEffect(() => {
+        // Rehydrate draft if present in sessionStorage
+        try {
+            const draftStr = sessionStorage.getItem('tronix_checkout_draft');
+            if (draftStr) {
+                const draft = JSON.parse(draftStr);
+                if (draft.address) {
+                    setAddress(prev => ({
+                        ...prev,
+                        ...draft.address,
+                        fullName: user?.full_name || draft.address.fullName || prev.fullName,
+                        email: user?.email || draft.address.email || prev.email
+                    }));
+                }
+                if (draft.selectedShipping) {
+                    setSelectedShipping(draft.selectedShipping);
+                }
+                if (draft.couponCode) {
+                    setCouponCode(draft.couponCode);
+                }
+                if (user) {
+                    sessionStorage.removeItem('tronix_checkout_draft');
+                }
+            }
+        } catch (e) {
+            console.error("Failed to restore checkout draft", e);
+        }
+
         if (user) {
             setAddress(prev => ({
                 ...prev,
@@ -267,6 +294,39 @@ const Checkout = () => {
                 toast.error("Please enter a valid 15-character GSTIN number.");
                 return;
             }
+        }
+
+        // Enforce Mandatory Login before final payment and order placement
+        if (!user) {
+            try {
+                sessionStorage.setItem('tronix_checkout_draft', JSON.stringify({
+                    address,
+                    selectedShipping,
+                    couponCode: appliedCoupon?.code || couponCode
+                }));
+            } catch (err) {}
+
+            toast((t) => (
+                <div className="flex flex-col gap-1 py-0.5">
+                    <div className="flex items-center gap-2 font-bold text-white text-sm">
+                        <Lock size={15} className="text-yellow-400" />
+                        <span>Login Required to Place Order</span>
+                    </div>
+                    <p className="text-xs text-gray-300">
+                        Your delivery address has been saved. Please sign in or create an account to proceed with payment.
+                    </p>
+                </div>
+            ), {
+                duration: 4000,
+                style: {
+                    background: '#151522',
+                    border: '1px solid rgba(234, 179, 8, 0.4)',
+                    color: '#fff',
+                }
+            });
+
+            navigate('/login?redirect=/checkout');
+            return;
         }
 
         setLoading(true);
@@ -873,12 +933,22 @@ const Checkout = () => {
                                 </div>
                             </div>
 
+                            {!user && (
+                                <div className="p-3 bg-yellow-500/10 border border-yellow-500/25 rounded-xl flex items-center gap-2.5 text-xs text-yellow-300 mb-3">
+                                    <Lock size={15} className="text-yellow-400 shrink-0" />
+                                    <span>
+                                        <strong>Guest Checkout:</strong> You can enter delivery details above. Clicking below will prompt you to log in to finalize payment and track your order.
+                                    </span>
+                                </div>
+                            )}
+
                             <button
                                 onClick={handlePayment}
                                 disabled={loading}
                                 className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 rounded-lg shadow-lg transition-colors flex items-center justify-center gap-2"
                             >
-                                {loading ? 'Redirecting to PayU...' : 'Proceed to Secure Payment'}
+                                {loading ? 'Redirecting to PayU...' : (user ? 'Proceed to Secure Payment' : 'Log In to Place Order & Pay')}
+                                {!user && <Lock size={16} className="text-black" />}
                             </button>
 
                             <p className="text-xs text-center text-gray-500 mt-3">
@@ -917,8 +987,8 @@ const Checkout = () => {
                             </>
                         ) : (
                             <>
-                                <span>Pay Now</span>
-                                <ChevronRight size={18} className="stroke-[2.5]" />
+                                <span>{user ? 'Pay Now' : 'Log In to Pay'}</span>
+                                {user ? <ChevronRight size={18} className="stroke-[2.5]" /> : <Lock size={16} className="text-black" />}
                             </>
                         )}
                     </button>

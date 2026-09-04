@@ -1950,7 +1950,7 @@ async def create_tower_order(
     Step 1: Customer place tower order
     Accepts customer details, required quantity, split quantities, and target price.
     """
-    # Detect optional logged-in user from Bearer token if present
+    # Enforce mandatory user authentication for placing B2B Tower Orders
     user_id = None
     auth_header = request.headers.get("authorization", "")
     if auth_header.startswith("Bearer "):
@@ -1966,6 +1966,12 @@ async def create_tower_order(
                     user_id = user_obj.id
         except Exception:
             pass
+
+    if not user_id:
+        raise HTTPException(
+            status_code=401,
+            detail="Authentication required. Please log in or register to place a B2B Tower Order."
+        )
 
     # Unique readable order number e.g. TO-260904-A1B2
     random_suffix = os.urandom(2).hex().upper()

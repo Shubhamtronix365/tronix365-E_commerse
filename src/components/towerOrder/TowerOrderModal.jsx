@@ -18,12 +18,13 @@ import {
     DollarSign, 
     AlertCircle,
     Split,
-    Check
+    Check,
+    Lock
 } from 'lucide-react';
 import client from '../../api/client';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const TowerOrderModal = ({ 
     isOpen, 
@@ -34,6 +35,7 @@ const TowerOrderModal = ({
 }) => {
     const { user, isAuthenticated } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const availableStock = product?.stock || 0;
     const isSourcingOnly = product?.tower_order_only;
@@ -116,6 +118,37 @@ const TowerOrderModal = ({
         }
     }, [product, initialQty, availableStock, isSourcingOnly]);
 
+    // Rehydrate draft if present in sessionStorage
+    useEffect(() => {
+        if (isOpen) {
+            try {
+                const draftStr = sessionStorage.getItem('tronix_tower_order_draft');
+                if (draftStr) {
+                    const draft = JSON.parse(draftStr);
+                    if (draft.qty) setQty(draft.qty);
+                    if (draft.targetPrice) setTargetPrice(draft.targetPrice);
+                    if (draft.splitMode) setSplitMode(draft.splitMode);
+                    if (draft.customProductName) setCustomProductName(draft.customProductName);
+                    if (draft.customerPhone) setCustomerPhone(draft.customerPhone);
+                    if (draft.companyName) setCompanyName(draft.companyName);
+                    if (draft.gstin) setGstin(draft.gstin);
+                    if (draft.deliveryAddress) setDeliveryAddress(draft.deliveryAddress);
+                    if (draft.deliveryCity) setDeliveryCity(draft.deliveryCity);
+                    if (draft.deliveryState) setDeliveryState(draft.deliveryState);
+                    if (draft.deliveryPincode) setDeliveryPincode(draft.deliveryPincode);
+                    if (draft.requiredByDate) setRequiredByDate(draft.requiredByDate);
+                    if (draft.customerNotes) setCustomerNotes(draft.customerNotes);
+                    if (!user) {
+                        if (draft.customer_name || draft.customerName) setCustomerName(draft.customer_name || draft.customerName);
+                        if (draft.customer_email || draft.customerEmail) setCustomerEmail(draft.customer_email || draft.customerEmail);
+                    }
+                }
+            } catch (err) {
+                console.warn("Failed to parse tower order draft", err);
+            }
+        }
+    }, [isOpen, user]);
+
     if (!isOpen) return null;
 
     // Calculate split numbers
@@ -138,6 +171,63 @@ const TowerOrderModal = ({
 
         if (!targetPrice || targetPrice <= 0) {
             toast.error('Please specify your Target Price per unit');
+            return;
+        }
+
+        // Enforce Login at the order placement step
+        if (!user) {
+            const draft = {
+                product_id: product?.id || null,
+                product_name: product?.title || customProductName || 'Custom Sourcing Requirement',
+                product_sku: product?.skv || null,
+                product_image: product?.image || null,
+                customer_name: customerName,
+                customer_email: customerEmail,
+                customer_phone: customerPhone,
+                company_name: companyName || null,
+                gstin: gstin || null,
+                delivery_address: deliveryAddress || null,
+                delivery_city: deliveryCity || null,
+                delivery_state: deliveryState || null,
+                delivery_pincode: deliveryPincode || null,
+                requested_qty: Number(qty),
+                immediate_qty: immediateQty,
+                backorder_qty: backorderQty,
+                target_price: Number(targetPrice),
+                target_total: targetTotal,
+                customer_notes: customerNotes || null,
+                required_by_date: requiredByDate || null,
+                splitMode,
+                customProductName,
+                qty,
+                targetPrice
+            };
+            try {
+                sessionStorage.setItem('tronix_tower_order_draft', JSON.stringify(draft));
+            } catch (err) {}
+
+            toast((t) => (
+                <div className="flex flex-col gap-1 py-0.5">
+                    <div className="flex items-center gap-2 font-bold text-white text-sm">
+                        <Lock size={15} className="text-amber-400" />
+                        <span>Login Required to Place Order</span>
+                    </div>
+                    <p className="text-xs text-gray-300">
+                        Your B2B order specifications have been saved. Please sign in to submit and track this order.
+                    </p>
+                </div>
+            ), {
+                duration: 4000,
+                style: {
+                    background: '#151522',
+                    border: '1px solid rgba(251, 191, 36, 0.4)',
+                    color: '#fff',
+                }
+            });
+
+            onClose();
+            const currentPath = location.pathname + location.search;
+            navigate(`/login?redirect=${encodeURIComponent(currentPath)}`);
             return;
         }
 
@@ -167,6 +257,7 @@ const TowerOrderModal = ({
             };
 
             const res = await client.post('/tower-orders', payload);
+            sessionStorage.removeItem('tronix_tower_order_draft');
             setSubmittedOrder(res.data);
             toast.success(`Tower Order ${res.data.order_number} placed successfully!`);
             if (onSuccess) {
@@ -678,6 +769,18 @@ const TowerOrderModal = ({
                                 </div>
                             </div>
 
+                            {/* Guest Notice for B2B Order */}
+                            {!user && (
+                                <div className="p-3 bg-amber-500/10 border border-amber-500/25 rounded-xl flex items-center justify-between gap-3 text-xs">
+                                    <div className="flex items-center gap-2 text-amber-300">
+                                        <Lock size={15} className="text-amber-400 shrink-0" />
+                                        <span>
+                                            <strong>Guest Mode:</strong> You can review and fill all specifications above. You will be prompted to log in or create an account to finalize and track this factory indent order.
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Submit Button */}
                             <div className="pt-3 border-t border-white/10 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
                                 <button
@@ -696,8 +799,8 @@ const TowerOrderModal = ({
                                         <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                                     ) : (
                                         <>
-                                            <span>Submit Tower Order</span>
-                                            <ArrowRight size={16} className="stroke-[3]" />
+                                            <span>{user ? 'Submit Tower Order' : 'Log In to Place Tower Order'}</span>
+                                            {user ? <ArrowRight size={16} className="stroke-[3]" /> : <Lock size={16} />}
                                         </>
                                     )}
                                 </button>

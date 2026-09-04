@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Lock, Mail, ShieldCheck, Eye, EyeOff, ArrowLeft, RefreshCw } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import client from '../api/client';
 import logo from '../assets/logo.png';
@@ -23,7 +23,11 @@ const Login = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const navigate = useNavigate();
+    const location = useLocation();
     const { login, loginWithGoogle, loginWithOTPResponse } = useAuth();
+
+    const searchParams = new URLSearchParams(location.search);
+    const redirectUrl = searchParams.get('redirect') || location.state?.from || '/';
 
     // OTP 2-Minute Expiration Countdown Timer
     useEffect(() => {
@@ -57,7 +61,7 @@ const Login = () => {
         const result = await loginWithGoogle(credentialResponse.credential);
         if (result.success) {
             toast.success('Google Login successful!');
-            navigate('/');
+            navigate(redirectUrl);
         } else {
             toast.error(result.message || 'Google Login failed');
         }
@@ -100,7 +104,7 @@ const Login = () => {
                     if (role === 'admin' || isAdmin) {
                         navigate('/admin');
                     } else {
-                        navigate('/');
+                        navigate(redirectUrl);
                     }
                 }
             } else {
@@ -158,7 +162,7 @@ const Login = () => {
             if (role === 'admin') {
                 navigate('/admin');
             } else {
-                navigate('/');
+                navigate(redirectUrl);
             }
         } catch (error) {
             console.error("Error verifying OTP:", error);
@@ -424,7 +428,7 @@ const Login = () => {
                             </button>
                             {!isAdmin && (
                                 <div className="text-center mt-2.5">
-                                    <Link to="/signup" className="text-sm text-tronix-primary hover:text-white transition-colors">
+                                    <Link to={`/signup${location.search}`} className="text-sm text-tronix-primary hover:text-white transition-colors">
                                         Don't have an account? Create one
                                     </Link>
                                 </div>

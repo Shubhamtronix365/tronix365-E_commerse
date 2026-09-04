@@ -55,6 +55,17 @@ const TowerOrdersPage = () => {
         setIsModalOpen(true);
     };
 
+    // Reopen Tower Order Modal if user just returned from logging in with a saved draft
+    useEffect(() => {
+        try {
+            const draft = sessionStorage.getItem('tronix_tower_order_draft');
+            const token = localStorage.getItem('tronix_token');
+            if (draft && token) {
+                setIsModalOpen(true);
+            }
+        } catch (e) {}
+    }, []);
+
     const steps = [
         {
             num: '01',

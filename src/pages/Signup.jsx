@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, User, ArrowLeft, RefreshCw, Loader, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import client from '../api/client';
@@ -28,7 +28,11 @@ const Signup = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
     const { signup, loginWithGoogle, loginWithOTPResponse } = useAuth();
+
+    const searchParams = new URLSearchParams(location.search);
+    const redirectUrl = searchParams.get('redirect') || location.state?.from || '/';
 
     // OTP 2-Minute Expiration Countdown Timer
     useEffect(() => {
@@ -68,7 +72,7 @@ const Signup = () => {
         setLoading(false);
         if (result.success) {
             toast.success('Signed up with Google successfully!');
-            navigate('/');
+            navigate(redirectUrl);
         } else {
             toast.error(result.message || 'Google signup failed');
         }
@@ -161,7 +165,7 @@ const Signup = () => {
             });
             loginWithOTPResponse(response.data);
             toast.success("Account successfully created and verified!");
-            navigate('/');
+            navigate(redirectUrl);
         } catch (error) {
             console.error("Error verifying OTP:", error);
             toast.error(error.response?.data?.detail || "Invalid OTP. Please try again.");
@@ -405,7 +409,7 @@ const Signup = () => {
                             </div>
 
                             <div className="text-center mt-2">
-                                <Link to="/login" className="font-medium text-tronix-primary hover:text-white transition-colors text-sm">
+                                <Link to={`/login${location.search}`} className="font-medium text-tronix-primary hover:text-white transition-colors text-sm">
                                     Already have an account? Sign in
                                 </Link>
                             </div>
