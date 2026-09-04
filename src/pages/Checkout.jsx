@@ -365,14 +365,14 @@ const Checkout = () => {
     if (selectedItems.length === 0) return null;
 
     return (
-        <div className="min-h-screen pt-24 pb-12 px-4 bg-[#0F172A]">
-            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="min-h-screen pt-20 sm:pt-24 pb-28 lg:pb-12 px-3 sm:px-6 bg-[#0F172A]">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
 
                 {/* LEFT COLUMN: Steps */}
                 <div className="lg:col-span-2 space-y-6">
 
                     {/* STEP 1: ADDRESS */}
-                    <div className="bg-tronix-card border border-white/10 rounded-xl p-6 shadow-xl">
+                    <div className="bg-tronix-card border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-xl">
                         <div className="flex items-center justify-between mb-6 border-b border-white/5 pb-4">
                             <div className="flex items-center gap-3">
                                 <span className="bg-tronix-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">1</span>
@@ -502,38 +502,46 @@ const Checkout = () => {
 
                         {/* Address Form (Shown if new address chosen, no saved address, or expanded) */}
                         {(selectedAddressId === 'new' || savedAddresses.length === 0 || showAddressForm) && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
                                 <div className="md:col-span-2">
-                                    <label className="block text-gray-400 text-sm mb-1">Full Name</label>
+                                    <label className="block text-gray-400 text-xs sm:text-sm mb-1 font-medium">Full Name</label>
                                     <input
                                         type="text" name="fullName" value={address.fullName} onChange={handleInputChange}
-                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-tronix-primary outline-none transition-colors"
+                                        autoComplete="name"
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 sm:px-4 py-2.5 sm:py-3 text-base sm:text-sm text-white focus:border-tronix-primary outline-none transition-colors"
                                         placeholder="tronix"
                                     />
                                 </div>
                                 <div className="md:col-span-2">
-                                    <label className="block text-gray-400 text-sm mb-1">Email Address</label>
+                                    <label className="block text-gray-400 text-xs sm:text-sm mb-1 font-medium">Email Address</label>
                                     <input
                                         type="email" name="email" value={address.email} onChange={handleInputChange}
-                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-tronix-primary outline-none transition-colors"
-                                        placeholder="abc@example"
+                                        autoComplete="email"
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 sm:px-4 py-2.5 sm:py-3 text-base sm:text-sm text-white focus:border-tronix-primary outline-none transition-colors"
+                                        placeholder="abc@example.com"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-gray-400 text-sm mb-1">Mobile Number</label>
+                                    <label className="block text-gray-400 text-xs sm:text-sm mb-1 font-medium">Mobile Number</label>
                                     <input
-                                        type="text" name="mobile" value={address.mobile} onChange={handleInputChange}
-                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-tronix-primary outline-none transition-colors"
+                                        type="tel" name="mobile" value={address.mobile} onChange={handleInputChange}
+                                        autoComplete="tel"
+                                        inputMode="numeric"
+                                        pattern="[0-9]*"
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 sm:px-4 py-2.5 sm:py-3 text-base sm:text-sm text-white focus:border-tronix-primary outline-none transition-colors"
                                         placeholder="9876543210"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-gray-400 text-sm mb-1">Pincode</label>
+                                    <label className="block text-gray-400 text-xs sm:text-sm mb-1 font-medium">Pincode</label>
                                     <div className="relative">
                                         <input
                                             type="text" name="pincode" value={address.pincode} onChange={handleInputChange}
                                             maxLength={6}
-                                            className={`w-full bg-white/5 border ${pincodeError ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-3 text-white focus:border-tronix-primary outline-none transition-colors`}
+                                            autoComplete="postal-code"
+                                            inputMode="numeric"
+                                            pattern="[0-9]*"
+                                            className={`w-full bg-white/5 border ${pincodeError ? 'border-red-500' : 'border-white/10'} rounded-lg px-3.5 sm:px-4 py-2.5 sm:py-3 text-base sm:text-sm text-white focus:border-tronix-primary outline-none transition-colors`}
                                             placeholder="110001"
                                         />
                                         {isPincodeLoading && (
@@ -549,26 +557,29 @@ const Checkout = () => {
                                     )}
                                 </div>
                                 <div className="md:col-span-2">
-                                    <label className="block text-gray-400 text-sm mb-1">Flat, House no., Building, Company, Apartment</label>
+                                    <label className="block text-gray-400 text-xs sm:text-sm mb-1 font-medium">Flat, House no., Building, Company, Apartment</label>
                                     <input
                                         type="text" name="addressLine" value={address.addressLine} onChange={handleInputChange}
-                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-tronix-primary outline-none transition-colors"
+                                        autoComplete="street-address"
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 sm:px-4 py-2.5 sm:py-3 text-base sm:text-sm text-white focus:border-tronix-primary outline-none transition-colors"
                                         placeholder="123 Innovation Tower"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-gray-400 text-sm mb-1">City</label>
+                                    <label className="block text-gray-400 text-xs sm:text-sm mb-1 font-medium">City</label>
                                     <input
                                         type="text" name="city" value={address.city} onChange={handleInputChange}
-                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-tronix-primary outline-none transition-colors"
+                                        autoComplete="address-level2"
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 sm:px-4 py-2.5 sm:py-3 text-base sm:text-sm text-white focus:border-tronix-primary outline-none transition-colors"
                                         placeholder="New Delhi"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-gray-400 text-sm mb-1">State</label>
+                                    <label className="block text-gray-400 text-xs sm:text-sm mb-1 font-medium">State</label>
                                     <input
                                         type="text" name="state" value={address.state} onChange={handleInputChange}
-                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-tronix-primary outline-none transition-colors"
+                                        autoComplete="address-level1"
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 sm:px-4 py-2.5 sm:py-3 text-base sm:text-sm text-white focus:border-tronix-primary outline-none transition-colors"
                                         placeholder="Delhi"
                                     />
                                 </div>
@@ -654,7 +665,7 @@ const Checkout = () => {
                     </div>
 
                     {/* STEP 2: SHIPPING METHOD */}
-                    <div className="bg-tronix-card border border-white/10 rounded-xl p-6 shadow-xl">
+                    <div className="bg-tronix-card border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-xl">
                         <div className="flex items-center gap-3 mb-6 border-b border-white/5 pb-4">
                             <span className="bg-tronix-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">2</span>
                             <h2 className="text-xl font-bold text-white">Shipping Method</h2>
@@ -700,7 +711,7 @@ const Checkout = () => {
                     </div>
 
                     {/* STEP 3: PAYMENT */}
-                    <div className="bg-tronix-card border border-white/10 rounded-xl p-6 shadow-xl">
+                    <div className="bg-tronix-card border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-xl">
                         <div className="flex items-center gap-3 mb-6 border-b border-white/5 pb-4">
                             <span className="bg-tronix-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">3</span>
                             <h2 className="text-xl font-bold text-white">Payment Method</h2>
@@ -881,7 +892,37 @@ const Checkout = () => {
                         </div>
                     </div>
                 </div>
+            </div>
 
+            {/* MOBILE STICKY BOTTOM BAR */}
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0b0f19]/95 backdrop-blur-xl border-t border-white/10 px-4 py-3 shadow-[0_-10px_25px_rgba(0,0,0,0.5)]">
+                <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+                    <div className="flex flex-col">
+                        <span className="text-[11px] text-gray-400 font-medium leading-none">Total Payable</span>
+                        <div className="flex items-baseline gap-1 mt-1">
+                            <span className="text-xl font-black text-tronix-accent">₹{totalAmount}</span>
+                            <span className="text-[10px] text-gray-400">(incl. GST)</span>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={handlePayment}
+                        disabled={loading}
+                        className="flex-1 max-w-[240px] bg-yellow-500 hover:bg-yellow-400 active:scale-98 text-black font-extrabold py-3 px-4 rounded-xl shadow-lg shadow-yellow-500/20 transition-all flex items-center justify-center gap-1.5 text-sm min-h-[44px]"
+                    >
+                        {loading ? (
+                            <>
+                                <Loader size={16} className="animate-spin text-black" />
+                                <span>Processing...</span>
+                            </>
+                        ) : (
+                            <>
+                                <span>Pay Now</span>
+                                <ChevronRight size={18} className="stroke-[2.5]" />
+                            </>
+                        )}
+                    </button>
+                </div>
             </div>
         </div>
     );

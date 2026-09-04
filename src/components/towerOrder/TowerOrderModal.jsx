@@ -189,35 +189,35 @@ const TowerOrderModal = ({
                 className="bg-[#0f0f18] border border-white/10 rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl relative text-white max-h-[92vh] flex flex-col"
             >
                 {/* Header - Clean, Professional & Human-Designed */}
-                <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-[#151522]">
-                    <div className="flex items-center gap-3.5">
-                        <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
-                            <Factory size={20} />
+                <div className="px-4 py-3.5 sm:px-6 sm:py-5 border-b border-white/10 flex items-center justify-between bg-[#151522]">
+                    <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                            <Factory size={18} className="sm:w-5 sm:h-5" />
                         </div>
                         <div>
                             <div className="flex items-center gap-2">
-                                <h3 className="text-base sm:text-lg font-bold text-white">
+                                <h3 className="text-sm sm:text-lg font-bold text-white">
                                     Place Tower Order
                                 </h3>
-                                <span className="bg-amber-400 text-black text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md tracking-wider">
+                                <span className="bg-amber-400 text-black text-[9px] sm:text-[10px] font-extrabold uppercase px-1.5 sm:px-2 py-0.5 rounded-md tracking-wider">
                                     B2B Factory Indent
                                 </span>
                             </div>
-                            <p className="text-xs text-gray-400 mt-0.5">
+                            <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5 line-clamp-1 sm:line-clamp-none">
                                 Arranged directly through our manufacturing network • Set your target price & split quantities
                             </p>
                         </div>
                     </div>
                     <button 
                         onClick={onClose}
-                        className="w-8 h-8 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center"
+                        className="w-9 h-9 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center shrink-0 min-h-[36px] min-w-[36px]"
                     >
                         <X size={18} />
                     </button>
                 </div>
 
                 {/* Body Content */}
-                <div className="p-6 overflow-y-auto space-y-6 flex-1 custom-scrollbar">
+                <div className="p-4 sm:p-6 overflow-y-auto space-y-5 sm:space-y-6 flex-1 custom-scrollbar">
                     {submittedOrder ? (
                         /* SUCCESS STATE */
                         <div className="py-8 text-center space-y-6">
@@ -423,7 +423,7 @@ const TowerOrderModal = ({
                             )}
 
                             {/* Quantities & Target Price Section */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
                                 <div className="bg-[#141420] p-4 rounded-xl border border-white/10">
                                     <label className="block text-xs font-semibold text-gray-200 mb-2 flex items-center justify-between">
                                         <span>Required Quantity (Units) *</span>
@@ -437,9 +437,11 @@ const TowerOrderModal = ({
                                         type="number"
                                         min="1"
                                         required
+                                        inputMode="numeric"
+                                        pattern="[0-9]*"
                                         value={qty}
                                         onChange={(e) => setQty(Math.max(1, parseInt(e.target.value) || 1))}
-                                        className="w-full px-3.5 py-2.5 bg-black/40 border border-white/10 rounded-lg text-white focus:outline-none focus:border-amber-400 text-sm font-semibold"
+                                        className="w-full px-3.5 py-2.5 bg-black/40 border border-white/10 rounded-lg text-white focus:outline-none focus:border-amber-400 text-base sm:text-sm font-semibold"
                                         placeholder="e.g. 100"
                                     />
                                 </div>
@@ -458,9 +460,10 @@ const TowerOrderModal = ({
                                             step="0.01"
                                             min="1"
                                             required
+                                            inputMode="decimal"
                                             value={targetPrice}
                                             onChange={(e) => setTargetPrice(e.target.value)}
-                                            className="w-full pl-7 pr-3.5 py-2.5 bg-black/40 border border-white/10 rounded-lg text-amber-400 focus:outline-none focus:border-amber-400 text-sm font-bold"
+                                            className="w-full pl-7 pr-3.5 py-2.5 bg-black/40 border border-white/10 rounded-lg text-amber-400 focus:outline-none focus:border-amber-400 text-base sm:text-sm font-bold"
                                             placeholder="Enter target price per unit"
                                         />
                                     </div>
@@ -494,7 +497,7 @@ const TowerOrderModal = ({
                                             value={customerName}
                                             onChange={(e) => setCustomerName(e.target.value)}
                                             placeholder="e.g. Rahul Sharma"
-                                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-xs focus:outline-none focus:border-violet-500"
+                                            className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-violet-500"
                                         />
                                     </div>
                                     <div>
@@ -505,7 +508,7 @@ const TowerOrderModal = ({
                                             value={customerEmail}
                                             onChange={(e) => setCustomerEmail(e.target.value)}
                                             placeholder="e.g. rahul@company.com"
-                                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-xs focus:outline-none focus:border-violet-500"
+                                            className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-violet-500"
                                         />
                                     </div>
                                     <div>
@@ -513,10 +516,12 @@ const TowerOrderModal = ({
                                         <input
                                             type="tel"
                                             required
+                                            inputMode="numeric"
+                                            pattern="[0-9]*"
                                             value={customerPhone}
                                             onChange={(e) => setCustomerPhone(e.target.value)}
                                             placeholder="e.g. 9876543210"
-                                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-xs focus:outline-none focus:border-violet-500"
+                                            className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-violet-500"
                                         />
                                     </div>
                                 </div>
@@ -529,7 +534,7 @@ const TowerOrderModal = ({
                                             value={companyName}
                                             onChange={(e) => setCompanyName(e.target.value)}
                                             placeholder="e.g. Apex Robotics Pvt Ltd"
-                                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-xs focus:outline-none focus:border-violet-500"
+                                            className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-violet-500"
                                         />
                                     </div>
                                     <div>
@@ -537,9 +542,9 @@ const TowerOrderModal = ({
                                         <input
                                             type="text"
                                             value={gstin}
-                                            onChange={(e) => setGstin(e.target.value)}
+                                            onChange={(e) => setGstin(e.target.value.toUpperCase())}
                                             placeholder="e.g. 27AAAAA0000A1Z5"
-                                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-xs focus:outline-none focus:border-violet-500"
+                                            className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-base sm:text-xs font-mono uppercase focus:outline-none focus:border-violet-500"
                                         />
                                     </div>
                                 </div>
@@ -557,8 +562,8 @@ const TowerOrderModal = ({
                                 </div>
 
                                 {savedAddresses.length > 0 && (
-                                    <div className="flex flex-wrap items-center gap-1.5 p-2 rounded-xl bg-white/[0.02] border border-white/10">
-                                        <span className="text-[10px] text-gray-400 flex items-center gap-1 mr-1">
+                                    <div className="flex items-center gap-2 p-2 rounded-xl bg-white/[0.02] border border-white/10 overflow-x-auto scrollbar-none whitespace-nowrap">
+                                        <span className="text-[10px] text-gray-400 flex items-center gap-1 mr-1 shrink-0 font-semibold">
                                             Saved:
                                         </span>
                                         {savedAddresses.map((addr) => {
@@ -568,7 +573,7 @@ const TowerOrderModal = ({
                                                     type="button"
                                                     key={addr.id}
                                                     onClick={() => handleApplyTowerAddress(addr)}
-                                                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 border ${
+                                                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 border shrink-0 min-h-[36px] ${
                                                         isSelected
                                                             ? 'bg-violet-600 text-white border-violet-400 shadow-md'
                                                             : 'bg-white/5 text-gray-300 border-white/10 hover:bg-white/10 hover:text-white'
@@ -589,7 +594,7 @@ const TowerOrderModal = ({
                                             value={deliveryAddress}
                                             onChange={(e) => setDeliveryAddress(e.target.value)}
                                             placeholder="Street address or industrial plot"
-                                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-xs focus:outline-none focus:border-violet-500"
+                                            className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-violet-500"
                                         />
                                     </div>
                                     <div>
@@ -599,17 +604,20 @@ const TowerOrderModal = ({
                                             value={deliveryCity}
                                             onChange={(e) => setDeliveryCity(e.target.value)}
                                             placeholder="City"
-                                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-xs focus:outline-none focus:border-violet-500"
+                                            className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-violet-500"
                                         />
                                     </div>
                                     <div>
                                         <label className="block text-[11px] text-gray-400 mb-1">Pincode</label>
                                         <input
                                             type="text"
+                                            inputMode="numeric"
+                                            pattern="[0-9]*"
+                                            maxLength={6}
                                             value={deliveryPincode}
                                             onChange={(e) => setDeliveryPincode(e.target.value)}
                                             placeholder="Pincode"
-                                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-xs focus:outline-none focus:border-violet-500"
+                                            className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-violet-500"
                                         />
                                     </div>
                                 </div>
@@ -621,7 +629,7 @@ const TowerOrderModal = ({
                                             type="date"
                                             value={requiredByDate}
                                             onChange={(e) => setRequiredByDate(e.target.value)}
-                                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-xs focus:outline-none focus:border-violet-500"
+                                            className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-violet-500"
                                         />
                                     </div>
                                     <div>
@@ -631,7 +639,7 @@ const TowerOrderModal = ({
                                             value={customerNotes}
                                             onChange={(e) => setCustomerNotes(e.target.value)}
                                             placeholder="Packaging, tolerances, or specific brand/make"
-                                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-xs focus:outline-none focus:border-violet-500"
+                                            className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-violet-500"
                                         />
                                     </div>
                                 </div>
@@ -671,24 +679,25 @@ const TowerOrderModal = ({
                             </div>
 
                             {/* Submit Button */}
-                            <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-3">
+                            <div className="pt-3 border-t border-white/10 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
                                 <button
                                     type="button"
                                     onClick={onClose}
-                                    className="px-5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors text-sm font-medium"
+                                    className="px-5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors text-sm font-medium text-center min-h-[44px]"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-sm transition-all flex items-center gap-2 shadow-lg shadow-amber-400/20 active:scale-98 disabled:opacity-50"
+                                    className="px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-400/20 active:scale-98 disabled:opacity-50 min-h-[44px]"
                                 >
                                     {loading ? (
                                         <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                                     ) : (
                                         <>
-                                            Submit Tower Order <ArrowRight size={16} className="stroke-[3]" />
+                                            <span>Submit Tower Order</span>
+                                            <ArrowRight size={16} className="stroke-[3]" />
                                         </>
                                     )}
                                 </button>

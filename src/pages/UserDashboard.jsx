@@ -497,12 +497,104 @@ const UserDashboard = () => {
     }
 
     return (
-        <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 bg-tronix-bg">
+        <div className="min-h-screen pt-20 sm:pt-24 pb-12 px-3 sm:px-6 lg:px-8 bg-tronix-bg">
             <div className="max-w-7xl mx-auto">
+
+                {/* Mobile Profile & Tab Bar (< md) */}
+                <div className="md:hidden space-y-3 mb-6">
+                    {/* Compact Profile Header */}
+                    <div className="bg-tronix-card border border-white/10 rounded-2xl p-4 flex items-center justify-between shadow-lg">
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-full relative overflow-hidden bg-tronix-primary/20 border-2 border-tronix-primary/30 flex items-center justify-center flex-shrink-0">
+                                {user?.profile_picture ? (
+                                    <img src={getImageUrl(user.profile_picture)} alt={user?.full_name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <span className="text-lg font-bold text-tronix-primary">
+                                        {user?.full_name?.charAt(0).toUpperCase()}
+                                    </span>
+                                )}
+                            </div>
+                            <div className="min-w-0">
+                                <h2 className="text-base font-bold text-white truncate">{user?.full_name}</h2>
+                                <p className="text-gray-400 text-xs truncate">{user?.email}</p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={handleLogout}
+                            className="p-2 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 transition-colors"
+                            title="Logout"
+                        >
+                            <LogOut size={18} />
+                        </button>
+                    </div>
+
+                    {/* Mobile Horizontal Scrolling Tabs */}
+                    <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                        <button
+                            onClick={() => setActiveTab('orders')}
+                            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
+                                activeTab === 'orders'
+                                    ? 'bg-tronix-primary text-white border-tronix-primary shadow-md shadow-tronix-primary/30'
+                                    : 'bg-white/5 text-gray-300 border-white/10 hover:bg-white/10'
+                            }`}
+                        >
+                            <Package size={15} />
+                            <span>My Orders</span>
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('tower_orders')}
+                            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
+                                activeTab === 'tower_orders'
+                                    ? 'bg-violet-600 text-white border-violet-500 shadow-md shadow-violet-600/30'
+                                    : 'bg-white/5 text-gray-300 border-white/10 hover:bg-white/10'
+                            }`}
+                        >
+                            <Factory size={15} />
+                            <span>Tower Orders</span>
+                            {towerOrders.length > 0 && (
+                                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
+                                    activeTab === 'tower_orders' ? 'bg-white text-violet-700' : 'bg-violet-600 text-white'
+                                }`}>
+                                    {towerOrders.length}
+                                </span>
+                            )}
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('addresses')}
+                            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
+                                activeTab === 'addresses'
+                                    ? 'bg-tronix-primary text-white border-tronix-primary shadow-md shadow-tronix-primary/30'
+                                    : 'bg-white/5 text-gray-300 border-white/10 hover:bg-white/10'
+                            }`}
+                        >
+                            <MapPin size={15} />
+                            <span>Addresses</span>
+                            {addresses.length > 0 && (
+                                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
+                                    activeTab === 'addresses' ? 'bg-white text-violet-700' : 'bg-tronix-primary text-white'
+                                }`}>
+                                    {addresses.length}
+                                </span>
+                            )}
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('profile')}
+                            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
+                                activeTab === 'profile'
+                                    ? 'bg-tronix-primary text-white border-tronix-primary shadow-md shadow-tronix-primary/30'
+                                    : 'bg-white/5 text-gray-300 border-white/10 hover:bg-white/10'
+                            }`}
+                        >
+                            <User size={15} />
+                            <span>Profile</span>
+                        </button>
+                    </div>
+                </div>
+
                 <div className="flex flex-col md:flex-row gap-8">
 
-                    {/* Sidebar */}
-                    <div className="w-full md:w-64 space-y-4">
+                    {/* Desktop Sidebar (hidden on mobile) */}
+                    <div className="hidden md:block w-64 space-y-4 flex-shrink-0">
                         <div className="bg-tronix-card border border-white/10 rounded-xl p-6 text-center">
                             <div className="w-20 h-20 rounded-full mx-auto mb-4 relative overflow-hidden bg-tronix-primary/20 border-2 border-tronix-primary/30 flex items-center justify-center">
                                 {user?.profile_picture ? (
@@ -513,20 +605,20 @@ const UserDashboard = () => {
                                     </span>
                                 )}
                             </div>
-                            <h2 className="text-xl font-bold text-white">{user?.full_name}</h2>
-                            <p className="text-gray-400 text-sm">{user?.email}</p>
+                            <h2 className="text-xl font-bold text-white truncate">{user?.full_name}</h2>
+                            <p className="text-gray-400 text-sm truncate">{user?.email}</p>
                         </div>
 
                         <div className="bg-tronix-card border border-white/10 rounded-xl overflow-hidden">
                             <button
                                 onClick={() => setActiveTab('orders')}
-                                className={`w-full flex items-center gap-3 px-6 py-4 transition-colors ${activeTab === 'orders' ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5'}`}
+                                className={`w-full flex items-center gap-3 px-6 py-4 transition-colors ${activeTab === 'orders' ? 'bg-white/10 text-white font-semibold' : 'text-gray-400 hover:bg-white/5'}`}
                             >
                                 <Package size={20} /> My Orders
                             </button>
                             <button
                                 onClick={() => setActiveTab('tower_orders')}
-                                className={`w-full flex items-center justify-between px-6 py-4 transition-colors ${activeTab === 'tower_orders' ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5'}`}
+                                className={`w-full flex items-center justify-between px-6 py-4 transition-colors ${activeTab === 'tower_orders' ? 'bg-white/10 text-white font-semibold' : 'text-gray-400 hover:bg-white/5'}`}
                             >
                                 <span className="flex items-center gap-3">
                                     <Factory size={20} /> Tower Orders
@@ -539,7 +631,7 @@ const UserDashboard = () => {
                             </button>
                             <button
                                 onClick={() => setActiveTab('addresses')}
-                                className={`w-full flex items-center justify-between px-6 py-4 transition-colors ${activeTab === 'addresses' ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5'}`}
+                                className={`w-full flex items-center justify-between px-6 py-4 transition-colors ${activeTab === 'addresses' ? 'bg-white/10 text-white font-semibold' : 'text-gray-400 hover:bg-white/5'}`}
                             >
                                 <span className="flex items-center gap-3">
                                     <MapPin size={20} /> Saved Addresses
@@ -552,7 +644,7 @@ const UserDashboard = () => {
                             </button>
                             <button
                                 onClick={() => setActiveTab('profile')}
-                                className={`w-full flex items-center gap-3 px-6 py-4 transition-colors ${activeTab === 'profile' ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5'}`}
+                                className={`w-full flex items-center gap-3 px-6 py-4 transition-colors ${activeTab === 'profile' ? 'bg-white/10 text-white font-semibold' : 'text-gray-400 hover:bg-white/5'}`}
                             >
                                 <User size={20} /> Profile Details
                             </button>
@@ -567,13 +659,13 @@ const UserDashboard = () => {
                     </div>
 
                     {/* Main Content */}
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                         {activeTab === 'orders' && (
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-white mb-6">Order History</h2>
+                                <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Order History</h2>
 
-                                {/* Order Status Tabs */}
-                                <div className="flex flex-wrap gap-2 mb-6">
+                                {/* Order Status Tabs - Scrollable on mobile */}
+                                <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6 scrollbar-none sm:flex-wrap">
                                     {['All', 'pending', 'confirmed', 'shipped', 'out_for_delivery', 'delivered', 'cancelled'].map((status) => (
                                         <button
                                             key={status}
@@ -732,8 +824,8 @@ const UserDashboard = () => {
                                     </div>
                                 </div>
 
-                                {/* Status Filters */}
-                                <div className="flex flex-wrap gap-2">
+                                {/* Status Filters - Scrollable on mobile */}
+                                <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none sm:flex-wrap">
                                     {[
                                         { id: 'all', label: 'All Orders' },
                                         { id: 'requested', label: '1. Requested' },
@@ -1083,22 +1175,22 @@ const UserDashboard = () => {
 
                         {activeTab === 'addresses' && (
                             <div className="space-y-6">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-tronix-card border border-white/10 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-tronix-card border border-white/10 rounded-2xl p-4 sm:p-6 shadow-xl relative overflow-hidden">
                                     <div className="absolute top-0 right-0 w-64 h-64 bg-tronix-primary/5 rounded-full blur-[80px] -mr-32 -mt-32 pointer-events-none" />
                                     <div className="relative z-10">
-                                        <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                                            <div className="p-2.5 rounded-xl bg-tronix-primary/20 border border-tronix-primary/30 text-tronix-primary">
-                                                <MapPin size={22} />
+                                        <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2.5 sm:gap-3">
+                                            <div className="p-2 sm:p-2.5 rounded-xl bg-tronix-primary/20 border border-tronix-primary/30 text-tronix-primary">
+                                                <MapPin size={20} />
                                             </div>
                                             Saved Addresses
                                         </h2>
-                                        <p className="text-gray-400 text-sm mt-1">
+                                        <p className="text-gray-400 text-xs sm:text-sm mt-1">
                                             Manage your delivery destinations for 1-click checkout and faster custom tower orders.
                                         </p>
                                     </div>
                                     <button
                                         onClick={handleOpenAddAddress}
-                                        className="relative z-10 bg-tronix-primary hover:bg-violet-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 shadow-lg shadow-tronix-primary/25 transition-all w-fit"
+                                        className="relative z-10 bg-tronix-primary hover:bg-violet-600 text-white px-5 py-3 sm:py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-tronix-primary/25 transition-all w-full sm:w-fit min-h-[44px]"
                                     >
                                         <Plus size={18} />
                                         <span>Add New Address</span>
@@ -1106,9 +1198,9 @@ const UserDashboard = () => {
                                 </div>
 
                                 {addressLoading ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                         {[1, 2].map(n => (
-                                            <div key={n} className="bg-tronix-card/60 border border-white/5 rounded-2xl p-6 animate-pulse space-y-4">
+                                            <div key={n} className="bg-tronix-card/60 border border-white/5 rounded-2xl p-4 sm:p-6 animate-pulse space-y-4">
                                                 <div className="h-5 bg-white/10 rounded w-1/3"></div>
                                                 <div className="h-4 bg-white/5 rounded w-2/3"></div>
                                                 <div className="h-16 bg-white/5 rounded w-full"></div>
@@ -1116,28 +1208,28 @@ const UserDashboard = () => {
                                         ))}
                                     </div>
                                 ) : addresses.length === 0 ? (
-                                    <div className="bg-tronix-card border border-dashed border-white/15 rounded-2xl p-12 text-center flex flex-col items-center justify-center">
-                                        <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-gray-400 mb-4 border border-white/10">
-                                            <MapPin size={30} className="text-tronix-primary" />
+                                    <div className="bg-tronix-card border border-dashed border-white/15 rounded-2xl p-8 sm:p-12 text-center flex flex-col items-center justify-center">
+                                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 flex items-center justify-center text-gray-400 mb-4 border border-white/10">
+                                            <MapPin size={28} className="text-tronix-primary" />
                                         </div>
                                         <h3 className="text-lg font-bold text-white mb-2">No Saved Addresses Yet</h3>
-                                        <p className="text-gray-400 text-sm max-w-md mb-6">
+                                        <p className="text-gray-400 text-xs sm:text-sm max-w-md mb-6">
                                             Save your home, office, factory, or warehouse addresses to automatically prefill delivery info at checkout!
                                         </p>
                                         <button
                                             onClick={handleOpenAddAddress}
-                                            className="bg-tronix-primary hover:bg-violet-600 text-white px-6 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 shadow-lg shadow-tronix-primary/25 transition-all"
+                                            className="bg-tronix-primary hover:bg-violet-600 text-white px-6 py-3 sm:py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-tronix-primary/25 transition-all w-full sm:w-auto min-h-[44px]"
                                         >
                                             <Plus size={18} />
                                             <span>Add Your First Address</span>
                                         </button>
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                         {addresses.map((addr) => (
                                             <div
                                                 key={addr.id}
-                                                className={`relative rounded-2xl p-6 border transition-all flex flex-col justify-between ${
+                                                className={`relative rounded-2xl p-4 sm:p-6 border transition-all flex flex-col justify-between ${
                                                     addr.is_default
                                                         ? 'bg-gradient-to-b from-tronix-primary/10 via-tronix-card to-tronix-card border-tronix-primary/50 shadow-xl shadow-tronix-primary/10 ring-1 ring-tronix-primary/30'
                                                         : 'bg-tronix-card border-white/10 hover:border-white/20'
@@ -1399,11 +1491,11 @@ const UserDashboard = () => {
 
             {/* Address Add / Edit Modal */}
             {isAddressModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-                    <div className="bg-[#121827] border border-white/15 rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 shadow-2xl relative">
-                        <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+                    <div className="bg-[#121827] border border-white/15 rounded-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto p-4 sm:p-6 md:p-8 shadow-2xl relative">
+                        <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
                             <div>
-                                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                                     <MapPin size={20} className="text-tronix-primary" />
                                     {editingAddressId ? 'Edit Delivery Address' : 'Add New Address'}
                                 </h3>
@@ -1411,13 +1503,14 @@ const UserDashboard = () => {
                             </div>
                             <button
                                 onClick={() => setIsAddressModalOpen(false)}
-                                className="p-2 rounded-xl bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                                className="p-2 rounded-xl bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
+                                aria-label="Close"
                             >
                                 <X size={20} />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSaveAddress} className="space-y-5">
+                        <form onSubmit={handleSaveAddress} className="space-y-4 sm:space-y-5">
                             {/* Address Label / Type */}
                             <div>
                                 <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Address Type</label>
@@ -1427,7 +1520,7 @@ const UserDashboard = () => {
                                             type="button"
                                             key={lbl}
                                             onClick={() => setAddressForm(prev => ({ ...prev, label: lbl }))}
-                                            className={`flex flex-col items-center justify-center py-2.5 px-2 rounded-xl border text-xs font-semibold transition-all gap-1.5 ${
+                                            className={`flex flex-col items-center justify-center py-2.5 px-2 rounded-xl border text-xs font-semibold transition-all gap-1 min-h-[44px] ${
                                                 addressForm.label === lbl
                                                     ? 'bg-tronix-primary/20 border-tronix-primary text-white shadow-md shadow-tronix-primary/20'
                                                     : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:text-white'
@@ -1438,23 +1531,24 @@ const UserDashboard = () => {
                                             {lbl === 'Factory' && <Factory size={16} />}
                                             {lbl === 'Warehouse' && <Warehouse size={16} />}
                                             {lbl === 'Other' && <MapPin size={16} />}
-                                            <span>{lbl}</span>
+                                            <span className="text-[11px] sm:text-xs">{lbl}</span>
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
                             {/* Contact Details */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <div>
                                     <label className="block text-xs text-gray-400 mb-1 font-medium">Recipient Full Name *</label>
                                     <input
                                         type="text"
                                         required
+                                        autoComplete="name"
                                         value={addressForm.full_name}
                                         onChange={(e) => setAddressForm({ ...addressForm, full_name: e.target.value })}
                                         placeholder="e.g. Rahul Sharma"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-tronix-primary text-sm"
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 sm:px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-tronix-primary text-base sm:text-sm"
                                     />
                                 </div>
                                 <div>
@@ -1463,16 +1557,19 @@ const UserDashboard = () => {
                                         type="tel"
                                         required
                                         maxLength={10}
+                                        inputMode="numeric"
+                                        pattern="[0-9]*"
+                                        autoComplete="tel"
                                         value={addressForm.phone}
                                         onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value.replace(/\D/g, '') })}
                                         placeholder="9876543210"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-tronix-primary text-sm"
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 sm:px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-tronix-primary text-base sm:text-sm font-mono"
                                     />
                                 </div>
                             </div>
 
                             {/* PIN code, City, State */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                                 <div>
                                     <label className="block text-xs text-gray-400 mb-1 font-medium flex items-center justify-between">
                                         <span>PIN Code *</span>
@@ -1482,10 +1579,13 @@ const UserDashboard = () => {
                                         type="text"
                                         required
                                         maxLength={6}
+                                        inputMode="numeric"
+                                        pattern="[0-9]*"
+                                        autoComplete="postal-code"
                                         value={addressForm.pincode}
                                         onChange={(e) => handlePincodeLookup(e.target.value.replace(/\D/g, ''))}
                                         placeholder="411001"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-tronix-primary font-mono text-sm"
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 sm:px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-tronix-primary font-mono text-base sm:text-sm"
                                     />
                                 </div>
                                 <div>
@@ -1496,7 +1596,7 @@ const UserDashboard = () => {
                                         value={addressForm.city}
                                         onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
                                         placeholder="Pune"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-tronix-primary text-sm"
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 sm:px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-tronix-primary text-base sm:text-sm"
                                     />
                                 </div>
                                 <div>
@@ -1507,7 +1607,7 @@ const UserDashboard = () => {
                                         value={addressForm.state}
                                         onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
                                         placeholder="Maharashtra"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-tronix-primary text-sm"
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 sm:px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-tronix-primary text-base sm:text-sm"
                                     />
                                 </div>
                             </div>
@@ -1521,7 +1621,7 @@ const UserDashboard = () => {
                                     value={addressForm.address_line}
                                     onChange={(e) => setAddressForm({ ...addressForm, address_line: e.target.value })}
                                     placeholder="e.g. Flat 402, Surya Heights, Near Tech Park, Wakad"
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-tronix-primary text-sm resize-none"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 sm:px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-tronix-primary text-base sm:text-sm resize-none"
                                 />
                             </div>
 
@@ -1533,7 +1633,7 @@ const UserDashboard = () => {
                                     value={addressForm.landmark}
                                     onChange={(e) => setAddressForm({ ...addressForm, landmark: e.target.value })}
                                     placeholder="e.g. Opposite Metro Pillar 144"
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-tronix-primary text-sm"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 sm:px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-tronix-primary text-base sm:text-sm"
                                 />
                             </div>
 

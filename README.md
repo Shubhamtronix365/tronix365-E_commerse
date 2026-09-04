@@ -29,7 +29,11 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
 - **Saved Address Book & 1-Click Fast Checkout**: Complete multi-address book for registered customers (Home, Office, Factory, Warehouse, Other) with default address flags, automatic PIN code postal lookup (India Post API), and B2B GSTIN tax invoicing support.
   - **User Dashboard Address Book**: Add, edit, delete, and switch default shipping destinations with an intuitive dark bento UI.
   - **1-Click Checkout Autofill**: Automatic pre-selection of primary default address during checkout, interactive address cards, and seamless "+ Save this address" checkbox for new locations.
-  - **Tower Orders Integration**: Quick 1-click address selector chips directly on the B2B procurement dialog.
+- **Mobile-First Responsiveness & Ergonomics**: Fully optimized touch experience across all screen sizes (360px phones up to 4K displays).
+  - **Quick-Access Mobile Navbar**: Dedicated search and cart triggers directly in the top header with live animated item count badges.
+  - **Mobile Dashboard Navigation**: App-style horizontal scrolling tabs and touch carousels for order status filters, removing ~400px of vertical scrolling.
+  - **1-Click Mobile Sticky Bottom Bar**: Fixed sticky checkout bar on mobile viewports displaying total payable and instant "Pay Now" CTA button.
+  - **Native Mobile Keypad & iOS Zoom Prevention**: Input font sizing (`text-base sm:text-sm`) prevents Safari displacement; PIN and phone fields launch native numeric keypads (`inputMode="numeric"`).
 - **Rate Limiting & Caching**: Security features with Slowapi rate limiters and Redis/InMemory backend caching.
 
 ---

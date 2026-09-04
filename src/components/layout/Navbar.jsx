@@ -98,9 +98,32 @@ const Navbar = () => {
                             )}
                         </div>
 
-                        {/* Mobile Menu Button */}
-                        <div className="md:hidden">
-                            <button onClick={() => setIsOpen(!isOpen)} className="text-gray-300">
+                        {/* Mobile Header Actions */}
+                        <div className="flex md:hidden items-center gap-2 sm:gap-3">
+                            <button 
+                                onClick={() => setIsSearchOpen(true)} 
+                                className="p-2 text-gray-300 hover:text-white transition-colors"
+                                aria-label="Search products"
+                            >
+                                <Search size={20} />
+                            </button>
+                            <Link 
+                                to="/cart" 
+                                className="relative p-2 text-gray-300 hover:text-white transition-colors"
+                                aria-label="Shopping Cart"
+                            >
+                                <ShoppingCart size={20} />
+                                {cartCount > 0 && (
+                                    <span className="absolute top-0.5 right-0.5 bg-tronix-primary text-[10px] w-4 h-4 rounded-full flex items-center justify-center text-white font-bold animate-pulse">
+                                        {cartCount}
+                                    </span>
+                                )}
+                            </Link>
+                            <button 
+                                onClick={() => setIsOpen(!isOpen)} 
+                                className="p-2 text-gray-300 hover:text-white transition-colors"
+                                aria-label="Toggle navigation menu"
+                            >
                                 {isOpen ? <X size={24} /> : <Menu size={24} />}
                             </button>
                         </div>
