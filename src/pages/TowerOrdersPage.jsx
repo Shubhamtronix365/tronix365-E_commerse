@@ -118,15 +118,15 @@ const TowerOrdersPage = () => {
     ];
 
     return (
-        <div className="min-h-screen pt-24 pb-16 px-4 sm:px-6 lg:px-8 text-tronix-text">
+        <div className="min-h-screen pt-20 sm:pt-24 pb-16 px-3 sm:px-6 lg:px-8 text-tronix-text">
             <SEO
                 title="Tower Order & On-Demand Sourcing | Tronix365"
                 description="Place Tower Orders for high-volume, custom, or made-to-order industrial electronics. Directly connected with manufacturing plants."
             />
 
-            <div className="max-w-7xl mx-auto space-y-16">
+            <div className="max-w-7xl mx-auto space-y-12 sm:space-y-16">
                 {/* Hero Header */}
-                <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-violet-950/40 via-purple-900/20 to-[#0c0c1e] border border-violet-500/20 p-8 sm:p-14 text-center">
+                <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-br from-violet-950/40 via-purple-900/20 to-[#0c0c1e] border border-violet-500/20 p-6 sm:p-14 text-center">
                     <div className="absolute -top-24 -left-24 w-96 h-96 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
                     <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-fuchsia-600/10 rounded-full blur-3xl pointer-events-none" />
 

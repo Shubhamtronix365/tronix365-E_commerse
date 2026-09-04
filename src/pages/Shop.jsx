@@ -228,7 +228,7 @@ const Shop = () => {
     const activeSeo = categorySeoData[categoryKey] || categorySeoData['all'];
 
     return (
-        <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-[#070919]">
+        <div className="min-h-screen pt-20 sm:pt-24 pb-12 px-3 sm:px-6 lg:px-8 relative overflow-hidden bg-[#070919]">
             {/* High-Tech Background Image & Ambient Overlay */}
             <div className="absolute inset-0 pointer-events-none z-0">
                 <img 
@@ -262,20 +262,26 @@ const Shop = () => {
             )}
             <div className="max-w-7xl mx-auto relative z-10">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
                     <div>
-                        <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-2">
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-white mb-1.5">
                             {new URLSearchParams(window.location.search).get('search') ? `Search Results: "${new URLSearchParams(window.location.search).get('search')}"` : 'Shop Components'}
                         </h1>
-                        <p className="text-gray-400">Browse our collection of premium electronics.</p>
+                        <p className="text-xs sm:text-sm text-gray-400">Browse our collection of premium electronics.</p>
                     </div>
 
-                    <button
-                        onClick={() => setIsMobileFilterOpen(true)}
-                        className="md:hidden flex items-center gap-2 bg-tronix-card border border-white/10 px-4 py-2 rounded-lg text-white font-medium hover:bg-white/5 transition-colors"
-                    >
-                        <Filter size={18} /> Filters
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => setIsMobileFilterOpen(true)}
+                            className="lg:hidden flex items-center justify-center gap-2 bg-tronix-card/80 border border-white/10 px-4 py-2.5 rounded-xl text-white font-medium hover:bg-white/10 transition-colors shadow-lg active:scale-95 text-sm"
+                        >
+                            <Filter size={16} className="text-tronix-primary" />
+                            <span>Filters</span>
+                            {(selectedCategory !== 'All' || priceRange < 10000 || sortBy || showInStockOnly) && (
+                                <span className="w-2 h-2 rounded-full bg-tronix-primary animate-pulse" />
+                            )}
+                        </button>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -377,7 +383,7 @@ const Shop = () => {
                                 animate={{ x: 0 }}
                                 exit={{ x: '100%' }}
                                 transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                                className="fixed inset-y-0 right-0 w-80 bg-tronix-bg border-l border-white/10 z-50 lg:hidden p-6 overflow-y-auto"
+                                className="fixed inset-y-0 right-0 w-[88vw] sm:w-80 max-w-sm bg-tronix-bg border-l border-white/10 z-50 lg:hidden p-5 sm:p-6 overflow-y-auto"
                             >
                                 <div className="flex items-center justify-between mb-8">
                                     <h3 className="font-display font-bold text-xl text-white">Filters</h3>

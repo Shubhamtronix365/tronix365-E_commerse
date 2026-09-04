@@ -100,11 +100,11 @@ const Cart = () => {
     const allSelected = cartItems.length > 0 && cartItems.every(item => item.selected !== false);
 
     return (
-        <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen pt-20 sm:pt-24 pb-32 lg:pb-12 px-3 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
-                <h1 className="text-3xl font-display font-bold text-white mb-8">Shopping Cart</h1>
+                <h1 className="text-2xl sm:text-3xl font-display font-bold text-white mb-6 sm:mb-8">Shopping Cart</h1>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
                     {/* Cart Items List */}
                     <div className="lg:col-span-2 space-y-4">
                         {/* Select All Header */}
@@ -138,28 +138,30 @@ const Cart = () => {
                                     <img src={getImageUrl(item.image)} alt={item.title} className={`max-w-full max-h-full object-contain ${item.selected === false ? 'opacity-50 grayscale' : ''}`} />
                                 </div>
 
-                                <div className="flex flex-col sm:flex-row flex-1 min-w-0 sm:items-center gap-4">
+                                <div className="flex flex-col sm:flex-row flex-1 min-w-0 sm:items-center gap-3 sm:gap-4">
                                     <div className="flex-1 min-w-0">
-                                        <h3 className={`font-medium truncate ${item.selected === false ? 'text-gray-500' : 'text-white'}`}>{item.title}</h3>
-                                        <div className="flex items-center gap-2">
-                                            <p className="text-sm text-gray-400">{item.category}</p>
+                                        <h3 className={`font-medium text-sm sm:text-base line-clamp-2 sm:truncate ${item.selected === false ? 'text-gray-500' : 'text-white'}`}>{item.title}</h3>
+                                        <div className="flex items-center gap-2 mt-0.5">
+                                            <p className="text-xs sm:text-sm text-gray-400">{item.category}</p>
                                         </div>
-                                        <div className={`mt-2 font-bold ${item.selected === false ? 'text-gray-600' : 'text-tronix-accent'}`}>₹{item.price}</div>
+                                        <div className={`mt-1 sm:mt-2 text-base sm:text-lg font-bold ${item.selected === false ? 'text-gray-600' : 'text-tronix-accent'}`}>₹{item.price}</div>
                                     </div>
 
-                                    <div className="flex items-center justify-between sm:justify-end gap-6">
-                                        <div className="flex items-center gap-2">
+                                    <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
+                                        <div className="flex items-center gap-2 bg-white/[0.03] sm:bg-transparent rounded-lg p-1 sm:p-0">
                                             <button
                                                 onClick={() => updateQuantity(item.cart_item_id || item.id, item.quantity - 1)}
-                                                className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                                                className="w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors active:scale-95"
+                                                aria-label="Decrease quantity"
                                             >
                                                 <Minus size={14} />
                                             </button>
-                                            <span className="w-8 text-center text-white font-medium">{item.quantity}</span>
+                                            <span className="w-8 text-center text-white font-medium text-sm sm:text-base">{item.quantity}</span>
                                             <button
                                                 onClick={() => updateQuantity(item.cart_item_id || item.id, item.quantity + 1)}
                                                 disabled={item.quantity >= item.stock}
-                                                className={`w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-colors ${item.quantity >= item.stock ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}
+                                                className={`w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-white/5 flex items-center justify-center transition-colors active:scale-95 ${item.quantity >= item.stock ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}
+                                                aria-label="Increase quantity"
                                             >
                                                 <Plus size={14} />
                                             </button>
@@ -167,7 +169,8 @@ const Cart = () => {
 
                                         <button
                                             onClick={() => removeFromCart(item.cart_item_id || item.id)}
-                                            className="p-2 text-gray-500 hover:text-red-500 transition-colors"
+                                            className="p-2 text-gray-500 hover:text-red-500 transition-colors active:scale-95"
+                                            aria-label="Remove item"
                                         >
                                             <Trash2 size={18} />
                                         </button>
@@ -228,17 +231,19 @@ const Cart = () => {
 
                                         <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-2">
                                             <div className="flex items-center gap-4">
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex items-center gap-2 bg-white/[0.03] sm:bg-transparent rounded-lg p-1 sm:p-0">
                                                     <button
                                                         onClick={() => updateBundleQuantity(group.id, group.quantity - 1)}
-                                                        className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                                                        className="w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors active:scale-95"
+                                                        aria-label="Decrease bundle quantity"
                                                     >
                                                         <Minus size={14} />
                                                     </button>
-                                                    <span className="w-8 text-center text-white font-medium">{group.quantity}</span>
+                                                    <span className="w-8 text-center text-white font-medium text-sm sm:text-base">{group.quantity}</span>
                                                     <button
                                                         onClick={() => updateBundleQuantity(group.id, group.quantity + 1)}
-                                                        className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-colors text-gray-400 hover:text-white hover:bg-white/10"
+                                                        className="w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-white/5 flex items-center justify-center transition-colors active:scale-95 text-gray-400 hover:text-white hover:bg-white/10"
+                                                        aria-label="Increase bundle quantity"
                                                     >
                                                         <Plus size={14} />
                                                     </button>
@@ -384,6 +389,36 @@ const Cart = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Mobile Sticky Bottom Checkout Bar */}
+            {cartItems.length > 0 && (
+                <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0b0f19]/95 backdrop-blur-xl border-t border-white/10 px-4 py-3 shadow-2xl safe-area-bottom">
+                    <div className="max-w-md mx-auto flex items-center justify-between gap-4">
+                        <div className="min-w-0">
+                            <span className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold block">
+                                {selectedCount} {selectedCount === 1 ? 'item' : 'items'} selected
+                            </span>
+                            <div className="text-lg font-black text-white leading-tight">
+                                ₹{cartTotal + Math.round(cartTotal * 0.18) + activeShipping.cost}
+                            </div>
+                            <span className="text-[10px] text-gray-500">Incl. GST & Shipping</span>
+                        </div>
+
+                        <button
+                            onClick={handleCheckout}
+                            disabled={selectedCount === 0}
+                            className={`flex-1 font-bold py-3.5 px-5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm shadow-lg active:scale-95 ${
+                                selectedCount === 0
+                                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                                    : 'bg-tronix-primary text-white hover:bg-violet-600 shadow-violet-500/25'
+                            }`}
+                        >
+                            <span>Checkout</span>
+                            <ArrowRight size={16} />
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

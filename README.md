@@ -32,7 +32,11 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
 - **Mobile-First Responsiveness & Ergonomics**: Fully optimized touch experience across all screen sizes (360px phones up to 4K displays).
   - **Quick-Access Mobile Navbar**: Dedicated search and cart triggers directly in the top header with live animated item count badges.
   - **Mobile Dashboard Navigation**: App-style horizontal scrolling tabs and touch carousels for order status filters, removing ~400px of vertical scrolling.
-  - **1-Click Mobile Sticky Bottom Bar**: Fixed sticky checkout bar on mobile viewports displaying total payable and instant "Pay Now" CTA button.
+  - **Mobile Sticky Action Bars**:
+    - **Checkout & Cart**: Fixed sticky bottom bar displaying real-time grand total, tax/shipping indicators, item counts, and 1-tap checkout CTA.
+    - **Product Details**: Persistent bottom action bar displaying item price, stock status, and prominent "Buy Now" / "Add to Cart" / "Tower Order" CTAs.
+  - **Mobile Filter Drawer**: Responsive slide-over filter drawer with active filter pulse indicator on Shop page, keeping product feeds uncluttered on narrow displays.
+  - **Touch-Optimized Quantity Steppers & Ergonomic Buttons**: Generously sized circular quantity buttons (`w-9 h-9 sm:w-8 sm:h-8`) with micro-spring tap feedback (`active:scale-95`).
   - **Native Mobile Keypad & iOS Zoom Prevention**: Input font sizing (`text-base sm:text-sm`) prevents Safari displacement; PIN and phone fields launch native numeric keypads (`inputMode="numeric"`).
 - **Rate Limiting & Caching**: Security features with Slowapi rate limiters and Redis/InMemory backend caching.
 

@@ -150,7 +150,7 @@ const ProductDetails = () => {
     const realProductImage = isPlaceholderImage(product.image) ? null : getImageUrl(product.image);
 
     return (
-        <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen pt-20 sm:pt-24 pb-28 lg:pb-12 px-3 sm:px-6 lg:px-8">
             <SEO
                 title={`${product.title} | Buy Online`}
                 description={product.description}
@@ -743,6 +743,71 @@ const ProductDetails = () => {
 
                 {/* Recommendations Section */}
                 <RelatedProducts productId={product.id} category={product.category} />
+            </div>
+
+            {/* Mobile Sticky Action Bar */}
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0b0f19]/95 backdrop-blur-xl border-t border-white/10 px-4 py-3 shadow-2xl safe-area-bottom">
+                <div className="max-w-md mx-auto flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                        <span className="text-[10px] uppercase font-bold text-gray-400 block tracking-wider">Price</span>
+                        <div className="text-xl font-black text-white leading-tight">₹{product.price}</div>
+                        {product.stock > 0 && !product.tower_order_only ? (
+                            <span className="text-[10px] text-emerald-400 font-medium">In Stock</span>
+                        ) : product.tower_order_only ? (
+                            <span className="text-[10px] text-amber-400 font-medium">Tower Order</span>
+                        ) : (
+                            <span className="text-[10px] text-red-400 font-medium">Out of Stock</span>
+                        )}
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-1 justify-end">
+                        {product.tower_order_only ? (
+                            <button
+                                onClick={() => {
+                                    setRequestedTowerQty(quantity);
+                                    setIsTowerModalOpen(true);
+                                }}
+                                className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold py-3 px-4 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/20 active:scale-95"
+                            >
+                                <Factory size={16} />
+                                <span>Tower Order</span>
+                            </button>
+                        ) : (
+                            <>
+                                <button
+                                    onClick={handleAddToCart}
+                                    disabled={product.stock === 0}
+                                    className={`py-3 px-3.5 rounded-xl border border-white/10 font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-colors active:scale-95 ${
+                                        product.stock > 0
+                                            ? 'bg-white/10 text-white hover:bg-white/15'
+                                            : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                                    }`}
+                                    aria-label="Add to cart"
+                                >
+                                    <ShoppingCart size={16} />
+                                    <span className="hidden xs:inline">Add</span>
+                                </button>
+
+                                <button
+                                    onClick={() => {
+                                        const success = addToCart(product, quantity);
+                                        if (success) {
+                                            navigate('/cart');
+                                        }
+                                    }}
+                                    disabled={product.stock === 0}
+                                    className={`flex-1 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-lg active:scale-95 ${
+                                        product.stock > 0
+                                            ? 'bg-tronix-primary text-white hover:bg-violet-600 shadow-violet-500/25'
+                                            : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                                    }`}
+                                >
+                                    <span>{product.stock > 0 ? 'Buy Now' : 'Out of Stock'}</span>
+                                </button>
+                            </>
+                        )}
+                    </div>
+                </div>
             </div>
 
             {/* Share Modal */}
