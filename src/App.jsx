@@ -95,13 +95,16 @@ function App() {
 
 const AppContent = () => {
   const location = useLocation();
-  // Maintenance Modal disabled by default - can be re-enabled on request
-  const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
+  // Maintenance Notice Modal - re-enabled
+  const [showMaintenanceModal, setShowMaintenanceModal] = useState(true);
 
   useEffect(() => {
     if (!showMaintenanceModal) {
-      // Periodic maintenance modal trigger disabled
-      return;
+      // Re-trigger maintenance modal periodically (e.g. after 25s) if user dismisses it
+      const timer = setTimeout(() => {
+        setShowMaintenanceModal(true);
+      }, 25000);
+      return () => clearTimeout(timer);
     }
   }, [showMaintenanceModal]);
 
@@ -110,12 +113,11 @@ const AppContent = () => {
   return (
     <>
       <ScrollToTop />
-      {/* Maintenance Notice Modal disabled: uncomment below to enable when needed
+      {/* Maintenance Notice Modal */}
       <MaintenanceModal 
         isOpen={showMaintenanceModal} 
         onClose={() => setShowMaintenanceModal(false)} 
       />
-      */}
       <div className="min-h-screen bg-tronix-bg text-tronix-text font-sans selection:bg-tronix-primary selection:text-white flex flex-col">
         {!isExcludedPage && <Navbar />}
         <main className="flex-grow overflow-hidden">
