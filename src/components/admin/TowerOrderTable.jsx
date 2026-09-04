@@ -118,6 +118,35 @@ const TowerOrderTable = ({ onSelectOrder }) => {
         fetchTowerOrders();
     }, [statusFilter]);
 
+    // Real-time synchronization for Admin Table
+    useEffect(() => {
+        let channel = null;
+        try {
+            if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+                channel = new BroadcastChannel('tronix_tower_orders_channel');
+                channel.onmessage = (event) => {
+                    if (event.data?.type === 'ORDER_STATUS_CHANGED' || event.data?.type === 'ORDER_UPDATED') {
+                        fetchTowerOrders();
+                    }
+                };
+            }
+        } catch (e) {
+            // ignore
+        }
+
+        const handleStorage = (e) => {
+            if (e.key === 'tronix_tower_order_update_trigger') {
+                fetchTowerOrders();
+            }
+        };
+        window.addEventListener('storage', handleStorage);
+
+        return () => {
+            if (channel) channel.close();
+            window.removeEventListener('storage', handleStorage);
+        };
+    }, []);
+
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         fetchTowerOrders();
