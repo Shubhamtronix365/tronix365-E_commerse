@@ -17,7 +17,8 @@ import {
     ShieldCheck, 
     DollarSign, 
     AlertCircle,
-    Split
+    Split,
+    Check
 } from 'lucide-react';
 import client from '../../api/client';
 import toast from 'react-hot-toast';
@@ -62,12 +63,42 @@ const TowerOrderModal = ({
     const [submittedOrder, setSubmittedOrder] = useState(null);
 
     // Auto-fill user information if available
+    const [savedAddresses, setSavedAddresses] = useState([]);
+    const [selectedAddressId, setSelectedAddressId] = useState(null);
+
     useEffect(() => {
         if (user) {
             setCustomerName(user.full_name || '');
             setCustomerEmail(user.email || '');
+            
+            // Fetch saved addresses if logged in
+            const fetchAddresses = async () => {
+                try {
+                    const res = await client.get('/addresses');
+                    const addrs = res.data || [];
+                    setSavedAddresses(addrs);
+                } catch (err) {
+                    console.error("Failed to load saved addresses for tower order:", err);
+                }
+            };
+            fetchAddresses();
         }
-    }, [user]);
+    }, [user, isOpen]);
+
+    const handleApplyTowerAddress = (addr) => {
+        setSelectedAddressId(addr.id);
+        setDeliveryAddress(addr.address_line || '');
+        setDeliveryCity(addr.city || '');
+        setDeliveryState(addr.state || '');
+        setDeliveryPincode(addr.pincode || '');
+        if (addr.phone && !customerPhone) setCustomerPhone(addr.phone);
+        if (addr.full_name && !customerName) setCustomerName(addr.full_name);
+        if (addr.is_gst_invoice) {
+            if (addr.company_name) setCompanyName(addr.company_name);
+            if (addr.gstin) setGstin(addr.gstin);
+        }
+        toast.success(`Applied: ${addr.label || 'Saved Address'}`);
+    };
 
     useEffect(() => {
         if (product) {
@@ -516,9 +547,40 @@ const TowerOrderModal = ({
 
                             {/* Delivery Location & Timeline */}
                             <div className="space-y-3">
-                                <h4 className="text-xs font-bold text-violet-400 uppercase tracking-wider flex items-center gap-1.5">
-                                    <MapPin size={14} /> Delivery Destination & Target Timeline
-                                </h4>
+                                <div className="flex items-center justify-between">
+                                    <h4 className="text-xs font-bold text-violet-400 uppercase tracking-wider flex items-center gap-1.5">
+                                        <MapPin size={14} /> Delivery Destination & Target Timeline
+                                    </h4>
+                                    {savedAddresses.length > 0 && (
+                                        <span className="text-[10px] text-gray-400">1-click auto-fill available</span>
+                                    )}
+                                </div>
+
+                                {savedAddresses.length > 0 && (
+                                    <div className="flex flex-wrap items-center gap-1.5 p-2 rounded-xl bg-white/[0.02] border border-white/10">
+                                        <span className="text-[10px] text-gray-400 flex items-center gap-1 mr-1">
+                                            Saved:
+                                        </span>
+                                        {savedAddresses.map((addr) => {
+                                            const isSelected = selectedAddressId === addr.id;
+                                            return (
+                                                <button
+                                                    type="button"
+                                                    key={addr.id}
+                                                    onClick={() => handleApplyTowerAddress(addr)}
+                                                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 border ${
+                                                        isSelected
+                                                            ? 'bg-violet-600 text-white border-violet-400 shadow-md'
+                                                            : 'bg-white/5 text-gray-300 border-white/10 hover:bg-white/10 hover:text-white'
+                                                    }`}
+                                                >
+                                                    <span>{addr.label || 'Address'}: {addr.city} ({addr.pincode})</span>
+                                                    {isSelected && <Check size={12} className="stroke-[2.5]" />}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                                     <div className="sm:col-span-2">
                                         <label className="block text-[11px] text-gray-400 mb-1">Delivery Address</label>

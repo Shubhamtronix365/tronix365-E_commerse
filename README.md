@@ -26,7 +26,10 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
     6. *Consignment shipment & live logistics tracker* — (Factory Lead Time + Shipping Transit Time tracked on customer portal with dispatch tracking email).
   - **Zero-Delay Real-Time Status Synchronization**: Instantaneous UI updates on the customer dashboard upon admin status changes via `BroadcastChannel`, `localStorage` cross-tab events, window focus listener, and smart background polling with visual milestone card pulse animations.
 - **Google Customer Reviews Opt-In Integration**: Official Google Merchant Center post-checkout survey integration (Merchant ID: `5820417048`) on the order confirmation screen.
-- **Google Customer Reviews Badge**: Official Google Merchant Center seller rating badge floating widget (`merchantwidget.js`) displayed site-wide.
+- **Saved Address Book & 1-Click Fast Checkout**: Complete multi-address book for registered customers (Home, Office, Factory, Warehouse, Other) with default address flags, automatic PIN code postal lookup (India Post API), and B2B GSTIN tax invoicing support.
+  - **User Dashboard Address Book**: Add, edit, delete, and switch default shipping destinations with an intuitive dark bento UI.
+  - **1-Click Checkout Autofill**: Automatic pre-selection of primary default address during checkout, interactive address cards, and seamless "+ Save this address" checkbox for new locations.
+  - **Tower Orders Integration**: Quick 1-click address selector chips directly on the B2B procurement dialog.
 - **Rate Limiting & Caching**: Security features with Slowapi rate limiters and Redis/InMemory backend caching.
 
 ---
@@ -321,6 +324,12 @@ FastAPI generates interactive documentation at [http://127.0.0.1:8000/docs](http
   - `PUT /admin/tower-orders/{order_id}/quotation` - Step 3: Issue official P.I. number, quoted unit price, total, and lead days
   - `PUT /admin/tower-orders/{order_id}/verify-payment` - Step 5: Mark funds verified, transition to `in_production`, auto-calculate dispatch and delivery dates
   - `PUT /admin/tower-orders/{order_id}/shipment` - Step 6: Dispatch goods with courier name, tracking number, and live tracking URL
+- **Saved Addresses & Address Book**:
+  - `GET /addresses` - Fetch authenticated user's address book ordered with default address first
+  - `POST /addresses` - Save a new delivery location (handles automatic default prioritization and GSTIN details)
+  - `PUT /addresses/{id}` - Modify existing address attributes
+  - `DELETE /addresses/{id}` - Delete address (automatically designates next newest address as default if deleted was default)
+  - `PUT /addresses/{id}/set-default` - Set selected address as user's primary delivery address
 
 ---
 

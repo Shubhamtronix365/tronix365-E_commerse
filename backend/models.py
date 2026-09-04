@@ -73,6 +73,9 @@ class UserDB(Base):
     cart_items = relationship(
         "CartItemDB", back_populates="user", cascade="all, delete-orphan"
     )
+    addresses = relationship(
+        "AddressDB", back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class OrderItemDB(Base):
@@ -895,3 +898,72 @@ class TowerOrderResponse(BaseModel):
         from_attributes = True
 
 
+# =====================================================================
+# SAVED ADDRESSES (ADDRESS BOOK)
+# =====================================================================
+
+class AddressDB(Base):
+    __tablename__ = "addresses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+    label = Column(String, default="Home")  # Home, Office, Factory, Warehouse, Other
+    full_name = Column(String, nullable=False)
+    phone = Column(String, nullable=False)
+    address_line = Column(String, nullable=False)
+    landmark = Column(String, nullable=True)
+    city = Column(String, nullable=False)
+    state = Column(String, nullable=False)
+    pincode = Column(String, nullable=False)
+    is_default = Column(Boolean, default=False)
+    is_gst_invoice = Column(Boolean, default=False)
+    company_name = Column(String, nullable=True)
+    gstin = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    user = relationship("UserDB", back_populates="addresses")
+
+
+class AddressBase(BaseModel):
+    label: Optional[str] = "Home"
+    full_name: str
+    phone: str
+    address_line: str
+    landmark: Optional[str] = None
+    city: str
+    state: str
+    pincode: str
+    is_default: Optional[bool] = False
+    is_gst_invoice: Optional[bool] = False
+    company_name: Optional[str] = None
+    gstin: Optional[str] = None
+
+
+class AddressCreate(AddressBase):
+    pass
+
+
+class AddressUpdate(BaseModel):
+    label: Optional[str] = None
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    address_line: Optional[str] = None
+    landmark: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    pincode: Optional[str] = None
+    is_default: Optional[bool] = None
+    is_gst_invoice: Optional[bool] = None
+    company_name: Optional[str] = None
+    gstin: Optional[str] = None
+
+
+class AddressResponse(AddressBase):
+    id: int
+    user_id: int
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
