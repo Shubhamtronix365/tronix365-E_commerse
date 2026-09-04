@@ -24,7 +24,7 @@ export const MaintenanceTicker = ({ activePreset = "MAINTENANCE", customText = n
 
         {/* Rolling News Ticker Marquee */}
         <div className="flex-1 overflow-hidden relative">
-          <div className="whitespace-nowrap flex w-max animate-marquee">
+          <div className="whitespace-nowrap flex w-max animate-marquee-slow">
             <div className="flex items-center gap-12 pr-12 text-xs sm:text-sm font-semibold tracking-wide">
               <span>{tickerText}</span>
               <span className="text-black/60 font-black">•</span>

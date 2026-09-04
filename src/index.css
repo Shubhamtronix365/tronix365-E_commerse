@@ -51,9 +51,15 @@
 
 .animate-marquee {
   display: inline-flex;
-  animation: marquee 30s linear infinite;
+  animation: marquee 60s linear infinite;
 }
 
-.animate-marquee:hover {
+.animate-marquee-slow {
+  display: inline-flex;
+  animation: marquee 75s linear infinite;
+}
+
+.animate-marquee:hover,
+.animate-marquee-slow:hover {
   animation-play-state: paused;
 }
