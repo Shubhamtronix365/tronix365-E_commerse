@@ -18,12 +18,13 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
 - **Tower Orders & On-Demand Factory Sourcing (B2B Procurement)**: Specialized manufacturing workflow for backorders, bulk indent orders, and non-inventory parts arranged directly through factory contacts with split-fulfillment capabilities.
   - **Split Fulfillment Architecture**: Immediate warehouse shipping for in-stock quantities + backorder factory indent for remaining quantities.
   - **6-Step Transparent Sourcing Workflow**:
-    1. *Customer places Tower Order* (Customer details, Qty, Target Price) — Website.
-    2. *Sales engineering team review & contact* — Internal operations.
-    3. *Proforma Invoice (P.I.) / Official Quotation dispatch* — Internal operations.
+    1. *Customer places Tower Order* (Customer details, Qty, Target Price) — Website & automated dual-email notification.
+    2. *Sales engineering team review & contact* — Internal operations review.
+    3. *Proforma Invoice (P.I.) / Official Quotation dispatch* — Official quote generated with automated email notification.
     4. *Customer bank transfer* (NEFT / RTGS / IMPS reference entry).
-    5. *Payment verification & factory production initiation* — Auto-calculates dispatch and delivery windows.
-    6. *Consignment shipment & live logistics tracker* — (Factory Lead Time + Shipping Transit Time tracked on customer portal).
+    5. *Payment verification & factory production initiation* — Auto-calculates dispatch and delivery windows with payment confirmation email.
+    6. *Consignment shipment & live logistics tracker* — (Factory Lead Time + Shipping Transit Time tracked on customer portal with dispatch tracking email).
+  - **Zero-Delay Real-Time Status Synchronization**: Instantaneous UI updates on the customer dashboard upon admin status changes via `BroadcastChannel`, `localStorage` cross-tab events, window focus listener, and smart background polling with visual milestone card pulse animations.
 - **Google Customer Reviews Opt-In Integration**: Official Google Merchant Center post-checkout survey integration (Merchant ID: `5820417048`) on the order confirmation screen.
 - **Google Customer Reviews Badge**: Official Google Merchant Center seller rating badge floating widget (`merchantwidget.js`) displayed site-wide.
 - **Rate Limiting & Caching**: Security features with Slowapi rate limiters and Redis/InMemory backend caching.
