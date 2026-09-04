@@ -67,7 +67,15 @@ from fastapi import UploadFile, File
 import shutil
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
-from email_utils import send_order_confirmation_email, send_otp_email, send_order_status_email
+from email_utils import (
+    send_order_confirmation_email,
+    send_otp_email,
+    send_order_status_email,
+    send_tower_order_inquiry_email,
+    send_tower_order_quotation_email,
+    send_tower_order_payment_verified_email,
+    send_tower_order_dispatched_email,
+)
 from auto_migrate import auto_migrate
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -1901,6 +1909,14 @@ async def create_tower_order(
     db.add(new_order)
     db.commit()
     db.refresh(new_order)
+
+    # Email notification (Customer + Admin shubham.tronix365@gmail.com)
+    try:
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+        send_tower_order_inquiry_email(new_order, frontend_url)
+    except Exception as e:
+        logger.error(f"Failed to dispatch tower order inquiry email: {e}")
+
     return new_order
 
 
@@ -2052,6 +2068,14 @@ async def update_tower_order_quotation(
 
     db.commit()
     db.refresh(order)
+
+    # Email notification (Quotation Ready)
+    try:
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+        send_tower_order_quotation_email(order, frontend_url)
+    except Exception as e:
+        logger.error(f"Failed to dispatch tower order quotation email: {e}")
+
     return order
 
 
@@ -2084,6 +2108,14 @@ async def verify_tower_order_payment(
 
     db.commit()
     db.refresh(order)
+
+    # Email notification (Payment Verified & In Production)
+    try:
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+        send_tower_order_payment_verified_email(order, frontend_url)
+    except Exception as e:
+        logger.error(f"Failed to dispatch tower order payment verified email: {e}")
+
     return order
 
 
@@ -2113,6 +2145,14 @@ async def update_tower_order_shipment(
 
     db.commit()
     db.refresh(order)
+
+    # Email notification (Dispatched with tracking)
+    try:
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+        send_tower_order_dispatched_email(order, frontend_url)
+    except Exception as e:
+        logger.error(f"Failed to dispatch tower order dispatched email: {e}")
+
     return order
 
 
