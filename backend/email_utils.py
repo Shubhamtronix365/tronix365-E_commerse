@@ -1166,3 +1166,320 @@ def send_abandoned_cart_email(to_email: str, user_name: str, cart_items: list, f
     html_content = generate_abandoned_cart_html(user_name, cart_items, frontend_url)
     return send_email_via_brevo(to_email, subject, html_content, sender_name="Tronix365 Support", status_trigger="abandoned_cart")
 
+
+# =====================================================================
+# TOWER ORDER (B2B FACTORY SOURCING) EMAIL NOTIFICATIONS
+# =====================================================================
+
+def generate_tower_order_email_base(
+    title: str,
+    subtitle: str,
+    status_badge: str,
+    order,
+    details_html: str,
+    action_button_text: Optional[str] = None,
+    action_button_url: Optional[str] = None,
+    frontend_url: str = "https://tronix365-e-commerse.onrender.com"
+) -> str:
+    logo_url = LOGO_PUBLIC_URL
+    tracking_link = f"{frontend_url}/tower-orders?ref={order.order_number}"
+    action_btn = ""
+    if action_button_text and action_button_url:
+        action_btn = f"""
+        <div style="text-align: center; margin: 30px 0 10px 0;">
+            <a href="{action_button_url}" style="background: #6d28d9; color: #ffffff; text-decoration: none; padding: 13px 30px; border-radius: 8px; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 4px 12px rgba(109,40,217,0.3);">
+                {action_button_text} &rarr;
+            </a>
+        </div>
+        """
+
+    return f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{title}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b; line-height: 1.6;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 640px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);">
+        <!-- Header -->
+        <tr>
+            <td style="padding: 24px 32px; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); text-align: left; border-bottom: 2px solid #6d28d9;">
+                <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td align="left">
+                            <span style="font-size: 22px; font-weight: 900; color: #ffffff; letter-spacing: 0.5px;">TRONIX<span style="color: #a78bfa;">365</span></span>
+                            <div style="font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px;">B2B Tower Orders & Factory Sourcing</div>
+                        </td>
+                        <td align="right">
+                            <span style="background: rgba(167, 139, 250, 0.2); border: 1px solid rgba(167, 139, 250, 0.4); color: #c4b5fd; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                {status_badge}
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- Main Body -->
+        <tr>
+            <td style="padding: 32px 32px 24px 32px;">
+                <h1 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0 0 8px 0;">{title}</h1>
+                <p style="font-size: 14px; color: #64748b; margin: 0 0 24px 0;">{subtitle}</p>
+
+                <!-- Order Reference Banner -->
+                <div style="background: #f1f5f9; border-left: 4px solid #6d28d9; padding: 14px 18px; border-radius: 0 8px 8px 0; margin-bottom: 24px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td>
+                                <div style="font-size: 12px; color: #64748b; font-weight: 600;">ORDER REFERENCE</div>
+                                <div style="font-size: 16px; font-weight: 800; color: #0f172a; font-family: monospace;">#{order.order_number}</div>
+                            </td>
+                            <td align="right">
+                                <div style="font-size: 12px; color: #64748b; font-weight: 600;">PRODUCT</div>
+                                <div style="font-size: 14px; font-weight: 700; color: #334155;">{order.product_name}</div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Custom Content Block -->
+                {details_html}
+
+                <!-- Action Button -->
+                {action_btn}
+
+                <!-- Self Service Tracking Link -->
+                <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 24px 0 0 0;">
+                    Track live workflow status at: <a href="{tracking_link}" style="color: #6d28d9; font-weight: 600;">{tracking_link}</a>
+                </p>
+            </td>
+        </tr>
+
+        <!-- Help Notice -->
+        <tr>
+            <td style="padding: 18px 32px; background: #f8fafc; border-top: 1px solid #e2e8f0; font-size: 13px; color: #475569;">
+                <strong>Questions or Special Specifications?</strong> Reply directly to this email or contact our enterprise sales desk at <a href="mailto:shubham.tronix365@gmail.com" style="color: #6d28d9; font-weight: 600;">shubham.tronix365@gmail.com</a>.
+            </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+            <td style="background: #0f172a; padding: 24px 32px; text-align: center; color: #94a3b8; font-size: 12px;">
+                <p style="margin: 0 0 6px 0; font-weight: 600; color: #cbd5e1;">Tronix365 Electronics — Direct Factory Sourcing & Supply Chain Partner</p>
+                <p style="margin: 0; color: #64748b;">© {datetime.utcnow().year} Tronix365. All rights reserved.</p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>"""
+
+
+def send_tower_order_inquiry_email(order, frontend_url: str = "http://localhost:5173") -> bool:
+    """Step 1 Notification: Dispatches when user places a tower order inquiry."""
+    details = f"""
+    <table width="100%" cellpadding="8" cellspacing="0" style="font-size: 14px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px;">
+        <tr style="background: #f8fafc;">
+            <td colspan="2" style="font-weight: 700; color: #0f172a; border-bottom: 1px solid #e2e8f0;">Quantity & Target Budget Breakdown</td>
+        </tr>
+        <tr>
+            <td style="color: #64748b; width: 45%;">Total Requested Quantity:</td>
+            <td style="font-weight: 700; color: #0f172a;">{order.requested_qty:,} units</td>
+        </tr>
+        <tr>
+            <td style="color: #64748b;">Immediate Available Dispatch:</td>
+            <td style="font-weight: 700; color: #16a34a;">{order.immediate_qty:,} units</td>
+        </tr>
+        <tr>
+            <td style="color: #64748b;">Factory Backorder Dispatch:</td>
+            <td style="font-weight: 700; color: #d97706;">{order.backorder_qty:,} units</td>
+        </tr>
+        <tr>
+            <td style="color: #64748b;">Target Unit Price:</td>
+            <td style="font-weight: 700; color: #0f172a;">₹{order.target_price:,.2f}</td>
+        </tr>
+        <tr>
+            <td style="color: #64748b;">Estimated Target Total:</td>
+            <td style="font-weight: 700; color: #6d28d9; font-size: 16px;">₹{order.target_total:,.2f}</td>
+        </tr>
+        {f'<tr><td style="color: #64748b;">Required By Date:</td><td style="font-weight: 600;">{order.required_by_date}</td></tr>' if order.required_by_date else ''}
+        {f'<tr><td style="color: #64748b;">Customer Remarks:</td><td style="color: #334155;">{order.customer_notes}</td></tr>' if order.customer_notes else ''}
+    </table>
+
+    <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 14px 18px; margin-top: 15px;">
+        <div style="font-weight: 700; color: #1e40af; font-size: 14px; margin-bottom: 4px;">Next Steps:</div>
+        <p style="font-size: 13px; color: #1e3a8a; margin: 0;">
+            1. Our dedicated sales engineer will review factory stock lines and contact you within 24 hours.<br>
+            2. You will receive a formalized Proforma Invoice (P.I.) and confirmed pricing quotation.
+        </p>
+    </div>
+    """
+    html = generate_tower_order_email_base(
+        title="Tower Order Inquiry Received",
+        subtitle=f"Thank you {order.customer_name}. We have registered your bulk factory sourcing request.",
+        status_badge="Inquiry Registered",
+        order=order,
+        details_html=details,
+        action_button_text="View Tower Order Status",
+        action_button_url=f"{frontend_url}/tower-orders?ref={order.order_number}",
+        frontend_url=frontend_url
+    )
+    subject = f"Tower Order Inquiry Received - #{order.order_number} ({order.product_name}) - Tronix365"
+    return send_email_via_brevo(
+        to_email=order.customer_email,
+        subject=subject,
+        html_content=html,
+        sender_name="Tronix365 Sales Desk",
+        status_trigger="tower_order_inquiry"
+    )
+
+
+def send_tower_order_quotation_email(order, frontend_url: str = "http://localhost:5173") -> bool:
+    """Step 3 Notification: Dispatches when sales team prepares and sends the P.I. / Quotation."""
+    pi_num = order.pi_number or f"PI-{order.order_number}"
+    details = f"""
+    <table width="100%" cellpadding="8" cellspacing="0" style="font-size: 14px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px;">
+        <tr style="background: #f8fafc;">
+            <td colspan="2" style="font-weight: 700; color: #0f172a; border-bottom: 1px solid #e2e8f0;">Quotation & Commercial Terms</td>
+        </tr>
+        <tr>
+            <td style="color: #64748b; width: 45%;">Proforma Invoice (P.I.) No:</td>
+            <td style="font-weight: 700; color: #0f172a; font-family: monospace;">{pi_num}</td>
+        </tr>
+        <tr>
+            <td style="color: #64748b;">Quoted Unit Price:</td>
+            <td style="font-weight: 700; color: #0f172a;">₹{order.quoted_unit_price:,.2f}</td>
+        </tr>
+        <tr>
+            <td style="color: #64748b;">Final Quoted Total:</td>
+            <td style="font-weight: 800; color: #16a34a; font-size: 16px;">₹{order.quoted_total_amount:,.2f}</td>
+        </tr>
+        <tr>
+            <td style="color: #64748b;">Production Lead Time:</td>
+            <td style="font-weight: 600; color: #334155;">{order.factory_lead_days or 14} working days</td>
+        </tr>
+        <tr>
+            <td style="color: #64748b;">Shipping Transit Time:</td>
+            <td style="font-weight: 600; color: #334155;">{order.shipping_lead_days or 5} business days</td>
+        </tr>
+        {f'<tr><td style="color: #64748b;">Quotation Notes:</td><td style="color: #334155;">{order.quotation_notes}</td></tr>' if order.quotation_notes else ''}
+    </table>
+
+    <div style="background: #fdf4ff; border: 1px solid #f0abfc; border-radius: 8px; padding: 14px 18px; margin-top: 15px;">
+        <div style="font-weight: 700; color: #86198f; font-size: 14px; margin-bottom: 4px;">To Confirm & Initiate Production:</div>
+        <p style="font-size: 13px; color: #701a75; margin: 0;">
+            Please review the Proforma Invoice and upload your advance payment receipt or UTR reference number on your Tower Order portal to lock factory production slots.
+        </p>
+    </div>
+    """
+    html = generate_tower_order_email_base(
+        title="Proforma Invoice & Quotation Ready",
+        subtitle=f"Great news {order.customer_name}! Your custom pricing and manufacturing lead time have been finalized.",
+        status_badge="P.I. Ready",
+        order=order,
+        details_html=details,
+        action_button_text="Review P.I. & Confirm Order",
+        action_button_url=f"{frontend_url}/tower-orders?ref={order.order_number}",
+        frontend_url=frontend_url
+    )
+    subject = f"P.I. & Quotation Ready - #{order.order_number} ({pi_num}) - Tronix365"
+    return send_email_via_brevo(
+        to_email=order.customer_email,
+        subject=subject,
+        html_content=html,
+        sender_name="Tronix365 Sales Desk",
+        status_trigger="tower_order_quotation"
+    )
+
+
+def send_tower_order_payment_verified_email(order, frontend_url: str = "http://localhost:5173") -> bool:
+    """Step 5 Notification: Dispatches when payment proof is verified by admin."""
+    details = f"""
+    <table width="100%" cellpadding="8" cellspacing="0" style="font-size: 14px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px;">
+        <tr style="background: #f8fafc;">
+            <td colspan="2" style="font-weight: 700; color: #0f172a; border-bottom: 1px solid #e2e8f0;">Payment Confirmation Details</td>
+        </tr>
+        <tr>
+            <td style="color: #64748b; width: 45%;">Payment Mode:</td>
+            <td style="font-weight: 700; color: #0f172a;">{order.payment_mode or 'Bank Transfer / RTGS / NEFT'}</td>
+        </tr>
+        <tr>
+            <td style="color: #64748b;">Payment Reference (UTR):</td>
+            <td style="font-weight: 700; color: #0f172a; font-family: monospace;">{order.payment_ref_utr or 'Verified'}</td>
+        </tr>
+        <tr>
+            <td style="color: #64748b;">Amount Verified:</td>
+            <td style="font-weight: 800; color: #16a34a; font-size: 16px;">₹{(order.payment_amount_received or order.quoted_total_amount or 0):,.2f}</td>
+        </tr>
+        {f'<tr><td style="color: #64748b;">Estimated Dispatch Date:</td><td style="font-weight: 700; color: #6d28d9;">{order.estimated_dispatch_date}</td></tr>' if order.estimated_dispatch_date else ''}
+    </table>
+
+    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px 18px; margin-top: 15px;">
+        <div style="font-weight: 700; color: #166534; font-size: 14px; margin-bottom: 4px;">Factory Production Sourcing Active:</div>
+        <p style="font-size: 13px; color: #14532d; margin: 0;">
+            Your payment has been successfully reconciled. The manufacturing assembly and quality validation cycle have been locked with our factory partner.
+        </p>
+    </div>
+    """
+    html = generate_tower_order_email_base(
+        title="Payment Verified & Production Sourcing Initiated",
+        subtitle=f"Payment for Tower Order #{order.order_number} has been verified successfully.",
+        status_badge="In Production",
+        order=order,
+        details_html=details,
+        action_button_text="View Production Timeline",
+        action_button_url=f"{frontend_url}/tower-orders?ref={order.order_number}",
+        frontend_url=frontend_url
+    )
+    subject = f"Payment Verified & Sourcing Initiated - #{order.order_number} - Tronix365"
+    return send_email_via_brevo(
+        to_email=order.customer_email,
+        subject=subject,
+        html_content=html,
+        sender_name="Tronix365 Accounts",
+        status_trigger="tower_order_payment_verified"
+    )
+
+
+def send_tower_order_dispatched_email(order, frontend_url: str = "http://localhost:5173") -> bool:
+    """Step 6 Notification: Dispatches when consignment tracking & courier are updated."""
+    details = f"""
+    <table width="100%" cellpadding="8" cellspacing="0" style="font-size: 14px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px;">
+        <tr style="background: #f8fafc;">
+            <td colspan="2" style="font-weight: 700; color: #0f172a; border-bottom: 1px solid #e2e8f0;">Consignment & Logistics Details</td>
+        </tr>
+        <tr>
+            <td style="color: #64748b; width: 45%;">Logistics Partner:</td>
+            <td style="font-weight: 700; color: #0f172a;">{order.courier_name or 'Surface Cargo / Express'}</td>
+        </tr>
+        <tr>
+            <td style="color: #64748b;">Waybill / AWB Number:</td>
+            <td style="font-weight: 700; color: #0f172a; font-family: monospace;">{order.tracking_number}</td>
+        </tr>
+        {f'<tr><td style="color: #64748b;">Estimated Delivery Date:</td><td style="font-weight: 700; color: #16a34a;">{order.estimated_delivery_date}</td></tr>' if order.estimated_delivery_date else ''}
+        <tr>
+            <td style="color: #64748b;">Destination Address:</td>
+            <td style="color: #334155;">{order.delivery_address}, {order.delivery_city}, {order.delivery_state} - {order.delivery_pincode}</td>
+        </tr>
+    </table>
+    """
+    track_btn_url = order.tracking_url or f"{frontend_url}/tower-orders?ref={order.order_number}"
+    html = generate_tower_order_email_base(
+        title="Tower Order Consignment Dispatched",
+        subtitle=f"Your tower shipment for #{order.order_number} has left our fulfillment facility.",
+        status_badge="Dispatched",
+        order=order,
+        details_html=details,
+        action_button_text="Track Courier Shipment",
+        action_button_url=track_btn_url,
+        frontend_url=frontend_url
+    )
+    subject = f"Tower Order Consignment Dispatched - #{order.order_number} ({order.courier_name}) - Tronix365"
+    return send_email_via_brevo(
+        to_email=order.customer_email,
+        subject=subject,
+        html_content=html,
+        sender_name="Tronix365 Logistics",
+        status_trigger="tower_order_dispatched"
+    )
+
