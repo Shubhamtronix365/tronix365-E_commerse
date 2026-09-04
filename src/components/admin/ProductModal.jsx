@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Edit, Plus, Info, Tag, Boxes, Package, List, DollarSign, Image as ImageIcon, Loader, Save } from 'lucide-react';
+import { X, Edit, Plus, Info, Tag, Boxes, Package, List, DollarSign, Image as ImageIcon, Loader, Save, Factory } from 'lucide-react';
 import { getImageUrl } from '../../utils/imageUtils';
+
 import { useCategories } from '../../hooks/useCategories';
 
 const ProductModal = ({
@@ -283,8 +284,70 @@ const ProductModal = ({
                                         </div>
                                     </div>
 
+                                    {/* Tower Order / Sourcing Settings */}
+                                    <div className="bg-white/5 border border-white/5 rounded-2xl p-5 space-y-4">
+                                        <h3 className="text-sm font-bold text-violet-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                            <Factory size={16} /> Tower Order / Sourcing
+                                        </h3>
+
+                                        <div className="space-y-3 text-xs">
+                                            <label className="flex items-start gap-2.5 text-white cursor-pointer select-none">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={newProduct.tower_order_only || false}
+                                                    onChange={(e) => setNewProduct({ ...newProduct, tower_order_only: e.target.checked })}
+                                                    className="w-4 h-4 mt-0.5 rounded bg-black/40 border-white/20 text-violet-600 focus:ring-0"
+                                                />
+                                                <div>
+                                                    <span className="font-semibold">Tower Order Only (On-Demand)</span>
+                                                    <p className="text-[11px] text-gray-400 mt-0.5 leading-snug">
+                                                        Not sold via immediate checkout. Only accepted via Tower Order inquiry with Target Price.
+                                                    </p>
+                                                </div>
+                                            </label>
+
+                                            <div className="grid grid-cols-2 gap-3 pt-2">
+                                                <div>
+                                                    <label className="block text-gray-300 text-[11px] mb-1 pl-1">Factory Lead (Days)</label>
+                                                    <input
+                                                        type="number"
+                                                        min="1"
+                                                        placeholder="7"
+                                                        value={newProduct.factory_lead_days ?? 7}
+                                                        onChange={(e) => setNewProduct({ ...newProduct, factory_lead_days: parseInt(e.target.value) || 7 })}
+                                                        className="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-violet-500"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-gray-300 text-[11px] mb-1 pl-1">Shipping Transit (Days)</label>
+                                                    <input
+                                                        type="number"
+                                                        min="1"
+                                                        placeholder="3"
+                                                        value={newProduct.shipping_lead_days ?? 3}
+                                                        onChange={(e) => setNewProduct({ ...newProduct, shipping_lead_days: parseInt(e.target.value) || 3 })}
+                                                        className="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-violet-500"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-gray-300 text-[11px] mb-1 pl-1">Min. Order Qty for Tower Order (MOQ)</label>
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    placeholder="1"
+                                                    value={newProduct.moq ?? 1}
+                                                    onChange={(e) => setNewProduct({ ...newProduct, moq: parseInt(e.target.value) || 1 })}
+                                                    className="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-violet-500"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div className="bg-white/5 border border-white/5 rounded-2xl p-5 space-y-4">
                                         <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+
                                             <ImageIcon size={16} /> Media
                                         </h3>
 

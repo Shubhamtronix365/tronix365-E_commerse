@@ -16,6 +16,8 @@ import CouponTable from '../components/admin/CouponTable';
 import BundleTable from '../components/admin/BundleTable';
 import ConfirmModal from '../components/admin/ConfirmModal';
 import CategoryTable from '../components/admin/CategoryTable';
+import TowerOrderTable from '../components/admin/TowerOrderTable';
+import TowerOrderAdminModal from '../components/admin/TowerOrderAdminModal';
 import { useCategories } from '../hooks/useCategories';
 
 const AdminDashboard = () => {
@@ -27,6 +29,7 @@ const AdminDashboard = () => {
     const [products, setProducts] = useState([]);
     const [orders, setOrders] = useState([]);
     const [selectedOrder, setSelectedOrder] = useState(null);
+    const [selectedTowerOrder, setSelectedTowerOrder] = useState(null);
 
     // Search & Filter State
     const [searchQuery, setSearchQuery] = useState('');
@@ -489,6 +492,13 @@ const AdminDashboard = () => {
                                 Orders
                             </button>
                             <button
+                                onClick={() => setActiveTab('tower_orders')}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${activeTab === 'tower_orders' ? 'bg-tronix-accent/20 text-tronix-accent border border-tronix-accent/40 font-semibold' : 'text-gray-400 hover:text-white'}`}
+                            >
+                                <span className="w-2 h-2 rounded-full bg-tronix-accent"></span>
+                                Tower Orders
+                            </button>
+                            <button
                                 onClick={() => setActiveTab('categories')}
                                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'categories' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
                             >
@@ -552,6 +562,12 @@ const AdminDashboard = () => {
                             />
                         )}
 
+                        {activeTab === 'tower_orders' && (
+                            <TowerOrderTable 
+                                onSelectOrder={(ord) => setSelectedTowerOrder(ord)} 
+                            />
+                        )}
+
                         {activeTab === 'categories' && (
                             <CategoryTable categories={categories} onRefresh={refetchCategories} />
                         )}
@@ -605,6 +621,17 @@ const AdminDashboard = () => {
                 onClose={() => setSelectedOrder(null)}
                 order={selectedOrder}
                 onUpdateOrderStatus={handleUpdateOrderStatus}
+            />
+
+            {/* Tower Order Admin Modal */}
+            <TowerOrderAdminModal 
+                isOpen={!!selectedTowerOrder}
+                onClose={() => setSelectedTowerOrder(null)}
+                order={selectedTowerOrder}
+                onOrderUpdated={() => {
+                    // Refreshes table on update
+                    setSelectedTowerOrder(null);
+                }}
             />
 
         </div >
