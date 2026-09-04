@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { 
@@ -46,6 +46,8 @@ const UserDashboard = () => {
     const [activePaymentOrderId, setActivePaymentOrderId] = useState(null);
     const [paymentForm, setPaymentForm] = useState({ mode: 'NEFT', utr: '', receiptUrl: '' });
     const [submittingPayment, setSubmittingPayment] = useState(false);
+    const [recentlyUpdatedOrderId, setRecentlyUpdatedOrderId] = useState(null);
+    const prevOrdersRef = useRef([]);
 
     // Profile Edit State
     const [isEditing, setIsEditing] = useState(false);
@@ -61,17 +63,97 @@ const UserDashboard = () => {
     const [loadingMore, setLoadingMore] = useState(false);
     const LIMIT = 5; // Smaller limit for user dashboard
 
-    const fetchTowerOrders = async () => {
+    const fetchTowerOrders = useCallback(async (silent = false) => {
         try {
-            setTowerLoading(true);
+            if (!silent) setTowerLoading(true);
             const res = await client.get('/tower-orders/user');
-            setTowerOrders(res.data || []);
+            const newOrders = res.data || [];
+
+            // Detect real-time status transitions
+            if (prevOrdersRef.current && prevOrdersRef.current.length > 0) {
+                newOrders.forEach(newO => {
+                    const oldO = prevOrdersRef.current.find(o => o.id === newO.id);
+                    if (oldO && oldO.status !== newO.status) {
+                        const statusLabels = {
+                            'requested': 'Inquiry Registered',
+                            'contacted': 'Sales Review Initiated',
+                            'quotation_sent': 'Quotation & P.I. Ready',
+                            'payment_pending': 'Awaiting Payment',
+                            'payment_received': 'Payment Received',
+                            'in_production': 'Production / Factory Sourcing Active',
+                            'shipped': 'Consignment Dispatched',
+                            'delivered': 'Delivered'
+                        };
+                        const statusName = statusLabels[newO.status] || newO.status.replace('_', ' ');
+
+                        toast.success(`Tower Order #${newO.order_number} status updated to: "${statusName}"!`, {
+                            icon: '🏭',
+                            duration: 6000,
+                        });
+                        setRecentlyUpdatedOrderId(newO.id);
+                        setTimeout(() => setRecentlyUpdatedOrderId(null), 8000);
+                    }
+                });
+            }
+
+            prevOrdersRef.current = newOrders;
+            setTowerOrders(newOrders);
         } catch (error) {
-            console.error("Failed to load tower orders:", error);
+            if (!silent) {
+                console.error("Failed to load tower orders:", error);
+            }
         } finally {
-            setTowerLoading(false);
+            if (!silent) setTowerLoading(false);
         }
-    };
+    }, []);
+
+    // Real-Time Tower Orders Synchronization (cross-tab broadcast, window focus, storage sync, and smart polling)
+    useEffect(() => {
+        let channel = null;
+        try {
+            if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+                channel = new BroadcastChannel('tronix_tower_orders_channel');
+                channel.onmessage = (event) => {
+                    if (event.data?.type === 'ORDER_STATUS_CHANGED' || event.data?.type === 'ORDER_UPDATED') {
+                        fetchTowerOrders(true);
+                    }
+                };
+            }
+        } catch (e) {
+            console.error('BroadcastChannel error:', e);
+        }
+
+        const handleStorageSync = (e) => {
+            if (e.key === 'tronix_tower_order_update_trigger') {
+                fetchTowerOrders(true);
+            }
+        };
+        window.addEventListener('storage', handleStorageSync);
+
+        const handleVisibilityFocus = () => {
+            if (document.visibilityState === 'visible') {
+                fetchTowerOrders(true);
+            }
+        };
+        window.addEventListener('focus', handleVisibilityFocus);
+        document.addEventListener('visibilitychange', handleVisibilityFocus);
+
+        // Smart polling: every 3.5s when on tower_orders tab, 12s on other dashboard tabs
+        const pollFrequency = activeTab === 'tower_orders' ? 3500 : 12000;
+        const pollTimer = setInterval(() => {
+            if (document.visibilityState === 'visible') {
+                fetchTowerOrders(true);
+            }
+        }, pollFrequency);
+
+        return () => {
+            if (channel) channel.close();
+            window.removeEventListener('storage', handleStorageSync);
+            window.removeEventListener('focus', handleVisibilityFocus);
+            document.removeEventListener('visibilitychange', handleVisibilityFocus);
+            clearInterval(pollTimer);
+        };
+    }, [activeTab, fetchTowerOrders]);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -91,7 +173,9 @@ const UserDashboard = () => {
 
                 setUser(profileRes.data);
                 setOrders(ordersRes.data);
-                setTowerOrders(towerRes.data || []);
+                const initialTowerOrders = towerRes.data || [];
+                prevOrdersRef.current = initialTowerOrders;
+                setTowerOrders(initialTowerOrders);
                 if (ordersRes.data.length < LIMIT) setHasMore(false);
 
             } catch (error) {
@@ -515,7 +599,11 @@ const UserDashboard = () => {
                                                 return (
                                                     <div
                                                         key={order.id}
-                                                        className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-violet-500/30 transition-all space-y-6 shadow-xl"
+                                                        className={`p-6 rounded-2xl bg-white/5 border transition-all duration-500 space-y-6 shadow-xl ${
+                                                            recentlyUpdatedOrderId === order.id
+                                                                ? 'border-violet-400 ring-2 ring-violet-500/60 shadow-violet-500/25 bg-violet-950/20 animate-pulse'
+                                                                : 'border-white/10 hover:border-violet-500/30'
+                                                        }`}
                                                     >
                                                         {/* Header Info */}
                                                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
