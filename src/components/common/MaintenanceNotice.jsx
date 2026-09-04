@@ -6,22 +6,49 @@ import { AlertTriangle, Wrench } from 'lucide-react';
 export const ANNOUNCEMENT_PRESETS = {
   ROBOTICS_KITS: "🤖 ROBOTICS & DIY KITS SPECIAL: High-Torque BO Motors, ESP32 Modules, Sensors & Starter Kits in Stock! Use Code TRONIX10 for 10% OFF ⚡",
   FREE_SHIPPING: "🚚 FREE EXPRESS SHIPPING across India on all Robotics Kits, Arduino & Sensor orders above ₹999! 📦",
-  MAINTENANCE: "⚠️ SYSTEM MAINTENANCE IN PROGRESS: We are upgrading catalog & inventory servers. Thank you for your patience! ⚡"
+  MAINTENANCE: "⚠️ SYSTEM UNDER MAINTENANCE: We are currently upgrading our database and inventory servers. Catalog browsing remains active, but checkout may experience temporary delays. Thank you for your patience! ⚡"
 };
 
-export const MaintenanceTicker = ({ activePreset = "ROBOTICS_KITS", customText = null }) => {
-  const tickerText = customText || ANNOUNCEMENT_PRESETS[activePreset] || ANNOUNCEMENT_PRESETS.ROBOTICS_KITS;
+export const MaintenanceTicker = ({ activePreset = "MAINTENANCE", customText = null }) => {
+  const tickerText = customText || ANNOUNCEMENT_PRESETS[activePreset] || ANNOUNCEMENT_PRESETS.MAINTENANCE;
 
   return (
-    <div className="w-full bg-violet-500/10 border-b border-violet-500/20 text-violet-200 py-2 overflow-hidden relative z-40 backdrop-blur-sm select-none">
-      <div className="whitespace-nowrap overflow-hidden flex w-full">
-        <div className="animate-marquee flex items-center gap-16 text-xs md:text-sm font-medium tracking-wider">
-          <span>{tickerText}</span>
-          <span>{tickerText}</span>
-          <span>{tickerText}</span>
+    <aside aria-label="Maintenance Announcement" className="w-full bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-black font-bold border-b border-amber-400/40 shadow-md relative z-50 select-none overflow-hidden">
+      <div className="flex items-center h-8 sm:h-9">
+        {/* News Headline Badge */}
+        <div className="flex items-center gap-1.5 bg-black text-amber-400 px-3 sm:px-4 h-full text-[11px] sm:text-xs font-black uppercase tracking-wider shrink-0 z-10 shadow-lg">
+          <AlertTriangle size={14} className="animate-pulse text-amber-400 shrink-0" />
+          <span className="hidden xs:inline">NOTICE:</span>
+          <span>MAINTENANCE</span>
+        </div>
+
+        {/* Rolling News Ticker Marquee */}
+        <div className="flex-1 overflow-hidden relative">
+          <div className="whitespace-nowrap flex w-max animate-marquee">
+            <div className="flex items-center gap-12 pr-12 text-xs sm:text-sm font-semibold tracking-wide">
+              <span>{tickerText}</span>
+              <span className="text-black/60 font-black">•</span>
+              <span>{tickerText}</span>
+              <span className="text-black/60 font-black">•</span>
+              <span>{tickerText}</span>
+              <span className="text-black/60 font-black">•</span>
+              <span>{tickerText}</span>
+              <span className="text-black/60 font-black">•</span>
+            </div>
+            <div className="flex items-center gap-12 pr-12 text-xs sm:text-sm font-semibold tracking-wide" aria-hidden="true">
+              <span>{tickerText}</span>
+              <span className="text-black/60 font-black">•</span>
+              <span>{tickerText}</span>
+              <span className="text-black/60 font-black">•</span>
+              <span>{tickerText}</span>
+              <span className="text-black/60 font-black">•</span>
+              <span>{tickerText}</span>
+              <span className="text-black/60 font-black">•</span>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </aside>
   );
 };
 
