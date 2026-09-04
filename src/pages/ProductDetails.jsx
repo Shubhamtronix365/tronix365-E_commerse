@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Check, X as XIcon, ArrowLeft, Star, ShieldCheck, Truck, Heart, Share2, FileText, Globe, Download, ExternalLink, Shield, HelpCircle, PackageCheck, Tag } from 'lucide-react';
+import { ShoppingCart, Check, X as XIcon, ArrowLeft, ArrowRight, Star, ShieldCheck, Truck, Heart, Share2, FileText, Globe, Download, ExternalLink, Shield, HelpCircle, PackageCheck, Tag, Factory, Clock, Split } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useCartAnimation } from '../context/CartAnimationContext';
@@ -18,6 +18,7 @@ import Breadcrumbs from '../components/common/Breadcrumbs';
 import Image from '../components/common/Image';
 import ShareModal from '../components/common/ShareModal';
 import VariantSelector from '../components/product/VariantSelector';
+import TowerOrderModal from '../components/towerOrder/TowerOrderModal';
 
 const ProductDetails = () => {
     const { slug } = useParams();
@@ -31,6 +32,9 @@ const ProductDetails = () => {
     const [loading, setLoading] = useState(true);
     const [bundles, setBundles] = useState([]);
     const [isShareOpen, setIsShareOpen] = useState(false);
+    const [isTowerModalOpen, setIsTowerModalOpen] = useState(false);
+    const [requestedTowerQty, setRequestedTowerQty] = useState(10);
+
 
     useEffect(() => {
         const fetchProductData = async () => {
@@ -197,7 +201,11 @@ const ProductDetails = () => {
                             <span className="text-gray-400 text-sm font-medium">
                                 ({reviewStats.count} {reviewStats.count === 1 ? 'Review' : 'Reviews'})
                             </span>
-                            {product.stock > 0 ? (
+                            {product.tower_order_only ? (
+                                <span className="text-amber-400 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-full">
+                                    <Factory size={13} /> Factory On-Demand Only
+                                </span>
+                            ) : product.stock > 0 ? (
                                 <span className="text-green-400 text-sm flex items-center gap-1">
                                     <Check size={16} /> In Stock ({product.stock})
                                 </span>
@@ -215,7 +223,7 @@ const ProductDetails = () => {
                             onSelectVariant={handleSelectVariant}
                         />
 
-                        <div className="flex items-end gap-3 mb-8">
+                        <div className="flex items-end gap-3 mb-6">
                             <div className="flex flex-col">
                                 <span className="text-4xl font-bold text-white">
                                     ₹{product.price}
@@ -223,69 +231,158 @@ const ProductDetails = () => {
                             </div>
                         </div>
 
-                        <p className="text-gray-300 leading-relaxed mb-8 border-b border-white/10 pb-8">
+                        <p className="text-gray-300 leading-relaxed mb-6 border-b border-white/10 pb-6">
                             {product.description}
                         </p>
 
-                        <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-8">
-                            <div className="flex items-center border border-white/10 rounded-lg">
+                        {/* TOWER ORDER SOURCING ONLY MODE */}
+                        {product.tower_order_only ? (
+                            <div className="space-y-4 mb-8">
+                                <div className="p-4 rounded-xl bg-gradient-to-r from-violet-950/40 to-purple-900/20 border border-violet-500/30 space-y-2">
+                                    <div className="flex items-center gap-2 text-violet-300 font-bold text-xs uppercase tracking-wide">
+                                        <Clock size={16} /> On-Demand Manufacturing Procurement
+                                    </div>
+                                    <p className="text-xs text-gray-300 leading-relaxed">
+                                        This component is arranged directly through our manufacturing network upon order placement. Not sold via standard warehouse stock.
+                                    </p>
+                                    <div className="text-xs text-gray-300 flex flex-wrap items-center gap-4 pt-1 font-mono">
+                                        <span>🏭 Factory Time: <strong className="text-white">{product.factory_lead_days || 7} Days</strong></span>
+                                        <span>🚚 Shipping: <strong className="text-white">{product.shipping_lead_days || 3} Days</strong></span>
+                                    </div>
+                                </div>
+
                                 <button
-                                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                    className="px-4 py-2 text-white hover:bg-white/5 transition-colors"
+                                    onClick={() => {
+                                        setRequestedTowerQty(quantity);
+                                        setIsTowerModalOpen(true);
+                                    }}
+                                    className="w-full font-extrabold py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-violet-600 to-indigo-600 hover:from-amber-400 hover:to-indigo-500 text-white flex items-center justify-center gap-3 shadow-2xl shadow-violet-600/40 text-base transition-all duration-300 hover:scale-[1.01] active:scale-98 border border-white/10"
                                 >
-                                    -
-                                </button>
-                                <span className="px-4 py-2 text-white font-medium border-x border-white/10">
-                                    {quantity}
-                                </span>
-                                <button
-                                    onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                                    className="px-4 py-2 text-white hover:bg-white/5 transition-colors"
-                                >
-                                    +
+                                    <Factory size={22} className="text-amber-300" />
+                                    <span>Place Tower Order • Request Factory Quotation</span>
+                                    <ArrowRight size={18} />
                                 </button>
                             </div>
-                            <button
-                                onClick={handleAddToCart}
-                                disabled={product.stock === 0}
-                                className={`flex-1 font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg ${product.stock > 0 ? 'bg-tronix-primary text-white hover:bg-violet-600 shadow-violet-500/20' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}`}
-                            >
-                                <ShoppingCart size={20} /> {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
-                            </button>
-                            <button
-                                onClick={() => {
-                                    toggleWishlist(product);
-                                    if (isInWishlist(product.id)) {
-                                        toast.error('Removed from Wishlist');
-                                    } else {
-                                        toast.success('Added to Wishlist');
-                                    }
-                                }}
-                                className={`p-3 rounded-lg border border-white/10 transition-colors ${isInWishlist(product.id) ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-white/5 hover:bg-white/10 text-white'}`}
-                                title={isInWishlist(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                            >
-                                <Heart size={24} fill={isInWishlist(product.id) ? "currentColor" : "none"} />
-                            </button>
-                            <button
-                                onClick={() => setIsShareOpen(true)}
-                                className="p-3 rounded-lg border border-white/10 bg-white/5 hover:bg-violet-600/30 hover:border-violet-500/50 text-white transition-colors cursor-pointer"
-                                title="Share Product"
-                            >
-                                <Share2 size={24} />
-                            </button>
-                        </div>
-                        <button
-                            onClick={() => {
-                                const success = addToCart(product, quantity);
-                                if (success) {
-                                    navigate('/cart');
-                                }
-                            }}
-                            disabled={product.stock === 0}
-                            className={`w-full font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 mb-8 shadow-lg ${product.stock > 0 ? 'bg-green-600 hover:bg-green-700 text-white shadow-green-900/20' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}`}
-                        >
-                            {product.stock > 0 ? 'Proceed to Checkout' : 'Out of Stock'}
-                        </button>
+                        ) : (
+                            /* STANDARD PRODUCT WITH SPLIT / TOWER ORDER CAPABILITY */
+                            <div className="space-y-3 mb-8">
+                                {quantity > (product.stock || 0) && (product.stock || 0) > 0 && (
+                                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <Split size={16} className="text-amber-400 flex-shrink-0" />
+                                            <span>Only <strong>{product.stock} units</strong> in warehouse stock for immediate dispatch.</span>
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                setRequestedTowerQty(quantity);
+                                                setIsTowerModalOpen(true);
+                                            }}
+                                            className="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-lg text-xs flex-shrink-0 transition-colors"
+                                        >
+                                            Split / Tower Order
+                                        </button>
+                                    </div>
+                                )}
+
+                                <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                                    <div className="flex items-center border border-white/10 rounded-lg">
+                                        <button
+                                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                            className="px-4 py-2 text-white hover:bg-white/5 transition-colors"
+                                        >
+                                            -
+                                        </button>
+                                        <span className="px-4 py-2 text-white font-medium border-x border-white/10">
+                                            {quantity}
+                                        </span>
+                                        <button
+                                            onClick={() => setQuantity(quantity + 1)}
+                                            className="px-4 py-2 text-white hover:bg-white/5 transition-colors"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+                                    <button
+                                        onClick={handleAddToCart}
+                                        disabled={product.stock === 0}
+                                        className={`flex-1 font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg ${product.stock > 0 ? 'bg-tronix-primary text-white hover:bg-violet-600 shadow-violet-500/20' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}`}
+                                    >
+                                        <ShoppingCart size={20} /> {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            toggleWishlist(product);
+                                            if (isInWishlist(product.id)) {
+                                                toast.error('Removed from Wishlist');
+                                            } else {
+                                                toast.success('Added to Wishlist');
+                                            }
+                                        }}
+                                        className={`p-3 rounded-lg border border-white/10 transition-colors ${isInWishlist(product.id) ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-white/5 hover:bg-white/10 text-white'}`}
+                                        title={isInWishlist(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                                    >
+                                        <Heart size={24} fill={isInWishlist(product.id) ? "currentColor" : "none"} />
+                                    </button>
+                                    <button
+                                        onClick={() => setIsShareOpen(true)}
+                                        className="p-3 rounded-lg border border-white/10 bg-white/5 hover:bg-violet-600/30 hover:border-violet-500/50 text-white transition-colors cursor-pointer"
+                                        title="Share Product"
+                                    >
+                                        <Share2 size={24} />
+                                    </button>
+                                </div>
+
+                                <button
+                                    onClick={() => {
+                                        const success = addToCart(product, quantity);
+                                        if (success) {
+                                            navigate('/cart');
+                                        }
+                                    }}
+                                    disabled={product.stock === 0}
+                                    className={`w-full font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg ${product.stock > 0 ? 'bg-green-600 hover:bg-green-700 text-white shadow-green-900/20' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}`}
+                                >
+                                    {product.stock > 0 ? 'Proceed to Checkout' : 'Out of Stock'}
+                                </button>
+
+                                {/* High-Converting Human-Designed Tower Order / B2B Sourcing Banner Card */}
+                                <div className="relative group overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-purple-900/20 to-violet-900/30 p-4 transition-all duration-300 hover:border-amber-400/60 hover:shadow-xl hover:shadow-amber-500/10">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div className="flex items-start gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black shadow-md shadow-amber-500/30 shrink-0 mt-0.5">
+                                                <Factory size={20} className="transition-transform group-hover:rotate-6" />
+                                            </div>
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-white font-bold text-sm tracking-wide">
+                                                        Need Wholesale or Factory Pricing?
+                                                    </span>
+                                                    <span className="px-2 py-0.5 rounded-full bg-amber-400 text-black text-[10px] font-black uppercase tracking-wider animate-pulse">
+                                                        B2B Tower Order
+                                                    </span>
+                                                </div>
+                                                <p className="text-xs text-gray-300 mt-0.5">
+                                                    Name your target price, request bulk quantities, or split stock with direct factory indent.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setRequestedTowerQty(quantity > (product.stock || 0) ? quantity : Math.max(10, (product.stock || 0) * 2));
+                                                setIsTowerModalOpen(true);
+                                            }}
+                                            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-gray-950 font-black text-xs uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95 shrink-0"
+                                        >
+                                            <span>Place Tower Order</span>
+                                            <ArrowRight size={14} className="stroke-[3]" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="flex items-center gap-3 p-4 border border-white/5 rounded-xl bg-white/5">
@@ -640,8 +737,17 @@ const ProductDetails = () => {
                 onClose={() => setIsShareOpen(false)}
                 product={product}
             />
+
+            {/* Tower Order Sourcing & Bulk Modal */}
+            <TowerOrderModal
+                isOpen={isTowerModalOpen}
+                onClose={() => setIsTowerModalOpen(false)}
+                product={product}
+                initialQty={requestedTowerQty}
+            />
         </div>
     );
 };
+
 
 export default ProductDetails;
