@@ -1,15 +1,27 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-import { Plus, Edit, Trash2, Check, X, CircuitBoard, Wifi, Cpu, Zap, Battery, Monitor, Package, MoreHorizontal, Layers, Tag, Box, ArrowUpDown } from 'lucide-react';
+import { 
+    Plus, Edit, Trash2, Check, X, CircuitBoard, Wifi, Cpu, Zap, Battery, Monitor, Package, 
+    MoreHorizontal, Layers, Tag, Box, ArrowUpDown, Disc, Plug, Cable, Keyboard, ToggleLeft, 
+    ToggleRight, Sliders, Lightbulb, Shapes, Boxes, Power, Sun 
+} from 'lucide-react';
 import client from '../../api/client';
 
 export const AVAILABLE_ICONS = [
-    { name: 'CircuitBoard', label: 'Circuit Board', icon: CircuitBoard },
+    { name: 'CircuitBoard', label: 'Circuit Board / Dev Boards', icon: CircuitBoard },
     { name: 'Wifi', label: 'Wifi / Sensor', icon: Wifi },
     { name: 'Cpu', label: 'Cpu / Module', icon: Cpu },
     { name: 'Zap', label: 'Zap / Motor', icon: Zap },
-    { name: 'Battery', label: 'Battery', icon: Battery },
+    { name: 'Battery', label: 'Battery / Power', icon: Battery },
     { name: 'Monitor', label: 'Monitor / Display', icon: Monitor },
+    { name: 'Disc', label: 'Disc / Wheels / Robotics', icon: Disc },
+    { name: 'Plug', label: 'Plug / Sockets', icon: Plug },
+    { name: 'Cable', label: 'Cable / Wires / Connectors', icon: Cable },
+    { name: 'Keyboard', label: 'Keyboard / Keypad', icon: Keyboard },
+    { name: 'ToggleLeft', label: 'Switch / Relays', icon: ToggleLeft },
+    { name: 'Sun', label: 'Sun / LED / Opto', icon: Sun },
+    { name: 'Shapes', label: 'Shapes / Misc Components', icon: Shapes },
+    { name: 'Boxes', label: 'Boxes / Inventory', icon: Boxes },
     { name: 'Package', label: 'Package / Misc', icon: Package },
     { name: 'MoreHorizontal', label: 'More / Other', icon: MoreHorizontal },
     { name: 'Layers', label: 'Layers', icon: Layers },
