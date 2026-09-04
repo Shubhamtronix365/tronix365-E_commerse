@@ -16,6 +16,7 @@ const Wishlist = React.lazy(() => import('./pages/Wishlist'));
 const OrderDetails = React.lazy(() => import('./pages/OrderDetails'));
 const Categories = React.lazy(() => import('./pages/Categories'));
 const PaymentStatus = React.lazy(() => import('./pages/PaymentStatus'));
+const TowerOrdersPage = React.lazy(() => import('./pages/TowerOrdersPage'));
 
 // Lazy load InfoPages
 const About = React.lazy(() => import('./pages/InfoPages').then(module => ({ default: module.About })));
@@ -126,6 +127,7 @@ const AppContent = () => {
               <Route path="/product/:slug" element={<PageTransition><ProductDetails /></PageTransition>} />
               <Route path="/categories" element={<PageTransition><Categories /></PageTransition>} />
               <Route path="/category/:category" element={<PageTransition><Shop /></PageTransition>} />
+              <Route path="/tower-orders" element={<PageTransition><TowerOrdersPage /></PageTransition>} />
               <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
               <Route path="/checkout" element={
                 <ProtectedRoute>

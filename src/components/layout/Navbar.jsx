@@ -45,6 +45,11 @@ const Navbar = () => {
                             <Link to="/" className="text-gray-300 hover:text-tronix-primary transition-colors">Home</Link>
                             <Link to="/shop" className="text-gray-300 hover:text-tronix-primary transition-colors">Shop</Link>
                             <Link to="/categories" className="text-gray-300 hover:text-tronix-primary transition-colors">Categories</Link>
+                            <Link to="/tower-orders" className="relative text-gray-300 hover:text-tronix-accent transition-colors flex items-center gap-1.5 font-medium">
+                                <span className="w-1.5 h-1.5 rounded-full bg-tronix-accent animate-pulse"></span>
+                                Tower Orders
+                                <span className="text-[10px] bg-tronix-accent/20 text-tronix-accent border border-tronix-accent/40 px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider">B2B</span>
+                            </Link>
                         </div>
 
                         {/* Actions */}
@@ -115,6 +120,13 @@ const Navbar = () => {
                                 <Link to="/" className="block py-3 text-base font-medium text-white border-b border-white/5">Home</Link>
                                 <Link to="/shop" className="block py-3 text-base font-medium text-gray-300 border-b border-white/5">Shop</Link>
                                 <Link to="/categories" className="block py-3 text-base font-medium text-gray-300 border-b border-white/5">Categories</Link>
+                                <Link to="/tower-orders" className="flex items-center justify-between py-3 text-base font-medium text-tronix-accent border-b border-white/5">
+                                    <span className="flex items-center gap-2">
+                                        <span className="w-2 h-2 rounded-full bg-tronix-accent"></span>
+                                        Tower Orders (B2B Factory)
+                                    </span>
+                                    <span className="text-[10px] bg-tronix-accent/20 px-2 py-0.5 rounded-full border border-tronix-accent/30 font-bold uppercase">Sourcing</span>
+                                </Link>
                                 {user ? (
                                     <div className="pt-4 border-t border-white/5 mt-2 space-y-4">
                                         <div className="flex items-center justify-between">
