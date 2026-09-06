@@ -14,7 +14,7 @@ from database import Base
 from pydantic import BaseModel, field_validator
 from typing import List, Optional, Dict, Any
 from datetime import datetime
-from utils import sanitize_html, sanitize_description
+from utils import sanitize_html, sanitize_description, sanitize_blog_html
 
 
 class ProductDB(Base):
@@ -968,3 +968,113 @@ class AddressResponse(AddressBase):
 
     class Config:
         from_attributes = True
+
+
+# =====================================================================
+# BLOG POSTS
+# =====================================================================
+
+class BlogPostDB(Base):
+    __tablename__ = "blog_posts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False, index=True)
+    slug = Column(String, unique=True, index=True, nullable=False)
+    summary = Column(String, nullable=True)
+    content = Column(String, nullable=False)
+    category = Column(String, index=True, default="Tutorials")  # Tutorials, Hardware Review, Robotics & AI, IoT, Guides
+    layout_type = Column(String, default="article")  # article, hardware_guide, project_showcase
+    cover_image = Column(String, nullable=True)
+    author_name = Column(String, default="Tronix365 Team")
+    author_role = Column(String, default="Hardware Engineer")
+    author_avatar = Column(String, nullable=True)
+    tags = Column(JSON, default=list)  # list of strings
+    reading_time_minutes = Column(Integer, default=5)
+    is_published = Column(Boolean, default=False, index=True)
+    featured = Column(Boolean, default=False, index=True)
+    views_count = Column(Integer, default=0)
+    components_used = Column(JSON, default=list)  # list of dicts: [{"name": "ESP32", "sku": "ESP-32S", "product_id": 12, "link": "/product/12"}]
+    meta_title = Column(String, nullable=True)
+    meta_description = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
+class BlogPostBase(BaseModel):
+    title: str
+    slug: Optional[str] = None
+    summary: Optional[str] = None
+    content: str
+    category: Optional[str] = "Tutorials"
+    layout_type: Optional[str] = "article"
+    cover_image: Optional[str] = None
+    author_name: Optional[str] = "Tronix365 Team"
+    author_role: Optional[str] = "Hardware Engineer"
+    author_avatar: Optional[str] = None
+    tags: Optional[List[str]] = []
+    reading_time_minutes: Optional[int] = 5
+    is_published: Optional[bool] = False
+    featured: Optional[bool] = False
+    components_used: Optional[List[Dict[str, Any]]] = []
+    meta_title: Optional[str] = None
+    meta_description: Optional[str] = None
+
+
+class BlogPostCreate(BlogPostBase):
+    @field_validator("content")
+    @classmethod
+    def sanitize_blog_content(cls, v: str) -> str:
+        if v:
+            return sanitize_blog_html(v)
+        return v
+
+
+class BlogPostUpdate(BaseModel):
+    title: Optional[str] = None
+    slug: Optional[str] = None
+    summary: Optional[str] = None
+    content: Optional[str] = None
+    category: Optional[str] = None
+    layout_type: Optional[str] = None
+    cover_image: Optional[str] = None
+    author_name: Optional[str] = None
+    author_role: Optional[str] = None
+    author_avatar: Optional[str] = None
+    tags: Optional[List[str]] = None
+    reading_time_minutes: Optional[int] = None
+    is_published: Optional[bool] = None
+    featured: Optional[bool] = None
+    components_used: Optional[List[Dict[str, Any]]] = None
+    meta_title: Optional[str] = None
+    meta_description: Optional[str] = None
+
+    @field_validator("content")
+    @classmethod
+    def sanitize_blog_content(cls, v: Optional[str]) -> Optional[str]:
+        if v:
+            return sanitize_blog_html(v)
+        return v
+
+
+class BlogPostResponse(BlogPostBase):
+    id: int
+    slug: str
+    views_count: int = 0
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class BlogPostDetailResponse(BlogPostResponse):
+    related_posts: List[BlogPostResponse] = []
+
+
+class BlogPostListResponse(BaseModel):
+    posts: List[BlogPostResponse]
+    total: int
+    page: int
+    limit: int
+    total_pages: int
+

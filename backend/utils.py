@@ -1,5 +1,6 @@
 from PIL import Image
 import os
+import re
 import bleach
 
 
@@ -16,6 +17,31 @@ def sanitize_description(text: str) -> str:
         return text
     allowed_tags = ["p", "b", "i", "u", "em", "strong", "ul", "ol", "li", "br"]
     return bleach.clean(text, tags=allowed_tags, attributes={}, strip=True)
+
+
+def sanitize_blog_html(text: str) -> str:
+    """
+    Allow safe rich formatting for blog posts while strictly stripping
+    malicious scripts, iframes, and javascript event handlers.
+    """
+    if not text:
+        return text
+    # Strip <script>...</script> and <style>...</style> content completely
+    clean_text = re.sub(r"<(script|style)[^>]*>[\s\S]*?</\1>", "", text, flags=re.IGNORECASE)
+    allowed_tags = [
+        "h1", "h2", "h3", "h4", "h5", "h6",
+        "p", "b", "i", "u", "em", "strong", "span", "div",
+        "ul", "ol", "li", "blockquote", "code", "pre",
+        "hr", "br", "a", "img",
+        "table", "thead", "tbody", "tr", "th", "td",
+    ]
+    allowed_attributes = {
+        "a": ["href", "title", "target", "rel"],
+        "img": ["src", "alt", "title", "width", "height", "class"],
+        "*": ["class", "id"],
+    }
+    return bleach.clean(clean_text, tags=allowed_tags, attributes=allowed_attributes, strip=True)
+
 
 
 def process_image(file_path: str) -> str:
