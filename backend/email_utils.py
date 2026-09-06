@@ -127,7 +127,18 @@ def send_email_via_brevo(
 
 # Public URL base for hosted email assets (logo, icons)
 EMAIL_ASSETS_BASE_URL = os.getenv("BACKEND_URL", "https://tronix365-e-commerse.onrender.com") + "/email-assets"
-LOGO_PUBLIC_URL = os.getenv("EMAIL_LOGO_URL", "https://tronix365-e-commerse.onrender.com/email-assets/logo.png")
+
+
+def get_logo_url() -> str:
+    """Return permanent, zero-timeout CDN logo URL (Cloudinary or high-availability jsDelivr CDN)."""
+    try:
+        from services.media_service import get_email_logo_url
+        return get_email_logo_url()
+    except Exception:
+        return os.getenv("EMAIL_LOGO_URL", "https://cdn.jsdelivr.net/gh/bhaveshburad729/tronix365-E_commerse@main/public/logo.png")
+
+
+LOGO_PUBLIC_URL = get_logo_url()
 
 
 def slugify(text: str) -> str:
@@ -1516,7 +1527,7 @@ def send_abandoned_cart_email(
         
         img_url = getattr(prod, "image", None) if prod else None
         if not img_url:
-            img_url = f"{EMAIL_ASSETS_BASE_URL}/logo.png"
+            img_url = get_logo_url()
         elif not img_url.startswith("http"):
             backend_base = os.getenv("BACKEND_URL", "https://tronix365-e-commerse.onrender.com")
             img_url = f"{backend_base}/{img_url.lstrip('/')}"

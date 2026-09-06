@@ -1,3 +1,4 @@
+import os
 import re
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends, Response
@@ -20,8 +21,25 @@ from models import (
     UserDB,
 )
 from deps import get_current_admin
+from services.media_service import is_cloudinary_enabled, upload_to_cloudinary
 
 router = APIRouter(tags=["Products"])
+
+
+def _normalize_product_image(img_val: Optional[str]) -> Optional[str]:
+    """Auto-upload local product images to Cloudinary CDN if configured."""
+    if not img_val or not isinstance(img_val, str) or not is_cloudinary_enabled():
+        return img_val
+    clean = img_val.strip()
+    if clean.startswith("http://") or clean.startswith("https://") or clean.startswith("data:"):
+        return clean
+    filename = os.path.basename(clean.lstrip("/"))
+    local_path = os.path.join("uploads", filename)
+    if os.path.exists(local_path):
+        c_url = upload_to_cloudinary(local_path, folder="tronix365_products", resource_type="image")
+        if c_url:
+            return c_url
+    return clean
 
 
 def get_product_variants_list(product, db: Session):
@@ -220,7 +238,11 @@ async def create_product(
     db: Session = Depends(get_db),
     current_admin: UserDB = Depends(get_current_admin),
 ):
-    new_product = ProductDB(**product.dict())
+    product_dict = product.dict()
+    if product_dict.get("image"):
+        product_dict["image"] = _normalize_product_image(product_dict["image"])
+
+    new_product = ProductDB(**product_dict)
     db.add(new_product)
     db.commit()
     db.refresh(new_product)
@@ -240,6 +262,9 @@ async def update_product(
         raise HTTPException(status_code=404, detail="Product not found")
 
     product_data = product.dict(exclude_unset=True)
+    if "image" in product_data and product_data["image"]:
+        product_data["image"] = _normalize_product_image(product_data["image"])
+
     for key, value in product_data.items():
         setattr(db_product, key, value)
 
