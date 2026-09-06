@@ -46,3 +46,15 @@ async def get_current_admin(
             detail="Access denied. Admin privileges required.",
         )
     return current_user
+
+
+async def get_current_blog_author(
+    current_user: UserDB = Depends(get_current_user)
+) -> UserDB:
+    if current_user.role not in ["admin", "blog_author"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied. Blog Author or Admin privileges required.",
+        )
+    return current_user
+

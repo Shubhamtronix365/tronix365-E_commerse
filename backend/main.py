@@ -37,6 +37,7 @@ from routes import (
     address_routes,
     admin_routes,
     upload_routes,
+    blog_routes,
 )
 
 # Ensure upload directory exists
@@ -158,3 +159,4 @@ app.include_router(review_routes.router)
 app.include_router(address_routes.router)
 app.include_router(admin_routes.router)
 app.include_router(upload_routes.router)
+app.include_router(blog_routes.router)
