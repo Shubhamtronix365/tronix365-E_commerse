@@ -1,0 +1,455 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
+import {
+    Clock,
+    Eye,
+    Tag,
+    Cpu,
+    ArrowLeft,
+    Share2,
+    Copy,
+    Check,
+    Twitter,
+    Linkedin,
+    MessageCircle,
+    Calendar,
+    ChevronRight,
+    Bookmark,
+    ExternalLink,
+    ListFilter,
+    ShieldCheck,
+} from 'lucide-react';
+import client from '../api/client';
+import { getImageUrl } from '../utils/imageUtils';
+
+const BlogPost = () => {
+    const { slug } = useParams();
+    const navigate = useNavigate();
+    const [post, setPost] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [copiedLink, setCopiedLink] = useState(false);
+    const [scrollProgress, setScrollProgress] = useState(0);
+    const [headings, setHeadings] = useState([]);
+    const contentRef = useRef(null);
+
+    // Scroll progress tracker
+    useEffect(() => {
+        const handleScroll = () => {
+            const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+            if (totalHeight > 0) {
+                const currentProgress = (window.scrollY / totalHeight) * 100;
+                setScrollProgress(Math.min(100, Math.max(0, currentProgress)));
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Fetch blog post by slug
+    useEffect(() => {
+        const fetchPost = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const res = await client.get(`/blogs/${slug}`);
+                setPost(res.data);
+            } catch (err) {
+                console.error('Error fetching blog post:', err);
+                setError(err.response?.status === 404 ? 'Blog article not found' : 'Failed to load blog article');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPost();
+        window.scrollTo(0, 0);
+    }, [slug]);
+
+    // Extract table of contents from rendered content
+    useEffect(() => {
+        if (!post || !contentRef.current) return;
+
+        const headingElements = contentRef.current.querySelectorAll('h2, h3');
+        const items = [];
+        headingElements.forEach((el, index) => {
+            const id = el.id || `heading-${index}`;
+            el.id = id;
+            items.push({
+                id,
+                text: el.innerText,
+                level: el.tagName.toLowerCase(),
+            });
+        });
+        setHeadings(items);
+
+        // Add copy button to pre code blocks
+        const codeBlocks = contentRef.current.querySelectorAll('pre');
+        codeBlocks.forEach((pre) => {
+            if (pre.querySelector('.code-copy-btn')) return; // already added
+            const btn = document.createElement('button');
+            btn.className =
+                'code-copy-btn absolute top-2 right-2 px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 text-[11px] text-gray-300 font-sans cursor-pointer transition-colors';
+            btn.innerText = 'Copy Code';
+            btn.onclick = () => {
+                const code = pre.querySelector('code')?.innerText || pre.innerText;
+                navigator.clipboard.writeText(code);
+                btn.innerText = 'Copied!';
+                setTimeout(() => {
+                    btn.innerText = 'Copy Code';
+                }, 2000);
+            };
+            pre.style.position = 'relative';
+            pre.appendChild(btn);
+        });
+    }, [post]);
+
+    const handleCopyUrl = () => {
+        navigator.clipboard.writeText(window.location.href);
+        setCopiedLink(true);
+        toast.success('Article link copied to clipboard!');
+        setTimeout(() => setCopiedLink(false), 2500);
+    };
+
+    const handleShareTwitter = () => {
+        const url = encodeURIComponent(window.location.href);
+        const text = encodeURIComponent(`Read "${post?.title}" on Tronix365:`);
+        window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+    };
+
+    const handleShareWhatsApp = () => {
+        const url = encodeURIComponent(window.location.href);
+        const text = encodeURIComponent(`Check out this engineering guide on Tronix365: ${post?.title} ${window.location.href}`);
+        window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    };
+
+    const handleShareLinkedIn = () => {
+        const url = encodeURIComponent(window.location.href);
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen pt-32 pb-20 px-4 flex flex-col items-center justify-center bg-tronix-dark text-white">
+                <div className="w-12 h-12 border-4 border-tronix-accent border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p className="text-gray-400 text-sm">Loading engineering guide...</p>
+            </div>
+        );
+    }
+
+    if (error || !post) {
+        return (
+            <div className="min-h-screen pt-32 pb-20 px-4 flex flex-col items-center justify-center bg-tronix-dark text-white">
+                <div className="text-center max-w-md space-y-4">
+                    <h2 className="text-2xl font-bold text-white">Article Not Found</h2>
+                    <p className="text-gray-400 text-sm">
+                        The requested guide or article could not be located, or it might be in draft mode.
+                    </p>
+                    <Link
+                        to="/blogs"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-tronix-accent text-white font-medium text-sm hover:brightness-110 transition-all"
+                    >
+                        <ArrowLeft size={16} /> Back to All Articles
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+    const formattedDate = post.created_at
+        ? new Date(post.created_at).toLocaleDateString('en-IN', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+          })
+        : 'Recent';
+
+    return (
+        <div className="min-h-screen pt-20 pb-24 px-4 sm:px-6 lg:px-8 bg-tronix-dark">
+            {/* Top Reading Progress Bar */}
+            <div
+                className="fixed top-0 left-0 h-1 bg-gradient-to-r from-tronix-accent to-emerald-400 z-50 transition-all duration-75"
+                style={{ width: `${scrollProgress}%` }}
+            />
+
+            <div className="max-w-7xl mx-auto space-y-8">
+                {/* Breadcrumbs & Navigation */}
+                <div className="flex items-center justify-between text-xs text-gray-400 pt-4">
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <Link to="/" className="hover:text-white transition-colors">
+                            Home
+                        </Link>
+                        <ChevronRight size={12} />
+                        <Link to="/blogs" className="hover:text-white transition-colors">
+                            Blogs
+                        </Link>
+                        <ChevronRight size={12} />
+                        <span className="text-tronix-accent font-medium">{post.category}</span>
+                        <ChevronRight size={12} />
+                        <span className="text-gray-500 truncate max-w-[200px]">{post.title}</span>
+                    </div>
+
+                    <Link
+                        to="/blogs"
+                        className="flex items-center gap-1.5 text-gray-400 hover:text-white transition-colors"
+                    >
+                        <ArrowLeft size={14} /> Back to Blogs
+                    </Link>
+                </div>
+
+                {/* Article Header Section */}
+                <div className="max-w-4xl space-y-5">
+                    <div className="flex items-center gap-3 flex-wrap">
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-tronix-accent/15 text-tronix-accent border border-tronix-accent/30">
+                            {post.category}
+                        </span>
+                        <span className="text-xs text-gray-400 flex items-center gap-1">
+                            <Clock size={14} /> {post.reading_time_minutes || 5} min read
+                        </span>
+                        <span className="text-xs text-gray-400 flex items-center gap-1">
+                            <Eye size={14} /> {post.views_count || 1} views
+                        </span>
+                        <span className="text-xs text-gray-400 flex items-center gap-1">
+                            <Calendar size={14} /> {formattedDate}
+                        </span>
+                    </div>
+
+                    <h1 className="text-3xl sm:text-5xl font-display font-black text-white tracking-tight leading-tight">
+                        {post.title}
+                    </h1>
+
+                    {post.summary && (
+                        <p className="text-base sm:text-lg text-gray-300 leading-relaxed font-normal">
+                            {post.summary}
+                        </p>
+                    )}
+
+                    {/* Author Meta Row */}
+                    <div className="pt-2 flex items-center justify-between border-t border-white/10">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-tronix-accent/20 border border-tronix-accent/40 flex items-center justify-center font-bold text-tronix-accent">
+                                {post.author_name?.[0] || 'T'}
+                            </div>
+                            <div>
+                                <h4 className="text-sm font-semibold text-white">{post.author_name}</h4>
+                                <p className="text-xs text-gray-400">{post.author_role || 'Hardware Engineer'}</p>
+                            </div>
+                        </div>
+
+                        {/* Share buttons */}
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={handleCopyUrl}
+                                title="Copy Article URL"
+                                className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-300 hover:text-white transition-colors cursor-pointer"
+                            >
+                                {copiedLink ? <Check size={16} className="text-emerald-400" /> : <Copy size={16} />}
+                            </button>
+                            <button
+                                onClick={handleShareWhatsApp}
+                                title="Share on WhatsApp"
+                                className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-emerald-400 transition-colors cursor-pointer"
+                            >
+                                <MessageCircle size={16} />
+                            </button>
+                            <button
+                                onClick={handleShareTwitter}
+                                title="Share on X"
+                                className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-blue-400 transition-colors cursor-pointer"
+                            >
+                                <Twitter size={16} />
+                            </button>
+                            <button
+                                onClick={handleShareLinkedIn}
+                                title="Share on LinkedIn"
+                                className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-blue-500 transition-colors cursor-pointer"
+                            >
+                                <Linkedin size={16} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Cover Image */}
+                {post.cover_image && (
+                    <div className="max-w-5xl rounded-2xl overflow-hidden border border-white/10 aspect-video max-h-[500px] shadow-2xl">
+                        <img
+                            src={getImageUrl(post.cover_image)}
+                            alt={post.title}
+                            className="w-full h-full object-cover"
+                        />
+                    </div>
+                )}
+
+                {/* Main Content Layout: Two Columns (Sticky Sidebar + Article) */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pt-6">
+                    {/* Left Sticky Sidebar (TOC & Hardware Parts) */}
+                    <aside className="lg:col-span-4 order-2 lg:order-1 space-y-6">
+                        {/* Table of Contents */}
+                        {headings.length > 0 && (
+                            <div className="bg-neutral-900/80 border border-white/10 rounded-2xl p-5 sticky top-24 space-y-4 backdrop-blur-md">
+                                <div className="flex items-center gap-2 text-white font-semibold text-sm pb-2 border-b border-white/10">
+                                    <ListFilter size={16} className="text-tronix-accent" />
+                                    <span>Table of Contents</span>
+                                </div>
+                                <nav className="space-y-1 text-xs max-h-72 overflow-y-auto pr-1">
+                                    {headings.map((h) => (
+                                        <a
+                                            key={h.id}
+                                            href={`#${h.id}`}
+                                            className={`block py-1.5 transition-colors ${
+                                                h.level === 'h3'
+                                                    ? 'pl-4 text-gray-500 hover:text-white'
+                                                    : 'text-gray-300 hover:text-tronix-accent font-medium'
+                                            }`}
+                                        >
+                                            {h.text}
+                                        </a>
+                                    ))}
+                                </nav>
+                            </div>
+                        )}
+
+                        {/* Components Used / BOM Card */}
+                        {post.components_used && post.components_used.length > 0 && (
+                            <div className="bg-neutral-900/80 border border-white/10 rounded-2xl p-5 space-y-4">
+                                <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                                    <div className="flex items-center gap-2 text-white font-semibold text-sm">
+                                        <Cpu size={16} className="text-tronix-accent" />
+                                        <span>Components Used (BOM)</span>
+                                    </div>
+                                    <span className="text-[10px] text-gray-500 font-mono">
+                                        {post.components_used.length} parts
+                                    </span>
+                                </div>
+
+                                <div className="space-y-2.5">
+                                    {post.components_used.map((comp, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="p-3 bg-white/5 border border-white/5 rounded-xl flex items-center justify-between hover:border-tronix-accent/30 transition-colors"
+                                        >
+                                            <div className="min-w-0 pr-2">
+                                                <p className="text-xs font-semibold text-white truncate">
+                                                    {comp.name}
+                                                </p>
+                                                {comp.sku && (
+                                                    <p className="text-[10px] text-gray-400 font-mono">
+                                                        SKU: {comp.sku}
+                                                    </p>
+                                                )}
+                                            </div>
+                                            <Link
+                                                to={comp.link || `/products?search=${encodeURIComponent(comp.name)}`}
+                                                className="px-2.5 py-1 text-[11px] font-semibold bg-tronix-accent/20 hover:bg-tronix-accent/30 text-tronix-accent border border-tronix-accent/30 rounded-lg flex-shrink-0 transition-colors"
+                                            >
+                                                View Part
+                                            </Link>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Security Verified Badge */}
+                        <div className="bg-emerald-950/20 border border-emerald-500/20 rounded-2xl p-4 flex items-start gap-3 text-xs text-emerald-300">
+                            <ShieldCheck size={20} className="text-emerald-400 flex-shrink-0 mt-0.5" />
+                            <div>
+                                <p className="font-semibold text-white">Verified Hardware Design</p>
+                                <p className="text-gray-400 text-[11px] mt-0.5">
+                                    Tested on physical prototypes by the Tronix365 engineering lab.
+                                </p>
+                            </div>
+                        </div>
+                    </aside>
+
+                    {/* Right Article Body */}
+                    <article className="lg:col-span-8 order-1 lg:order-2">
+                        <div
+                            ref={contentRef}
+                            className="blog-content-body prose prose-invert prose-emerald max-w-none text-gray-200 text-base leading-relaxed space-y-6"
+                            dangerouslySetInnerHTML={{ __html: post.content }}
+                        />
+
+                        {/* Article Topic Tags */}
+                        {post.tags && post.tags.length > 0 && (
+                            <div className="pt-8 mt-12 border-t border-white/10 space-y-3">
+                                <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                    Topics & Tags
+                                </h4>
+                                <div className="flex flex-wrap gap-2">
+                                    {post.tags.map((t, idx) => (
+                                        <span
+                                            key={idx}
+                                            className="px-3 py-1 rounded-lg text-xs bg-white/5 border border-white/10 text-gray-300 hover:text-white transition-colors"
+                                        >
+                                            #{t}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </article>
+                </div>
+
+                {/* Related Articles Section */}
+                {post.related_posts && post.related_posts.length > 0 && (
+                    <div className="pt-16 border-t border-white/10 space-y-8">
+                        <div>
+                            <span className="text-xs font-semibold text-tronix-accent uppercase tracking-wider">
+                                Continue Reading
+                            </span>
+                            <h3 className="text-2xl font-display font-bold text-white mt-1">
+                                Related Guides & Articles
+                            </h3>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {post.related_posts.map((related) => (
+                                <Link
+                                    key={related.id}
+                                    to={`/blog/${related.slug}`}
+                                    className="group bg-neutral-900/60 hover:bg-neutral-900/90 border border-white/10 hover:border-tronix-accent/40 rounded-2xl overflow-hidden flex flex-col shadow-lg transition-all"
+                                >
+                                    <div className="aspect-video bg-neutral-950 overflow-hidden relative">
+                                        {related.cover_image ? (
+                                            <img
+                                                src={getImageUrl(related.cover_image)}
+                                                alt={related.title}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-gray-700 bg-neutral-950">
+                                                <Cpu size={32} />
+                                            </div>
+                                        )}
+                                        <div className="absolute top-2 left-2">
+                                            <span className="px-2 py-0.5 text-[10px] font-semibold bg-black/70 backdrop-blur-md text-tronix-accent border border-tronix-accent/30 rounded-full">
+                                                {related.category}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
+                                        <h4 className="text-sm font-bold text-white group-hover:text-tronix-accent transition-colors line-clamp-2">
+                                            {related.title}
+                                        </h4>
+                                        <div className="flex items-center justify-between text-[11px] text-gray-500 pt-2 border-t border-white/5">
+                                            <span>{related.reading_time_minutes || 5} min read</span>
+                                            <span className="text-tronix-accent flex items-center gap-0.5 font-medium">
+                                                Read <ChevronRight size={12} />
+                                            </span>
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default BlogPost;

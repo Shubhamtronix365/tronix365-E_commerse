@@ -17,6 +17,9 @@ const OrderDetails = React.lazy(() => import('./pages/OrderDetails'));
 const Categories = React.lazy(() => import('./pages/Categories'));
 const PaymentStatus = React.lazy(() => import('./pages/PaymentStatus'));
 const TowerOrdersPage = React.lazy(() => import('./pages/TowerOrdersPage'));
+const Blogs = React.lazy(() => import('./pages/Blogs'));
+const BlogPost = React.lazy(() => import('./pages/BlogPost'));
+const BlogStudio = React.lazy(() => import('./pages/BlogStudio'));
 
 
 // Lazy load InfoPages
@@ -136,6 +139,11 @@ const AppContent = () => {
               <Route path="/categories" element={<PageTransition><Categories /></PageTransition>} />
               <Route path="/category/:category" element={<PageTransition><Shop /></PageTransition>} />
               <Route path="/tower-orders" element={<PageTransition><TowerOrdersPage /></PageTransition>} />
+              <Route path="/blogs" element={<PageTransition><Blogs /></PageTransition>} />
+              <Route path="/blog" element={<Navigate to="/blogs" replace />} />
+              <Route path="/blog-studio" element={<PageTransition><BlogStudio /></PageTransition>} />
+              <Route path="/blog/dashboard" element={<Navigate to="/blog-studio" replace />} />
+              <Route path="/blog/:slug" element={<PageTransition><BlogPost /></PageTransition>} />
               <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
               <Route path="/checkout" element={
                 <ProtectedRoute>

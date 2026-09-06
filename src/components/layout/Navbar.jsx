@@ -49,6 +49,7 @@ const Navbar = () => {
                             <Link to="/" className="text-gray-300 hover:text-tronix-primary transition-colors">Home</Link>
                             <Link to="/shop" className="text-gray-300 hover:text-tronix-primary transition-colors">Shop</Link>
                             <Link to="/categories" className="text-gray-300 hover:text-tronix-primary transition-colors">Categories</Link>
+                            <Link to="/blogs" className="text-gray-300 hover:text-tronix-primary transition-colors">Blogs</Link>
                             <Link to="/tower-orders" className="relative text-gray-300 hover:text-tronix-accent transition-colors flex items-center gap-1.5 font-medium">
                                 <span className="w-1.5 h-1.5 rounded-full bg-tronix-accent animate-pulse"></span>
                                 Tower Orders
@@ -147,6 +148,7 @@ const Navbar = () => {
                                 <Link to="/" className="block py-3 text-base font-medium text-white border-b border-white/5">Home</Link>
                                 <Link to="/shop" className="block py-3 text-base font-medium text-gray-300 border-b border-white/5">Shop</Link>
                                 <Link to="/categories" className="block py-3 text-base font-medium text-gray-300 border-b border-white/5">Categories</Link>
+                                <Link to="/blogs" className="block py-3 text-base font-medium text-gray-300 border-b border-white/5">Blogs & Guides</Link>
                                 <Link to="/tower-orders" className="flex items-center justify-between py-3 text-base font-medium text-tronix-accent border-b border-white/5">
                                     <span className="flex items-center gap-2">
                                         <span className="w-2 h-2 rounded-full bg-tronix-accent"></span>
