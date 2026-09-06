@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Filter, X } from 'lucide-react';
 import ProductCard from '../components/product/ProductCard';
@@ -84,7 +84,12 @@ const categorySeoData = {
 const Shop = () => {
     const { category } = useParams();
     const location = useLocation();
+    const navigate = useNavigate();
     const { categories: dbCategories } = useCategories();
+
+    const activeSearchQuery = useMemo(() => {
+        return new URLSearchParams(location.search).get('search') || '';
+    }, [location.search]);
 
     const categoryNames = useMemo(() => {
         return dbCategories ? dbCategories.filter(c => c.is_active !== false).map(c => c.name) : [];
@@ -186,7 +191,7 @@ const Shop = () => {
             };
 
             // Add Filters
-            const searchParams = new URLSearchParams(window.location.search);
+            const searchParams = new URLSearchParams(location.search);
             const searchQuery = searchParams.get('search');
 
             if (selectedCategory !== 'All') params.category = selectedCategory;
@@ -302,10 +307,32 @@ const Shop = () => {
 
                     {/* Main Content Area */}
                     <div className="lg:col-span-3">
+                        {/* Active Search Query Filter Pill */}
+                        {activeSearchQuery && (
+                            <div className="mb-6 flex items-center gap-2 flex-wrap">
+                                <span className="text-xs text-gray-400">Search results for:</span>
+                                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-tronix-primary/20 border border-tronix-primary/40 text-tronix-primary text-xs font-medium shadow-sm">
+                                    <span>"{activeSearchQuery}"</span>
+                                    <button
+                                        onClick={() => {
+                                            const newParams = new URLSearchParams(location.search);
+                                            newParams.delete('search');
+                                            const searchStr = newParams.toString();
+                                            navigate({ pathname: location.pathname, search: searchStr ? `?${searchStr}` : '' });
+                                        }}
+                                        className="hover:text-white transition-colors cursor-pointer"
+                                        title="Clear search filter"
+                                    >
+                                        <X size={13} />
+                                    </button>
+                                </span>
+                            </div>
+                        )}
+
                         {/* Loading State on initial load */}
                         {loading && products.length === 0 ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {[...Array(6)].map((_, i) => (
+                                {[...Array(LIMIT)].map((_, i) => (
                                     <ProductCardSkeleton key={i} />
                                 ))}
                             </div>

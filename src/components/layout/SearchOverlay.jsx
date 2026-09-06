@@ -5,12 +5,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import client from '../../api/client';
 import { getImageUrl } from '../../utils/imageUtils';
 import Skeleton from '../common/Skeleton';
+import Image from '../common/Image';
 import { slugify } from '../../utils/slugify';
 
 const SearchOverlay = ({ isOpen, onClose }) => {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedIndex, setSelectedIndex] = useState(-1);
     const inputRef = useRef(null);
     const navigate = useNavigate();
 
@@ -40,21 +42,37 @@ const SearchOverlay = ({ isOpen, onClose }) => {
         return () => clearTimeout(delayDebounceFn);
     }, [query]);
 
-    // Handle Escape and Cmd+K keys
+    useEffect(() => {
+        setSelectedIndex(-1);
+    }, [results]);
+
+    // Handle Escape, Arrow Navigation, and Enter keys
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (e.key === 'Escape') onClose();
-            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            if (!isOpen) return;
+
+            if (e.key === 'Escape') {
+                onClose();
+            } else if (e.key === 'ArrowDown') {
                 e.preventDefault();
-                if (!isOpen) {
-                    // This logic would need to be in a parent or a global state 
-                    // to open it, but we can at least handle focus here if needed.
+                setSelectedIndex((prev) => (results.length === 0 ? -1 : prev < results.length - 1 ? prev + 1 : 0));
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setSelectedIndex((prev) => (results.length === 0 ? -1 : prev > 0 ? prev - 1 : results.length - 1));
+            } else if (e.key === 'Enter') {
+                if (selectedIndex >= 0 && results[selectedIndex]) {
+                    e.preventDefault();
+                    handleResultClick(results[selectedIndex]);
+                } else if (query.trim()) {
+                    e.preventDefault();
+                    onClose();
+                    navigate(`/shop?search=${encodeURIComponent(query.trim())}`);
                 }
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [onClose, isOpen]);
+    }, [onClose, isOpen, results, selectedIndex, query, navigate]);
 
     const handleResultClick = (product) => {
         onClose();
@@ -116,28 +134,45 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                             ) : results.length > 0 ? (
                                 <div className="space-y-1">
                                     <p className="text-xs font-bold text-gray-500 uppercase tracking-widest px-3 py-2">Products</p>
-                                    {results.map((product) => (
-                                        <button
-                                            key={product.id}
-                                            onClick={() => handleResultClick(product)}
-                                            className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors group text-left"
-                                        >
-                                            <div className="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center p-1 shrink-0">
-                                                <img src={getImageUrl(product.image)} alt={product.title} className="max-w-full max-h-full object-contain" />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <h4 className="text-white font-medium truncate group-hover:text-tronix-primary transition-colors">{product.title}</h4>
-                                                <p className="text-xs text-gray-400">{product.category}</p>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-tronix-accent font-bold">₹{product.price}</p>
-                                                {product.mrp && Number(product.mrp) > Number(product.price) && (
-                                                    <p className="text-[10px] text-gray-500 line-through">₹{product.mrp}</p>
-                                                )}
-                                            </div>
-                                            <ArrowRight size={16} className="text-gray-600 group-hover:text-white group-hover:translate-x-1 transition-all" />
-                                        </button>
-                                    ))}
+                                    {results.map((product, index) => {
+                                        const isSelected = index === selectedIndex;
+                                        return (
+                                            <button
+                                                key={product.id}
+                                                onClick={() => handleResultClick(product)}
+                                                onMouseEnter={() => setSelectedIndex(index)}
+                                                className={`w-full flex items-center gap-4 p-3 rounded-xl transition-all group text-left ${
+                                                    isSelected ? 'bg-white/10 ring-1 ring-tronix-primary/50' : 'hover:bg-white/5'
+                                                }`}
+                                            >
+                                                <div className="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center p-1 shrink-0">
+                                                    <Image
+                                                        src={getImageUrl(product.image)}
+                                                        alt={product.title}
+                                                        title={product.title}
+                                                        className="max-w-full max-h-full object-contain"
+                                                    />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className={`font-medium truncate transition-colors ${
+                                                        isSelected ? 'text-tronix-primary' : 'text-white group-hover:text-tronix-primary'
+                                                    }`}>
+                                                        {product.title}
+                                                    </h4>
+                                                    <p className="text-xs text-gray-400">{product.category}</p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-tronix-accent font-bold">₹{product.price}</p>
+                                                    {product.mrp && Number(product.mrp) > Number(product.price) && (
+                                                        <p className="text-[10px] text-gray-500 line-through">₹{product.mrp}</p>
+                                                    )}
+                                                </div>
+                                                <ArrowRight size={16} className={`transition-all ${
+                                                    isSelected ? 'text-white translate-x-1' : 'text-gray-600 group-hover:text-white group-hover:translate-x-1'
+                                                }`} />
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             ) : query.trim() && !isLoading ? (
                                 <div className="p-8 text-center">
