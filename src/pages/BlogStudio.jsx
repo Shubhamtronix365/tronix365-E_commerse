@@ -267,18 +267,22 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
         try {
             if (editingPostId) {
                 await client.put(`/admin/blogs/${editingPostId}`, payload);
-                toast.success(
-                    finalIsPublished
-                        ? 'Article updated & published live!'
-                        : 'Article saved as draft (hidden from public)'
-                );
+                if (authorUser?.role === 'blog_author' && finalIsPublished) {
+                    toast.success('🚀 Article submitted for Admin review! It will go live once an administrator approves it.');
+                } else if (finalIsPublished) {
+                    toast.success('Article updated & published live!');
+                } else {
+                    toast.success('Article saved as draft (hidden from public)');
+                }
             } else {
                 await client.post('/admin/blogs', payload);
-                toast.success(
-                    finalIsPublished
-                        ? '🚀 Article published live to Blog Hub!'
-                        : 'Article saved as draft (hidden from public)'
-                );
+                if (authorUser?.role === 'blog_author' && finalIsPublished) {
+                    toast.success('🚀 Article submitted for Admin review! It will go live once an administrator approves it.');
+                } else if (finalIsPublished) {
+                    toast.success('🚀 Article published live to Blog Hub!');
+                } else {
+                    toast.success('Article saved as draft (hidden from public)');
+                }
             }
             setIsEditorOpen(false);
             fetchPosts();
@@ -294,7 +298,11 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
             const res = await client.post(`/admin/blogs/${post.id}/toggle-publish`);
             toast.success(res.data?.message || 'Status updated');
             setPosts((prev) =>
-                prev.map((p) => (p.id === post.id ? { ...p, is_published: res.data.is_published } : p))
+                prev.map((p) =>
+                    p.id === post.id
+                        ? { ...p, is_published: res.data.is_published, status: res.data.status }
+                        : p
+                )
             );
         } catch (error) {
             console.error('Error toggling publish status:', error);
@@ -562,6 +570,14 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
         setIsSettingsModalOpen(true);
     };
 
+    const getPasswordRules = (pwd) => ({
+        length: pwd.length >= 8,
+        upper: /[A-Z]/.test(pwd),
+        lower: /[a-z]/.test(pwd),
+        digit: /\d/.test(pwd),
+        special: /[!@#$%^&*()_=+\[\]{};:'",.<>/?\\|`~-]/.test(pwd),
+    });
+
     const handleSaveSettings = async (e) => {
         e.preventDefault();
         if (!settingsForm.current_password) {
@@ -580,8 +596,9 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
         }
 
         if (passwordChanged) {
-            if (settingsForm.new_password.length < 6) {
-                toast.error('New password must be at least 6 characters');
+            const rules = getPasswordRules(settingsForm.new_password);
+            if (!rules.length || !rules.upper || !rules.lower || !rules.digit || !rules.special) {
+                toast.error('New password must satisfy all 5 strong password requirements');
                 return;
             }
             if (settingsForm.new_password !== settingsForm.confirm_new_password) {
@@ -627,8 +644,9 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
     };
 
     const totalCount = posts.length;
-    const publishedCount = posts.filter((p) => p.is_published).length;
-    const draftCount = posts.filter((p) => !p.is_published).length;
+    const publishedCount = posts.filter((p) => p.is_published && p.status === 'published').length;
+    const pendingCount = posts.filter((p) => p.status === 'pending_approval').length;
+    const draftCount = posts.filter((p) => p.status !== 'published' && p.status !== 'pending_approval').length;
     const totalViews = posts.reduce((sum, p) => sum + (p.views_count || 0), 0);
 
     return (
@@ -685,7 +703,7 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                 </div>
 
                 {/* Metrics Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                     <div className="bg-neutral-900/60 border border-white/10 rounded-xl p-4 flex items-center gap-4">
                         <div className="w-12 h-12 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
                             <BookOpen size={22} />
@@ -701,7 +719,7 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                             <CheckCircle size={22} />
                         </div>
                         <div>
-                            <p className="text-xs text-gray-400 uppercase font-medium tracking-wider">Published</p>
+                            <p className="text-xs text-gray-400 uppercase font-medium tracking-wider">Live / Published</p>
                             <h4 className="text-2xl font-bold text-white mt-0.5">{publishedCount}</h4>
                         </div>
                     </div>
@@ -709,6 +727,16 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                     <div className="bg-neutral-900/60 border border-white/10 rounded-xl p-4 flex items-center gap-4">
                         <div className="w-12 h-12 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
                             <Clock size={22} />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-400 uppercase font-medium tracking-wider">Pending Review</p>
+                            <h4 className="text-2xl font-bold text-white mt-0.5">{pendingCount}</h4>
+                        </div>
+                    </div>
+
+                    <div className="bg-neutral-900/60 border border-white/10 rounded-xl p-4 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-lg bg-neutral-800 border border-white/10 flex items-center justify-center text-gray-400">
+                            <Edit3 size={22} />
                         </div>
                         <div>
                             <p className="text-xs text-gray-400 uppercase font-medium tracking-wider">Drafts</p>
@@ -747,8 +775,10 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                             className="bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-tronix-accent"
                         >
                             <option value="all">All Statuses</option>
-                            <option value="published">Published Only</option>
+                            <option value="published">Published Live</option>
+                            <option value="pending_approval">Pending Admin Approval ({pendingCount})</option>
                             <option value="draft">Drafts Only</option>
+                            <option value="rejected">Needs Revision</option>
                         </select>
 
                         <select
@@ -878,21 +908,52 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                             </td>
 
                                             <td className="px-6 py-4">
-                                                <button
-                                                    onClick={() => handleTogglePublish(post)}
-                                                    className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center gap-1.5 cursor-pointer transition-all ${
-                                                        post.is_published
-                                                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
-                                                            : 'bg-amber-500/10 text-amber-400 border-amber-500/30 hover:bg-amber-500/20'
-                                                    }`}
-                                                >
-                                                    <span
-                                                        className={`w-1.5 h-1.5 rounded-full ${
-                                                            post.is_published ? 'bg-emerald-400' : 'bg-amber-400'
-                                                        }`}
-                                                    ></span>
-                                                    {post.is_published ? 'Published' : 'Draft'}
-                                                </button>
+                                                {post.status === 'published' || (post.is_published && post.status !== 'rejected' && post.status !== 'pending_approval') ? (
+                                                    <button
+                                                        onClick={() => handleTogglePublish(post)}
+                                                        title="Click to unpublish article to draft"
+                                                        className="px-3 py-1 rounded-full text-xs font-semibold border flex items-center gap-1.5 cursor-pointer transition-all bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20"
+                                                    >
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                                        Published Live
+                                                    </button>
+                                                ) : post.status === 'pending_approval' ? (
+                                                    <div className="space-y-1">
+                                                        <span
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30"
+                                                            title="Submitted for admin approval. Will be published upon admin review."
+                                                        >
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                                                            Pending Approval
+                                                        </span>
+                                                        <p className="text-[10px] text-amber-300/70">Awaiting Admin Review</p>
+                                                    </div>
+                                                ) : post.status === 'rejected' ? (
+                                                    <div className="space-y-1">
+                                                        <button
+                                                            onClick={() => handleTogglePublish(post)}
+                                                            title="Click to re-submit for admin approval"
+                                                            className="px-3 py-1 rounded-full text-xs font-semibold border flex items-center gap-1.5 cursor-pointer transition-all bg-red-500/10 text-red-400 border-red-500/30 hover:bg-red-500/20"
+                                                        >
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+                                                            Needs Revision
+                                                        </button>
+                                                        {post.rejection_reason && (
+                                                            <p className="text-[10px] text-red-300/80 italic max-w-xs truncate" title={post.rejection_reason}>
+                                                                Feedback: {post.rejection_reason}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => handleTogglePublish(post)}
+                                                        title={authorUser?.role === 'blog_author' ? 'Click to submit for admin approval' : 'Click to publish'}
+                                                        className="px-3 py-1 rounded-full text-xs font-semibold border flex items-center gap-1.5 cursor-pointer transition-all bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:text-white"
+                                                    >
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
+                                                        Draft
+                                                    </button>
+                                                )}
                                             </td>
 
                                             <td className="px-6 py-4 text-center font-mono text-gray-300 font-medium">
@@ -1587,24 +1648,40 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                     Cancel
                                 </button>
 
-                                <div className="flex items-center gap-3">
-                                    <button
-                                        type="button"
-                                        onClick={(e) => handleSavePost(e, false)}
-                                        className="px-4 py-2 border border-white/15 bg-white/5 hover:bg-white/10 rounded-lg text-sm text-gray-300 hover:text-white font-medium transition-all cursor-pointer flex items-center gap-2"
-                                    >
-                                        <EyeOff size={15} />
-                                        <span>Save as Draft</span>
-                                    </button>
+                                <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3">
+                                    {authorUser?.role === 'blog_author' && (
+                                        <span className="text-[11px] text-amber-300/80 hidden md:inline">
+                                            Submissions route to Admin Dashboard for approval
+                                        </span>
+                                    )}
 
-                                    <button
-                                        type="button"
-                                        onClick={(e) => handleSavePost(e, true)}
-                                        className="px-5 py-2 rounded-lg bg-gradient-to-r from-tronix-accent to-emerald-500 text-white font-semibold text-sm hover:brightness-110 shadow-lg shadow-tronix-accent/25 transition-all cursor-pointer flex items-center gap-2"
-                                    >
-                                        <Eye size={15} />
-                                        <span>{editingPostId ? 'Update & Publish Live' : '🚀 Publish Live to Blog Hub'}</span>
-                                    </button>
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={(e) => handleSavePost(e, false)}
+                                            className="px-4 py-2 border border-white/15 bg-white/5 hover:bg-white/10 rounded-lg text-sm text-gray-300 hover:text-white font-medium transition-all cursor-pointer flex items-center gap-2"
+                                        >
+                                            <EyeOff size={15} />
+                                            <span>Save as Draft</span>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={(e) => handleSavePost(e, true)}
+                                            className="px-5 py-2 rounded-lg bg-gradient-to-r from-tronix-accent to-emerald-500 text-white font-semibold text-sm hover:brightness-110 shadow-lg shadow-tronix-accent/25 transition-all cursor-pointer flex items-center gap-2"
+                                        >
+                                            <Eye size={15} />
+                                            <span>
+                                                {authorUser?.role === 'blog_author'
+                                                    ? editingPostId
+                                                        ? 'Submit Updates for Admin Review'
+                                                        : '🚀 Submit for Admin Approval'
+                                                    : editingPostId
+                                                    ? 'Update & Publish Live'
+                                                    : '🚀 Publish Live to Blog Hub'}
+                                            </span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1946,17 +2023,17 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                         </div>
 
                                         {/* New Password */}
-                                        <div className="space-y-1">
+                                        <div className="space-y-1.5">
                                             <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
                                                 <Key size={12} className="text-emerald-400" />
-                                                New Password
+                                                New Strong Password
                                             </label>
                                             <div className="relative">
                                                 <input
                                                     type={showNewPassword ? 'text' : 'password'}
                                                     value={settingsForm.new_password}
                                                     onChange={(e) => setSettingsForm({ ...settingsForm, new_password: e.target.value })}
-                                                    placeholder="Enter new password (min. 6 chars)"
+                                                    placeholder="Create strong password (min. 8 chars)"
                                                     className="w-full bg-neutral-950/80 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-tronix-accent pr-9"
                                                 />
                                                 <button
@@ -1967,6 +2044,50 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                                     {showNewPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                                                 </button>
                                             </div>
+
+                                            {/* Interactive Password Strength & 5-point Checklist */}
+                                            {settingsForm.new_password && (() => {
+                                                const rules = getPasswordRules(settingsForm.new_password);
+                                                const score = Object.values(rules).filter(Boolean).length;
+                                                const barColor = score <= 2 ? 'bg-red-500' : score <= 4 ? 'bg-amber-500' : 'bg-emerald-500';
+                                                const strengthText = score <= 2 ? 'Weak' : score <= 4 ? 'Moderate' : 'Strong & Secure';
+                                                return (
+                                                    <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 space-y-2 mt-1">
+                                                        <div className="flex items-center justify-between text-[10px]">
+                                                            <span className="text-gray-400">Security Strength:</span>
+                                                            <span className={`font-semibold ${score === 5 ? 'text-emerald-400' : score >= 3 ? 'text-amber-400' : 'text-red-400'}`}>
+                                                                {strengthText} ({score}/5)
+                                                            </span>
+                                                        </div>
+                                                        <div className="grid grid-cols-5 gap-1 h-1.5 rounded-full overflow-hidden bg-white/10">
+                                                            {[1, 2, 3, 4, 5].map((lvl) => (
+                                                                <div
+                                                                    key={lvl}
+                                                                    className={`h-full rounded-full transition-all duration-300 ${lvl <= score ? barColor : 'bg-transparent'}`}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 pt-1 text-[10px]">
+                                                            <span className={`flex items-center gap-1 ${rules.length ? 'text-emerald-400' : 'text-gray-500'}`}>
+                                                                {rules.length ? <Check size={10} /> : <span className="w-1.5 h-1.5 rounded-full bg-gray-600 inline-block" />} 8+ Characters
+                                                            </span>
+                                                            <span className={`flex items-center gap-1 ${rules.upper ? 'text-emerald-400' : 'text-gray-500'}`}>
+                                                                {rules.upper ? <Check size={10} /> : <span className="w-1.5 h-1.5 rounded-full bg-gray-600 inline-block" />} Uppercase (A-Z)
+                                                            </span>
+                                                            <span className={`flex items-center gap-1 ${rules.lower ? 'text-emerald-400' : 'text-gray-500'}`}>
+                                                                {rules.lower ? <Check size={10} /> : <span className="w-1.5 h-1.5 rounded-full bg-gray-600 inline-block" />} Lowercase (a-z)
+                                                            </span>
+                                                            <span className={`flex items-center gap-1 ${rules.digit ? 'text-emerald-400' : 'text-gray-500'}`}>
+                                                                {rules.digit ? <Check size={10} /> : <span className="w-1.5 h-1.5 rounded-full bg-gray-600 inline-block" />} Number (0-9)
+                                                            </span>
+                                                            <span className={`flex items-center gap-1 sm:col-span-2 ${rules.special ? 'text-emerald-400' : 'text-gray-500'}`}>
+                                                                {rules.special ? <Check size={10} /> : <span className="w-1.5 h-1.5 rounded-full bg-gray-600 inline-block" />} Special symbol (!@#$%...)
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })()}
+
                                             <span className="text-[10px] text-gray-500">
                                                 Leave blank if you only wish to change your email ID.
                                             </span>

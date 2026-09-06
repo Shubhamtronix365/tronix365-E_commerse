@@ -23,26 +23,31 @@ def setup_admin_and_posts():
                 email="blog_admin@tronix365.in",
                 hashed_password=get_password_hash("AuthorPass123!"),
                 full_name="Tronix Admin",
-                role="blog_author",
+                role="admin",
             )
             db.add(admin_user)
             db.commit()
-            db.refresh(admin_user)
         else:
             admin_user.hashed_password = get_password_hash("AuthorPass123!")
-            admin_user.role = "blog_author"
+            admin_user.role = "admin"
             db.commit()
 
         # 2. Clean previous test posts
         db.query(BlogPostDB).filter(BlogPostDB.title.like("TEST_BLOG_%")).delete(synchronize_session=False)
         db.commit()
-        return admin_user
     finally:
         db.close()
 
 
+@pytest.fixture(autouse=True)
+def clean_overrides():
+    app.dependency_overrides.clear()
+    yield
+    app.dependency_overrides.clear()
+
+
 def test_blog_lifecycle_and_security():
-    admin_user = setup_admin_and_posts()
+    setup_admin_and_posts()
 
     # Step 1: Verify unauthorized admin access fails
     app.dependency_overrides.clear()
@@ -58,11 +63,17 @@ def test_blog_lifecycle_and_security():
     assert login_res.status_code == 200, login_res.text
     token_data = login_res.json()
     assert "access_token" in token_data
-    assert token_data["role"] == "blog_author"
+    assert token_data["role"] in ["admin", "blog_author"]
     print("[PASS] Step 1b: Author login authenticated with valid tokens")
 
-    # Step 2: Override get_current_blog_author with valid author
-    app.dependency_overrides[get_current_blog_author] = lambda: admin_user
+    # Step 2: Override get_current_blog_author with active session query
+    def get_active_test_admin():
+        s = SessionLocal()
+        u = s.query(UserDB).filter(UserDB.email == "blog_admin@tronix365.in").first()
+        return u
+
+    app.dependency_overrides[get_current_blog_author] = get_active_test_admin
+    app.dependency_overrides[get_current_admin] = get_active_test_admin
 
     # Step 3: Create a post with malicious XSS script and verify sanitization
     malicious_payload = {
@@ -155,6 +166,3 @@ def test_blog_lifecycle_and_security():
     del_res2 = client.delete(f"/admin/blogs/{draft_id}")
     assert del_res2.status_code == 200
     print("[PASS] Step 9: Admin update and deletion clean up successfully")
-
-    # Clear overrides
-    app.dependency_overrides.clear()

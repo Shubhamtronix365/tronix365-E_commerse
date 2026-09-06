@@ -1,5 +1,7 @@
 import re
 import math
+import secrets
+import string
 from datetime import datetime, timedelta
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends, Query, Request
@@ -18,7 +20,7 @@ from models import (
     UserDB,
     RefreshTokenDB,
 )
-from deps import get_current_blog_author, limiter
+from deps import get_current_blog_author, get_current_admin, limiter
 from auth import (
     verify_password,
     get_password_hash,
@@ -40,6 +42,38 @@ class BlogAuthorUpdateCredentialsRequest(BaseModel):
     current_password: str
     new_email: Optional[str] = None
     new_password: Optional[str] = None
+
+
+class BlogRejectionRequest(BaseModel):
+    reason: Optional[str] = "Revisions requested by administrator before publication."
+
+
+class GenerateAuthorRequest(BaseModel):
+    author_id: Optional[str] = None
+    password: Optional[str] = None
+    name: Optional[str] = None
+
+
+def validate_strong_password(password: str) -> tuple[bool, str]:
+    """
+    Validate that a password meets strong security requirements:
+    - Minimum 8 characters
+    - At least one uppercase letter (A-Z)
+    - At least one lowercase letter (a-z)
+    - At least one digit (0-9)
+    - At least one special symbol (!@#$%^&*()-_=+[]{}|;:,.<>/?)
+    """
+    if len(password) < 8:
+        return False, "New password must be at least 8 characters long."
+    if not re.search(r"[A-Z]", password):
+        return False, "New password must contain at least one uppercase letter (A-Z)."
+    if not re.search(r"[a-z]", password):
+        return False, "New password must contain at least one lowercase letter (a-z)."
+    if not re.search(r"\d", password):
+        return False, "New password must contain at least one number (0-9)."
+    if not re.search(r"[!@#$%^&*()_=+\[\]{};:'\",.<>/?\\|`~\-]", password):
+        return False, "New password must contain at least one special character (!@#$%^&*)."
+    return True, ""
 
 
 
@@ -81,7 +115,10 @@ async def get_published_blogs(
     db: Session = Depends(get_db),
 ):
     """Retrieve published blog posts with filtering, searching, and pagination."""
-    query = db.query(BlogPostDB).filter(BlogPostDB.is_published == True)
+    query = db.query(BlogPostDB).filter(
+        BlogPostDB.is_published == True,
+        BlogPostDB.status == "published",
+    )
 
     if category and category.lower() != "all":
         query = query.filter(BlogPostDB.category.ilike(f"%{category}%"))
@@ -123,7 +160,11 @@ async def get_featured_blogs(limit: int = Query(3, ge=1, le=10), db: Session = D
     """Retrieve spotlight / featured blog posts for hero banners."""
     posts = (
         db.query(BlogPostDB)
-        .filter(BlogPostDB.is_published == True, BlogPostDB.featured == True)
+        .filter(
+            BlogPostDB.is_published == True,
+            BlogPostDB.status == "published",
+            BlogPostDB.featured == True,
+        )
         .order_by(BlogPostDB.created_at.desc())
         .limit(limit)
         .all()
@@ -133,7 +174,10 @@ async def get_featured_blogs(limit: int = Query(3, ge=1, le=10), db: Session = D
     if not posts:
         posts = (
             db.query(BlogPostDB)
-            .filter(BlogPostDB.is_published == True)
+            .filter(
+                BlogPostDB.is_published == True,
+                BlogPostDB.status == "published",
+            )
             .order_by(BlogPostDB.created_at.desc())
             .limit(limit)
             .all()
@@ -147,11 +191,21 @@ async def get_blog_categories_summary(db: Session = Depends(get_db)):
     """Return count of published posts per category for category pill navigation."""
     results = (
         db.query(BlogPostDB.category, func.count(BlogPostDB.id))
-        .filter(BlogPostDB.is_published == True)
+        .filter(
+            BlogPostDB.is_published == True,
+            BlogPostDB.status == "published",
+        )
         .group_by(BlogPostDB.category)
         .all()
     )
-    total_published = db.query(BlogPostDB).filter(BlogPostDB.is_published == True).count()
+    total_published = (
+        db.query(BlogPostDB)
+        .filter(
+            BlogPostDB.is_published == True,
+            BlogPostDB.status == "published",
+        )
+        .count()
+    )
     categories = [{"category": cat or "General", "count": count} for cat, count in results]
     return {
         "total": total_published,
@@ -164,7 +218,7 @@ async def get_blog_by_slug(slug: str, db: Session = Depends(get_db)):
     """Retrieve published blog post by slug, increment view count, and return related posts."""
     post = db.query(BlogPostDB).filter(BlogPostDB.slug == slug).first()
 
-    if not post or not post.is_published:
+    if not post or not post.is_published or post.status != "published":
         raise HTTPException(status_code=404, detail="Blog post not found")
 
     # Increment views count
@@ -177,6 +231,7 @@ async def get_blog_by_slug(slug: str, db: Session = Depends(get_db)):
         db.query(BlogPostDB)
         .filter(
             BlogPostDB.is_published == True,
+            BlogPostDB.status == "published",
             BlogPostDB.id != post.id,
             BlogPostDB.category == post.category,
         )
@@ -192,6 +247,7 @@ async def get_blog_by_slug(slug: str, db: Session = Depends(get_db)):
             db.query(BlogPostDB)
             .filter(
                 BlogPostDB.is_published == True,
+                BlogPostDB.status == "published",
                 ~BlogPostDB.id.in_(already_ids),
             )
             .order_by(BlogPostDB.created_at.desc())
@@ -293,11 +349,9 @@ async def update_blog_author_credentials(
 
     if body.new_password and body.new_password.strip():
         new_password = body.new_password.strip()
-        if len(new_password) < 6:
-            raise HTTPException(
-                status_code=400,
-                detail="New password must be at least 6 characters long.",
-            )
+        is_valid, err_msg = validate_strong_password(new_password)
+        if not is_valid:
+            raise HTTPException(status_code=400, detail=err_msg)
         current_author.hashed_password = get_password_hash(new_password)
         updated = True
 
@@ -351,9 +405,13 @@ async def admin_get_all_blogs(
     query = db.query(BlogPostDB)
 
     if status == "published":
-        query = query.filter(BlogPostDB.is_published == True)
+        query = query.filter(BlogPostDB.is_published == True, BlogPostDB.status == "published")
+    elif status in ["pending_approval", "pending"]:
+        query = query.filter(BlogPostDB.status == "pending_approval")
     elif status == "draft":
-        query = query.filter(BlogPostDB.is_published == False)
+        query = query.filter(BlogPostDB.status == "draft")
+    elif status == "rejected":
+        query = query.filter(BlogPostDB.status == "rejected")
 
     if category and category.lower() != "all":
         query = query.filter(BlogPostDB.category == category)
@@ -365,6 +423,8 @@ async def admin_get_all_blogs(
                 BlogPostDB.title.ilike(search_term),
                 BlogPostDB.summary.ilike(search_term),
                 BlogPostDB.slug.ilike(search_term),
+                BlogPostDB.author_name.ilike(search_term),
+                BlogPostDB.author_id.ilike(search_term),
             )
         )
 
@@ -389,7 +449,7 @@ async def admin_create_blog(
     db: Session = Depends(get_db),
     author: UserDB = Depends(get_current_blog_author),
 ):
-    """Admin-only endpoint to create a new blog post with automatic slug collision handling."""
+    """Admin/Author endpoint to create a blog post. Authors require admin approval before publication."""
     base_slug = slugify(post_in.slug if post_in.slug and post_in.slug.strip() else post_in.title)
     unique_slug = get_unique_slug(db, base_slug)
 
@@ -399,6 +459,26 @@ async def admin_create_blog(
     post_data = post_in.model_dump()
     post_data["slug"] = unique_slug
     post_data["content"] = clean_content
+
+    # Role-based moderation enforcement
+    if author.role == "blog_author":
+        post_data["author_id"] = author.email
+        if post_data.get("is_published") or post_data.get("status") == "pending_approval":
+            post_data["is_published"] = False
+            post_data["status"] = "pending_approval"
+        else:
+            post_data["is_published"] = False
+            post_data["status"] = "draft"
+    else:
+        # Admin can publish directly or save as draft
+        if post_data.get("is_published"):
+            post_data["is_published"] = True
+            post_data["status"] = "published"
+            post_data["reviewed_by"] = author.email
+        else:
+            post_data["status"] = post_data.get("status") or "draft"
+        if not post_data.get("author_id"):
+            post_data["author_id"] = author.email
 
     new_post = BlogPostDB(**post_data)
     db.add(new_post)
@@ -414,7 +494,7 @@ async def admin_get_blog_by_id(
     db: Session = Depends(get_db),
     author: UserDB = Depends(get_current_blog_author),
 ):
-    """Admin/Author endpoint to view single post details (including drafts)."""
+    """Admin/Author endpoint to view single post details (including drafts and pending review)."""
     post = db.query(BlogPostDB).filter(BlogPostDB.id == post_id).first()
     if not post:
         raise HTTPException(status_code=404, detail="Blog post not found")
@@ -428,7 +508,7 @@ async def admin_update_blog(
     db: Session = Depends(get_db),
     author: UserDB = Depends(get_current_blog_author),
 ):
-    """Admin/Author endpoint to update blog post."""
+    """Admin/Author endpoint to update blog post with role-based moderation checks."""
     post = db.query(BlogPostDB).filter(BlogPostDB.id == post_id).first()
     if not post:
         raise HTTPException(status_code=404, detail="Blog post not found")
@@ -436,7 +516,6 @@ async def admin_update_blog(
     update_dict = post_in.model_dump(exclude_unset=True)
 
     if "title" in update_dict and ("slug" not in update_dict or not update_dict["slug"]):
-        # Do not automatically change existing slug unless explicitly requested
         pass
     elif "slug" in update_dict and update_dict["slug"]:
         clean_slug = slugify(update_dict["slug"])
@@ -445,6 +524,26 @@ async def admin_update_blog(
 
     if "content" in update_dict and update_dict["content"]:
         update_dict["content"] = sanitize_blog_html(update_dict["content"])
+
+    # Role-based moderation rules
+    if author.role == "blog_author":
+        if not post.author_id:
+            post.author_id = author.email
+        # If author requests publishing or pending status
+        if update_dict.get("is_published") is True or update_dict.get("status") == "pending_approval":
+            update_dict["is_published"] = False
+            update_dict["status"] = "pending_approval"
+        elif update_dict.get("is_published") is False:
+            update_dict["status"] = "draft"
+    else:
+        # Admin updating post
+        if update_dict.get("is_published") is True:
+            update_dict["is_published"] = True
+            update_dict["status"] = "published"
+            update_dict["rejection_reason"] = None
+            update_dict["reviewed_by"] = author.email
+        elif update_dict.get("is_published") is False and update_dict.get("status") != "rejected":
+            update_dict["status"] = "draft"
 
     for field, val in update_dict.items():
         setattr(post, field, val)
@@ -476,18 +575,180 @@ async def admin_toggle_publish(
     db: Session = Depends(get_db),
     author: UserDB = Depends(get_current_blog_author),
 ):
-    """Admin/Author quick toggle between draft and published status."""
+    """Admin/Author quick toggle. Authors submit for approval; admins publish directly."""
     post = db.query(BlogPostDB).filter(BlogPostDB.id == post_id).first()
     if not post:
         raise HTTPException(status_code=404, detail="Blog post not found")
 
-    post.is_published = not post.is_published
+    if author.role == "blog_author":
+        if post.status in ["published", "pending_approval"]:
+            post.is_published = False
+            post.status = "draft"
+            msg = "Article reverted to draft."
+        else:
+            post.is_published = False
+            post.status = "pending_approval"
+            post.author_id = author.email
+            msg = "Article submitted for admin approval."
+    else:
+        post.is_published = not post.is_published
+        post.status = "published" if post.is_published else "draft"
+        if post.is_published:
+            post.rejection_reason = None
+            post.reviewed_by = author.email
+        msg = f"Post status updated to {post.status}"
+
     db.commit()
     db.refresh(post)
 
-    status_str = "published" if post.is_published else "draft"
     return {
         "id": post.id,
+        "status": post.status,
         "is_published": post.is_published,
-        "message": f"Post status updated to {status_str}",
+        "message": msg,
+    }
+
+
+# =====================================================================
+# ADMIN MODERATION & AUTHOR MANAGEMENT (ADMIN ONLY)
+# =====================================================================
+
+@router.post("/admin/blogs/{post_id}/approve")
+async def admin_approve_blog(
+    post_id: int,
+    db: Session = Depends(get_db),
+    admin: UserDB = Depends(get_current_admin),
+):
+    """Admin-only endpoint to approve a blog post and publish it live."""
+    post = db.query(BlogPostDB).filter(BlogPostDB.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Blog post not found")
+
+    post.status = "published"
+    post.is_published = True
+    post.rejection_reason = None
+    post.reviewed_by = admin.email
+
+    db.commit()
+    db.refresh(post)
+
+    return {
+        "message": f"Article '{post.title}' approved and published live!",
+        "id": post.id,
+        "status": post.status,
+        "is_published": post.is_published,
+    }
+
+
+@router.post("/admin/blogs/{post_id}/reject")
+async def admin_reject_blog(
+    post_id: int,
+    body: BlogRejectionRequest,
+    db: Session = Depends(get_db),
+    admin: UserDB = Depends(get_current_admin),
+):
+    """Admin-only endpoint to reject a blog post with author feedback."""
+    post = db.query(BlogPostDB).filter(BlogPostDB.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Blog post not found")
+
+    post.status = "rejected"
+    post.is_published = False
+    post.rejection_reason = body.reason or "Needs revisions before publication."
+    post.reviewed_by = admin.email
+
+    db.commit()
+    db.refresh(post)
+
+    return {
+        "message": "Article rejected and returned with feedback.",
+        "id": post.id,
+        "status": post.status,
+        "rejection_reason": post.rejection_reason,
+    }
+
+
+@router.get("/admin/authors")
+async def admin_get_authors(
+    db: Session = Depends(get_db),
+    admin: UserDB = Depends(get_current_admin),
+):
+    """Admin-only endpoint to list all registered blog authors."""
+    authors = (
+        db.query(UserDB)
+        .filter(UserDB.role == "blog_author")
+        .order_by(UserDB.id.desc())
+        .all()
+    )
+    return [
+        {
+            "id": u.id,
+            "email": u.email,
+            "full_name": u.full_name,
+            "role": u.role,
+            "is_active": u.is_active,
+        }
+        for u in authors
+    ]
+
+
+@router.post("/admin/authors/generate")
+async def admin_generate_author(
+    body: GenerateAuthorRequest,
+    db: Session = Depends(get_db),
+    admin: UserDB = Depends(get_current_admin),
+):
+    """Admin-only endpoint to generate a new blog author login with a strong password."""
+    plain_password = body.password.strip() if body.password else None
+    if not plain_password:
+        alphabet = string.ascii_letters + string.digits + "!@#$%^&*()-_=+"
+        while True:
+            cand = "".join(secrets.choice(alphabet) for _ in range(16))
+            if (
+                any(c.islower() for c in cand)
+                and any(c.isupper() for c in cand)
+                and any(c.isdigit() for c in cand)
+                and any(c in "!@#$%^&*()-_=+" for c in cand)
+            ):
+                plain_password = cand
+                break
+    else:
+        is_valid, err_msg = validate_strong_password(plain_password)
+        if not is_valid:
+            raise HTTPException(status_code=400, detail=err_msg)
+
+    author_email = (
+        body.author_id.strip().lower()
+        if body.author_id and body.author_id.strip()
+        else f"author_{secrets.token_hex(2)}@tronix365.in"
+    )
+    name = body.name.strip() if body.name and body.name.strip() else "Tronix365 Technical Writer"
+
+    existing_user = db.query(UserDB).filter(UserDB.email == author_email).first()
+    hashed = get_password_hash(plain_password)
+    if existing_user:
+        existing_user.hashed_password = hashed
+        existing_user.role = "blog_author"
+        existing_user.is_active = True
+        existing_user.full_name = name
+        action = "updated"
+    else:
+        new_user = UserDB(
+            email=author_email,
+            hashed_password=hashed,
+            full_name=name,
+            role="blog_author",
+            is_active=True,
+        )
+        db.add(new_user)
+        action = "created"
+
+    db.commit()
+
+    return {
+        "message": f"Author account successfully {action}.",
+        "author_id": author_email,
+        "password": plain_password,
+        "full_name": name,
+        "role": "blog_author",
     }

@@ -66,13 +66,14 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
     - **Components Used (BOM) Integration**: Displays required hardware modules with direct links to catalog/shop for instant purchasing.
     - Social sharing buttons (WhatsApp, Twitter/X, LinkedIn, direct copy link).
     - Bottom related articles recommendation engine (3 contextual posts).
-  - **Standalone Blog Studio (`/blog-studio`) & Author Account Settings**:
-    - Dedicated workspace for authors (`role == "blog_author"` or `admin`) with real-time editor, live preview, BOM component selector, and media embeds.
-    - **Author Security & Account Settings**: In-studio settings modal allowing authenticated authors to update their access email ID and password with mandatory current password verification and continuous JWT session renewal.
+  - **Standalone Blog Studio (`/blogs/studio`), Multi-Author Access & Admin Moderation**:
+    - Dedicated workspace for authors (`role == "blog_author"` or `admin`) with rich Markdown/HTML editor, live preview, BOM component selector, and image/media embeds.
+    - **System-Generated Author Accounts & Management**: Administrators can generate author logins on-demand with cryptographically random 16-character passwords and 1-click credential copying from the Admin Dashboard.
+    - **Author Credential Self-Service & Strong Password Policy**: Authors can update their login email and password anytime in Studio Settings. Enforces strict 5-point password validation: $\ge 8$ characters, uppercase (A-Z), lowercase (a-z), digit (0-9), and special characters (`!@#$%^&*()_=+[]{};:'",.<>/?\|`~-`).
+    - **Mandatory Admin Moderation & Approval Workflow**: When an author creates, edits, or publishes an article, it is automatically routed to `pending_approval` status and is completely hidden from the public hub (`/blogs`, `/blogs/{slug}`). Only an administrator can review, approve (`POST /admin/blogs/{id}/approve`), or return the article with constructive feedback (`POST /admin/blogs/{id}/reject`).
     - Strict XSS sanitization engine using `bleach` and regex stripping `<script>`, `<style>`, `<iframe>`, and malicious `onerror`/`onclick` event handlers.
     - Automatic SEO slug generator with duplicate collision resolution (appends counter suffix).
     - Live WebP image conversion and validation pipeline via `/upload`.
-    - 1-click Draft vs Published status toggling.
 - **Rate Limiting & Caching**: Security features with Slowapi rate limiters and Redis/InMemory backend caching.
 
 ---
@@ -400,11 +401,17 @@ FastAPI generates interactive documentation at [http://127.0.0.1:8000/docs](http
   - `GET /blogs/{slug}` - Public post reader with auto-incrementing view count
   - `GET /blogs/featured` - Hero carousel & spotlight posts
   - `GET /blogs/categories/summary` - Aggregated category post count breakdown
-  - `GET /admin/blogs` - Author/Admin listing of all posts (drafts & published) with stats
-  - `POST /admin/blogs` - Create new hardware guide or technical article (XSS sanitized, auto slug generation)
-  - `PUT /admin/blogs/{id}` - Update existing post, tags, layout type, or BOM components
+  - `GET /admin/blogs` - Author/Admin listing of all posts (drafts, pending approval, published) with stats
+  - `POST /admin/blogs` - Create new hardware guide or technical article (XSS sanitized, auto slug generation; authors force `pending_approval`)
+  - `PUT /admin/blogs/{id}` - Update existing post (authors require re-approval)
+  - `POST /admin/blogs/{id}/toggle-publish` - Toggle draft vs publish (for authors, routes to `pending_approval`)
+  - `POST /admin/blogs/{id}/approve` - Admin-only approval endpoint to publish live
+  - `POST /admin/blogs/{id}/reject` - Admin-only rejection endpoint with author revision feedback
   - `DELETE /admin/blogs/{id}` - Delete post record
-  - `POST /admin/blogs/upload-image` - Upload blog cover/content image with automatic WebP conversion
+  - `POST /blogs/author/login` - Author authentication endpoint
+  - `PUT /blogs/author/credentials` - In-studio author credential update with mandatory 5-point strong password validation
+  - `GET /admin/authors` - Admin-only listing of all registered blog authors
+  - `POST /admin/authors/generate` - Admin-only endpoint to generate new author accounts with secure random 16-character passwords
   - **Standalone Author Credential Generator Script**:
     ```bash
     cd backend

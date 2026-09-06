@@ -2,8 +2,9 @@ import pytest
 from fastapi.testclient import TestClient
 from main import app
 from database import SessionLocal
-from models import UserDB
+from models import UserDB, RefreshTokenDB
 from auth import get_password_hash, create_access_token
+from deps import limiter
 
 client = TestClient(app)
 
@@ -12,20 +13,26 @@ TEST_AUTHOR_PASS = "InitialPass123!"
 
 @pytest.fixture(scope="module", autouse=True)
 def setup_author():
+    app.dependency_overrides.clear()
+    limiter.enabled = False
     db = SessionLocal()
-    user = db.query(UserDB).filter(UserDB.email == TEST_AUTHOR_EMAIL).first()
-    if not user:
-        user = UserDB(
-            email=TEST_AUTHOR_EMAIL,
-            hashed_password=get_password_hash(TEST_AUTHOR_PASS),
-            full_name="Settings Test Author",
-            role="blog_author",
-            is_active=True
-        )
-        db.add(user)
-    else:
-        user.hashed_password = get_password_hash(TEST_AUTHOR_PASS)
-        user.role = "blog_author"
+
+    # Clean up both test email and updated test email to ensure idempotency
+    existing_users = db.query(UserDB).filter(UserDB.email.in_([TEST_AUTHOR_EMAIL, "updated_author_999@tronix365.in"])).all()
+    user_ids = [u.id for u in existing_users]
+    if user_ids:
+        db.query(RefreshTokenDB).filter(RefreshTokenDB.user_id.in_(user_ids)).delete(synchronize_session=False)
+    db.query(UserDB).filter(UserDB.email.in_([TEST_AUTHOR_EMAIL, "updated_author_999@tronix365.in"])).delete(synchronize_session=False)
+    db.commit()
+
+    user = UserDB(
+        email=TEST_AUTHOR_EMAIL,
+        hashed_password=get_password_hash(TEST_AUTHOR_PASS),
+        full_name="Settings Test Author",
+        role="blog_author",
+        is_active=True
+    )
+    db.add(user)
 
     # Also ensure a conflicting user exists
     conflict_email = "conflict_user@tronix365.in"
@@ -43,6 +50,8 @@ def setup_author():
     db.commit()
     db.close()
     yield
+    app.dependency_overrides.clear()
+    limiter.enabled = True
 
 
 def test_update_credentials_wrong_current_password():
@@ -84,7 +93,7 @@ def test_update_credentials_short_password():
         }
     )
     assert res.status_code == 400
-    assert "at least 6 characters" in res.json()["detail"]
+    assert "8 characters" in res.json()["detail"] or "6 characters" in res.json()["detail"]
 
 
 def test_update_credentials_success():

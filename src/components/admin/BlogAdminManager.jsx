@@ -24,6 +24,14 @@ import {
     ArrowRight,
     RefreshCw,
     X,
+    Users,
+    Check,
+    AlertTriangle,
+    Copy,
+    Key,
+    Mail,
+    UserPlus,
+    ShieldCheck,
 } from 'lucide-react';
 import client from '../../api/client';
 import { getImageUrl } from '../../utils/imageUtils';
@@ -57,6 +65,21 @@ const BlogAdminManager = () => {
     const [editorTab, setEditorTab] = useState('edit'); // 'edit' or 'preview'
     const [uploadingImage, setUploadingImage] = useState(false);
     const fileInputRef = useRef(null);
+
+    // Author Management State
+    const [isAuthorModalOpen, setIsAuthorModalOpen] = useState(false);
+    const [authors, setAuthors] = useState([]);
+    const [loadingAuthors, setLoadingAuthors] = useState(false);
+    const [newAuthorForm, setNewAuthorForm] = useState({ author_id: '', password: '', name: '' });
+    const [generatingAuthor, setGeneratingAuthor] = useState(false);
+    const [generatedCredentials, setGeneratedCredentials] = useState(null);
+    const [copiedCredentials, setCopiedCredentials] = useState(false);
+
+    // Rejection / Moderation Modal State
+    const [rejectingPost, setRejectingPost] = useState(null);
+    const [rejectionReason, setRejectionReason] = useState('');
+    const [submittingRejection, setSubmittingRejection] = useState(false);
+    const [approvingPostId, setApprovingPostId] = useState(null);
 
     // Form State
     const [form, setForm] = useState({
@@ -203,12 +226,113 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
         }
     };
 
+    const fetchAuthors = async () => {
+        setLoadingAuthors(true);
+        try {
+            const res = await client.get('/admin/authors');
+            setAuthors(res.data || []);
+        } catch (err) {
+            console.error('Failed to fetch authors:', err);
+            toast.error('Failed to load author list');
+        } finally {
+            setLoadingAuthors(false);
+        }
+    };
+
+    const handleOpenAuthorModal = () => {
+        setIsAuthorModalOpen(true);
+        setGeneratedCredentials(null);
+        setCopiedCredentials(false);
+        fetchAuthors();
+    };
+
+    const handleGenerateAuthor = async (e) => {
+        e.preventDefault();
+        setGeneratingAuthor(true);
+        try {
+            const res = await client.post('/admin/authors/generate', newAuthorForm);
+            setGeneratedCredentials(res.data);
+            setCopiedCredentials(false);
+            setNewAuthorForm({ author_id: '', password: '', name: '' });
+            toast.success(res.data?.message || 'Author login generated successfully!');
+            fetchAuthors();
+        } catch (err) {
+            console.error('Failed to generate author:', err);
+            toast.error(err.response?.data?.detail || 'Failed to generate author login');
+        } finally {
+            setGeneratingAuthor(false);
+        }
+    };
+
+    const copyCredentialsToClipboard = () => {
+        if (!generatedCredentials) return;
+        const text = `Tronix365 Blog Author Credentials\nLogin Portal: ${window.location.origin}/blogs/studio\nAuthor ID / Email: ${generatedCredentials.author_id}\nPassword: ${generatedCredentials.password}\nNote: Please log in and change your password in Settings.`;
+        navigator.clipboard.writeText(text);
+        setCopiedCredentials(true);
+        toast.success('Credentials copied to clipboard!');
+        setTimeout(() => setCopiedCredentials(false), 3000);
+    };
+
+    const handleApprovePost = async (post) => {
+        setApprovingPostId(post.id);
+        try {
+            const res = await client.post(`/admin/blogs/${post.id}/approve`);
+            toast.success(res.data?.message || 'Post approved and published live!');
+            setPosts((prev) =>
+                prev.map((p) =>
+                    p.id === post.id
+                        ? { ...p, is_published: true, status: 'published', rejection_reason: null }
+                        : p
+                )
+            );
+        } catch (err) {
+            console.error('Failed to approve blog post:', err);
+            toast.error(err.response?.data?.detail || 'Failed to approve blog post');
+        } finally {
+            setApprovingPostId(null);
+        }
+    };
+
+    const handleOpenRejectModal = (post) => {
+        setRejectingPost(post);
+        setRejectionReason(post.rejection_reason || '');
+    };
+
+    const handleConfirmReject = async () => {
+        if (!rejectingPost) return;
+        setSubmittingRejection(true);
+        try {
+            const res = await client.post(`/admin/blogs/${rejectingPost.id}/reject`, {
+                reason: rejectionReason.trim() || 'Revisions requested by administrator before publication.',
+            });
+            toast.success(res.data?.message || 'Post returned for revisions.');
+            setPosts((prev) =>
+                prev.map((p) =>
+                    p.id === rejectingPost.id
+                        ? { ...p, is_published: false, status: 'rejected', rejection_reason: res.data?.rejection_reason }
+                        : p
+                )
+            );
+            setRejectingPost(null);
+            setRejectionReason('');
+        } catch (err) {
+            console.error('Failed to reject post:', err);
+            toast.error(err.response?.data?.detail || 'Failed to reject post');
+        } finally {
+            setSubmittingRejection(false);
+        }
+    };
+
     const handleTogglePublish = async (post) => {
         try {
             const res = await client.post(`/admin/blogs/${post.id}/toggle-publish`);
             toast.success(res.data?.message || 'Status updated');
             setPosts((prev) =>
-                prev.map((p) => (p.id === post.id ? { ...p, is_published: res.data.is_published } : p))
+                prev.map((p) =>
+                    p.id === post.id
+                        ? { ...p, is_published: res.data.is_published, status: res.data.status }
+                        : p
+                )
             );
         } catch (error) {
             console.error('Error toggling publish status:', error);
@@ -300,14 +424,15 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
 
     // Calculate quick stats
     const totalCount = posts.length;
-    const publishedCount = posts.filter((p) => p.is_published).length;
-    const draftCount = posts.filter((p) => !p.is_published).length;
+    const publishedCount = posts.filter((p) => p.is_published && p.status === 'published').length;
+    const pendingCount = posts.filter((p) => p.status === 'pending_approval').length;
+    const draftCount = posts.filter((p) => p.status !== 'published' && p.status !== 'pending_approval').length;
     const totalViews = posts.reduce((sum, p) => sum + (p.views_count || 0), 0);
 
     return (
         <div className="space-y-6">
             {/* Top Stat Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div className="bg-tronix-card/60 backdrop-blur-md border border-white/10 rounded-xl p-4 flex items-center gap-4">
                     <div className="w-12 h-12 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
                         <BookOpen size={22} />
@@ -323,7 +448,7 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                         <CheckCircle size={22} />
                     </div>
                     <div>
-                        <p className="text-xs text-gray-400 uppercase font-medium tracking-wider">Published</p>
+                        <p className="text-xs text-gray-400 uppercase font-medium tracking-wider">Live / Published</p>
                         <h4 className="text-2xl font-bold text-white mt-0.5">{publishedCount}</h4>
                     </div>
                 </div>
@@ -331,6 +456,21 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                 <div className="bg-tronix-card/60 backdrop-blur-md border border-white/10 rounded-xl p-4 flex items-center gap-4">
                     <div className="w-12 h-12 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
                         <Clock size={22} />
+                    </div>
+                    <div>
+                        <p className="text-xs text-gray-400 uppercase font-medium tracking-wider">Pending Review</p>
+                        <h4 className="text-2xl font-bold text-white mt-0.5 flex items-center gap-2">
+                            {pendingCount}
+                            {pendingCount > 0 && (
+                                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                            )}
+                        </h4>
+                    </div>
+                </div>
+
+                <div className="bg-tronix-card/60 backdrop-blur-md border border-white/10 rounded-xl p-4 flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-lg bg-neutral-800 border border-white/10 flex items-center justify-center text-gray-400">
+                        <Edit3 size={22} />
                     </div>
                     <div>
                         <p className="text-xs text-gray-400 uppercase font-medium tracking-wider">Drafts</p>
@@ -356,7 +496,7 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
                         <input
                             type="text"
-                            placeholder="Search by title, slug..."
+                            placeholder="Search by title, slug, author..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="bg-black/30 border border-white/10 rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-tronix-accent w-64"
@@ -370,8 +510,10 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                         className="bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-tronix-accent"
                     >
                         <option value="all">All Statuses</option>
-                        <option value="published">Published Only</option>
+                        <option value="published">Published Live</option>
+                        <option value="pending_approval">Pending Review ({pendingCount})</option>
                         <option value="draft">Drafts Only</option>
+                        <option value="rejected">Needs Revision</option>
                     </select>
 
                     {/* Category filter */}
@@ -397,13 +539,23 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                     </button>
                 </div>
 
-                <button
-                    onClick={handleOpenCreateModal}
-                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-tronix-accent to-emerald-500 text-white font-medium px-4 py-2 rounded-lg hover:brightness-110 shadow-lg shadow-tronix-accent/20 transition-all cursor-pointer"
-                >
-                    <Plus size={18} />
-                    <span>Create New Post</span>
-                </button>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={handleOpenAuthorModal}
+                        className="flex items-center justify-center gap-2 bg-neutral-800/80 hover:bg-neutral-700 border border-white/10 text-gray-200 hover:text-white font-medium px-4 py-2 rounded-lg transition-all cursor-pointer shadow-sm text-sm"
+                    >
+                        <Users size={16} className="text-tronix-accent" />
+                        <span>Manage Authors</span>
+                    </button>
+
+                    <button
+                        onClick={handleOpenCreateModal}
+                        className="flex items-center justify-center gap-2 bg-gradient-to-r from-tronix-accent to-emerald-500 text-white font-medium px-4 py-2 rounded-lg hover:brightness-110 shadow-lg shadow-tronix-accent/20 transition-all cursor-pointer text-sm"
+                    >
+                        <Plus size={18} />
+                        <span>Create New Post</span>
+                    </button>
+                </div>
             </div>
 
             {/* Posts Table */}
@@ -413,6 +565,7 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                         <thead className="bg-white/5 border-b border-white/10 text-xs uppercase text-gray-400 font-semibold tracking-wider">
                             <tr>
                                 <th className="px-6 py-4">Article</th>
+                                <th className="px-6 py-4">Author</th>
                                 <th className="px-6 py-4">Category & Layout</th>
                                 <th className="px-6 py-4">Status</th>
                                 <th className="px-6 py-4 text-center">Reads</th>
@@ -423,7 +576,7 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                         <tbody className="divide-y divide-white/5">
                             {loading ? (
                                 <tr>
-                                    <td colSpan="6" className="text-center py-12 text-gray-400">
+                                    <td colSpan="7" className="text-center py-12 text-gray-400">
                                         <div className="flex flex-col items-center gap-3">
                                             <RefreshCw className="animate-spin text-tronix-accent" size={24} />
                                             <span>Loading blog articles...</span>
@@ -432,7 +585,7 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                 </tr>
                             ) : posts.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" className="text-center py-12 text-gray-400">
+                                    <td colSpan="7" className="text-center py-12 text-gray-400">
                                         <div className="flex flex-col items-center gap-2">
                                             <BookOpen size={36} className="text-gray-600 mb-1" />
                                             <p className="text-base text-gray-300 font-medium">No blog posts found</p>
@@ -491,6 +644,24 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                         </td>
 
                                         <td className="px-6 py-4">
+                                            <div>
+                                                <p className="text-xs font-medium text-white truncate">
+                                                    {post.author_name || 'Tronix365 Team'}
+                                                </p>
+                                                {post.author_id && (
+                                                    <p className="text-[10px] text-gray-500 font-mono truncate max-w-[130px]" title={post.author_id}>
+                                                        {post.author_id}
+                                                    </p>
+                                                )}
+                                                {post.reviewed_by && (
+                                                    <p className="text-[9px] text-emerald-400/80 mt-0.5" title={`Reviewed by: ${post.reviewed_by}`}>
+                                                        ✓ Reviewed
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </td>
+
+                                        <td className="px-6 py-4">
                                             <div className="space-y-1">
                                                 <span className="inline-block px-2.5 py-1 text-xs rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-medium">
                                                     {post.category || 'General'}
@@ -502,21 +673,45 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                         </td>
 
                                         <td className="px-6 py-4">
-                                            <button
-                                                onClick={() => handleTogglePublish(post)}
-                                                className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center gap-1.5 cursor-pointer transition-all ${
-                                                    post.is_published
-                                                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
-                                                        : 'bg-amber-500/10 text-amber-400 border-amber-500/30 hover:bg-amber-500/20'
-                                                }`}
-                                            >
+                                            {post.status === 'published' || (post.is_published && post.status !== 'rejected' && post.status !== 'pending_approval') ? (
+                                                <button
+                                                    onClick={() => handleTogglePublish(post)}
+                                                    title="Click to unpublish article to draft"
+                                                    className="px-3 py-1 rounded-full text-xs font-semibold border flex items-center gap-1.5 cursor-pointer transition-all bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20"
+                                                >
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                                    Live
+                                                </button>
+                                            ) : post.status === 'pending_approval' ? (
                                                 <span
-                                                    className={`w-1.5 h-1.5 rounded-full ${
-                                                        post.is_published ? 'bg-emerald-400' : 'bg-amber-400'
-                                                    }`}
-                                                ></span>
-                                                {post.is_published ? 'Published' : 'Draft'}
-                                            </button>
+                                                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30 shadow-sm"
+                                                    title="Author has submitted this article for admin review"
+                                                >
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                                                    Pending Approval
+                                                </span>
+                                            ) : post.status === 'rejected' ? (
+                                                <div className="space-y-1">
+                                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/30">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+                                                        Needs Revision
+                                                    </span>
+                                                    {post.rejection_reason && (
+                                                        <p className="text-[10px] text-red-300/80 italic max-w-xs truncate" title={post.rejection_reason}>
+                                                            {post.rejection_reason}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    onClick={() => handleTogglePublish(post)}
+                                                    title="Click to publish article"
+                                                    className="px-3 py-1 rounded-full text-xs font-semibold border flex items-center gap-1.5 cursor-pointer transition-all bg-white/5 text-gray-400 border-white/10 hover:bg-white/10 hover:text-white"
+                                                >
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
+                                                    Draft
+                                                </button>
+                                            )}
                                         </td>
 
                                         <td className="px-6 py-4 text-center">
@@ -537,6 +732,33 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
 
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2">
+                                                {/* If post is pending approval, show prominent Approve and Reject buttons */}
+                                                {post.status === 'pending_approval' && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => handleApprovePost(post)}
+                                                            disabled={approvingPostId === post.id}
+                                                            title="Approve & Publish Live Immediately"
+                                                            className="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 flex items-center gap-1 cursor-pointer transition-all shadow-sm"
+                                                        >
+                                                            {approvingPostId === post.id ? (
+                                                                <RefreshCw className="animate-spin" size={13} />
+                                                            ) : (
+                                                                <Check size={13} />
+                                                            )}
+                                                            <span>Approve</span>
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleOpenRejectModal(post)}
+                                                            title="Request Revisions / Reject"
+                                                            className="px-2.5 py-1 text-xs font-bold rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/40 flex items-center gap-1 cursor-pointer transition-all shadow-sm"
+                                                        >
+                                                            <AlertTriangle size={13} />
+                                                            <span>Reject</span>
+                                                        </button>
+                                                    </>
+                                                )}
+
                                                 {post.is_published && (
                                                     <a
                                                         href={`/blog/${post.slug}`}
@@ -1110,6 +1332,264 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                     {editingPostId ? 'Save Changes' : 'Save & Publish Post'}
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Rejection / Revision Request Modal */}
+            {rejectingPost && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                    <div className="bg-neutral-900 border border-white/10 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-4">
+                        <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                            <div className="flex items-center gap-2.5 text-red-400">
+                                <AlertTriangle size={20} />
+                                <h3 className="text-lg font-bold text-white">Request Article Revisions</h3>
+                            </div>
+                            <button
+                                onClick={() => setRejectingPost(null)}
+                                className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 cursor-pointer"
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        <p className="text-xs text-gray-300">
+                            Send feedback to the author for{' '}
+                            <span className="font-semibold text-white">"{rejectingPost.title}"</span>.
+                            This article will be moved to <span className="text-red-400 font-semibold">Needs Revision</span> and will NOT be visible on the live public blog hub until revised and approved.
+                        </p>
+
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                                Revision Feedback / Reason *
+                            </label>
+                            <textarea
+                                rows={4}
+                                value={rejectionReason}
+                                onChange={(e) => setRejectionReason(e.target.value)}
+                                placeholder="E.g. Please clarify step 3 wiring pinouts for ESP32 and add high-resolution schematic diagrams."
+                                className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-red-500/50"
+                            />
+                        </div>
+
+                        <div className="flex items-center justify-end gap-3 pt-2">
+                            <button
+                                onClick={() => setRejectingPost(null)}
+                                className="px-4 py-2 text-xs font-semibold text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleConfirmReject}
+                                disabled={submittingRejection || !rejectionReason.trim()}
+                                className="px-4 py-2 text-xs font-bold bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-lg shadow-red-500/20"
+                            >
+                                {submittingRejection ? <RefreshCw className="animate-spin" size={14} /> : <AlertTriangle size={14} />}
+                                Confirm Rejection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Author Management & Generation Modal */}
+            {isAuthorModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto">
+                    <div className="bg-neutral-900 border border-white/15 rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+                        {/* Modal Header */}
+                        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+                            <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-tronix-accent/10 border border-tronix-accent/20 flex items-center justify-center text-tronix-accent">
+                                    <Users size={18} />
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-bold text-white">Author Management & Logins</h3>
+                                    <p className="text-xs text-gray-400">
+                                        Generate system accounts for blog authors. Authors can update credentials in Studio Settings.
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setIsAuthorModalOpen(false)}
+                                className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-130px)]">
+                            {/* Generated Credentials Banner */}
+                            {generatedCredentials && (
+                                <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 space-y-3 animate-in fade-in duration-300">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
+                                            <ShieldCheck size={18} />
+                                            <span>New Author Credentials Generated</span>
+                                        </div>
+                                        <button
+                                            onClick={copyCredentialsToClipboard}
+                                            className="px-3 py-1 text-xs font-bold rounded-lg bg-emerald-500 hover:bg-emerald-400 text-neutral-950 flex items-center gap-1.5 cursor-pointer transition-all shadow"
+                                        >
+                                            {copiedCredentials ? <Check size={14} /> : <Copy size={14} />}
+                                            <span>{copiedCredentials ? 'Copied to Clipboard!' : '1-Click Copy'}</span>
+                                        </button>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-black/40 p-3 rounded-lg border border-white/5 text-xs font-mono">
+                                        <div>
+                                            <span className="text-gray-400 text-[11px] block">Author ID / Login Email:</span>
+                                            <span className="text-white font-bold select-all">{generatedCredentials.author_id}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-gray-400 text-[11px] block">Generated Password:</span>
+                                            <span className="text-emerald-400 font-bold select-all">{generatedCredentials.password}</span>
+                                        </div>
+                                    </div>
+
+                                    <p className="text-[11px] text-gray-400">
+                                        💡 Give these credentials to the author. When they log in at <span className="text-tronix-accent font-mono">/blogs/studio</span>, they can change their email address and set a new password in Studio Settings.
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Generate New Author Account Form */}
+                            <form onSubmit={handleGenerateAuthor} className="bg-white/[0.02] border border-white/10 rounded-xl p-4 space-y-4">
+                                <div className="flex items-center gap-2 text-white font-semibold text-xs uppercase tracking-wider">
+                                    <UserPlus size={15} className="text-tronix-accent" />
+                                    <span>Generate New Author Account</span>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <div className="space-y-1">
+                                        <label className="text-[11px] font-medium text-gray-300">Author Full Name</label>
+                                        <input
+                                            type="text"
+                                            value={newAuthorForm.name}
+                                            onChange={(e) => setNewAuthorForm({ ...newAuthorForm, name: e.target.value })}
+                                            placeholder="e.g. Alex Rivera"
+                                            className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-tronix-accent"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <label className="text-[11px] font-medium text-gray-300">Email ID / Access ID (Optional)</label>
+                                        <input
+                                            type="text"
+                                            value={newAuthorForm.author_id}
+                                            onChange={(e) => setNewAuthorForm({ ...newAuthorForm, author_id: e.target.value })}
+                                            placeholder="Auto-generated if blank"
+                                            className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-tronix-accent"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <label className="text-[11px] font-medium text-gray-300">Custom Password (Optional)</label>
+                                        <input
+                                            type="text"
+                                            value={newAuthorForm.password}
+                                            onChange={(e) => setNewAuthorForm({ ...newAuthorForm, password: e.target.value })}
+                                            placeholder="Random 16-char if blank"
+                                            className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-tronix-accent font-mono"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between pt-1">
+                                    <span className="text-[10px] text-gray-500">
+                                        If left blank, the system automatically creates a unique ID and strong 16-char password.
+                                    </span>
+                                    <button
+                                        type="submit"
+                                        disabled={generatingAuthor}
+                                        className="px-4 py-2 rounded-lg bg-gradient-to-r from-tronix-accent to-emerald-500 hover:brightness-110 text-white font-bold text-xs shadow-md shadow-tronix-accent/20 flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                                    >
+                                        {generatingAuthor ? <RefreshCw className="animate-spin" size={14} /> : <UserPlus size={14} />}
+                                        <span>Generate Author Login</span>
+                                    </button>
+                                </div>
+                            </form>
+
+                            {/* Authors List Table */}
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <h4 className="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-2">
+                                        <Users size={14} className="text-blue-400" />
+                                        Existing Registered Authors ({authors.length})
+                                    </h4>
+                                    <button
+                                        type="button"
+                                        onClick={fetchAuthors}
+                                        className="text-xs text-gray-400 hover:text-white flex items-center gap-1 cursor-pointer"
+                                    >
+                                        <RefreshCw size={12} className={loadingAuthors ? 'animate-spin' : ''} />
+                                        Refresh
+                                    </button>
+                                </div>
+
+                                <div className="border border-white/10 rounded-xl overflow-hidden bg-neutral-950/50">
+                                    <table className="w-full text-left text-xs text-gray-300">
+                                        <thead className="bg-white/5 border-b border-white/10 text-gray-400 uppercase font-semibold text-[10px] tracking-wider">
+                                            <tr>
+                                                <th className="px-4 py-2.5">Name</th>
+                                                <th className="px-4 py-2.5">Email / Login ID</th>
+                                                <th className="px-4 py-2.5">Role</th>
+                                                <th className="px-4 py-2.5 text-right">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-white/5">
+                                            {loadingAuthors ? (
+                                                <tr>
+                                                    <td colSpan="4" className="text-center py-6 text-gray-500">
+                                                        <RefreshCw className="animate-spin inline mr-2 text-tronix-accent" size={14} />
+                                                        Loading authors...
+                                                    </td>
+                                                </tr>
+                                            ) : authors.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan="4" className="text-center py-6 text-gray-500">
+                                                        No authors registered yet. Use the generator above to create one.
+                                                    </td>
+                                                </tr>
+                                            ) : (
+                                                authors.map((author) => (
+                                                    <tr key={author.id} className="hover:bg-white/[0.02]">
+                                                        <td className="px-4 py-2.5 font-medium text-white">
+                                                            {author.full_name || 'Blog Author'}
+                                                        </td>
+                                                        <td className="px-4 py-2.5 font-mono text-gray-400">
+                                                            {author.email}
+                                                        </td>
+                                                        <td className="px-4 py-2.5">
+                                                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                                                {author.role}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-4 py-2.5 text-right">
+                                                            <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400">
+                                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                                                Active
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="px-6 py-3 border-t border-white/10 flex items-center justify-end bg-white/[0.02]">
+                            <button
+                                type="button"
+                                onClick={() => setIsAuthorModalOpen(false)}
+                                className="px-4 py-1.5 border border-white/10 rounded-lg text-xs text-gray-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                            >
+                                Close
+                            </button>
                         </div>
                     </div>
                 </div>

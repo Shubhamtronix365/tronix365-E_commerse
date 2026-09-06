@@ -992,6 +992,10 @@ class BlogPostDB(Base):
     tags = Column(JSON, default=list)  # list of strings
     reading_time_minutes = Column(Integer, default=5)
     is_published = Column(Boolean, default=False, index=True)
+    status = Column(String, default="draft", index=True)  # draft, pending_approval, published, rejected
+    rejection_reason = Column(String, nullable=True)
+    author_id = Column(String, nullable=True, index=True)
+    reviewed_by = Column(String, nullable=True)
     featured = Column(Boolean, default=False, index=True)
     views_count = Column(Integer, default=0)
     components_used = Column(JSON, default=list)  # list of dicts: [{"name": "ESP32", "sku": "ESP-32S", "product_id": 12, "link": "/product/12"}]
@@ -1015,6 +1019,10 @@ class BlogPostBase(BaseModel):
     tags: Optional[List[str]] = []
     reading_time_minutes: Optional[int] = 5
     is_published: Optional[bool] = False
+    status: Optional[str] = "draft"
+    rejection_reason: Optional[str] = None
+    author_id: Optional[str] = None
+    reviewed_by: Optional[str] = None
     featured: Optional[bool] = False
     components_used: Optional[List[Dict[str, Any]]] = []
     meta_title: Optional[str] = None
@@ -1044,6 +1052,10 @@ class BlogPostUpdate(BaseModel):
     tags: Optional[List[str]] = None
     reading_time_minutes: Optional[int] = None
     is_published: Optional[bool] = None
+    status: Optional[str] = None
+    rejection_reason: Optional[str] = None
+    author_id: Optional[str] = None
+    reviewed_by: Optional[str] = None
     featured: Optional[bool] = None
     components_used: Optional[List[Dict[str, Any]]] = None
     meta_title: Optional[str] = None
