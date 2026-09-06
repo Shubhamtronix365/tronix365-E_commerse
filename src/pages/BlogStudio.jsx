@@ -32,6 +32,11 @@ import {
     Sliders,
     Compass,
     Check,
+    Image as ImageIcon,
+    Video,
+    User,
+    Play,
+    Film,
 } from 'lucide-react';
 import client from '../api/client';
 import { getImageUrl } from '../utils/imageUtils';
@@ -74,7 +79,25 @@ const BlogStudio = () => {
     const [postToDelete, setPostToDelete] = useState(null);
     const [editorTab, setEditorTab] = useState('edit'); // 'edit' or 'preview'
     const [uploadingImage, setUploadingImage] = useState(false);
+    const [uploadingAvatar, setUploadingAvatar] = useState(false);
+    const [insertingMedia, setInsertingMedia] = useState(false);
+
+    // Media Modal States
+    const [isImageInsertModalOpen, setIsImageInsertModalOpen] = useState(false);
+    const [insertImageFile, setInsertImageFile] = useState(null);
+    const [insertImageCaption, setInsertImageCaption] = useState('');
+    const [insertImageWidth, setInsertImageWidth] = useState('100%');
+
+    const [isVideoInsertModalOpen, setIsVideoInsertModalOpen] = useState(false);
+    const [videoMode, setVideoMode] = useState('url'); // 'url' or 'upload'
+    const [videoUrlInput, setVideoUrlInput] = useState('');
+    const [insertVideoFile, setInsertVideoFile] = useState(null);
+
     const fileInputRef = useRef(null);
+    const avatarInputRef = useRef(null);
+    const contentImageInputRef = useRef(null);
+    const contentVideoInputRef = useRef(null);
+    const contentTextareaRef = useRef(null);
 
     // Form State
     const [form, setForm] = useState({
@@ -292,6 +315,146 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
         }
     };
 
+    const handleAuthorAvatarUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error('Avatar image must be under 5MB');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('file', file);
+        setUploadingAvatar(true);
+        try {
+            const res = await client.post('/upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            setForm((prev) => ({ ...prev, author_avatar: res.data.url }));
+            toast.success('Author profile photo uploaded successfully!');
+        } catch (err) {
+            console.error('Author avatar upload error:', err);
+            toast.error('Failed to upload author photo');
+        } finally {
+            setUploadingAvatar(false);
+        }
+    };
+
+    const getYouTubeEmbedUrl = (url) => {
+        try {
+            if (url.includes('youtu.be/')) {
+                const id = url.split('youtu.be/')[1]?.split('?')[0];
+                return `https://www.youtube-nocookie.com/embed/${id}`;
+            }
+            if (url.includes('watch?v=')) {
+                const id = url.split('watch?v=')[1]?.split('&')[0];
+                return `https://www.youtube-nocookie.com/embed/${id}`;
+            }
+            if (url.includes('/embed/')) {
+                return url;
+            }
+            return url;
+        } catch {
+            return url;
+        }
+    };
+
+    const handleInsertImageSubmit = async (e) => {
+        e.preventDefault();
+        if (!insertImageFile) {
+            toast.error('Please select an image file to upload');
+            return;
+        }
+        if (insertImageFile.size > 10 * 1024 * 1024) {
+            toast.error('Image size must be under 10MB');
+            return;
+        }
+
+        setInsertingMedia(true);
+        const formData = new FormData();
+        formData.append('file', insertImageFile);
+        try {
+            const res = await client.post('/upload/media', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            const imgUrl = res.data.url;
+            const caption = insertImageCaption.trim();
+            const widthClass =
+                insertImageWidth === '50%'
+                    ? 'max-w-md mx-auto'
+                    : insertImageWidth === '75%'
+                    ? 'max-w-2xl mx-auto'
+                    : 'w-full';
+
+            const figureHtml = `<figure class="my-8 ${widthClass} text-center">
+  <img src="${imgUrl}" alt="${caption || 'Hardware Guide Step'}" class="rounded-xl border border-white/10 shadow-xl w-full object-cover" />
+  ${caption ? `<figcaption class="text-xs text-gray-400 mt-2 italic">${caption}</figcaption>` : ''}
+</figure>`;
+
+            insertSnippet(figureHtml);
+            toast.success('Image inserted into article!');
+            setIsImageInsertModalOpen(false);
+            setInsertImageFile(null);
+            setInsertImageCaption('');
+        } catch (err) {
+            console.error('Error inserting content image:', err);
+            toast.error('Failed to upload and insert image');
+        } finally {
+            setInsertingMedia(false);
+        }
+    };
+
+    const handleInsertVideoSubmit = async (e) => {
+        e.preventDefault();
+        if (videoMode === 'url') {
+            const url = videoUrlInput.trim();
+            if (!url) {
+                toast.error('Please enter a video URL');
+                return;
+            }
+            const embedUrl = getYouTubeEmbedUrl(url);
+            const videoHtml = `<div class="my-8 aspect-video rounded-xl overflow-hidden border border-white/10 shadow-2xl">
+  <iframe src="${embedUrl}" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>`;
+            insertSnippet(videoHtml);
+            toast.success('Video player embedded into article!');
+            setIsVideoInsertModalOpen(false);
+            setVideoUrlInput('');
+        } else {
+            if (!insertVideoFile) {
+                toast.error('Please choose an MP4/WebM video file');
+                return;
+            }
+            if (insertVideoFile.size > 30 * 1024 * 1024) {
+                toast.error('Video file size exceeds 30MB limit');
+                return;
+            }
+            setInsertingMedia(true);
+            const formData = new FormData();
+            formData.append('file', insertVideoFile);
+            try {
+                const res = await client.post('/upload/media', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                });
+                const videoUrl = res.data.url;
+                const videoHtml = `<div class="my-8 rounded-xl overflow-hidden border border-white/10 shadow-2xl">
+  <video controls class="w-full rounded-xl" preload="metadata">
+    <source src="${videoUrl}" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
+</div>`;
+                insertSnippet(videoHtml);
+                toast.success('Uploaded video inserted into article!');
+                setIsVideoInsertModalOpen(false);
+                setInsertVideoFile(null);
+            } catch (err) {
+                console.error('Error uploading video:', err);
+                toast.error('Failed to upload video file (max 30MB)');
+            } finally {
+                setInsertingMedia(false);
+            }
+        }
+    };
+
     const handleAddTag = () => {
         const clean = newTagInput.trim();
         if (clean && !form.tags.includes(clean)) {
@@ -321,10 +484,41 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
     };
 
     const insertSnippet = (snippet) => {
-        setForm((prev) => ({
-            ...prev,
-            content: prev.content ? `${prev.content}\n\n${snippet}` : snippet,
-        }));
+        const textarea = contentTextareaRef.current;
+        if (textarea) {
+            const start = textarea.selectionStart ?? textarea.value.length;
+            const end = textarea.selectionEnd ?? textarea.value.length;
+            const currentVal = textarea.value || form.content || '';
+            const textBefore = currentVal.substring(0, start);
+            const textAfter = currentVal.substring(end);
+
+            const prefix =
+                textBefore.length === 0 || textBefore.endsWith('\n\n')
+                    ? ''
+                    : textBefore.endsWith('\n')
+                    ? '\n'
+                    : '\n\n';
+            const suffix =
+                textAfter.length === 0 || textAfter.startsWith('\n\n')
+                    ? ''
+                    : textAfter.startsWith('\n')
+                    ? '\n'
+                    : '\n\n';
+
+            const newContent = `${textBefore}${prefix}${snippet}${suffix}${textAfter}`;
+            setForm((prev) => ({ ...prev, content: newContent }));
+
+            setTimeout(() => {
+                textarea.focus();
+                const newPos = start + prefix.length + snippet.length;
+                textarea.setSelectionRange(newPos, newPos);
+            }, 50);
+        } else {
+            setForm((prev) => ({
+                ...prev,
+                content: prev.content ? `${prev.content}\n\n${snippet}` : snippet,
+            }));
+        }
     };
 
     const totalCount = posts.length;
@@ -854,21 +1048,53 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                                 </span>
                                             </div>
 
-                                            <div className="flex flex-wrap items-center gap-1.5 p-2 bg-neutral-950 border border-white/10 rounded-t-lg">
+                                            <div className="flex flex-wrap items-center gap-1.5 p-2.5 bg-neutral-950 border border-white/10 rounded-t-lg">
                                                 <button
                                                     type="button"
-                                                    onClick={() => insertSnippet('<h3>Subheading Title</h3>')}
-                                                    className="px-2 py-1 bg-white/5 hover:bg-white/10 text-xs text-gray-300 rounded"
+                                                    onClick={() => insertSnippet('<h2>Section Heading</h2>\n<p>Enter detailed hardware explanation or steps...</p>')}
+                                                    className="px-2.5 py-1 bg-white/10 hover:bg-white/15 text-xs text-white font-bold rounded flex items-center gap-1 cursor-pointer transition-colors"
                                                 >
-                                                    H3
+                                                    H2 Heading
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    onClick={() => insertSnippet('<p>Paragraph text here...</p>')}
-                                                    className="px-2 py-1 bg-white/5 hover:bg-white/10 text-xs text-gray-300 rounded"
+                                                    onClick={() => insertSnippet('<h3>Subheading Title</h3>\n<p>Enter technical subsection details...</p>')}
+                                                    className="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-xs text-gray-300 rounded cursor-pointer transition-colors"
                                                 >
-                                                    P
+                                                    H3 Sub
                                                 </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => insertSnippet('<p>Write paragraph details here...</p>')}
+                                                    className="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-xs text-gray-300 rounded cursor-pointer transition-colors"
+                                                >
+                                                    Paragraph
+                                                </button>
+
+                                                <div className="h-4 w-px bg-white/15 mx-1" />
+
+                                                {/* In-Between Image Upload Button */}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIsImageInsertModalOpen(true)}
+                                                    className="px-2.5 py-1 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-semibold rounded flex items-center gap-1.5 cursor-pointer transition-colors shadow-sm"
+                                                >
+                                                    <ImageIcon size={13} />
+                                                    Insert Image
+                                                </button>
+
+                                                {/* In-Between Video Embed Button */}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIsVideoInsertModalOpen(true)}
+                                                    className="px-2.5 py-1 bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30 text-xs font-semibold rounded flex items-center gap-1.5 cursor-pointer transition-colors shadow-sm"
+                                                >
+                                                    <Video size={13} />
+                                                    Insert Video
+                                                </button>
+
+                                                <div className="h-4 w-px bg-white/15 mx-1" />
+
                                                 <button
                                                     type="button"
                                                     onClick={() =>
@@ -876,9 +1102,9 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                                             '<pre><code class="language-cpp">\n// Hardware source code snippet\nvoid setup() {\n  \n}\n</code></pre>'
                                                         )
                                                     }
-                                                    className="px-2 py-1 bg-white/5 hover:bg-white/10 text-xs text-gray-300 rounded flex items-center gap-1"
+                                                    className="px-2 py-1 bg-white/5 hover:bg-white/10 text-xs text-gray-300 rounded flex items-center gap-1 cursor-pointer transition-colors"
                                                 >
-                                                    <Code size={12} /> Code Block
+                                                    <Code size={12} /> Code
                                                 </button>
                                                 <button
                                                     type="button"
@@ -887,7 +1113,7 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                                             '<table class="table-auto w-full text-left">\n  <thead>\n    <tr><th>Pin Name</th><th>GPIO</th><th>Function</th></tr>\n  </thead>\n  <tbody>\n    <tr><td>SDA</td><td>GPIO 21</td><td>I2C Data</td></tr>\n    <tr><td>SCL</td><td>GPIO 22</td><td>I2C Clock</td></tr>\n  </tbody>\n</table>'
                                                         )
                                                     }
-                                                    className="px-2 py-1 bg-white/5 hover:bg-white/10 text-xs text-gray-300 rounded"
+                                                    className="px-2 py-1 bg-white/5 hover:bg-white/10 text-xs text-gray-300 rounded cursor-pointer transition-colors"
                                                 >
                                                     Pinout Table
                                                 </button>
@@ -898,15 +1124,17 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                                             '<blockquote>\n  <strong>Pro Tip:</strong> Decouple sensitive analog lines with a 100nF ceramic capacitor placed adjacent to the IC VDD pin.\n</blockquote>'
                                                         )
                                                     }
-                                                    className="px-2 py-1 bg-white/5 hover:bg-white/10 text-xs text-amber-300 rounded"
+                                                    className="px-2 py-1 bg-white/5 hover:bg-white/10 text-xs text-amber-300 rounded cursor-pointer transition-colors"
                                                 >
-                                                    Pro Tip Callout
+                                                    Pro Tip
                                                 </button>
                                             </div>
 
                                             <textarea
-                                                rows="12"
+                                                ref={contentTextareaRef}
+                                                rows="14"
                                                 required
+                                                placeholder="Write your article here, or use the quick buttons above to insert headings, images, videos, tables, and code snippets wherever your cursor is placed..."
                                                 value={form.content}
                                                 onChange={(e) => setForm({ ...form, content: e.target.value })}
                                                 className="w-full bg-black/50 border border-white/10 border-t-0 rounded-b-lg p-4 text-white font-mono text-xs leading-relaxed focus:outline-none focus:border-tronix-accent resize-y"
@@ -1027,102 +1255,171 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                             </div>
                                         </div>
 
-                                        {/* Author Meta & Publishing Flags */}
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-2">
-                                            <div>
-                                                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
-                                                    Author Name
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    value={form.author_name}
-                                                    onChange={(e) => setForm({ ...form, author_name: e.target.value })}
-                                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white"
-                                                />
+                                        {/* Author Meta & Profile Photo */}
+                                        <div className="bg-black/30 border border-white/10 rounded-xl p-4 space-y-4">
+                                            <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                                                <div className="flex items-center gap-2">
+                                                    <User size={16} className="text-tronix-accent" />
+                                                    <h4 className="text-sm font-semibold text-white">Author Profile & Credentials</h4>
+                                                </div>
+                                                <span className="text-[11px] text-gray-400">Displayed at the top of the published guide</span>
                                             </div>
 
-                                            <div>
-                                                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
-                                                    Author Role
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    value={form.author_role}
-                                                    onChange={(e) => setForm({ ...form, author_role: e.target.value })}
-                                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white"
-                                                />
+                                            <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+                                                {/* Author Avatar Upload */}
+                                                <div className="sm:col-span-4 flex items-center gap-3">
+                                                    <div className="w-14 h-14 rounded-xl overflow-hidden bg-neutral-800 border border-white/20 shrink-0 shadow-md flex items-center justify-center text-tronix-accent font-bold">
+                                                        {form.author_avatar ? (
+                                                            <img
+                                                                src={getImageUrl(form.author_avatar)}
+                                                                alt={form.author_name}
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        ) : (
+                                                            form.author_name?.[0]?.toUpperCase() || 'A'
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <button
+                                                            type="button"
+                                                            disabled={uploadingAvatar}
+                                                            onClick={() => avatarInputRef.current?.click()}
+                                                            className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-xs font-medium text-white border border-white/10 flex items-center gap-1.5 transition-all cursor-pointer"
+                                                        >
+                                                            <UploadCloud size={14} />
+                                                            {uploadingAvatar ? 'Uploading...' : 'Upload Photo'}
+                                                        </button>
+                                                        <input
+                                                            type="file"
+                                                            ref={avatarInputRef}
+                                                            onChange={handleAuthorAvatarUpload}
+                                                            accept="image/*"
+                                                            className="hidden"
+                                                        />
+                                                        <span className="text-[10px] text-gray-500 block mt-1">Photo / Avatar</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Author Name */}
+                                                <div className="sm:col-span-4">
+                                                    <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">
+                                                        Author Name
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="e.g. Vedhathiri"
+                                                        value={form.author_name}
+                                                        onChange={(e) => setForm({ ...form, author_name: e.target.value })}
+                                                        className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-tronix-accent"
+                                                    />
+                                                </div>
+
+                                                {/* Author Role */}
+                                                <div className="sm:col-span-4">
+                                                    <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">
+                                                        Author Designation
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="e.g. Author / Hardware Specialist"
+                                                        value={form.author_role}
+                                                        onChange={(e) => setForm({ ...form, author_role: e.target.value })}
+                                                        className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-tronix-accent"
+                                                    />
+                                                </div>
                                             </div>
 
-                                            <div className="flex items-center gap-3 pt-6">
-                                                <input
-                                                    type="checkbox"
-                                                    id="studio_is_published"
-                                                    checked={form.is_published}
-                                                    onChange={(e) =>
-                                                        setForm({ ...form, is_published: e.target.checked })
-                                                    }
-                                                    className="w-4 h-4 rounded text-tronix-accent focus:ring-0 bg-black/40 border-white/20 cursor-pointer"
-                                                />
-                                                <label
-                                                    htmlFor="studio_is_published"
-                                                    className="text-sm font-medium text-white cursor-pointer"
-                                                >
-                                                    Publish Immediately
-                                                </label>
-                                            </div>
+                                            {/* Publishing Flags */}
+                                            <div className="flex flex-wrap items-center gap-6 pt-2 border-t border-white/5">
+                                                <div className="flex items-center gap-2.5">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="studio_is_published"
+                                                        checked={form.is_published}
+                                                        onChange={(e) =>
+                                                            setForm({ ...form, is_published: e.target.checked })
+                                                        }
+                                                        className="w-4 h-4 rounded text-tronix-accent focus:ring-0 bg-black/40 border-white/20 cursor-pointer"
+                                                    />
+                                                    <label
+                                                        htmlFor="studio_is_published"
+                                                        className="text-xs font-medium text-white cursor-pointer"
+                                                    >
+                                                        Publish Article Immediately
+                                                    </label>
+                                                </div>
 
-                                            <div className="flex items-center gap-3 pt-6">
-                                                <input
-                                                    type="checkbox"
-                                                    id="studio_featured"
-                                                    checked={form.featured}
-                                                    onChange={(e) =>
-                                                        setForm({ ...form, featured: e.target.checked })
-                                                    }
-                                                    className="w-4 h-4 rounded text-amber-400 focus:ring-0 bg-black/40 border-white/20 cursor-pointer"
-                                                />
-                                                <label
-                                                    htmlFor="studio_featured"
-                                                    className="text-sm font-medium text-white cursor-pointer"
-                                                >
-                                                    Spotlight Hero Card
-                                                </label>
+                                                <div className="flex items-center gap-2.5">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="studio_featured"
+                                                        checked={form.featured}
+                                                        onChange={(e) =>
+                                                            setForm({ ...form, featured: e.target.checked })
+                                                        }
+                                                        className="w-4 h-4 rounded text-amber-400 focus:ring-0 bg-black/40 border-white/20 cursor-pointer"
+                                                    />
+                                                    <label
+                                                        htmlFor="studio_featured"
+                                                        className="text-xs font-medium text-white cursor-pointer"
+                                                    >
+                                                        Pin to Spotlight Hero Card
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
                                     </form>
                                 ) : (
                                     /* Live Preview */
                                     <div className="space-y-6 max-w-3xl mx-auto py-4">
-                                        <div className="space-y-3 border-b border-white/10 pb-6">
-                                            <div className="flex items-center gap-2">
-                                                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-tronix-accent/20 text-tronix-accent border border-tronix-accent/30">
+                                        <div className="space-y-4 border-b border-white/10 pb-6">
+                                            <div className="flex items-start gap-3">
+                                                <span className="w-8 h-1.5 bg-red-500 rounded-full mt-3 shrink-0 shadow-sm shadow-red-500/50" />
+                                                <h1 className="text-2xl sm:text-4xl font-display font-black text-white tracking-tight leading-snug">
+                                                    {form.title || 'Untitled Hardware Guide'}
+                                                </h1>
+                                            </div>
+
+                                            <div className="flex items-center gap-3 text-xs text-gray-400 border-b border-white/5 pb-2">
+                                                <span className="font-semibold text-gray-200">
+                                                    Published <span className="text-gray-400 font-normal">Today (Preview)</span>
+                                                </span>
+                                                <span>•</span>
+                                                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-tronix-accent/15 text-tronix-accent border border-tronix-accent/30">
                                                     {form.category}
                                                 </span>
-                                                <span className="text-xs text-gray-400">
-                                                    {form.reading_time_minutes} min read
-                                                </span>
+                                                <span>•</span>
+                                                <span>{form.reading_time_minutes || 5} min read</span>
                                             </div>
-                                            <h1 className="text-3xl sm:text-4xl font-display font-bold text-white tracking-tight">
-                                                {form.title || 'Untitled Article'}
-                                            </h1>
+
+                                            {/* Author Meta Preview */}
+                                            <div className="flex items-center gap-3 py-1">
+                                                <div className="w-12 h-12 rounded-xl overflow-hidden bg-neutral-800 border border-white/15 shrink-0 shadow-md flex items-center justify-center text-tronix-accent font-bold">
+                                                    {form.author_avatar ? (
+                                                        <img
+                                                            src={getImageUrl(form.author_avatar)}
+                                                            alt={form.author_name}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        form.author_name?.[0]?.toUpperCase() || 'A'
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-sm font-bold text-white leading-tight">{form.author_name || 'Author Name'}</h4>
+                                                    <p className="text-xs text-gray-400 font-medium mt-0.5">{form.author_role || 'Author'}</p>
+                                                </div>
+                                            </div>
+
                                             {form.summary && (
-                                                <p className="text-base text-gray-300 leading-relaxed font-normal">
+                                                <p className="text-sm text-gray-300 leading-relaxed font-normal pt-1">
                                                     {form.summary}
                                                 </p>
                                             )}
-                                            <div className="flex items-center gap-3 pt-2">
-                                                <div className="w-10 h-10 rounded-full bg-neutral-800 border border-white/10 flex items-center justify-center font-bold text-tronix-accent">
-                                                    {form.author_name?.[0] || 'T'}
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-medium text-white">{form.author_name}</p>
-                                                    <p className="text-xs text-gray-400">{form.author_role}</p>
-                                                </div>
-                                            </div>
                                         </div>
 
                                         {form.cover_image && (
-                                            <div className="rounded-xl overflow-hidden border border-white/10 aspect-video max-h-80">
+                                            <div className="rounded-2xl overflow-hidden border border-white/10 aspect-video max-h-80 shadow-2xl">
                                                 <img
                                                     src={getImageUrl(form.cover_image)}
                                                     alt={form.title}
@@ -1132,7 +1429,7 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                         )}
 
                                         <div
-                                            className="prose prose-invert prose-emerald max-w-none text-gray-200 text-sm sm:text-base leading-relaxed space-y-4"
+                                            className="prose prose-invert prose-emerald max-w-none text-gray-200 text-sm sm:text-base leading-relaxed space-y-4 [&_figure]:my-6 [&_figure]:rounded-xl [&_figure]:overflow-hidden [&_figure]:border [&_figure]:border-white/10 [&_figure_img]:w-full [&_figure_img]:rounded-lg [&_figcaption]:text-center [&_figcaption]:text-xs [&_figcaption]:text-gray-400 [&_figcaption]:mt-2 [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-xl [&_iframe]:border [&_iframe]:border-white/10 [&_video]:w-full [&_video]:rounded-xl [&_video]:border [&_video]:border-white/10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h2]:pt-4 [&_h2]:border-b [&_h2]:border-white/10 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-tronix-accent [&_p]:text-gray-300 [&_table]:w-full [&_table]:border-collapse [&_th]:bg-white/5 [&_th]:p-2.5 [&_td]:p-2.5"
                                             dangerouslySetInnerHTML={{ __html: form.content }}
                                         />
 
@@ -1199,6 +1496,230 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                     confirmText="Delete Article"
                     type="danger"
                 />
+
+                {/* Controlled In-Content Image Insertion Modal */}
+                <AnimatePresence>
+                    {isImageInsertModalOpen && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                className="w-full max-w-md bg-neutral-900 border border-white/15 rounded-2xl p-6 space-y-4 shadow-2xl relative"
+                            >
+                                <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                                            <ImageIcon size={18} />
+                                        </div>
+                                        <h3 className="text-base font-bold text-white">Insert Image into Article</h3>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsImageInsertModalOpen(false)}
+                                        className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5"
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                </div>
+
+                                <form onSubmit={handleInsertImageSubmit} className="space-y-4">
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
+                                            Select Image File * (Max 10MB)
+                                        </label>
+                                        <input
+                                            type="file"
+                                            ref={contentImageInputRef}
+                                            accept="image/*"
+                                            onChange={(e) => setInsertImageFile(e.target.files?.[0] || null)}
+                                            className="w-full text-xs text-gray-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/15 file:text-emerald-300 hover:file:bg-emerald-500/25 cursor-pointer bg-black/40 border border-white/10 rounded-xl p-2"
+                                        />
+                                        <span className="text-[11px] text-gray-500 mt-1 block">
+                                            Auto-optimized & converted to WebP format.
+                                        </span>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
+                                            Caption / Figure Note (Optional)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. CD4017 Decade Counter Pin Diagram on Breadboard"
+                                            value={insertImageCaption}
+                                            onChange={(e) => setInsertImageCaption(e.target.value)}
+                                            className="w-full bg-black/40 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-tronix-accent"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
+                                            Layout & Size
+                                        </label>
+                                        <div className="grid grid-cols-3 gap-2">
+                                            {['100%', '75%', '50%'].map((w) => (
+                                                <button
+                                                    key={w}
+                                                    type="button"
+                                                    onClick={() => setInsertImageWidth(w)}
+                                                    className={`py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                                                        insertImageWidth === w
+                                                            ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold'
+                                                            : 'bg-black/30 border-white/10 text-gray-400 hover:text-white'
+                                                    }`}
+                                                >
+                                                    {w === '100%' ? 'Full Width' : w === '75%' ? 'Medium (75%)' : 'Compact (50%)'}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-3 flex items-center justify-end gap-3 border-t border-white/10">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsImageInsertModalOpen(false)}
+                                            className="px-4 py-2 rounded-xl text-xs text-gray-400 hover:text-white hover:bg-white/5"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={insertingMedia || !insertImageFile}
+                                            className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold text-xs hover:brightness-110 shadow-lg shadow-emerald-500/20 disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                                        >
+                                            {insertingMedia ? (
+                                                <>
+                                                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                    Uploading...
+                                                </>
+                                            ) : (
+                                                'Upload & Insert Image'
+                                            )}
+                                        </button>
+                                    </div>
+                                </form>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
+
+                {/* Controlled In-Content Video Embed Modal */}
+                <AnimatePresence>
+                    {isVideoInsertModalOpen && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                className="w-full max-w-md bg-neutral-900 border border-white/15 rounded-2xl p-6 space-y-4 shadow-2xl relative"
+                            >
+                                <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                                            <Video size={18} />
+                                        </div>
+                                        <h3 className="text-base font-bold text-white">Insert Video Player</h3>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsVideoInsertModalOpen(false)}
+                                        className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5"
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                </div>
+
+                                {/* Mode Switcher */}
+                                <div className="flex rounded-xl bg-black/40 p-1 border border-white/10">
+                                    <button
+                                        type="button"
+                                        onClick={() => setVideoMode('url')}
+                                        className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                                            videoMode === 'url'
+                                                ? 'bg-blue-500/20 border border-blue-500/40 text-blue-300 font-bold'
+                                                : 'text-gray-400 hover:text-white'
+                                        }`}
+                                    >
+                                        YouTube / Web Link
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setVideoMode('upload')}
+                                        className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                                            videoMode === 'upload'
+                                                ? 'bg-blue-500/20 border border-blue-500/40 text-blue-300 font-bold'
+                                                : 'text-gray-400 hover:text-white'
+                                        }`}
+                                    >
+                                        Upload MP4 / WebM
+                                    </button>
+                                </div>
+
+                                <form onSubmit={handleInsertVideoSubmit} className="space-y-4">
+                                    {videoMode === 'url' ? (
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
+                                                Video URL *
+                                            </label>
+                                            <input
+                                                type="url"
+                                                required
+                                                placeholder="https://www.youtube.com/watch?v=..."
+                                                value={videoUrlInput}
+                                                onChange={(e) => setVideoUrlInput(e.target.value)}
+                                                className="w-full bg-black/40 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-tronix-accent font-mono"
+                                            />
+                                            <span className="text-[11px] text-gray-500 mt-1.5 block">
+                                                Supports YouTube, YouTube Shorts, Vimeo, and direct video links.
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
+                                                Select Video File * (Max 30MB)
+                                            </label>
+                                            <input
+                                                type="file"
+                                                ref={contentVideoInputRef}
+                                                accept="video/mp4,video/webm"
+                                                onChange={(e) => setInsertVideoFile(e.target.files?.[0] || null)}
+                                                className="w-full text-xs text-gray-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-500/15 file:text-blue-300 hover:file:bg-blue-500/25 cursor-pointer bg-black/40 border border-white/10 rounded-xl p-2"
+                                            />
+                                            <span className="text-[11px] text-gray-500 mt-1.5 block">
+                                                Permitted formats: MP4, WebM (H.264 / VP9 codec recommended).
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    <div className="pt-3 flex items-center justify-end gap-3 border-t border-white/10">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsVideoInsertModalOpen(false)}
+                                            className="px-4 py-2 rounded-xl text-xs text-gray-400 hover:text-white hover:bg-white/5"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={insertingMedia || (videoMode === 'url' ? !videoUrlInput.trim() : !insertVideoFile)}
+                                            className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold text-xs hover:brightness-110 shadow-lg shadow-blue-500/20 disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                                        >
+                                            {insertingMedia ? (
+                                                <>
+                                                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                    Processing...
+                                                </>
+                                            ) : (
+                                                'Embed Video Player'
+                                            )}
+                                        </button>
+                                    </div>
+                                </form>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );

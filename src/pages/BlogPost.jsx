@@ -199,43 +199,33 @@ const BlogPost = () => {
                     </Link>
                 </div>
 
-                {/* Article Header Section */}
+                {/* Article Header Section matching engineering journal layout */}
                 <div className="max-w-4xl space-y-5">
-                    <div className="flex items-center gap-3 flex-wrap">
-                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-tronix-accent/15 text-tronix-accent border border-tronix-accent/30">
-                            {post.category}
-                        </span>
-                        <span className="text-xs text-gray-400 flex items-center gap-1">
-                            <Clock size={14} /> {post.reading_time_minutes || 5} min read
-                        </span>
-                        <span className="text-xs text-gray-400 flex items-center gap-1">
-                            <Eye size={14} /> {post.views_count || 1} views
-                        </span>
-                        <span className="text-xs text-gray-400 flex items-center gap-1">
-                            <Calendar size={14} /> {formattedDate}
-                        </span>
+                    <div className="flex items-start gap-3">
+                        <span className="w-8 h-1.5 bg-red-500 rounded-full mt-3 sm:mt-4 shrink-0 shadow-sm shadow-red-500/50" />
+                        <h1 className="text-2xl sm:text-4xl lg:text-5xl font-display font-black text-white tracking-tight leading-snug">
+                            {post.title}
+                        </h1>
                     </div>
 
-                    <h1 className="text-3xl sm:text-5xl font-display font-black text-white tracking-tight leading-tight">
-                        {post.title}
-                    </h1>
-
-                    {post.summary && (
-                        <p className="text-base sm:text-lg text-gray-300 leading-relaxed font-normal">
-                            {post.summary}
-                        </p>
-                    )}
-
-                    {/* Author Meta Row */}
-                    <div className="pt-2 flex items-center justify-between border-t border-white/10">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-tronix-accent/20 border border-tronix-accent/40 flex items-center justify-center font-bold text-tronix-accent">
-                                {post.author_name?.[0] || 'T'}
-                            </div>
-                            <div>
-                                <h4 className="text-sm font-semibold text-white">{post.author_name}</h4>
-                                <p className="text-xs text-gray-400">{post.author_role || 'Hardware Engineer'}</p>
-                            </div>
+                    {/* Published Date Line & Quick Stats */}
+                    <div className="flex flex-wrap items-center justify-between gap-4 pt-1 pb-3 border-b border-white/10 text-xs text-gray-400">
+                        <div className="flex items-center gap-3 flex-wrap">
+                            <span className="font-semibold text-gray-200">
+                                Published <span className="text-gray-300 font-normal">{formattedDate}</span>
+                            </span>
+                            <span>•</span>
+                            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-tronix-accent/15 text-tronix-accent border border-tronix-accent/30">
+                                {post.category}
+                            </span>
+                            <span>•</span>
+                            <span className="flex items-center gap-1">
+                                <Clock size={13} /> {post.reading_time_minutes || 5} min read
+                            </span>
+                            <span>•</span>
+                            <span className="flex items-center gap-1">
+                                <Eye size={13} /> {post.views_count || 1} views
+                            </span>
                         </div>
 
                         {/* Share buttons */}
@@ -243,33 +233,60 @@ const BlogPost = () => {
                             <button
                                 onClick={handleCopyUrl}
                                 title="Copy Article URL"
-                                className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-300 hover:text-white transition-colors cursor-pointer"
+                                className="p-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-gray-300 hover:text-white transition-colors cursor-pointer"
                             >
-                                {copiedLink ? <Check size={16} className="text-emerald-400" /> : <Copy size={16} />}
+                                {copiedLink ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
                             </button>
                             <button
                                 onClick={handleShareWhatsApp}
                                 title="Share on WhatsApp"
-                                className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-emerald-400 transition-colors cursor-pointer"
+                                className="p-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-emerald-400 transition-colors cursor-pointer"
                             >
-                                <MessageCircle size={16} />
+                                <MessageCircle size={14} />
                             </button>
                             <button
                                 onClick={handleShareTwitter}
                                 title="Share on X"
-                                className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-blue-400 transition-colors cursor-pointer"
+                                className="p-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-blue-400 transition-colors cursor-pointer"
                             >
-                                <Twitter size={16} />
+                                <Twitter size={14} />
                             </button>
                             <button
                                 onClick={handleShareLinkedIn}
                                 title="Share on LinkedIn"
-                                className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-blue-500 transition-colors cursor-pointer"
+                                className="p-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-blue-500 transition-colors cursor-pointer"
                             >
-                                <Linkedin size={16} />
+                                <Linkedin size={14} />
                             </button>
                         </div>
                     </div>
+
+                    {/* Author Meta Box with Uploaded Photo & Name */}
+                    <div className="flex items-center gap-3.5 py-1">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden bg-neutral-800 border border-white/15 shrink-0 shadow-md">
+                            {post.author_avatar ? (
+                                <img
+                                    src={getImageUrl(post.author_avatar)}
+                                    alt={post.author_name}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center font-bold text-lg text-tronix-accent bg-gradient-to-br from-tronix-accent/20 to-emerald-500/20">
+                                    {post.author_name?.[0]?.toUpperCase() || 'A'}
+                                </div>
+                            )}
+                        </div>
+                        <div>
+                            <h4 className="text-base font-bold text-white leading-tight">{post.author_name}</h4>
+                            <p className="text-xs text-gray-400 font-medium mt-0.5">{post.author_role || 'Author'}</p>
+                        </div>
+                    </div>
+
+                    {post.summary && (
+                        <p className="text-base sm:text-lg text-gray-300 leading-relaxed font-normal pt-1">
+                            {post.summary}
+                        </p>
+                    )}
                 </div>
 
                 {/* Cover Image */}
@@ -369,7 +386,7 @@ const BlogPost = () => {
                     <article className="lg:col-span-8 order-1 lg:order-2">
                         <div
                             ref={contentRef}
-                            className="blog-content-body prose prose-invert prose-emerald max-w-none text-gray-200 text-base leading-relaxed space-y-6"
+                            className="blog-content-body prose prose-invert prose-emerald max-w-none text-gray-200 text-base leading-relaxed space-y-6 [&_figure]:my-8 [&_figure]:rounded-2xl [&_figure]:overflow-hidden [&_figure]:border [&_figure]:border-white/10 [&_figure_img]:w-full [&_figure_img]:rounded-xl [&_figure_img]:shadow-xl [&_figcaption]:text-center [&_figcaption]:text-xs [&_figcaption]:text-gray-400 [&_figcaption]:mt-2.5 [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-2xl [&_iframe]:border [&_iframe]:border-white/10 [&_iframe]:shadow-xl [&_video]:w-full [&_video]:rounded-2xl [&_video]:border [&_video]:border-white/10 [&_video]:shadow-xl [&_h2]:text-2xl [&_h2]:sm:text-3xl [&_h2]:font-bold [&_h2]:text-white [&_h2]:pt-6 [&_h2]:pb-2 [&_h2]:border-b [&_h2]:border-white/10 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-tronix-accent [&_h3]:pt-4 [&_p]:text-gray-300 [&_p]:leading-relaxed [&_table]:w-full [&_table]:border-collapse [&_th]:bg-white/5 [&_th]:p-3 [&_th]:text-left [&_th]:border-b [&_th]:border-white/10 [&_td]:p-3 [&_td]:border-b [&_td]:border-white/5"
                             dangerouslySetInnerHTML={{ __html: post.content }}
                         />
 

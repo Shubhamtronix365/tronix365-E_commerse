@@ -32,12 +32,18 @@ def sanitize_blog_html(text: str) -> str:
         "h1", "h2", "h3", "h4", "h5", "h6",
         "p", "b", "i", "u", "em", "strong", "span", "div",
         "ul", "ol", "li", "blockquote", "code", "pre",
-        "hr", "br", "a", "img",
+        "hr", "br", "a", "img", "figure", "figcaption",
+        "video", "source", "iframe",
         "table", "thead", "tbody", "tr", "th", "td",
     ]
     allowed_attributes = {
         "a": ["href", "title", "target", "rel"],
-        "img": ["src", "alt", "title", "width", "height", "class"],
+        "img": ["src", "alt", "title", "width", "height", "class", "style", "loading"],
+        "figure": ["class", "style"],
+        "figcaption": ["class", "style"],
+        "video": ["src", "controls", "autoplay", "loop", "muted", "poster", "width", "height", "class", "style", "preload"],
+        "source": ["src", "type"],
+        "iframe": ["src", "width", "height", "frameborder", "allow", "allowfullscreen", "class", "title", "style"],
         "*": ["class", "id"],
     }
     return bleach.clean(clean_text, tags=allowed_tags, attributes=allowed_attributes, strip=True)

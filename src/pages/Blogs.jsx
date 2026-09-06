@@ -153,15 +153,15 @@ const Blogs = () => {
     const heroPost = featuredPosts[0];
 
     return (
-        <div className="min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 bg-tronix-dark">
-            <div className="max-w-7xl mx-auto space-y-12">
+        <div className="min-h-screen pt-28 sm:pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-tronix-dark">
+            <div className="max-w-7xl mx-auto space-y-10">
                 {/* Top Studio Access Bar */}
-                <div className="flex items-center justify-between border-b border-white/5 pb-4">
-                    <div className="flex items-center gap-2 text-xs text-gray-400">
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-400">
                         <Link to="/" className="hover:text-white transition-colors">
                             Home
                         </Link>
-                        <ChevronRight size={12} />
+                        <ChevronRight size={14} />
                         <span className="text-tronix-accent font-medium">Engineering Blogs</span>
                     </div>
 
@@ -173,10 +173,14 @@ const Blogs = () => {
                                 setIsAuthorModalOpen(true);
                             }
                         }}
-                        className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-tronix-accent/40 text-xs font-semibold text-gray-200 hover:text-white transition-all shadow-md group cursor-pointer"
+                        className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500/20 via-tronix-accent/20 to-teal-500/20 hover:from-emerald-500/30 hover:to-tronix-accent/35 border border-tronix-accent/50 hover:border-tronix-accent text-xs sm:text-sm font-semibold text-white shadow-lg shadow-tronix-accent/15 transition-all hover:scale-[1.02] active:scale-95 group cursor-pointer"
                     >
-                        <Shield size={14} className="text-tronix-accent group-hover:scale-110 transition-transform" />
-                        <span>{isAuthor ? 'Open Blog Studio' : 'Author / Team Login'}</span>
+                        <div className="w-6 h-6 rounded-lg bg-tronix-accent/20 border border-tronix-accent/40 flex items-center justify-center text-tronix-accent group-hover:scale-110 transition-transform">
+                            <Shield size={14} />
+                        </div>
+                        <span className="font-semibold tracking-wide text-white group-hover:text-tronix-accent transition-colors">
+                            {isAuthor ? 'Open Blog Studio' : 'Author / Team Login'}
+                        </span>
                     </button>
                 </div>
 
@@ -482,30 +486,6 @@ const Blogs = () => {
                             ))}
                         </div>
                     )}
-                </div>
-
-                {/* Newsletter / Project Sourcing Card */}
-                <div className="relative rounded-2xl p-8 bg-gradient-to-r from-blue-900/20 via-neutral-900 to-emerald-950/20 border border-white/10 text-center max-w-4xl mx-auto space-y-4">
-                    <h3 className="text-2xl font-display font-bold text-white">
-                        Have a Custom Hardware or Robotics Project?
-                    </h3>
-                    <p className="text-sm text-gray-300 max-w-xl mx-auto">
-                        Need bulk procurement, factory-direct BOM sourcing, or specialized development boards for your research lab?
-                    </p>
-                    <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
-                        <Link
-                            to="/tower-orders"
-                            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-tronix-accent to-emerald-500 text-white font-semibold text-sm hover:brightness-110 shadow-lg shadow-tronix-accent/25 transition-all"
-                        >
-                            Request Custom Tower Sourcing
-                        </Link>
-                        <Link
-                            to="/contact"
-                            className="px-6 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold text-sm transition-all"
-                        >
-                            Contact Engineering Team
-                        </Link>
-                    </div>
                 </div>
             </div>
 
