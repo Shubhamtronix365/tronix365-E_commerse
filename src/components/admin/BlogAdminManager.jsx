@@ -432,34 +432,34 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
     return (
         <div className="space-y-6">
             {/* Top Stat Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div className="bg-tronix-card/60 backdrop-blur-md border border-white/10 rounded-xl p-4 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-                        <BookOpen size={22} />
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+                <div className="bg-tronix-card/60 backdrop-blur-md border border-white/10 rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+                        <BookOpen size={20} className="sm:w-[22px] sm:h-[22px]" />
                     </div>
-                    <div>
-                        <p className="text-xs text-gray-400 uppercase font-medium tracking-wider">Total Posts</p>
-                        <h4 className="text-2xl font-bold text-white mt-0.5">{totalCount}</h4>
-                    </div>
-                </div>
-
-                <div className="bg-tronix-card/60 backdrop-blur-md border border-white/10 rounded-xl p-4 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                        <CheckCircle size={22} />
-                    </div>
-                    <div>
-                        <p className="text-xs text-gray-400 uppercase font-medium tracking-wider">Live / Published</p>
-                        <h4 className="text-2xl font-bold text-white mt-0.5">{publishedCount}</h4>
+                    <div className="min-w-0">
+                        <p className="text-[10px] sm:text-xs text-gray-400 uppercase font-medium tracking-wider truncate">Total Posts</p>
+                        <h4 className="text-xl sm:text-2xl font-bold text-white mt-0.5">{totalCount}</h4>
                     </div>
                 </div>
 
-                <div className="bg-tronix-card/60 backdrop-blur-md border border-white/10 rounded-xl p-4 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-                        <Clock size={22} />
+                <div className="bg-tronix-card/60 backdrop-blur-md border border-white/10 rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                        <CheckCircle size={20} className="sm:w-[22px] sm:h-[22px]" />
                     </div>
-                    <div>
-                        <p className="text-xs text-gray-400 uppercase font-medium tracking-wider">Pending Review</p>
-                        <h4 className="text-2xl font-bold text-white mt-0.5 flex items-center gap-2">
+                    <div className="min-w-0">
+                        <p className="text-[10px] sm:text-xs text-gray-400 uppercase font-medium tracking-wider truncate">Live / Published</p>
+                        <h4 className="text-xl sm:text-2xl font-bold text-white mt-0.5">{publishedCount}</h4>
+                    </div>
+                </div>
+
+                <div className="bg-tronix-card/60 backdrop-blur-md border border-white/10 rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+                        <Clock size={20} className="sm:w-[22px] sm:h-[22px]" />
+                    </div>
+                    <div className="min-w-0">
+                        <p className="text-[10px] sm:text-xs text-gray-400 uppercase font-medium tracking-wider truncate">Pending Review</p>
+                        <h4 className="text-xl sm:text-2xl font-bold text-white mt-0.5 flex items-center gap-2">
                             {pendingCount}
                             {pendingCount > 0 && (
                                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
@@ -468,38 +468,38 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                     </div>
                 </div>
 
-                <div className="bg-tronix-card/60 backdrop-blur-md border border-white/10 rounded-xl p-4 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-neutral-800 border border-white/10 flex items-center justify-center text-gray-400">
-                        <Edit3 size={22} />
+                <div className="bg-tronix-card/60 backdrop-blur-md border border-white/10 rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-neutral-800 border border-white/10 flex items-center justify-center text-gray-400 shrink-0">
+                        <Edit3 size={20} className="sm:w-[22px] sm:h-[22px]" />
                     </div>
-                    <div>
-                        <p className="text-xs text-gray-400 uppercase font-medium tracking-wider">Drafts</p>
-                        <h4 className="text-2xl font-bold text-white mt-0.5">{draftCount}</h4>
+                    <div className="min-w-0">
+                        <p className="text-[10px] sm:text-xs text-gray-400 uppercase font-medium tracking-wider truncate">Drafts</p>
+                        <h4 className="text-xl sm:text-2xl font-bold text-white mt-0.5">{draftCount}</h4>
                     </div>
                 </div>
 
-                <div className="bg-tronix-card/60 backdrop-blur-md border border-white/10 rounded-xl p-4 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
-                        <Eye size={22} />
+                <div className="col-span-2 lg:col-span-1 bg-tronix-card/60 backdrop-blur-md border border-white/10 rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 shrink-0">
+                        <Eye size={20} className="sm:w-[22px] sm:h-[22px]" />
                     </div>
-                    <div>
-                        <p className="text-xs text-gray-400 uppercase font-medium tracking-wider">Total Reads</p>
-                        <h4 className="text-2xl font-bold text-white mt-0.5">{totalViews}</h4>
+                    <div className="min-w-0">
+                        <p className="text-[10px] sm:text-xs text-gray-400 uppercase font-medium tracking-wider truncate">Total Reads</p>
+                        <h4 className="text-xl sm:text-2xl font-bold text-white mt-0.5">{totalViews}</h4>
                     </div>
                 </div>
             </div>
 
             {/* Action Bar & Filters */}
-            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-tronix-card/40 border border-white/10 p-4 rounded-xl">
-                <div className="flex flex-wrap items-center gap-3">
-                    <div className="relative">
+            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 sm:gap-4 bg-tronix-card/40 border border-white/10 p-3 sm:p-4 rounded-xl">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <div className="relative w-full sm:w-64">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
                         <input
                             type="text"
-                            placeholder="Search by title, slug, author..."
+                            placeholder="Search title, slug, author..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="bg-black/30 border border-white/10 rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-tronix-accent w-64"
+                            className="bg-black/30 border border-white/10 rounded-lg pl-9 pr-4 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-tronix-accent w-full"
                         />
                     </div>
 
@@ -507,7 +507,7 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        className="bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-tronix-accent"
+                        className="flex-1 sm:flex-initial bg-black/30 border border-white/10 rounded-lg px-2.5 sm:px-3 py-2 text-xs sm:text-sm text-gray-300 focus:outline-none focus:border-tronix-accent"
                     >
                         <option value="all">All Statuses</option>
                         <option value="published">Published Live</option>
@@ -520,7 +520,7 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                     <select
                         value={categoryFilter}
                         onChange={(e) => setCategoryFilter(e.target.value)}
-                        className="bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-tronix-accent"
+                        className="flex-1 sm:flex-initial bg-black/30 border border-white/10 rounded-lg px-2.5 sm:px-3 py-2 text-xs sm:text-sm text-gray-300 focus:outline-none focus:border-tronix-accent"
                     >
                         <option value="all">All Categories</option>
                         {CATEGORIES.map((cat) => (
@@ -533,16 +533,16 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                     <button
                         onClick={fetchPosts}
                         title="Refresh blogs"
-                        className="p-2 border border-white/10 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+                        className="p-2 border border-white/10 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
                     >
                         <RefreshCw size={16} />
                     </button>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                     <button
                         onClick={handleOpenAuthorModal}
-                        className="flex items-center justify-center gap-2 bg-neutral-800/80 hover:bg-neutral-700 border border-white/10 text-gray-200 hover:text-white font-medium px-4 py-2 rounded-lg transition-all cursor-pointer shadow-sm text-sm"
+                        className="flex items-center justify-center gap-2 bg-neutral-800/80 hover:bg-neutral-700 border border-white/10 text-gray-200 hover:text-white font-medium px-4 py-2 rounded-lg transition-all cursor-pointer shadow-sm text-xs sm:text-sm active:scale-95"
                     >
                         <Users size={16} className="text-tronix-accent" />
                         <span>Manage Authors</span>
@@ -550,7 +550,7 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
 
                     <button
                         onClick={handleOpenCreateModal}
-                        className="flex items-center justify-center gap-2 bg-gradient-to-r from-tronix-accent to-emerald-500 text-white font-medium px-4 py-2 rounded-lg hover:brightness-110 shadow-lg shadow-tronix-accent/20 transition-all cursor-pointer text-sm"
+                        className="flex items-center justify-center gap-2 bg-gradient-to-r from-tronix-accent to-emerald-500 text-white font-medium px-4 py-2 rounded-lg hover:brightness-110 shadow-lg shadow-tronix-accent/20 transition-all cursor-pointer text-xs sm:text-sm active:scale-95"
                     >
                         <Plus size={18} />
                         <span>Create New Post</span>
@@ -558,9 +558,10 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                 </div>
             </div>
 
-            {/* Posts Table */}
+            {/* Posts Display: Desktop Table + Mobile Cards */}
             <div className="bg-tronix-card/40 border border-white/10 rounded-xl overflow-hidden shadow-xl">
-                <div className="overflow-x-auto">
+                {/* Desktop Table (Hidden on small screens) */}
+                <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left text-sm text-gray-300">
                         <thead className="bg-white/5 border-b border-white/10 text-xs uppercase text-gray-400 font-semibold tracking-wider">
                             <tr>
@@ -792,35 +793,199 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                         </tbody>
                     </table>
                 </div>
+
+                {/* Mobile Cards View (Visible on screens < 768px) */}
+                <div className="block md:hidden divide-y divide-white/10">
+                    {loading ? (
+                        <div className="py-12 text-center text-gray-400">
+                            <RefreshCw className="animate-spin text-tronix-accent mx-auto mb-2" size={24} />
+                            <span className="text-xs">Loading blog articles...</span>
+                        </div>
+                    ) : posts.length === 0 ? (
+                        <div className="py-12 text-center text-gray-400 px-4">
+                            <BookOpen size={32} className="text-gray-600 mx-auto mb-2" />
+                            <p className="text-sm text-gray-300 font-medium">No blog posts found</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                                Tap "Create New Post" above to write an article.
+                            </p>
+                        </div>
+                    ) : (
+                        posts.map((post) => (
+                            <div key={post.id} className="p-4 space-y-3 bg-neutral-900/30 hover:bg-white/[0.02] transition-colors">
+                                {/* Top Row: Cover Thumbnail + Title + Featured */}
+                                <div className="flex items-start gap-3">
+                                    <div className="w-14 h-14 rounded-lg bg-neutral-900 border border-white/10 overflow-hidden shrink-0 mt-0.5">
+                                        {post.cover_image ? (
+                                            <img
+                                                src={getImageUrl(post.cover_image)}
+                                                alt={post.title}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-gray-600">
+                                                <Cpu size={20} />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                            <h4 className="text-white font-semibold text-sm leading-snug">
+                                                {post.title}
+                                            </h4>
+                                            {post.featured && (
+                                                <span className="px-1.5 py-0.2 text-[9px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded">
+                                                    Featured
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="text-[11px] text-gray-500 truncate mt-0.5 font-mono">
+                                            /blog/{post.slug}
+                                        </p>
+                                        <div className="flex items-center gap-2 mt-1 text-[11px] text-gray-400 flex-wrap">
+                                            <span className="text-gray-300 font-medium">{post.author_name || 'Tronix365'}</span>
+                                            <span>•</span>
+                                            <span className="text-blue-400 font-medium">{post.category || 'General'}</span>
+                                            <span>•</span>
+                                            <span>{post.views_count || 0} reads</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Status Row */}
+                                <div className="flex items-center justify-between pt-1">
+                                    <div className="flex items-center gap-2">
+                                        {post.status === 'published' || (post.is_published && post.status !== 'rejected' && post.status !== 'pending_approval') ? (
+                                            <button
+                                                onClick={() => handleTogglePublish(post)}
+                                                className="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5"
+                                            >
+                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                                Live (Tap to Unpublish)
+                                            </button>
+                                        ) : post.status === 'pending_approval' ? (
+                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                                                Pending Review
+                                            </span>
+                                        ) : post.status === 'rejected' ? (
+                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/30">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+                                                Needs Revision
+                                            </span>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleTogglePublish(post)}
+                                                className="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/5 text-gray-400 border border-white/10 flex items-center gap-1.5"
+                                            >
+                                                <span className="w-1.5 h-1.5 rounded-full bg-gray-500"></span>
+                                                Draft (Tap to Publish)
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <span className="text-[10px] text-gray-500">
+                                        {post.updated_at
+                                            ? new Date(post.updated_at).toLocaleDateString('en-IN', {
+                                                  day: '2-digit',
+                                                  month: 'short',
+                                              })
+                                            : ''}
+                                    </span>
+                                </div>
+
+                                {post.status === 'rejected' && post.rejection_reason && (
+                                    <div className="p-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-300">
+                                        <span className="font-semibold block text-[10px] uppercase text-red-400 mb-0.5">Feedback to Author:</span>
+                                        {post.rejection_reason}
+                                    </div>
+                                )}
+
+                                {/* Admin 1-Click Moderation Buttons for Pending Approval */}
+                                {post.status === 'pending_approval' && (
+                                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
+                                        <button
+                                            onClick={() => handleApprovePost(post)}
+                                            disabled={approvingPostId === post.id}
+                                            className="py-2.5 px-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-sm cursor-pointer"
+                                        >
+                                            {approvingPostId === post.id ? (
+                                                <RefreshCw className="animate-spin" size={14} />
+                                            ) : (
+                                                <Check size={14} />
+                                            )}
+                                            <span>Approve & Publish</span>
+                                        </button>
+                                        <button
+                                            onClick={() => handleOpenRejectModal(post)}
+                                            className="py-2.5 px-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/40 font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-sm cursor-pointer"
+                                        >
+                                            <AlertTriangle size={14} />
+                                            <span>Request Revision</span>
+                                        </button>
+                                    </div>
+                                )}
+
+                                {/* Standard Action Row */}
+                                <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/5 text-xs">
+                                    {post.is_published && (
+                                        <a
+                                            href={`/blog/${post.slug}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white flex items-center gap-1 transition-colors"
+                                        >
+                                            <ExternalLink size={13} />
+                                            <span>View</span>
+                                        </a>
+                                    )}
+                                    <button
+                                        onClick={() => handleOpenEditModal(post)}
+                                        className="px-3 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 flex items-center gap-1 transition-colors active:scale-95"
+                                    >
+                                        <Edit3 size={13} />
+                                        <span>Edit</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setPostToDelete(post)}
+                                        className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center gap-1 transition-colors active:scale-95"
+                                    >
+                                        <Trash2 size={13} />
+                                        <span>Delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
             </div>
 
             {/* Rich Editor & Live Preview Modal */}
             {isEditorOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm overflow-y-auto">
-                    <div className="bg-tronix-card border border-white/15 rounded-2xl w-full max-w-5xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 md:p-6 bg-black/85 backdrop-blur-md overflow-y-auto">
+                    <div className="bg-neutral-900 border border-white/15 rounded-none sm:rounded-2xl w-full max-w-5xl h-full sm:h-auto max-h-[100dvh] sm:max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
                         {/* Modal Header */}
-                        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
-                            <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-lg bg-tronix-accent/20 border border-tronix-accent/40 flex items-center justify-center text-tronix-accent">
-                                    <BookOpen size={18} />
+                        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-white/10 flex flex-wrap items-center justify-between bg-white/[0.02] gap-2">
+                            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-tronix-accent/20 border border-tronix-accent/40 flex items-center justify-center text-tronix-accent shrink-0">
+                                    <BookOpen size={17} />
                                 </div>
-                                <div>
-                                    <h3 className="text-lg font-bold text-white">
+                                <div className="min-w-0">
+                                    <h3 className="text-base sm:text-lg font-bold text-white truncate">
                                         {editingPostId ? 'Edit Blog Article' : 'Create New Engineering Blog'}
                                     </h3>
-                                    <p className="text-xs text-gray-400">
+                                    <p className="text-[11px] sm:text-xs text-gray-400 hidden xs:block">
                                         All content is strictly sanitized and images are auto-optimized.
                                     </p>
                                 </div>
                             </div>
 
                             {/* View switcher: Edit vs Live Preview */}
-                            <div className="flex items-center gap-3">
-                                <div className="flex bg-black/40 border border-white/10 rounded-lg p-1 text-xs font-medium">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <div className="flex bg-black/40 border border-white/10 rounded-lg p-0.5 sm:p-1 text-xs font-medium">
                                     <button
                                         type="button"
                                         onClick={() => setEditorTab('edit')}
-                                        className={`px-3 py-1.5 rounded-md transition-all ${
+                                        className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md transition-all text-xs ${
                                             editorTab === 'edit'
                                                 ? 'bg-tronix-accent text-white font-semibold'
                                                 : 'text-gray-400 hover:text-white'
@@ -831,28 +996,28 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                     <button
                                         type="button"
                                         onClick={() => setEditorTab('preview')}
-                                        className={`px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 ${
+                                        className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md transition-all flex items-center gap-1 sm:gap-1.5 text-xs ${
                                             editorTab === 'preview'
                                                 ? 'bg-tronix-accent text-white font-semibold'
                                                 : 'text-gray-400 hover:text-white'
                                         }`}
                                     >
-                                        <Eye size={14} />
-                                        Live Preview
+                                        <Eye size={13} />
+                                        <span>Live Preview</span>
                                     </button>
                                 </div>
 
                                 <button
                                     onClick={() => setIsEditorOpen(false)}
-                                    className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                                    className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
                                 >
-                                    <X size={20} />
+                                    <X size={18} />
                                 </button>
                             </div>
                         </div>
 
                         {/* Modal Body */}
-                        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
                             {editorTab === 'edit' ? (
                                 <form id="blog-form" onSubmit={handleSavePost} className="space-y-6">
                                     {/* Row 1: Title & Custom Slug */}
@@ -1314,20 +1479,20 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="px-6 py-4 border-t border-white/10 flex items-center justify-between bg-white/[0.02]">
+                        <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between bg-neutral-950/80 backdrop-blur-md gap-3">
                             <button
                                 type="button"
                                 onClick={() => setIsEditorOpen(false)}
-                                className="px-4 py-2 border border-white/10 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                                className="px-4 py-2 border border-white/10 rounded-lg text-xs sm:text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer order-2 sm:order-1 text-center"
                             >
                                 Cancel
                             </button>
 
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 order-1 sm:order-2">
                                 <button
                                     type="submit"
                                     form="blog-form"
-                                    className="px-5 py-2 rounded-lg bg-gradient-to-r from-tronix-accent to-emerald-500 text-white font-medium text-sm hover:brightness-110 shadow-lg shadow-tronix-accent/20 transition-all cursor-pointer"
+                                    className="w-full sm:w-auto px-5 py-2.5 sm:py-2 rounded-lg bg-gradient-to-r from-tronix-accent to-emerald-500 text-white font-medium text-xs sm:text-sm hover:brightness-110 shadow-lg shadow-tronix-accent/20 transition-all cursor-pointer active:scale-95"
                                 >
                                     {editingPostId ? 'Save Changes' : 'Save & Publish Post'}
                                 </button>
@@ -1339,12 +1504,12 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
 
             {/* Rejection / Revision Request Modal */}
             {rejectingPost && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-                    <div className="bg-neutral-900 border border-white/10 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm">
+                    <div className="bg-neutral-900 border border-white/10 rounded-2xl w-full max-w-lg p-4 sm:p-6 shadow-2xl space-y-4">
                         <div className="flex items-center justify-between pb-3 border-b border-white/10">
                             <div className="flex items-center gap-2.5 text-red-400">
                                 <AlertTriangle size={20} />
-                                <h3 className="text-lg font-bold text-white">Request Article Revisions</h3>
+                                <h3 className="text-base sm:text-lg font-bold text-white">Request Article Revisions</h3>
                             </div>
                             <button
                                 onClick={() => setRejectingPost(null)}
@@ -1373,20 +1538,20 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                             />
                         </div>
 
-                        <div className="flex items-center justify-end gap-3 pt-2">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-2">
                             <button
                                 onClick={() => setRejectingPost(null)}
-                                className="px-4 py-2 text-xs font-semibold text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+                                className="px-4 py-2 text-xs font-semibold text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors cursor-pointer text-center order-2 sm:order-1"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleConfirmReject}
                                 disabled={submittingRejection || !rejectionReason.trim()}
-                                className="px-4 py-2 text-xs font-bold bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-lg shadow-red-500/20"
+                                className="px-4 py-2.5 sm:py-2 text-xs font-bold bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-lg shadow-red-500/20 active:scale-95 order-1 sm:order-2"
                             >
                                 {submittingRejection ? <RefreshCw className="animate-spin" size={14} /> : <AlertTriangle size={14} />}
-                                Confirm Rejection
+                                <span>Confirm Rejection</span>
                             </button>
                         </div>
                     </div>
@@ -1395,17 +1560,17 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
 
             {/* Author Management & Generation Modal */}
             {isAuthorModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto">
-                    <div className="bg-neutral-900 border border-white/15 rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 md:p-6 bg-black/85 backdrop-blur-md overflow-y-auto">
+                    <div className="bg-neutral-900 border border-white/15 rounded-none sm:rounded-2xl w-full max-w-3xl h-full sm:h-auto max-h-[100dvh] sm:max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
                         {/* Modal Header */}
-                        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
-                            <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-xl bg-tronix-accent/10 border border-tronix-accent/20 flex items-center justify-center text-tronix-accent">
+                        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+                            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-tronix-accent/10 border border-tronix-accent/20 flex items-center justify-center text-tronix-accent shrink-0">
                                     <Users size={18} />
                                 </div>
-                                <div>
-                                    <h3 className="text-base font-bold text-white">Author Management & Logins</h3>
-                                    <p className="text-xs text-gray-400">
+                                <div className="min-w-0">
+                                    <h3 className="text-sm sm:text-base font-bold text-white truncate">Author Management & Logins</h3>
+                                    <p className="text-[11px] sm:text-xs text-gray-400 hidden xs:block">
                                         Generate system accounts for blog authors. Authors can update credentials in Studio Settings.
                                     </p>
                                 </div>
@@ -1419,32 +1584,32 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                         </div>
 
                         {/* Modal Body */}
-                        <div className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-130px)]">
+                        <div className="p-4 sm:p-6 space-y-5 sm:space-y-6 overflow-y-auto max-h-[calc(100dvh-120px)] sm:max-h-[calc(90vh-130px)]">
                             {/* Generated Credentials Banner */}
                             {generatedCredentials && (
-                                <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 space-y-3 animate-in fade-in duration-300">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
+                                <div className="p-3 sm:p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 space-y-3 animate-in fade-in duration-300">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2 text-emerald-400 font-semibold text-xs sm:text-sm">
                                             <ShieldCheck size={18} />
                                             <span>New Author Credentials Generated</span>
                                         </div>
                                         <button
                                             onClick={copyCredentialsToClipboard}
-                                            className="px-3 py-1 text-xs font-bold rounded-lg bg-emerald-500 hover:bg-emerald-400 text-neutral-950 flex items-center gap-1.5 cursor-pointer transition-all shadow"
+                                            className="px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-500 hover:bg-emerald-400 text-neutral-950 flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow w-full sm:w-auto"
                                         >
                                             {copiedCredentials ? <Check size={14} /> : <Copy size={14} />}
                                             <span>{copiedCredentials ? 'Copied to Clipboard!' : '1-Click Copy'}</span>
                                         </button>
                                     </div>
 
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-black/40 p-3 rounded-lg border border-white/5 text-xs font-mono">
-                                        <div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 bg-black/40 p-3 rounded-lg border border-white/5 text-xs font-mono">
+                                        <div className="min-w-0">
                                             <span className="text-gray-400 text-[11px] block">Author ID / Login Email:</span>
-                                            <span className="text-white font-bold select-all">{generatedCredentials.author_id}</span>
+                                            <span className="text-white font-bold select-all break-all">{generatedCredentials.author_id}</span>
                                         </div>
-                                        <div>
+                                        <div className="min-w-0">
                                             <span className="text-gray-400 text-[11px] block">Generated Password:</span>
-                                            <span className="text-emerald-400 font-bold select-all">{generatedCredentials.password}</span>
+                                            <span className="text-emerald-400 font-bold select-all break-all">{generatedCredentials.password}</span>
                                         </div>
                                     </div>
 
@@ -1455,7 +1620,7 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                             )}
 
                             {/* Generate New Author Account Form */}
-                            <form onSubmit={handleGenerateAuthor} className="bg-white/[0.02] border border-white/10 rounded-xl p-4 space-y-4">
+                            <form onSubmit={handleGenerateAuthor} className="bg-white/[0.02] border border-white/10 rounded-xl p-3 sm:p-4 space-y-3 sm:space-y-4">
                                 <div className="flex items-center gap-2 text-white font-semibold text-xs uppercase tracking-wider">
                                     <UserPlus size={15} className="text-tronix-accent" />
                                     <span>Generate New Author Account</span>
@@ -1496,14 +1661,14 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between pt-1">
+                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-1">
                                     <span className="text-[10px] text-gray-500">
                                         If left blank, the system automatically creates a unique ID and strong 16-char password.
                                     </span>
                                     <button
                                         type="submit"
                                         disabled={generatingAuthor}
-                                        className="px-4 py-2 rounded-lg bg-gradient-to-r from-tronix-accent to-emerald-500 hover:brightness-110 text-white font-bold text-xs shadow-md shadow-tronix-accent/20 flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                                        className="w-full sm:w-auto px-4 py-2.5 sm:py-2 rounded-lg bg-gradient-to-r from-tronix-accent to-emerald-500 hover:brightness-110 text-white font-bold text-xs shadow-md shadow-tronix-accent/20 flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 active:scale-95 shrink-0"
                                     >
                                         {generatingAuthor ? <RefreshCw className="animate-spin" size={14} /> : <UserPlus size={14} />}
                                         <span>Generate Author Login</span>
@@ -1529,60 +1694,99 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                 </div>
 
                                 <div className="border border-white/10 rounded-xl overflow-hidden bg-neutral-950/50">
-                                    <table className="w-full text-left text-xs text-gray-300">
-                                        <thead className="bg-white/5 border-b border-white/10 text-gray-400 uppercase font-semibold text-[10px] tracking-wider">
-                                            <tr>
-                                                <th className="px-4 py-2.5">Name</th>
-                                                <th className="px-4 py-2.5">Email / Login ID</th>
-                                                <th className="px-4 py-2.5">Role</th>
-                                                <th className="px-4 py-2.5 text-right">Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-white/5">
-                                            {loadingAuthors ? (
+                                    {/* Desktop Table View */}
+                                    <div className="hidden sm:block overflow-x-auto">
+                                        <table className="w-full text-left text-xs text-gray-300">
+                                            <thead className="bg-white/5 border-b border-white/10 text-gray-400 uppercase font-semibold text-[10px] tracking-wider">
                                                 <tr>
-                                                    <td colSpan="4" className="text-center py-6 text-gray-500">
-                                                        <RefreshCw className="animate-spin inline mr-2 text-tronix-accent" size={14} />
-                                                        Loading authors...
-                                                    </td>
+                                                    <th className="px-4 py-2.5">Name</th>
+                                                    <th className="px-4 py-2.5">Email / Login ID</th>
+                                                    <th className="px-4 py-2.5">Role</th>
+                                                    <th className="px-4 py-2.5 text-right">Status</th>
                                                 </tr>
-                                            ) : authors.length === 0 ? (
-                                                <tr>
-                                                    <td colSpan="4" className="text-center py-6 text-gray-500">
-                                                        No authors registered yet. Use the generator above to create one.
-                                                    </td>
-                                                </tr>
-                                            ) : (
-                                                authors.map((author) => (
-                                                    <tr key={author.id} className="hover:bg-white/[0.02]">
-                                                        <td className="px-4 py-2.5 font-medium text-white">
-                                                            {author.full_name || 'Blog Author'}
-                                                        </td>
-                                                        <td className="px-4 py-2.5 font-mono text-gray-400">
-                                                            {author.email}
-                                                        </td>
-                                                        <td className="px-4 py-2.5">
-                                                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                                                                {author.role}
-                                                            </span>
-                                                        </td>
-                                                        <td className="px-4 py-2.5 text-right">
-                                                            <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400">
-                                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                                                                Active
-                                                            </span>
+                                            </thead>
+                                            <tbody className="divide-y divide-white/5">
+                                                {loadingAuthors ? (
+                                                    <tr>
+                                                        <td colSpan="4" className="text-center py-6 text-gray-500">
+                                                            <RefreshCw className="animate-spin inline mr-2 text-tronix-accent" size={14} />
+                                                            Loading authors...
                                                         </td>
                                                     </tr>
-                                                ))
-                                            )}
-                                        </tbody>
-                                    </table>
+                                                ) : authors.length === 0 ? (
+                                                    <tr>
+                                                        <td colSpan="4" className="text-center py-6 text-gray-500">
+                                                            No authors registered yet. Use the generator above to create one.
+                                                        </td>
+                                                    </tr>
+                                                ) : (
+                                                    authors.map((author) => (
+                                                        <tr key={author.id} className="hover:bg-white/[0.02]">
+                                                            <td className="px-4 py-2.5 font-medium text-white">
+                                                                {author.full_name || 'Blog Author'}
+                                                            </td>
+                                                            <td className="px-4 py-2.5 font-mono text-gray-400">
+                                                                {author.email}
+                                                            </td>
+                                                            <td className="px-4 py-2.5">
+                                                                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                                                    {author.role}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-4 py-2.5 text-right">
+                                                                <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400">
+                                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                                                    Active
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    {/* Mobile Cards View for Authors */}
+                                    <div className="block sm:hidden divide-y divide-white/5">
+                                        {loadingAuthors ? (
+                                            <div className="p-4 text-center text-gray-500 text-xs">
+                                                <RefreshCw className="animate-spin inline mr-2 text-tronix-accent" size={14} />
+                                                Loading authors...
+                                            </div>
+                                        ) : authors.length === 0 ? (
+                                            <div className="p-4 text-center text-gray-500 text-xs">
+                                                No authors registered yet. Use the generator above to create one.
+                                            </div>
+                                        ) : (
+                                            authors.map((author) => (
+                                                <div key={author.id} className="p-3 space-y-1.5">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="font-semibold text-xs text-white">
+                                                            {author.full_name || 'Blog Author'}
+                                                        </span>
+                                                        <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                                            Active
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center justify-between text-[11px]">
+                                                        <span className="font-mono text-gray-400 truncate max-w-[200px]">
+                                                            {author.email}
+                                                        </span>
+                                                        <span className="px-1.5 py-0.2 rounded-full text-[9px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                                            {author.role}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="px-6 py-3 border-t border-white/10 flex items-center justify-end bg-white/[0.02]">
+                        <div className="px-4 sm:px-6 py-3 border-t border-white/10 flex items-center justify-end bg-white/[0.02]">
                             <button
                                 type="button"
                                 onClick={() => setIsAuthorModalOpen(false)}

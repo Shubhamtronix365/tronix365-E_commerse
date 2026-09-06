@@ -142,6 +142,7 @@ const AppContent = () => {
               <Route path="/blogs" element={<PageTransition><Blogs /></PageTransition>} />
               <Route path="/blog" element={<Navigate to="/blogs" replace />} />
               <Route path="/blog-studio" element={<PageTransition><BlogStudio /></PageTransition>} />
+              <Route path="/blogs/studio" element={<PageTransition><BlogStudio /></PageTransition>} />
               <Route path="/blog/dashboard" element={<Navigate to="/blog-studio" replace />} />
               <Route path="/blog/:slug" element={<PageTransition><BlogPost /></PageTransition>} />
               <Route path="/cart" element={<PageTransition><Cart /></PageTransition>} />
