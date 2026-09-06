@@ -56,6 +56,23 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
   - Complete compliance with Indian GST laws: displays seller details (Tronix365 Technologies Pvt. Ltd., Pune, GSTIN `27AABCT3650Q1Z5`), HSN/SAC codes (8542 for ICs/boards, 8504 for power modules, 9031 for sensors), intra-state CGST (9%) + SGST (9%) or inter-state IGST (18%) breakdowns.
   - Full B2B support: includes customer company name, customer GSTIN, registered tax address, and Indian Rupee amount-in-words converter.
   - Print engine: scoped `@media print` CSS cleanly outputs directly to physical printers or browser **"Save as PDF"** without page clutter.
+- **Modernized Engineering Blog Platform & Security-Proof Admin Dashboard**:
+  - **High-Presence Public Blog Hub (`/blogs`)**: Futuristic bento-grid layout featuring hero spotlight cards, category filter pills (Tutorials, Hardware Review, Robotics & AI, IoT, Guides), search bar, reading time metrics, and responsive author badges.
+  - **Interactive Hardware Post Reader (`/blog/:slug`)**:
+    - Sticky top reading progress bar ($0\% \to 100\%$).
+    - Auto-generated Table of Contents from `<h2>` and `<h3>` headings with smooth anchor navigation.
+    - Syntax-highlighted code blocks with 1-click **"Copy Code"** clipboard button.
+    - Hardware Pinout & Specs Tables, engineering tip callouts, and verified lab badge.
+    - **Components Used (BOM) Integration**: Displays required hardware modules with direct links to catalog/shop for instant purchasing.
+    - Social sharing buttons (WhatsApp, Twitter/X, LinkedIn, direct copy link).
+    - Bottom related articles recommendation engine (3 contextual posts).
+  - **Security-Proof Admin Blog Dashboard**:
+    - Role-protected (`role == "admin"`) upload and edit controls preventing unauthorized submissions.
+    - Strict XSS sanitization engine using `bleach` and regex stripping `<script>`, `<style>`, `<iframe>`, and malicious `onerror`/`onclick` event handlers.
+    - Automatic SEO slug generator with duplicate collision resolution (appends counter suffix).
+    - Live WebP image conversion and validation pipeline via `/upload`.
+    - Real-time **Live Preview** tab allowing the team to inspect formatting side-by-side before publishing.
+    - 1-click Draft vs Published status toggling.
 - **Rate Limiting & Caching**: Security features with Slowapi rate limiters and Redis/InMemory backend caching.
 
 ---
@@ -377,11 +394,23 @@ FastAPI generates interactive documentation at [http://127.0.0.1:8000/docs](http
   - `GET /admin/abandoned-carts` - List all inactive carts ($\ge 1\text{h}$) with items, cart value, customer information, email status, and overall summary metrics
   - `POST /admin/abandoned-carts/{target_user_id}/send` - Send a recovery email reminder with item summaries & voucher code to a specific user
   - `POST /admin/abandoned-carts/send-all` - Bulk send recovery reminders to all pending abandoned carts that have not yet been notified
-  - **Background Runner**:
+- **Engineering Blog & Author Studio (`/blogs`, `/blog-studio`)**:
+  - `POST /blogs/author/login` - Author & engineering team authentication via system-generated credentials (rate-limited, returns JWT access/refresh token)
+  - `GET /blogs` - Public paginated feed with category and text query filters
+  - `GET /blogs/{slug}` - Public post reader with auto-incrementing view count
+  - `GET /blogs/featured` - Hero carousel & spotlight posts
+  - `GET /blogs/categories/summary` - Aggregated category post count breakdown
+  - `GET /admin/blogs` - Author/Admin listing of all posts (drafts & published) with stats
+  - `POST /admin/blogs` - Create new hardware guide or technical article (XSS sanitized, auto slug generation)
+  - `PUT /admin/blogs/{id}` - Update existing post, tags, layout type, or BOM components
+  - `DELETE /admin/blogs/{id}` - Delete post record
+  - `POST /admin/blogs/upload-image` - Upload blog cover/content image with automatic WebP conversion
+  - **Standalone Author Credential Generator Script**:
     ```bash
     cd backend
-    python scripts/abandoned_cart_check.py
+    python scripts/generate_blog_author.py --name "Robotics Team Lead" --email "robotics@tronix365.in"
     ```
+    *Generates cryptographically secure 16-character high-entropy passwords, registers the author in `UserDB` with role `blog_author`, and displays ready-to-use login credentials.*
 
 ---
 
