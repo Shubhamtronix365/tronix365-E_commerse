@@ -39,24 +39,32 @@ def upload_to_cloudinary(
     if not is_cloudinary_enabled():
         return None
 
-    try:
-        import cloudinary.uploader
+    import time
+    for attempt in range(1, 4):
+        try:
+            import cloudinary.uploader
 
-        upload_params = {
-            "folder": folder,
-            "resource_type": resource_type,
-            "overwrite": overwrite,
-        }
-        if public_id:
-            upload_params["public_id"] = public_id
+            upload_params = {
+                "folder": folder,
+                "resource_type": resource_type,
+                "overwrite": overwrite,
+            }
+            if public_id:
+                upload_params["public_id"] = public_id
 
-        res = cloudinary.uploader.upload(file_path_or_bytes, **upload_params)
-        secure_url = res.get("secure_url")
-        if secure_url:
-            logger.info(f"Cloudinary upload successful: {secure_url}")
-            return secure_url
-    except Exception as e:
-        logger.error(f"Cloudinary upload failed: {e}")
+            res = cloudinary.uploader.upload(file_path_or_bytes, **upload_params)
+            secure_url = res.get("secure_url")
+            if secure_url:
+                logger.info(f"Cloudinary upload successful: {secure_url}")
+                return secure_url
+        except Exception as e:
+            err_str = str(e).lower()
+            if "slow down" in err_str or "capacity" in err_str or "rate" in err_str:
+                logger.warning(f"Cloudinary rate limit hit, backing off for {attempt * 2}s (attempt {attempt}/3)...")
+                time.sleep(attempt * 2)
+            else:
+                logger.error(f"Cloudinary upload failed: {e}")
+                break
 
     return None
 
