@@ -95,18 +95,23 @@ function App() {
 
 const AppContent = () => {
   const location = useLocation();
-  // Maintenance Notice Modal - re-enabled
-  const [showMaintenanceModal, setShowMaintenanceModal] = useState(true);
-
-  useEffect(() => {
-    if (!showMaintenanceModal) {
-      // Re-trigger maintenance modal periodically (e.g. after 25s) if user dismisses it
-      const timer = setTimeout(() => {
-        setShowMaintenanceModal(true);
-      }, 25000);
-      return () => clearTimeout(timer);
+  // Maintenance Notice Modal - persistent per session
+  const [showMaintenanceModal, setShowMaintenanceModal] = useState(() => {
+    try {
+      return sessionStorage.getItem('tronix_maintenance_dismissed') !== 'true';
+    } catch {
+      return true;
     }
-  }, [showMaintenanceModal]);
+  });
+
+  const handleCloseMaintenanceModal = () => {
+    setShowMaintenanceModal(false);
+    try {
+      sessionStorage.setItem('tronix_maintenance_dismissed', 'true');
+    } catch {
+      // ignore storage errors
+    }
+  };
 
   const isExcludedPage = location.pathname === '/login' || location.pathname === '/signup';
 
@@ -116,7 +121,7 @@ const AppContent = () => {
       {/* Maintenance Notice Modal */}
       <MaintenanceModal 
         isOpen={showMaintenanceModal} 
-        onClose={() => setShowMaintenanceModal(false)} 
+        onClose={handleCloseMaintenanceModal} 
       />
       <div className="min-h-screen bg-tronix-bg text-tronix-text font-sans selection:bg-tronix-primary selection:text-white flex flex-col">
         {!isExcludedPage && <Navbar />}
