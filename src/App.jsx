@@ -1,8 +1,19 @@
 import React from 'react';
 import { Toaster } from 'react-hot-toast';
-import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useParams, Navigate } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
+
+// Fallback redirects for legacy or canonical /products URLs with query preservation
+const ProductsRedirect = () => {
+  const location = useLocation();
+  return <Navigate to={`/shop${location.search}`} replace />;
+};
+
+const ProductRedirect = () => {
+  const { slug } = useParams();
+  return <Navigate to={`/product/${slug}`} replace />;
+};
 const Home = React.lazy(() => import('./pages/Home'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Signup = React.lazy(() => import('./pages/Signup'));
@@ -135,7 +146,9 @@ const AppContent = () => {
               <Routes location={location} key={location.pathname}>
               <Route path="/" element={<PageTransition><Home /></PageTransition>} />
               <Route path="/shop" element={<PageTransition><Shop /></PageTransition>} />
+              <Route path="/products" element={<ProductsRedirect />} />
               <Route path="/product/:slug" element={<PageTransition><ProductDetails /></PageTransition>} />
+              <Route path="/products/:slug" element={<ProductRedirect />} />
               <Route path="/categories" element={<PageTransition><Categories /></PageTransition>} />
               <Route path="/category/:category" element={<PageTransition><Shop /></PageTransition>} />
               <Route path="/tower-orders" element={<PageTransition><TowerOrdersPage /></PageTransition>} />

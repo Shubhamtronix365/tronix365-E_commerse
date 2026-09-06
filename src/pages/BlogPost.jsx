@@ -20,9 +20,13 @@ import {
     ExternalLink,
     ListFilter,
     ShieldCheck,
+    Send,
 } from 'lucide-react';
 import client from '../api/client';
 import { getImageUrl, formatBlogHtml, FALLBACK_BLOG_IMAGE } from '../utils/imageUtils';
+import SEO from '../components/common/SEO';
+import ArticleSchema from '../components/common/ArticleSchema';
+import BlogShareModal from '../components/blog/BlogShareModal';
 
 const BlogPost = () => {
     const { slug } = useParams();
@@ -31,6 +35,7 @@ const BlogPost = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [copiedLink, setCopiedLink] = useState(false);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [scrollProgress, setScrollProgress] = useState(0);
     const [headings, setHeadings] = useState([]);
     const contentRef = useRef(null);
@@ -166,8 +171,36 @@ const BlogPost = () => {
           })
         : 'Recent';
 
+    const canonicalBlogUrl = `https://www.tronix365.in/e-commerse/blog/${post.slug}`;
+    const articleImage = post.cover_image ? getImageUrl(post.cover_image) : 'https://www.tronix365.in/e-commerse/Tronix3650final_circular.png';
+
     return (
         <div className="min-h-screen pt-20 pb-24 px-4 sm:px-6 lg:px-8 bg-tronix-dark">
+            {/* Open Graph & Search Engine Meta Tags */}
+            <SEO
+                title={`${post.title} | Engineering Guide`}
+                description={post.summary || 'Detailed hardware tutorial, pinouts, and code implementation.'}
+                keywords={post.tags && post.tags.length > 0 ? post.tags.join(', ') : 'electronics, IoT, Arduino, robotics, hardware tutorial'}
+                image={articleImage}
+                url={canonicalBlogUrl}
+                type="article"
+            />
+
+            {/* Google Search Structured JSON-LD Data */}
+            <ArticleSchema
+                title={post.title}
+                description={post.summary}
+                image={articleImage}
+                datePublished={post.created_at}
+                dateModified={post.updated_at}
+                authorName={post.author_name}
+                authorRole={post.author_role}
+                category={post.category}
+                tags={post.tags}
+                slug={post.slug}
+                url={canonicalBlogUrl}
+            />
+
             {/* Top Reading Progress Bar */}
             <div
                 className="fixed top-0 left-0 h-1 bg-gradient-to-r from-tronix-accent to-emerald-400 z-50 transition-all duration-75"
@@ -230,6 +263,14 @@ const BlogPost = () => {
 
                         {/* Share buttons */}
                         <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setIsShareModalOpen(true)}
+                                title="Share Guide"
+                                className="px-2.5 py-1.5 bg-tronix-accent/15 hover:bg-tronix-accent/25 border border-tronix-accent/30 text-tronix-accent rounded-lg transition-all cursor-pointer flex items-center gap-1.5 text-xs font-semibold active:scale-95"
+                            >
+                                <Share2 size={13} />
+                                <span>Share</span>
+                            </button>
                             <button
                                 onClick={handleCopyUrl}
                                 title="Copy Article URL"
@@ -363,7 +404,7 @@ const BlogPost = () => {
                                                 )}
                                             </div>
                                             <Link
-                                                to={comp.link || `/products?search=${encodeURIComponent(comp.name)}`}
+                                                to={comp.link && comp.link.trim() ? comp.link : `/shop?search=${encodeURIComponent(comp.sku || comp.name)}`}
                                                 className="px-2.5 py-1 text-[11px] font-semibold bg-tronix-accent/20 hover:bg-tronix-accent/30 text-tronix-accent border border-tronix-accent/30 rounded-lg flex-shrink-0 transition-colors"
                                             >
                                                 View Part
@@ -412,6 +453,28 @@ const BlogPost = () => {
                                 </div>
                             </div>
                         )}
+
+                        {/* Interactive Share Bento Box */}
+                        <div className="pt-8 mt-12 border-t border-white/10 bg-white/[0.02] border border-white/5 rounded-2xl p-6 sm:p-8 space-y-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div>
+                                    <h4 className="text-lg font-bold text-white flex items-center gap-2">
+                                        <Share2 size={18} className="text-tronix-accent" />
+                                        Found this guide helpful? Share with engineers!
+                                    </h4>
+                                    <p className="text-xs text-gray-400 mt-1">
+                                        Share this tutorial with fellow developers, makers, and IoT builders.
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setIsShareModalOpen(true)}
+                                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tronix-accent text-black font-semibold text-xs hover:bg-tronix-accent/90 transition-all shadow-lg shadow-tronix-accent/20 cursor-pointer flex-shrink-0"
+                                >
+                                    <Share2 size={14} />
+                                    <span>Share Article</span>
+                                </button>
+                            </div>
+                        </div>
                     </article>
                 </div>
 
@@ -468,6 +531,13 @@ const BlogPost = () => {
                         </div>
                     </div>
                 )}
+
+                {/* Blog Share Modal */}
+                <BlogShareModal
+                    isOpen={isShareModalOpen}
+                    onClose={() => setIsShareModalOpen(false)}
+                    post={post}
+                />
             </div>
         </div>
     );

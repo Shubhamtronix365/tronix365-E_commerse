@@ -23,24 +23,65 @@ const staticRoutes = [
   '',
   '/shop',
   '/categories',
+  '/blogs',
+  '/tower-orders',
   '/about',
   '/contact',
   '/terms',
-  '/privacy'
+  '/privacy',
+  '/return-refund'
 ];
 
-const categoryRoutes = [
-  '/category/development-boards',
-  '/category/sensors',
-  '/category/modules',
-  '/category/motors',
-  '/category/battery',
-  '/category/displays'
+const fallbackCategories = [
+  'development-boards',
+  'sensors',
+  'modules',
+  'motors',
+  'battery',
+  'displays',
+  'robotics-kits',
+  'iot-devices'
 ];
 
 async function generate() {
   console.log('Generating Sitemap.xml...');
-  
+
+  // 1. Fetch Categories
+  let categoryRoutes = [];
+  try {
+    console.log(`Fetching categories from API: ${API_URL}/categories`);
+    const catRes = await fetch(`${API_URL}/categories`);
+    if (catRes.ok) {
+      const cats = await catRes.json();
+      if (Array.isArray(cats) && cats.length > 0) {
+        categoryRoutes = cats.map(c => `/category/${slugify(typeof c === 'string' ? c : c.name || c.category)}`);
+        console.log(`Mapped ${categoryRoutes.length} categories from API.`);
+      }
+    }
+  } catch (err) {
+    console.warn('Categories API fetch failed, using fallback category list...', err.message);
+  }
+  if (categoryRoutes.length === 0) {
+    categoryRoutes = fallbackCategories.map(c => `/category/${c}`);
+  }
+
+  // 2. Fetch Blog Posts
+  let blogRoutes = [];
+  try {
+    console.log(`Fetching published blog posts from API: ${API_URL}/blogs?limit=1000`);
+    const blogRes = await fetch(`${API_URL}/blogs?limit=1000`);
+    if (blogRes.ok) {
+      const blogData = await blogRes.json();
+      const articles = Array.isArray(blogData) ? blogData : (blogData.posts || []);
+      const published = articles.filter(p => p.is_published !== false && p.slug);
+      blogRoutes = published.map(p => `/blog/${p.slug}`);
+      console.log(`Mapped ${blogRoutes.length} published blog articles.`);
+    }
+  } catch (err) {
+    console.warn('Blog API fetch failed, checking local fallback...', err.message);
+  }
+
+  // 3. Fetch Products
   let productRoutes = [];
   try {
     console.log(`Fetching products from API: ${API_URL}/products`);
@@ -81,17 +122,32 @@ async function generate() {
     }
   }
 
-  const allRoutes = [...staticRoutes, ...categoryRoutes, ...productRoutes];
+  const allRoutes = Array.from(new Set([...staticRoutes, ...categoryRoutes, ...blogRoutes, ...productRoutes]));
 
   const xmlEntries = allRoutes.map(route => {
     // Determine priority
     let priority = '0.5';
-    if (route === '') priority = '1.0';
-    else if (route === '/shop' || route === '/categories') priority = '0.8';
-    else if (route.startsWith('/category/')) priority = '0.7';
-    else if (route.startsWith('/product/')) priority = '0.6';
+    let changefreq = 'monthly';
 
-    const changefreq = route.startsWith('/product/') ? 'weekly' : 'daily';
+    if (route === '') {
+      priority = '1.0';
+      changefreq = 'daily';
+    } else if (route === '/shop' || route === '/categories' || route === '/blogs') {
+      priority = '0.8';
+      changefreq = 'daily';
+    } else if (route.startsWith('/blog/')) {
+      priority = '0.8';
+      changefreq = 'weekly';
+    } else if (route.startsWith('/category/')) {
+      priority = '0.7';
+      changefreq = 'weekly';
+    } else if (route.startsWith('/product/')) {
+      priority = '0.7';
+      changefreq = 'weekly';
+    } else if (route === '/tower-orders') {
+      priority = '0.6';
+      changefreq = 'weekly';
+    }
 
     return `  <url>
     <loc>${BASE_URL}${route}</loc>

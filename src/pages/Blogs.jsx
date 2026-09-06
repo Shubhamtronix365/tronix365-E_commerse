@@ -25,6 +25,8 @@ import {
 } from 'lucide-react';
 import client from '../api/client';
 import { getImageUrl, FALLBACK_BLOG_IMAGE } from '../utils/imageUtils';
+import SEO from '../components/common/SEO';
+import BlogShareModal from '../components/blog/BlogShareModal';
 
 const Blogs = () => {
     const navigate = useNavigate();
@@ -36,6 +38,10 @@ const Blogs = () => {
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+
+    // Share Modal States
+    const [selectedSharePost, setSelectedSharePost] = useState(null);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
     // Blog Author Portal Modal States
     const [isAuthorModalOpen, setIsAuthorModalOpen] = useState(false);
@@ -154,6 +160,13 @@ const Blogs = () => {
 
     return (
         <div className="min-h-screen pt-28 sm:pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-tronix-dark">
+            <SEO
+                title="Engineering & Tech Blog | Hardware Tutorials, Pinouts & IoT Guides"
+                description="Deep dive electronics tutorials, Raspberry Pi & ESP32 guides, circuit schematics, pinouts, and hardware reviews written by engineers at Tronix365."
+                keywords="electronics tutorials, robotics, IoT guides, ESP32 pinout, raspberry pi, circuit diagrams, hardware engineering"
+                canonicalUrl={`${window.location.origin}/blogs`}
+            />
+
             <div className="max-w-7xl mx-auto space-y-10">
                 {/* Top Studio Access Bar */}
                 <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
@@ -289,12 +302,28 @@ const Blogs = () => {
                                         </div>
                                     </div>
 
-                                    <Link
-                                        to={`/blog/${heroPost.slug}`}
-                                        className="inline-flex items-center gap-1.5 text-sm font-semibold text-tronix-accent group-hover:translate-x-1 transition-transform"
-                                    >
-                                        Read Guide <ArrowRight size={16} />
-                                    </Link>
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setSelectedSharePost(heroPost);
+                                                setIsShareModalOpen(true);
+                                            }}
+                                            title="Share article"
+                                            className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-white/10"
+                                        >
+                                            <Share2 size={13} />
+                                            <span>Share</span>
+                                        </button>
+                                        <Link
+                                            to={`/blog/${heroPost.slug}`}
+                                            className="inline-flex items-center gap-1.5 text-sm font-semibold text-tronix-accent group-hover:translate-x-1 transition-transform"
+                                        >
+                                            Read Guide <ArrowRight size={16} />
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -463,12 +492,27 @@ const Blogs = () => {
                                                 </span>
                                             </div>
 
-                                            <Link
-                                                to={`/blog/${post.slug}`}
-                                                className="text-tronix-accent font-semibold flex items-center gap-1 group-hover:translate-x-1 transition-transform"
-                                            >
-                                                Read <ChevronRight size={14} />
-                                            </Link>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        setSelectedSharePost(post);
+                                                        setIsShareModalOpen(true);
+                                                    }}
+                                                    title="Share article"
+                                                    className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer"
+                                                >
+                                                    <Share2 size={13} />
+                                                </button>
+                                                <Link
+                                                    to={`/blog/${post.slug}`}
+                                                    className="text-tronix-accent font-semibold flex items-center gap-1 group-hover:translate-x-1 transition-transform"
+                                                >
+                                                    Read <ChevronRight size={14} />
+                                                </Link>
+                                            </div>
                                         </div>
                                     </div>
                                 </motion.article>
@@ -625,6 +669,16 @@ const Blogs = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Quick Share Modal */}
+            <BlogShareModal
+                isOpen={isShareModalOpen}
+                onClose={() => {
+                    setIsShareModalOpen(false);
+                    setSelectedSharePost(null);
+                }}
+                post={selectedSharePost}
+            />
         </div>
     );
 };

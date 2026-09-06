@@ -75,6 +75,12 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
     - Strict XSS sanitization engine using `bleach` and regex stripping `<script>`, `<style>`, `<iframe>`, and malicious `onerror`/`onclick` event handlers.
     - Automatic SEO slug generator with duplicate collision resolution (appends counter suffix).
     - Live WebP image conversion and validation pipeline via `/upload`.
+- **Comprehensive Search Engine Optimization (SEO), Dynamic Sitemap & Multi-Channel Sharing**:
+  - **Google Structured Data (`ArticleSchema.jsx`)**: Injects Schema.org `TechArticle` / `BlogPosting` JSON-LD schema with author person attributes, publisher organization metadata, publication dates, and cover images.
+  - **Dynamic Automated Sitemap Engine (`generate-sitemap.cjs` / `.js`)**: Automatically fetches live published articles (`/blogs`), category taxonomies (`/categories`), and inventory items (`/products`), compiling a 1,300+ line canonical `sitemap.xml` with priority weighting and change frequencies for search engines.
+  - **Search Crawler Directives (`public/robots.txt`)**: Allows search bots to index `/blogs`, `/blog/`, `/category/`, and `/tower-orders`, while blocking administrative workspaces (`/blog-studio`, `/blogs/studio`, `/dashboard`, `/admin`).
+  - **Self-Healing URL Redirects & Broken Link Prevention**: Automatic client-side redirects for legacy `/products` and `/products/:slug` paths to `/shop` with full URL query preservation (`/products?search=esp32` $\to$ `/shop?search=esp32`).
+  - **Interactive Multi-Channel Blog Sharing (`BlogShareModal.jsx`)**: Native Web Share API integration, 1-click canonical clipboard copy with instant feedback, direct channels (WhatsApp, Telegram, X/Twitter, LinkedIn, Facebook, Email), and QR code preview across both the main blog cards and detailed article view.
 - **Rate Limiting & Caching**: Security features with Slowapi rate limiters and Redis/InMemory backend caching.
 
 ---

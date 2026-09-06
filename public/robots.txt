@@ -4,14 +4,21 @@ Allow: /e-commerse/
 Allow: /e-commerse/shop
 Allow: /e-commerse/product/
 Allow: /e-commerse/category/
+Allow: /e-commerse/blogs
+Allow: /e-commerse/blog/
+Allow: /e-commerse/tower-orders
 Allow: /e-commerse/about
 Allow: /e-commerse/contact
+Allow: /e-commerse/return-refund
 
 # Block private/checkout pages from wasting search crawl budget
 Disallow: /e-commerse/cart
 Disallow: /e-commerse/checkout
 Disallow: /e-commerse/dashboard
 Disallow: /e-commerse/admin
+Disallow: /e-commerse/blog-studio
+Disallow: /e-commerse/blogs/studio
+Disallow: /e-commerse/blog/dashboard
 Disallow: /e-commerse/login
 Disallow: /e-commerse/signup
 Disallow: /e-commerse/order/
