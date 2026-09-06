@@ -38,6 +38,20 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
   - **Mobile Filter Drawer**: Responsive slide-over filter drawer with active filter pulse indicator on Shop page, keeping product feeds uncluttered on narrow displays.
   - **Touch-Optimized Quantity Steppers & Ergonomic Buttons**: Generously sized circular quantity buttons (`w-9 h-9 sm:w-8 sm:h-8`) with micro-spring tap feedback (`active:scale-95`).
   - **Native Mobile Keypad & iOS Zoom Prevention**: Input font sizing (`text-base sm:text-sm`) prevents Safari displacement; PIN and phone fields launch native numeric keypads (`inputMode="numeric"`).
+- **Performance & Zero-CLS Skeleton Screens**:
+  - **High-Fidelity Product Detail Skeletons**: `ProductDetailSkeleton` eliminates blank screen flashes and Cumulative Layout Shift (CLS) on product navigation.
+  - **Related Products Skeleton Grid**: Replaces loading spinners with a 4-card placeholder grid to preserve layout stability while recommendations resolve.
+  - **Raycast-Style Keyboard Navigation**: Search overlay supports seamless `ArrowDown`, `ArrowUp`, and `Enter` selection alongside graceful image fallback handling (`Image.jsx`).
+  - **Shop Search Synchronization**: Filter pill displaying active query with 1-click dismiss button and synchronized React Router location params.
+- **In-Memory Category Caching & Immediate Invalidation**: `GET /categories` requests are served in sub-milliseconds via backend memory cache with automatic invalidation upon admin category changes.
+- **Abandoned Cart Recovery & Automated Email Engine**:
+  - Automatically identifies uncompleted shopping carts inactive for $\ge 1$ hour where no subsequent orders have been placed.
+  - Anti-spam safeguard: stamps items with `abandoned_email_sent_at` and automatically resets upon customer cart interaction (`add_to_cart`, `update_cart_item`, `merge_cart`).
+  - Sends high-converting branded HTML recovery emails via Brevo with item thumbnails, quantities, subtotal, and an exclusive 5% incentive voucher code (`RECOVER5`).
+  - Mandatory dual-recipient compliance (`shubham.tronix365@gmail.com`) and audit logged into `EmailLogDB`.
+  - Admin Dashboard "Abandoned Carts" management tab with real-time pending badges, customer search, pending/sent filters, and 1-click single & bulk reminder dispatching.
+  - CLI / Cron background runner (`backend/scripts/abandoned_cart_check.py`) for automated background execution.
+  - Returning customer welcome banner and toast upon clicking recovery CTA (`/cart?recovered=true&coupon=RECOVER5`).
 - **Rate Limiting & Caching**: Security features with Slowapi rate limiters and Redis/InMemory backend caching.
 
 ---
@@ -240,28 +254,45 @@ Render automatically deploys the uploaded image directory, serving all product i
 ```text
 tronix365-E_commerse/
 │
-├── client/ (or src/)      # All frontend code (React)
-│   ├── api/               # Axios instances and API call functions
-│   ├── assets/            # Static assets (images, icons)
+├── src/                   # All frontend code (React 19 + Vite)
+│   ├── api/               # Axios instances and API call clients
+│   ├── assets/            # Static assets (images, icons, media)
 │   ├── components/        # Reusable UI components
-│   ├── context/           # React Context providers (Auth, Cart, etc.)
-│   ├── pages/             # Page components (Home, Shop, Dashboard, etc.)
-│   └── utils/             # Frontend helper functions
+│   │   ├── dashboard/     # Modular dashboard sections (Orders, TowerOrders, Addresses, Profile)
+│   │   ├── checkout/      # Modular checkout components (ShippingSelector, OrderSummary)
+│   │   └── ui/            # UI atoms & modals
+│   ├── context/           # React Context providers (AuthContext, CartContext, etc.)
+│   ├── pages/             # Page components (Home, Shop, UserDashboard, Checkout, etc.)
+│   └── utils/             # Frontend helper functions (imageUtils, seo, etc.)
 │
-├── server/ (or backend/)  # All backend code (FastAPI)
-│   ├── main.py            # FastAPI application entry point & routes
+├── backend/               # All backend code (FastAPI + SQLAlchemy)
+│   ├── main.py            # Clean FastAPI orchestrator & route registration
+│   ├── deps.py            # Centralized dependencies (auth, admin, rate limiter, db)
+│   ├── routes/            # Modular APIRouters:
+│   │   ├── auth_routes.py
+│   │   ├── category_routes.py
+│   │   ├── product_routes.py
+│   │   ├── order_routes.py
+│   │   ├── payment_routes.py
+│   │   ├── tower_order_routes.py
+│   │   ├── cart_routes.py
+│   │   ├── wishlist_routes.py
+│   │   ├── coupon_routes.py
+│   │   ├── bundle_routes.py
+│   │   ├── review_routes.py
+│   │   ├── address_routes.py
+│   │   ├── admin_routes.py
+│   │   └── upload_routes.py (Secure WebP image pipeline)
 │   ├── models.py          # SQLAlchemy DB models & Pydantic validation schemas
-│   ├── database.py        # Database connection setup
-│   ├── auth.py            # JWT generation and password hashing logic
-│   ├── email_utils.py     # SMTP email dispatching logic
+│   ├── database.py        # Database engine & session setup
+│   ├── auth.py            # JWT tokens and password hashing
+│   ├── email_utils.py     # Brevo SMTP dispatching & email templates
 │   ├── requirements.txt   # Python dependencies
-│   ├── myenv/             # Python Virtual Environment
-│   └── migrations/        # Alembic migration scripts
+│   └── myenv/             # Python Virtual Environment
 │
 ├── .gitignore
 ├── README.md
 ├── package.json
-├── requirements.txt
 └── vite.config.js
 ```
 
@@ -338,6 +369,15 @@ FastAPI generates interactive documentation at [http://127.0.0.1:8000/docs](http
   - `PUT /addresses/{id}` - Modify existing address attributes
   - `DELETE /addresses/{id}` - Delete address (automatically designates next newest address as default if deleted was default)
   - `PUT /addresses/{id}/set-default` - Set selected address as user's primary delivery address
+- **Abandoned Cart Recovery**:
+  - `GET /admin/abandoned-carts` - List all inactive carts ($\ge 1\text{h}$) with items, cart value, customer information, email status, and overall summary metrics
+  - `POST /admin/abandoned-carts/{target_user_id}/send` - Send a recovery email reminder with item summaries & voucher code to a specific user
+  - `POST /admin/abandoned-carts/send-all` - Bulk send recovery reminders to all pending abandoned carts that have not yet been notified
+  - **Background Runner**:
+    ```bash
+    cd backend
+    python scripts/abandoned_cart_check.py
+    ```
 
 ---
 

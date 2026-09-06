@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, Truck, Zap, Store } from 'lucide-react';
@@ -25,6 +25,20 @@ const Cart = () => {
     } = useCart();
     const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const [recoveryBanner, setRecoveryBanner] = useState(null);
+
+    useEffect(() => {
+        const searchParams = new URLSearchParams(location.search);
+        if (searchParams.get('recovered') === 'true') {
+            const coupon = searchParams.get('coupon') || 'RECOVER5';
+            setRecoveryBanner(coupon);
+            toast.success(`Welcome back! Use voucher ${coupon} at checkout for an extra 5% off!`, {
+                duration: 6000,
+                icon: '🛒'
+            });
+        }
+    }, [location.search]);
 
     // ── Shipping Options ──────────────────────────────────────────────────────
     const SHIPPING_OPTIONS = [
@@ -103,6 +117,26 @@ const Cart = () => {
         <div className="min-h-screen pt-20 sm:pt-24 pb-32 lg:pb-12 px-3 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
                 <h1 className="text-2xl sm:text-3xl font-display font-bold text-white mb-6 sm:mb-8">Shopping Cart</h1>
+
+                {recoveryBanner && (
+                    <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-purple-900/40 via-indigo-900/40 to-slate-900/40 border border-purple-500/40 flex items-center justify-between gap-4 backdrop-blur-md">
+                        <div className="flex items-center gap-3">
+                            <span className="text-2xl">🛒</span>
+                            <div>
+                                <p className="text-white font-semibold text-sm">Welcome Back to Your Cart!</p>
+                                <p className="text-xs text-gray-300">
+                                    We preserved your electronics components. Use voucher <span className="font-mono text-cyan-300 font-bold bg-white/10 px-1.5 py-0.5 rounded">{recoveryBanner}</span> at checkout for an extra 5% discount.
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => setRecoveryBanner(null)}
+                            className="text-gray-400 hover:text-white text-xs px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 cursor-pointer transition-colors"
+                        >
+                            Dismiss
+                        </button>
+                    </div>
+                )}
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
                     {/* Cart Items List */}

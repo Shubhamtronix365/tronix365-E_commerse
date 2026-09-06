@@ -18,6 +18,7 @@ import ConfirmModal from '../components/admin/ConfirmModal';
 import CategoryTable from '../components/admin/CategoryTable';
 import TowerOrderTable from '../components/admin/TowerOrderTable';
 import TowerOrderAdminModal from '../components/admin/TowerOrderAdminModal';
+import AbandonedCartTable from '../components/admin/AbandonedCartTable';
 import { useCategories } from '../hooks/useCategories';
 
 const AdminDashboard = () => {
@@ -30,6 +31,7 @@ const AdminDashboard = () => {
     const [orders, setOrders] = useState([]);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [selectedTowerOrder, setSelectedTowerOrder] = useState(null);
+    const [abandonedCartsCount, setAbandonedCartsCount] = useState(0);
 
     // Search & Filter State
     const [searchQuery, setSearchQuery] = useState('');
@@ -122,6 +124,14 @@ const AdminDashboard = () => {
                 const ordRes = await client.get(`/orders?skip=0&limit=${LIMIT}`);
                 setOrders(ordRes.data);
                 if (ordRes.data.length < LIMIT) setHasMoreOrders(false);
+
+                // Fetch Pending Abandoned Carts Count
+                try {
+                    const cartRes = await client.get('/admin/abandoned-carts');
+                    if (cartRes.data?.summary?.pending_reminders_count !== undefined) {
+                        setAbandonedCartsCount(cartRes.data.summary.pending_reminders_count);
+                    }
+                } catch (e) {}
 
             } catch (error) {
                 console.error('Error fetching admin data:', error);
@@ -517,6 +527,21 @@ const AdminDashboard = () => {
                                 Bundles
                             </button>
                             <button
+                                onClick={() => setActiveTab('abandoned_carts')}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 whitespace-nowrap ${
+                                    activeTab === 'abandoned_carts'
+                                        ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40 font-semibold'
+                                        : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                <span>Abandoned Carts</span>
+                                {abandonedCartsCount > 0 && (
+                                    <span className="px-1.5 py-0.5 bg-amber-500 text-black font-bold text-[10px] rounded-full">
+                                        {abandonedCartsCount}
+                                    </span>
+                                )}
+                            </button>
+                            <button
                                 onClick={() => setActiveTab('settings')}
                                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'settings' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
                             >
@@ -578,6 +603,17 @@ const AdminDashboard = () => {
 
                         {activeTab === 'bundles' && (
                             <BundleTable products={products} />
+                        )}
+
+                        {activeTab === 'abandoned_carts' && (
+                            <AbandonedCartTable onRefreshStats={async () => {
+                                try {
+                                    const cartRes = await client.get('/admin/abandoned-carts');
+                                    if (cartRes.data?.summary?.pending_reminders_count !== undefined) {
+                                        setAbandonedCartsCount(cartRes.data.summary.pending_reminders_count);
+                                    }
+                                } catch (e) {}
+                            }} />
                         )}
 
                         {activeTab === 'settings' && (
