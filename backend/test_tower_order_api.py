@@ -13,6 +13,23 @@ class TestTowerOrderWorkflow(unittest.TestCase):
         self.db.close()
 
     def test_tower_order_crud_and_steps(self):
+        from models import UserDB
+        from auth import create_access_token
+        test_user = self.db.query(UserDB).filter(UserDB.email == "buyer@industry.com").first()
+        if not test_user:
+            test_user = UserDB(
+                email="buyer@industry.com",
+                hashed_password="fakehashedpassword",
+                full_name="Test Industrial Buyer",
+                role="user",
+                is_active=True
+            )
+            self.db.add(test_user)
+            self.db.commit()
+            self.db.refresh(test_user)
+        token = create_access_token(data={"sub": test_user.email})
+        headers = {"Authorization": f"Bearer {token}"}
+
         payload = {
             "product_name": "Industrial Microcontroller STM32",
             "customer_name": "Test Industrial Buyer",
@@ -31,7 +48,7 @@ class TestTowerOrderWorkflow(unittest.TestCase):
             "customer_notes": "Urgent requirement for production batch",
             "required_by_date": "2026-10-15"
         }
-        res = self.client.post("/tower-orders", json=payload)
+        res = self.client.post("/tower-orders", json=payload, headers=headers)
         self.assertEqual(res.status_code, 201, f"Response: {res.text}")
         data = res.json()
         order_id = data["id"]
