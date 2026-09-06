@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Filter, X } from 'lucide-react';
+import { Filter, X, FileSpreadsheet } from 'lucide-react';
 import ProductCard from '../components/product/ProductCard';
 import ProductCardSkeleton from '../components/product/ProductCardSkeleton';
 import ProductFilter from '../components/shop/ProductFilter';
@@ -276,6 +276,15 @@ const Shop = () => {
                     </div>
 
                     <div className="flex items-center gap-3">
+                        <Link
+                            to="/bom"
+                            className="inline-flex items-center gap-2 bg-violet-600/10 hover:bg-violet-600/20 border border-violet-500/30 px-3.5 py-2.5 rounded-xl text-violet-300 hover:text-white text-xs sm:text-sm font-semibold transition-all shadow-sm active:scale-95"
+                            title="Upload Project BOM / Parts List (CSV)"
+                        >
+                            <FileSpreadsheet size={16} className="text-violet-400" />
+                            <span>BOM Tool</span>
+                            <span className="hidden sm:inline text-[9px] bg-violet-500/20 text-violet-300 border border-violet-500/40 px-1 py-0.2 rounded font-bold uppercase">CSV</span>
+                        </Link>
                         <button
                             onClick={() => setIsMobileFilterOpen(true)}
                             className="lg:hidden flex items-center justify-center gap-2 bg-tronix-card/80 border border-white/10 px-4 py-2.5 rounded-xl text-white font-medium hover:bg-white/10 transition-colors shadow-lg active:scale-95 text-sm"

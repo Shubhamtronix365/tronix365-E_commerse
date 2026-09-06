@@ -1,5 +1,6 @@
-import React from 'react';
-import { Package, Calendar, Eye } from 'lucide-react';
+import React, { useState } from 'react';
+import { Package, Calendar, Eye, FileText } from 'lucide-react';
+import TaxInvoiceModal from '../invoice/TaxInvoiceModal';
 
 const OrdersSection = ({
     orders,
@@ -10,6 +11,8 @@ const OrdersSection = ({
     loadingMore,
     handleLoadMore,
 }) => {
+    const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState(null);
+
     const filteredOrders = orders.filter(
         (o) => orderStatusFilter === 'All' || o.status === orderStatusFilter
     );
@@ -149,16 +152,35 @@ const OrdersSection = ({
                                 </div>
                             </div>
 
-                            {/* Right Action Button */}
-                            <button
-                                onClick={() => navigate(`/order/${order.id}`)}
-                                className="w-full sm:w-auto px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 rounded-xl text-white text-sm font-semibold transition-all flex items-center justify-center gap-2 group-hover:bg-violet-500/20 group-hover:text-violet-300 group-hover:border-violet-500/30"
-                            >
-                                <Eye size={16} className="opacity-70" />
-                                <span>View Details</span>
-                            </button>
+                            {/* Right Action Buttons */}
+                            <div className="flex items-center gap-2 w-full sm:w-auto">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedInvoiceOrder(order);
+                                    }}
+                                    className="w-full sm:w-auto px-4 py-2.5 bg-violet-600/10 hover:bg-violet-600/20 border border-violet-500/20 hover:border-violet-500/40 rounded-xl text-violet-300 text-sm font-semibold transition-all flex items-center justify-center gap-2"
+                                    title="View & Download Official GST Tax Invoice"
+                                >
+                                    <FileText size={15} />
+                                    <span>Tax Invoice</span>
+                                </button>
+                                <button
+                                    onClick={() => navigate(`/order/${order.id}`)}
+                                    className="w-full sm:w-auto px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 rounded-xl text-white text-sm font-semibold transition-all flex items-center justify-center gap-2 group-hover:bg-violet-500/20 group-hover:text-violet-300 group-hover:border-violet-500/30"
+                                >
+                                    <Eye size={16} className="opacity-70" />
+                                    <span>View Details</span>
+                                </button>
+                            </div>
                         </div>
                     ))}
+
+                    <TaxInvoiceModal
+                        isOpen={Boolean(selectedInvoiceOrder)}
+                        onClose={() => setSelectedInvoiceOrder(null)}
+                        order={selectedInvoiceOrder}
+                    />
 
                     {filteredOrders.length === 0 && (
                         <div className="text-center py-12 px-4 bg-white/5 border border-white/10 rounded-2xl">

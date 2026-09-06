@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Package, ChevronLeft, CheckCircle, Clock, XCircle, FileText, Truck, CreditCard, User, Check, Calendar, AlertTriangle } from 'lucide-react';
+import { Package, ChevronLeft, CheckCircle, Clock, XCircle, FileText, Truck, CreditCard, User, Check, Calendar, AlertTriangle, Printer } from 'lucide-react';
 import toast from 'react-hot-toast';
 import client from '../api/client';
 import { getImageUrl } from '../utils/imageUtils';
+import TaxInvoiceModal from '../components/invoice/TaxInvoiceModal';
 
 const OrderDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
     useEffect(() => {
         const fetchOrder = async () => {
@@ -61,11 +63,18 @@ const OrderDetails = () => {
                             </p>
                         </div>
                         <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => setShowInvoiceModal(true)}
+                                className="px-4 py-1.5 bg-violet-600/20 hover:bg-violet-600/30 border border-violet-500/40 text-violet-300 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all hover:scale-105 cursor-pointer shadow-sm"
+                                title="Download Official GST Tax Invoice"
+                            >
+                                <FileText size={14} />
+                                <span>Tax Invoice</span>
+                            </button>
                             <span className="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-violet-500/20 text-violet-300 border border-violet-500/30">
                                 {formattedStatus}
                             </span>
                         </div>
-
                     </div>
 
                     <div className="p-6 md:p-8">
@@ -307,6 +316,12 @@ const OrderDetails = () => {
                     </div>
                 </div>
             </div>
+
+            <TaxInvoiceModal
+                isOpen={showInvoiceModal}
+                onClose={() => setShowInvoiceModal(false)}
+                order={order}
+            />
         </div>
     );
 };
