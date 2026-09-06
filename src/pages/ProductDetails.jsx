@@ -19,6 +19,7 @@ import Image from '../components/common/Image';
 import ShareModal from '../components/common/ShareModal';
 import VariantSelector from '../components/product/VariantSelector';
 import TowerOrderModal from '../components/towerOrder/TowerOrderModal';
+import ProductDetailSkeleton from '../components/product/ProductDetailSkeleton';
 
 const ProductDetails = () => {
     const { slug } = useParams();
@@ -104,11 +105,7 @@ const ProductDetails = () => {
     }, [product]);
 
     if (loading) {
-        return (
-            <div className="min-h-screen pt-24 text-center text-white">
-                <p>Loading product...</p>
-            </div>
-        );
+        return <ProductDetailSkeleton />;
     }
 
     if (!product) {
