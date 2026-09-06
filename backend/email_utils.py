@@ -1483,3 +1483,177 @@ def send_tower_order_dispatched_email(order, frontend_url: str = "http://localho
         status_trigger="tower_order_dispatched"
     )
 
+
+def send_abandoned_cart_email(
+    user,
+    items,
+    coupon_code: str = "RECOVER5",
+    frontend_url: Optional[str] = None
+) -> bool:
+    """
+    Sends a high-converting abandoned cart recovery email to a user with items left in cart.
+    Includes item thumbnails, quantities, subtotal, an exclusive discount voucher, and a recovery link.
+    """
+    if not frontend_url:
+        frontend_url = os.getenv("FRONTEND_URL", "https://www.tronix365.in/e-commerse")
+    
+    customer_name = getattr(user, "full_name", None) or getattr(user, "email", "Valued Maker").split("@")[0]
+    customer_email = getattr(user, "email", "")
+    if not customer_email:
+        logger.warning("Cannot send abandoned cart email: user has no email.")
+        return False
+
+    # Build product rows HTML
+    rows_html = []
+    subtotal = 0.0
+    for item in items:
+        prod = getattr(item, "product", None)
+        title = getattr(prod, "title", "Electronic Component") if prod else "Electronic Component"
+        price = float(getattr(prod, "price", 0.0) or 0.0) if prod else 0.0
+        qty = int(getattr(item, "quantity", 1) or 1)
+        item_total = price * qty
+        subtotal += item_total
+        
+        img_url = getattr(prod, "image", None) if prod else None
+        if not img_url:
+            img_url = f"{EMAIL_ASSETS_BASE_URL}/logo.png"
+        elif not img_url.startswith("http"):
+            backend_base = os.getenv("BACKEND_URL", "https://tronix365-e-commerse.onrender.com")
+            img_url = f"{backend_base}/{img_url.lstrip('/')}"
+
+        rows_html.append(f"""
+        <tr>
+            <td style="padding: 12px; border-bottom: 1px solid #1e293b; text-align: center; width: 60px;">
+                <img src="{img_url}" alt="{title}" width="50" height="50" style="border-radius: 8px; object-fit: contain; background: #ffffff; padding: 2px; border: 1px solid #334155;" />
+            </td>
+            <td style="padding: 12px; border-bottom: 1px solid #1e293b; color: #f8fafc; font-size: 14px; font-weight: 500;">
+                {title}
+                <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">Qty: {qty}</div>
+            </td>
+            <td style="padding: 12px; border-bottom: 1px solid #1e293b; text-align: right; color: #38bdf8; font-size: 14px; font-weight: 700;">
+                ₹{item_total:,.2f}
+            </td>
+        </tr>
+        """)
+
+    items_table_html = "".join(rows_html)
+    recovery_url = f"{frontend_url}/cart?recovered=true&coupon={coupon_code}"
+
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Your Tronix365 Cart is Waiting</title>
+    </head>
+    <body style="margin: 0; padding: 0; background-color: #0b0f19; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f8fafc;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0b0f19; padding: 20px 0;">
+            <tr>
+                <td align="center">
+                    <table width="600" cellpadding="0" cellspacing="0" style="background-color: #0f172a; border-radius: 16px; border: 1px solid #1e293b; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 600px; width: 100%;">
+                        
+                        <!-- Header / Logo -->
+                        <tr>
+                            <td style="padding: 30px; text-align: center; background: linear-gradient(180deg, rgba(124, 58, 237, 0.2) 0%, rgba(15, 23, 42, 0) 100%); border-bottom: 1px solid #1e293b;">
+                                <img src="{LOGO_PUBLIC_URL}" alt="Tronix365" height="42" style="margin-bottom: 15px;" />
+                                <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">
+                                    Did you forget something, {customer_name}? 🛒
+                                </h1>
+                                <p style="margin: 8px 0 0 0; color: #94a3b8; font-size: 14px;">
+                                    Your high-performance electronic components and IoT parts are still waiting in your cart.
+                                </p>
+                            </td>
+                        </tr>
+
+                        <!-- Items Table -->
+                        <tr>
+                            <td style="padding: 24px 30px;">
+                                <div style="font-size: 13px; font-weight: 700; color: #a855f7; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">
+                                    Reserved In Your Cart
+                                </div>
+                                <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+                                    {items_table_html}
+                                    <tr>
+                                        <td colspan="2" style="padding: 16px 12px; text-align: right; font-weight: 600; color: #94a3b8; font-size: 14px;">
+                                            Estimated Cart Total:
+                                        </td>
+                                        <td style="padding: 16px 12px; text-align: right; font-weight: 800; color: #ffffff; font-size: 18px;">
+                                            ₹{subtotal:,.2f}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+
+                        <!-- Special Recovery Voucher Callout -->
+                        <tr>
+                            <td style="padding: 0 30px 24px 30px;">
+                                <div style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(56, 189, 248, 0.15)); border: 1px dashed #a855f7; border-radius: 12px; padding: 18px; text-align: center;">
+                                    <div style="font-size: 12px; font-weight: 700; color: #c084fc; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">
+                                        ⚡ Limited-Time Recovery Perk
+                                    </div>
+                                    <div style="font-size: 18px; font-weight: 800; color: #ffffff; margin-bottom: 6px;">
+                                        Get 5% Off Your Entire Cart
+                                    </div>
+                                    <p style="margin: 0 0 10px 0; color: #cbd5e1; font-size: 13px;">
+                                        Use voucher code <span style="background: #1e1b4b; border: 1px solid #7c3aed; color: #38bdf8; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: monospace;">{coupon_code}</span> at checkout.
+                                    </p>
+                                    <a href="{recovery_url}" style="display: inline-block; background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); color: #ffffff; text-decoration: none; font-weight: 700; font-size: 15px; padding: 12px 28px; border-radius: 9999px; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4); margin-top: 6px;">
+                                        Resume Cart & Claim 5% Off →
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Assurance Badges -->
+                        <tr>
+                            <td style="padding: 0 30px 30px 30px;">
+                                <table width="100%" cellpadding="0" cellspacing="0" style="border-top: 1px solid #1e293b; padding-top: 20px;">
+                                    <tr>
+                                        <td width="33%" align="center" style="color: #94a3b8; font-size: 12px;">
+                                            <div style="color: #38bdf8; font-weight: 700; font-size: 13px;">⚡ Fast Dispatch</div>
+                                            Same-day packing
+                                        </td>
+                                        <td width="33%" align="center" style="color: #94a3b8; font-size: 12px;">
+                                            <div style="color: #34d399; font-weight: 700; font-size: 13px;">🛡️ 100% Genuine</div>
+                                            Tested Maker Hardware
+                                        </td>
+                                        <td width="33%" align="center" style="color: #f472b6; font-weight: 700; font-size: 13px;">
+                                            <div style="color: #f472b6; font-weight: 700; font-size: 13px;">💬 Dedicated Support</div>
+                                            Electronics engineers
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+
+                        <!-- Footer -->
+                        <tr>
+                            <td style="padding: 20px 30px; background-color: #070b14; border-top: 1px solid #1e293b; text-align: center; font-size: 12px; color: #64748b;">
+                                <p style="margin: 0 0 6px 0;">
+                                    Tronix365 Electronics • Pune, Maharashtra, India
+                                </p>
+                                <p style="margin: 0;">
+                                    Need help with your circuit or project? Reply to this email or reach us at <a href="mailto:support@tronix365.in" style="color: #a855f7; text-decoration: none;">support@tronix365.in</a>
+                                </p>
+                            </td>
+                        </tr>
+
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>
+    """
+
+    subject = f"Did you forget something, {customer_name}? Your Tronix365 cart is waiting! (Save 5% with {coupon_code})"
+    return send_email_via_brevo(
+        to_email=customer_email,
+        subject=subject,
+        html_content=html_content,
+        sender_name="Tronix365 Cart Recovery",
+        status_trigger="abandoned_cart_recovery"
+    )
+
