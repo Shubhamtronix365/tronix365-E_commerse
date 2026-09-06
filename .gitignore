@@ -76,3 +76,4 @@ ehthumbs.db
 *.sw?
 
 backend/tronix365.db.bak
+backend/otp_debug.txt

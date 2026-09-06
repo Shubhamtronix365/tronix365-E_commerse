@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Lock, Mail, ShieldCheck, Eye, EyeOff, ArrowLeft, RefreshCw } from 'lucide-react';
+import { User, Lock, Mail, ShieldCheck, Eye, EyeOff, ArrowLeft, RefreshCw, UserPlus, AlertCircle } from 'lucide-react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import client from '../api/client';
@@ -21,6 +21,8 @@ const Login = () => {
     const [resendCountdown, setResendCountdown] = useState(30);
     const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [accountNotFound, setAccountNotFound] = useState(false);
+    const [oauthNotice, setOauthNotice] = useState(false);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -75,6 +77,9 @@ const Login = () => {
         }
 
         setIsSubmitting(true);
+        setAccountNotFound(false);
+        setOauthNotice(false);
+
         try {
             const result = await login(email, password, isAdmin);
             if (result.success) {
@@ -108,7 +113,15 @@ const Login = () => {
                     }
                 }
             } else {
-                toast.error(result.message || 'Login failed.');
+                if (result.statusCode === 404 || result.message?.toLowerCase().includes("no account found")) {
+                    setAccountNotFound(true);
+                    toast.error("No account found with this email. Please sign up.");
+                } else if (result.statusCode === 400 && result.message?.toLowerCase().includes("google")) {
+                    setOauthNotice(true);
+                    toast.error(result.message);
+                } else {
+                    toast.error(result.message || 'Login failed.');
+                }
             }
         } catch (error) {
             console.error('Unexpected login error:', error);
@@ -388,7 +401,11 @@ const Login = () => {
                                     <input
                                         type="email"
                                         value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        onChange={(e) => {
+                                            setEmail(e.target.value);
+                                            if (accountNotFound) setAccountNotFound(false);
+                                            if (oauthNotice) setOauthNotice(false);
+                                        }}
                                         placeholder="name@example.com"
                                         required
                                         className="w-full bg-white/5 border border-white/10 rounded-xl px-4 pl-12 py-2.5 text-white focus:outline-none focus:border-tronix-primary transition-colors placeholder:text-gray-600 text-sm"
@@ -404,7 +421,11 @@ const Login = () => {
                                         name="password"
                                         type={showPassword ? "text" : "password"}
                                         value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
+                                        onChange={(e) => {
+                                            setPassword(e.target.value);
+                                            if (accountNotFound) setAccountNotFound(false);
+                                            if (oauthNotice) setOauthNotice(false);
+                                        }}
                                         placeholder="••••••••"
                                         required
                                         className="w-full bg-white/5 border border-white/10 rounded-xl px-4 pl-12 pr-12 py-2.5 text-white focus:outline-none focus:border-tronix-primary transition-colors placeholder:text-gray-600 text-sm"
@@ -418,6 +439,48 @@ const Login = () => {
                                     </button>
                                 </div>
                             </div>
+
+                            {accountNotFound && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -8 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="p-3.5 bg-rose-500/15 border border-rose-500/30 rounded-xl space-y-2 text-left"
+                                >
+                                    <div className="flex items-start gap-2">
+                                        <AlertCircle className="text-rose-400 shrink-0 mt-0.5" size={16} />
+                                        <div>
+                                            <p className="text-xs font-semibold text-rose-300">No account found with this email</p>
+                                            <p className="text-[11px] text-gray-300 mt-0.5">
+                                                It looks like you haven't created an account yet. Sign up to get started!
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <Link 
+                                        to={`/signup?email=${encodeURIComponent(email)}${location.search ? '&' + location.search.replace(/^\?/, '') : ''}`}
+                                        className="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                                    >
+                                        <UserPlus size={14} /> Create Account with this Email
+                                    </Link>
+                                </motion.div>
+                            )}
+
+                            {oauthNotice && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -8 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="p-3 bg-amber-500/15 border border-amber-500/30 rounded-xl text-left"
+                                >
+                                    <div className="flex items-start gap-2">
+                                        <AlertCircle className="text-amber-400 shrink-0 mt-0.5" size={16} />
+                                        <div>
+                                            <p className="text-xs font-semibold text-amber-300">Google Sign-In Required</p>
+                                            <p className="text-[11px] text-gray-300 mt-0.5">
+                                                This account was created with Google. Please use the <strong>"Continue with Google"</strong> button below.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
 
                             <button 
                                 type="submit"

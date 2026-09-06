@@ -279,10 +279,22 @@ async def login(
 ):
     username = form_data.username.lower().strip()
     user = db.query(UserDB).filter(UserDB.email == username).first()
-    if not user or not verify_password(form_data.password, user.hashed_password):
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="No account found with this email. Please sign up.",
+        )
+
+    if user.hashed_password == "OAUTH_USER_NO_PASSWORD":
+        raise HTTPException(
+            status_code=400,
+            detail="This account was registered with Google. Please use 'Sign in with Google' below.",
+        )
+
+    if not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=401,
-            detail="Incorrect email or password",
+            detail="Incorrect password. Please try again.",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -318,18 +330,25 @@ async def admin_login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ):
-    user = db.query(UserDB).filter(UserDB.email == form_data.username).first()
-    if not user or not verify_password(form_data.password, user.hashed_password):
+    admin_username = form_data.username.lower().strip()
+    user = db.query(UserDB).filter(UserDB.email == admin_username).first()
+    if not user:
         raise HTTPException(
-            status_code=401,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
+            status_code=404,
+            detail="No admin account found with this email.",
         )
 
     if user.role != "admin":
         raise HTTPException(
             status_code=403,
             detail="Access denied. Admin credentials required.",
+        )
+
+    if not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect password. Please try again.",
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
     access_token = create_access_token(data={"sub": user.email, "role": user.role})

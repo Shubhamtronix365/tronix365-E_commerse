@@ -9,9 +9,17 @@ import { GoogleLogin } from '@react-oauth/google';
 import { toast } from 'react-hot-toast';
 
 const Signup = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { signup, loginWithGoogle, loginWithOTPResponse } = useAuth();
+
+    const searchParams = new URLSearchParams(location.search);
+    const prefilledEmail = searchParams.get('email') || '';
+    const redirectUrl = searchParams.get('redirect') || location.state?.from || '/';
+
     const [formData, setFormData] = useState({
         full_name: '',
-        email: '',
+        email: prefilledEmail,
         password: '',
         confirmPassword: ''
     });
@@ -27,12 +35,13 @@ const Signup = () => {
 
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { signup, loginWithGoogle, loginWithOTPResponse } = useAuth();
 
-    const searchParams = new URLSearchParams(location.search);
-    const redirectUrl = searchParams.get('redirect') || location.state?.from || '/';
+    useEffect(() => {
+        const queryEmail = searchParams.get('email');
+        if (queryEmail && !formData.email) {
+            setFormData(prev => ({ ...prev, email: queryEmail }));
+        }
+    }, [location.search]);
 
     // OTP 2-Minute Expiration Countdown Timer
     useEffect(() => {
