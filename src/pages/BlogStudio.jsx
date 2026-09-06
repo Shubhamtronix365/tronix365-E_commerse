@@ -319,7 +319,14 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
             setPostToDelete(null);
         } catch (error) {
             console.error('Error deleting blog post:', error);
-            toast.error('Failed to delete blog post');
+            if (error.response?.status === 404) {
+                // Already removed on server
+                toast.success('Blog post was already removed');
+                setPosts((prev) => prev.filter((p) => p.id !== postToDelete.id));
+                setPostToDelete(null);
+            } else {
+                toast.error(error.response?.data?.detail || 'Failed to delete blog post');
+            }
         }
     };
 

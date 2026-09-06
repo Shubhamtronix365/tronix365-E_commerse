@@ -38,8 +38,28 @@ client.interceptors.response.use(
             }
         }
 
-        if (error.response && error.response.status === 401) {
-            // Optional: trigger logout or refresh token logic if needed
+        if (error.response && error.response.status === 401 && config && !config._isRetry) {
+            config._isRetry = true;
+            const refreshToken = localStorage.getItem('tronix_refresh_token');
+            if (refreshToken) {
+                try {
+                    const refreshBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+                    const refreshRes = await axios.post(
+                        `${refreshBaseUrl}/refresh?refresh_token=${encodeURIComponent(refreshToken)}`
+                    );
+                    const newAccessToken = refreshRes.data?.access_token;
+                    if (newAccessToken) {
+                        localStorage.setItem('tronix_token', newAccessToken);
+                        config.headers.Authorization = `Bearer ${newAccessToken}`;
+                        return client(config);
+                    }
+                } catch (refreshErr) {
+                    console.warn('Silent token refresh failed:', refreshErr);
+                    localStorage.removeItem('tronix_token');
+                    localStorage.removeItem('tronix_refresh_token');
+                    localStorage.removeItem('tronix_user');
+                }
+            }
         }
         return Promise.reject(error);
     }

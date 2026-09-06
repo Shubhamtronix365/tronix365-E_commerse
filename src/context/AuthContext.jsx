@@ -42,12 +42,32 @@ export const AuthProvider = ({ children }) => {
                 } catch (error) {
                     console.error("Failed to load user profile:", error);
                     if (error.response?.status === 401) {
+                        const rfToken = localStorage.getItem('tronix_refresh_token');
+                        if (rfToken) {
+                            try {
+                                const refreshRes = await axios.post(`/refresh?refresh_token=${encodeURIComponent(rfToken)}`);
+                                if (refreshRes.data?.access_token) {
+                                    const newAccess = refreshRes.data.access_token;
+                                    setToken(newAccess);
+                                    localStorage.setItem('tronix_token', newAccess);
+                                    axios.defaults.headers.common['Authorization'] = `Bearer ${newAccess}`;
+                                    const retryProfile = await axios.get('/profile');
+                                    setUser(retryProfile.data);
+                                    localStorage.setItem('tronix_user', JSON.stringify(retryProfile.data));
+                                    setIsLoading(false);
+                                    return;
+                                }
+                            } catch (rfErr) {
+                                console.warn("Profile token refresh failed:", rfErr);
+                            }
+                        }
                         logout();
                     }
                 }
             } else {
                 delete axios.defaults.headers.common['Authorization'];
                 localStorage.removeItem('tronix_token');
+                localStorage.removeItem('tronix_refresh_token');
             }
             setIsLoading(false);
         };
@@ -69,9 +89,12 @@ export const AuthProvider = ({ children }) => {
                 return { success: true, otpRequired: true, email: response.data.email };
             }
             
-            const { access_token, user_name, role } = response.data;
+            const { access_token, refresh_token, user_name, role } = response.data;
             
             setToken(access_token);
+            if (refresh_token) {
+                localStorage.setItem('tronix_refresh_token', refresh_token);
+            }
             const userData = { email, full_name: user_name, role };
             setUser(userData);
             localStorage.setItem('tronix_user', JSON.stringify(userData));
@@ -103,9 +126,12 @@ export const AuthProvider = ({ children }) => {
     const loginWithGoogle = async (credential) => {
         try {
             const response = await axios.post('/auth/google', { credential });
-            const { access_token, user_name, role, email } = response.data;
+            const { access_token, refresh_token, user_name, role, email } = response.data;
             
             setToken(access_token);
+            if (refresh_token) {
+                localStorage.setItem('tronix_refresh_token', refresh_token);
+            }
             const userData = { email, full_name: user_name, role };
             setUser(userData);
             localStorage.setItem('tronix_user', JSON.stringify(userData));
@@ -120,8 +146,11 @@ export const AuthProvider = ({ children }) => {
     };
 
     const loginWithOTPResponse = (otpResponseData) => {
-        const { access_token, user_name, role, email } = otpResponseData;
+        const { access_token, refresh_token, user_name, role, email } = otpResponseData;
         setToken(access_token);
+        if (refresh_token) {
+            localStorage.setItem('tronix_refresh_token', refresh_token);
+        }
         const userData = { email, full_name: user_name, role };
         setUser(userData);
         localStorage.setItem('tronix_user', JSON.stringify(userData));
@@ -132,6 +161,7 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         localStorage.removeItem('tronix_user');
         localStorage.removeItem('tronix_token');
+        localStorage.removeItem('tronix_refresh_token');
         localStorage.removeItem('tronix365_cart');
         localStorage.removeItem('tronix365_wishlist');
         // Notify other tabs

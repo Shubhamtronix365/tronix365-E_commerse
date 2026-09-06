@@ -135,6 +135,9 @@ const Blogs = () => {
             });
 
             localStorage.setItem('tronix_token', res.data.access_token);
+            if (res.data.refresh_token) {
+                localStorage.setItem('tronix_refresh_token', res.data.refresh_token);
+            }
             localStorage.setItem(
                 'tronix_user',
                 JSON.stringify({

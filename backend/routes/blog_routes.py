@@ -559,10 +559,10 @@ async def admin_delete_blog(
     db: Session = Depends(get_db),
     author: UserDB = Depends(get_current_blog_author),
 ):
-    """Admin/Author endpoint to delete a blog post."""
+    """Admin/Author endpoint to delete a blog post (idempotent)."""
     post = db.query(BlogPostDB).filter(BlogPostDB.id == post_id).first()
     if not post:
-        raise HTTPException(status_code=404, detail="Blog post not found")
+        return {"message": "Blog post already deleted or not found", "id": post_id}
 
     db.delete(post)
     db.commit()
