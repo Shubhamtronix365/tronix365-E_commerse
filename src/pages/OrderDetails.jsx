@@ -63,6 +63,7 @@ const OrderDetails = () => {
                             </p>
                         </div>
                         <div className="flex items-center gap-3">
+                            {/* Bill / Tax Invoice generation button temporarily hidden
                             <button
                                 onClick={() => setShowInvoiceModal(true)}
                                 className="px-4 py-1.5 bg-violet-600/20 hover:bg-violet-600/30 border border-violet-500/40 text-violet-300 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all hover:scale-105 cursor-pointer shadow-sm"
@@ -71,6 +72,7 @@ const OrderDetails = () => {
                                 <FileText size={14} />
                                 <span>Tax Invoice</span>
                             </button>
+                            */}
                             <span className="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-violet-500/20 text-violet-300 border border-violet-500/30">
                                 {formattedStatus}
                             </span>
@@ -317,11 +319,13 @@ const OrderDetails = () => {
                 </div>
             </div>
 
+            {/* TaxInvoiceModal temporarily hidden
             <TaxInvoiceModal
                 isOpen={showInvoiceModal}
                 onClose={() => setShowInvoiceModal(false)}
                 order={order}
             />
+            */}
         </div>
     );
 };

@@ -98,6 +98,7 @@ const OrderTable = ({
 
                             {/* Right Action Buttons */}
                             <div className="flex items-center gap-2 w-full sm:w-auto">
+                                {/* Bill / Tax Invoice generation button temporarily hidden
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -109,6 +110,7 @@ const OrderTable = ({
                                     <FileText size={14} />
                                     <span>Tax Invoice</span>
                                 </button>
+                                */}
                                 <button
                                     onClick={() => setSelectedOrder(order)}
                                     className="w-full sm:w-auto px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 rounded-xl text-white text-sm font-semibold transition-all flex items-center justify-center gap-2 group-hover:bg-violet-500/20 group-hover:text-violet-300 group-hover:border-violet-500/30"
@@ -137,11 +139,13 @@ const OrderTable = ({
                 </div>
             )}
 
+            {/* TaxInvoiceModal temporarily hidden
             <TaxInvoiceModal
                 isOpen={Boolean(invoiceOrder)}
                 onClose={() => setInvoiceOrder(null)}
                 order={invoiceOrder}
             />
+            */}
         </>
     );
 };
