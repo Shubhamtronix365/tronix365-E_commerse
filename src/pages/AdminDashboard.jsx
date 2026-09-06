@@ -19,6 +19,7 @@ import CategoryTable from '../components/admin/CategoryTable';
 import TowerOrderTable from '../components/admin/TowerOrderTable';
 import TowerOrderAdminModal from '../components/admin/TowerOrderAdminModal';
 import AbandonedCartTable from '../components/admin/AbandonedCartTable';
+import BlogAdminManager from '../components/admin/BlogAdminManager';
 import { useCategories } from '../hooks/useCategories';
 
 const AdminDashboard = () => {
@@ -542,6 +543,16 @@ const AdminDashboard = () => {
                                 )}
                             </button>
                             <button
+                                onClick={() => setActiveTab('blogs')}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 whitespace-nowrap ${
+                                    activeTab === 'blogs'
+                                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40 font-semibold'
+                                        : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                <span>Blogs & Tutorials</span>
+                            </button>
+                            <button
                                 onClick={() => setActiveTab('settings')}
                                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'settings' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
                             >
@@ -614,6 +625,10 @@ const AdminDashboard = () => {
                                     }
                                 } catch (e) {}
                             }} />
+                        )}
+
+                        {activeTab === 'blogs' && (
+                            <BlogAdminManager />
                         )}
 
                         {activeTab === 'settings' && (
