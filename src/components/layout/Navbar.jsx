@@ -49,10 +49,6 @@ const Navbar = () => {
                             <Link to="/" className="text-gray-300 hover:text-tronix-primary transition-colors">Home</Link>
                             <Link to="/shop" className="text-gray-300 hover:text-tronix-primary transition-colors">Shop</Link>
                             <Link to="/categories" className="text-gray-300 hover:text-tronix-primary transition-colors">Categories</Link>
-                            <Link to="/bom" className="relative text-gray-300 hover:text-violet-400 transition-colors flex items-center gap-1.5 font-medium">
-                                BOM Tool
-                                <span className="text-[9px] bg-violet-500/20 text-violet-300 border border-violet-500/40 px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider">CSV</span>
-                            </Link>
                             <Link to="/tower-orders" className="relative text-gray-300 hover:text-tronix-accent transition-colors flex items-center gap-1.5 font-medium">
                                 <span className="w-1.5 h-1.5 rounded-full bg-tronix-accent animate-pulse"></span>
                                 Tower Orders
@@ -151,10 +147,6 @@ const Navbar = () => {
                                 <Link to="/" className="block py-3 text-base font-medium text-white border-b border-white/5">Home</Link>
                                 <Link to="/shop" className="block py-3 text-base font-medium text-gray-300 border-b border-white/5">Shop</Link>
                                 <Link to="/categories" className="block py-3 text-base font-medium text-gray-300 border-b border-white/5">Categories</Link>
-                                <Link to="/bom" onClick={() => setIsOpen(false)} className="flex items-center justify-between py-3 text-base font-medium text-violet-300 border-b border-white/5">
-                                    <span>BOM Tool (Bulk Parts Uploader)</span>
-                                    <span className="text-[10px] bg-violet-500/20 px-2 py-0.5 rounded-full border border-violet-500/30 font-bold uppercase">CSV</span>
-                                </Link>
                                 <Link to="/tower-orders" className="flex items-center justify-between py-3 text-base font-medium text-tronix-accent border-b border-white/5">
                                     <span className="flex items-center gap-2">
                                         <span className="w-2 h-2 rounded-full bg-tronix-accent"></span>

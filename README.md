@@ -56,11 +56,6 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
   - Complete compliance with Indian GST laws: displays seller details (Tronix365 Technologies Pvt. Ltd., Pune, GSTIN `27AABCT3650Q1Z5`), HSN/SAC codes (8542 for ICs/boards, 8504 for power modules, 9031 for sensors), intra-state CGST (9%) + SGST (9%) or inter-state IGST (18%) breakdowns.
   - Full B2B support: includes customer company name, customer GSTIN, registered tax address, and Indian Rupee amount-in-words converter.
   - Print engine: scoped `@media print` CSS cleanly outputs directly to physical printers or browser **"Save as PDF"** without page clutter.
-- **Quick BOM (Bill of Materials) CSV / Excel Upload Tool**:
-  - Dedicated `/bom` workspace engineered for electronics labs, robotics competition teams, and hardware startups.
-  - Dual input: drag-and-drop file uploader (`.csv` / `.txt`) with 1-click sample template download, plus an instant copy-paste textarea (`ESP32, 5` or `5x Arduino Uno`).
-  - Intelligent backend matching engine (`POST /bom/match`): multi-tier matching via exact SKU, title substring, and tokenized keyword search with stock check and alternative product swappers.
-  - 1-Click bulk action: adds all matched components directly into user cart with real-time total calculation.
 - **Rate Limiting & Caching**: Security features with Slowapi rate limiters and Redis/InMemory backend caching.
 
 ---
@@ -387,8 +382,6 @@ FastAPI generates interactive documentation at [http://127.0.0.1:8000/docs](http
     cd backend
     python scripts/abandoned_cart_check.py
     ```
-- **Project Bill of Materials (BOM) Matching**:
-  - `POST /bom/match` - Bulk part matching engine accepting a list of component queries/SKUs and quantities; returns match status, pricing, stock levels, and alternative suggestions.
 
 ---
 
