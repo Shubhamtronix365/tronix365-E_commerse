@@ -26,3 +26,16 @@ export const getImageUrl = (imagePath) => {
     }
     return `${backendUrl}/${imagePath}`;
 };
+
+/**
+ * Formats HTML content of blog articles so that all relative media URLs (/uploads/...)
+ * are automatically rewritten with the full backend URL, ensuring they render correctly
+ * on both development (localhost:5173) and production deployments.
+ */
+export const formatBlogHtml = (htmlContent) => {
+    if (!htmlContent || typeof htmlContent !== 'string') return '';
+    const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    return htmlContent
+        .replace(/src=["'](\/uploads\/[^"']+)["']/g, (match, path) => `src="${backendUrl}${path}"`)
+        .replace(/poster=["'](\/uploads\/[^"']+)["']/g, (match, path) => `poster="${backendUrl}${path}"`);
+};

@@ -39,7 +39,7 @@ import {
     Film,
 } from 'lucide-react';
 import client from '../api/client';
-import { getImageUrl } from '../utils/imageUtils';
+import { getImageUrl, formatBlogHtml } from '../utils/imageUtils';
 import ConfirmModal from '../components/admin/ConfirmModal';
 
 const CATEGORIES = [
@@ -204,7 +204,7 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
             author_avatar: '',
             tags: ['ESP32', 'Robotics', 'Tutorial'],
             reading_time_minutes: 5,
-            is_published: false,
+            is_published: true,
             featured: false,
             components_used: [],
             meta_title: '',
@@ -239,18 +239,29 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
         setIsEditorOpen(true);
     };
 
-    const handleSavePost = async (e) => {
-        e.preventDefault();
+    const handleSavePost = async (e, overridePublished = null) => {
+        if (e && e.preventDefault) e.preventDefault();
         if (!form.title.trim()) return toast.error('Please enter an article title');
         if (!form.content.trim()) return toast.error('Please enter article content');
 
+        const finalIsPublished = overridePublished !== null ? overridePublished : form.is_published;
+        const payload = { ...form, is_published: finalIsPublished };
+
         try {
             if (editingPostId) {
-                await client.put(`/admin/blogs/${editingPostId}`, form);
-                toast.success('Blog post updated successfully');
+                await client.put(`/admin/blogs/${editingPostId}`, payload);
+                toast.success(
+                    finalIsPublished
+                        ? 'Article updated & published live!'
+                        : 'Article saved as draft (hidden from public)'
+                );
             } else {
-                await client.post('/admin/blogs', form);
-                toast.success('Blog post created successfully');
+                await client.post('/admin/blogs', payload);
+                toast.success(
+                    finalIsPublished
+                        ? '🚀 Article published live to Blog Hub!'
+                        : 'Article saved as draft (hidden from public)'
+                );
             }
             setIsEditorOpen(false);
             fetchPosts();
@@ -376,7 +387,7 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
             const res = await client.post('/upload/media', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-            const imgUrl = res.data.url;
+            const imgUrl = getImageUrl(res.data.url) || res.data.url;
             const caption = insertImageCaption.trim();
             const widthClass =
                 insertImageWidth === '50%'
@@ -385,9 +396,9 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                     ? 'max-w-2xl mx-auto'
                     : 'w-full';
 
-            const figureHtml = `<figure class="my-8 ${widthClass} text-center">
-  <img src="${imgUrl}" alt="${caption || 'Hardware Guide Step'}" class="rounded-xl border border-white/10 shadow-xl w-full object-cover" />
-  ${caption ? `<figcaption class="text-xs text-gray-400 mt-2 italic">${caption}</figcaption>` : ''}
+            const figureHtml = `<figure class="my-8 ${widthClass} text-center flex flex-col items-center">
+  <img src="${imgUrl}" alt="${caption || 'Hardware Guide Step'}" class="rounded-xl border border-white/10 shadow-xl max-w-full h-auto max-h-[650px] object-contain mx-auto" />
+  ${caption ? `<figcaption class="text-xs text-gray-400 mt-2.5 italic">${caption}</figcaption>` : ''}
 </figure>`;
 
             insertSnippet(figureHtml);
@@ -435,9 +446,9 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                 const res = await client.post('/upload/media', formData, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 });
-                const videoUrl = res.data.url;
+                const videoUrl = getImageUrl(res.data.url) || res.data.url;
                 const videoHtml = `<div class="my-8 rounded-xl overflow-hidden border border-white/10 shadow-2xl">
-  <video controls class="w-full rounded-xl" preload="metadata">
+  <video controls class="w-full max-h-[650px] rounded-xl" preload="metadata">
     <source src="${videoUrl}" type="video/mp4" />
     Your browser does not support the video tag.
   </video>
@@ -1429,8 +1440,8 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                         )}
 
                                         <div
-                                            className="prose prose-invert prose-emerald max-w-none text-gray-200 text-sm sm:text-base leading-relaxed space-y-4 [&_figure]:my-6 [&_figure]:rounded-xl [&_figure]:overflow-hidden [&_figure]:border [&_figure]:border-white/10 [&_figure_img]:w-full [&_figure_img]:rounded-lg [&_figcaption]:text-center [&_figcaption]:text-xs [&_figcaption]:text-gray-400 [&_figcaption]:mt-2 [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-xl [&_iframe]:border [&_iframe]:border-white/10 [&_video]:w-full [&_video]:rounded-xl [&_video]:border [&_video]:border-white/10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h2]:pt-4 [&_h2]:border-b [&_h2]:border-white/10 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-tronix-accent [&_p]:text-gray-300 [&_table]:w-full [&_table]:border-collapse [&_th]:bg-white/5 [&_th]:p-2.5 [&_td]:p-2.5"
-                                            dangerouslySetInnerHTML={{ __html: form.content }}
+                                            className="prose prose-invert prose-emerald max-w-none text-gray-200 text-sm sm:text-base leading-relaxed space-y-4 [&_figure]:my-6 [&_figure]:rounded-xl [&_figure]:overflow-hidden [&_figure]:border [&_figure]:border-white/10 [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-lg [&_img]:shadow-lg [&_img]:object-contain [&_img]:mx-auto [&_figcaption]:text-center [&_figcaption]:text-xs [&_figcaption]:text-gray-400 [&_figcaption]:mt-2 [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-xl [&_iframe]:border [&_iframe]:border-white/10 [&_video]:w-full [&_video]:rounded-xl [&_video]:border [&_video]:border-white/10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h2]:pt-4 [&_h2]:border-b [&_h2]:border-white/10 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-tronix-accent [&_p]:text-gray-300 [&_table]:w-full [&_table]:border-collapse [&_th]:bg-white/5 [&_th]:p-2.5 [&_td]:p-2.5"
+                                            dangerouslySetInnerHTML={{ __html: formatBlogHtml(form.content) }}
                                         />
 
                                         {form.components_used?.length > 0 && (
@@ -1465,7 +1476,7 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                             </div>
 
                             {/* Modal Footer */}
-                            <div className="px-6 py-4 border-t border-white/10 flex items-center justify-between bg-white/[0.02]">
+                            <div className="px-6 py-4 border-t border-white/10 flex flex-wrap items-center justify-between bg-white/[0.02] gap-3">
                                 <button
                                     type="button"
                                     onClick={() => setIsEditorOpen(false)}
@@ -1474,13 +1485,25 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                     Cancel
                                 </button>
 
-                                <button
-                                    type="submit"
-                                    form="studio-form"
-                                    className="px-5 py-2 rounded-lg bg-gradient-to-r from-tronix-accent to-emerald-500 text-white font-medium text-sm hover:brightness-110 shadow-lg shadow-tronix-accent/20 transition-all cursor-pointer"
-                                >
-                                    {editingPostId ? 'Save Changes' : 'Save & Publish Article'}
-                                </button>
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={(e) => handleSavePost(e, false)}
+                                        className="px-4 py-2 border border-white/15 bg-white/5 hover:bg-white/10 rounded-lg text-sm text-gray-300 hover:text-white font-medium transition-all cursor-pointer flex items-center gap-2"
+                                    >
+                                        <EyeOff size={15} />
+                                        <span>Save as Draft</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={(e) => handleSavePost(e, true)}
+                                        className="px-5 py-2 rounded-lg bg-gradient-to-r from-tronix-accent to-emerald-500 text-white font-semibold text-sm hover:brightness-110 shadow-lg shadow-tronix-accent/25 transition-all cursor-pointer flex items-center gap-2"
+                                    >
+                                        <Eye size={15} />
+                                        <span>{editingPostId ? 'Update & Publish Live' : '🚀 Publish Live to Blog Hub'}</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

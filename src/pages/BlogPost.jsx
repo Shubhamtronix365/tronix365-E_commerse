@@ -22,7 +22,7 @@ import {
     ShieldCheck,
 } from 'lucide-react';
 import client from '../api/client';
-import { getImageUrl } from '../utils/imageUtils';
+import { getImageUrl, formatBlogHtml } from '../utils/imageUtils';
 
 const BlogPost = () => {
     const { slug } = useParams();
@@ -386,8 +386,8 @@ const BlogPost = () => {
                     <article className="lg:col-span-8 order-1 lg:order-2">
                         <div
                             ref={contentRef}
-                            className="blog-content-body prose prose-invert prose-emerald max-w-none text-gray-200 text-base leading-relaxed space-y-6 [&_figure]:my-8 [&_figure]:rounded-2xl [&_figure]:overflow-hidden [&_figure]:border [&_figure]:border-white/10 [&_figure_img]:w-full [&_figure_img]:rounded-xl [&_figure_img]:shadow-xl [&_figcaption]:text-center [&_figcaption]:text-xs [&_figcaption]:text-gray-400 [&_figcaption]:mt-2.5 [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-2xl [&_iframe]:border [&_iframe]:border-white/10 [&_iframe]:shadow-xl [&_video]:w-full [&_video]:rounded-2xl [&_video]:border [&_video]:border-white/10 [&_video]:shadow-xl [&_h2]:text-2xl [&_h2]:sm:text-3xl [&_h2]:font-bold [&_h2]:text-white [&_h2]:pt-6 [&_h2]:pb-2 [&_h2]:border-b [&_h2]:border-white/10 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-tronix-accent [&_h3]:pt-4 [&_p]:text-gray-300 [&_p]:leading-relaxed [&_table]:w-full [&_table]:border-collapse [&_th]:bg-white/5 [&_th]:p-3 [&_th]:text-left [&_th]:border-b [&_th]:border-white/10 [&_td]:p-3 [&_td]:border-b [&_td]:border-white/5"
-                            dangerouslySetInnerHTML={{ __html: post.content }}
+                            className="blog-content-body prose prose-invert prose-emerald max-w-none text-gray-200 text-base leading-relaxed space-y-6 [&_figure]:my-8 [&_figure]:rounded-2xl [&_figure]:overflow-hidden [&_figure]:border [&_figure]:border-white/10 [&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-xl [&_img]:shadow-xl [&_img]:object-contain [&_img]:mx-auto [&_figcaption]:text-center [&_figcaption]:text-xs [&_figcaption]:text-gray-400 [&_figcaption]:mt-2.5 [&_iframe]:w-full [&_iframe]:aspect-video [&_iframe]:rounded-2xl [&_iframe]:border [&_iframe]:border-white/10 [&_iframe]:shadow-xl [&_video]:w-full [&_video]:rounded-2xl [&_video]:border [&_video]:border-white/10 [&_video]:shadow-xl [&_h2]:text-2xl [&_h2]:sm:text-3xl [&_h2]:font-bold [&_h2]:text-white [&_h2]:pt-6 [&_h2]:pb-2 [&_h2]:border-b [&_h2]:border-white/10 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-tronix-accent [&_h3]:pt-4 [&_p]:text-gray-300 [&_p]:leading-relaxed [&_table]:w-full [&_table]:border-collapse [&_th]:bg-white/5 [&_th]:p-3 [&_th]:text-left [&_th]:border-b [&_th]:border-white/10 [&_td]:p-3 [&_td]:border-b [&_td]:border-white/5"
+                            dangerouslySetInnerHTML={{ __html: formatBlogHtml(post.content) }}
                         />
 
                         {/* Article Topic Tags */}
