@@ -19,7 +19,13 @@ from models import (
     RefreshTokenDB,
 )
 from deps import get_current_blog_author, limiter
-from auth import verify_password, create_access_token, create_refresh_token, REFRESH_TOKEN_EXPIRE_DAYS
+from auth import (
+    verify_password,
+    get_password_hash,
+    create_access_token,
+    create_refresh_token,
+    REFRESH_TOKEN_EXPIRE_DAYS,
+)
 from utils import sanitize_blog_html
 
 router = APIRouter(tags=["Blogs"])
@@ -28,6 +34,12 @@ router = APIRouter(tags=["Blogs"])
 class BlogAuthorLoginRequest(BaseModel):
     author_id: str
     password: str
+
+
+class BlogAuthorUpdateCredentialsRequest(BaseModel):
+    current_password: str
+    new_email: Optional[str] = None
+    new_password: Optional[str] = None
 
 
 
@@ -244,6 +256,80 @@ async def blog_author_login(
         "user_name": user.full_name or "Blog Author",
         "role": user.role,
         "author_id": user.email,
+    }
+
+
+@router.put("/blogs/author/credentials")
+@limiter.limit("5/minute")
+async def update_blog_author_credentials(
+    request: Request,
+    body: BlogAuthorUpdateCredentialsRequest,
+    current_author: UserDB = Depends(get_current_blog_author),
+    db: Session = Depends(get_db),
+):
+    """Update blog author access credentials (email ID and/or password)."""
+    if not verify_password(body.current_password, current_author.hashed_password):
+        raise HTTPException(status_code=400, detail="Current password is incorrect.")
+
+    updated = False
+
+    if body.new_email and body.new_email.strip():
+        new_email = body.new_email.strip().lower()
+        if "@" not in new_email or "." not in new_email:
+            raise HTTPException(status_code=400, detail="Invalid email address format.")
+
+        if new_email != current_author.email:
+            existing = db.query(UserDB).filter(
+                UserDB.email == new_email,
+                UserDB.id != current_author.id,
+            ).first()
+            if existing:
+                raise HTTPException(
+                    status_code=400,
+                    detail="This email address is already in use by another account.",
+                )
+            current_author.email = new_email
+            updated = True
+
+    if body.new_password and body.new_password.strip():
+        new_password = body.new_password.strip()
+        if len(new_password) < 6:
+            raise HTTPException(
+                status_code=400,
+                detail="New password must be at least 6 characters long.",
+            )
+        current_author.hashed_password = get_password_hash(new_password)
+        updated = True
+
+    if not updated:
+        raise HTTPException(
+            status_code=400,
+            detail="Please provide a new email address or new password to update.",
+        )
+
+    db.commit()
+    db.refresh(current_author)
+
+    access_token = create_access_token(data={"sub": current_author.email, "role": current_author.role})
+    refresh_token = create_refresh_token(data={"sub": current_author.email})
+
+    db_refresh_token = RefreshTokenDB(
+        user_id=current_author.id,
+        token=refresh_token,
+        expires_at=datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS),
+    )
+    db.add(db_refresh_token)
+    db.commit()
+
+    return {
+        "message": "Author credentials updated successfully",
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "user_name": current_author.full_name or "Blog Author",
+        "role": current_author.role,
+        "author_id": current_author.email,
+        "email": current_author.email,
     }
 
 

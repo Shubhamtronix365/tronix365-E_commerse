@@ -66,12 +66,12 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
     - **Components Used (BOM) Integration**: Displays required hardware modules with direct links to catalog/shop for instant purchasing.
     - Social sharing buttons (WhatsApp, Twitter/X, LinkedIn, direct copy link).
     - Bottom related articles recommendation engine (3 contextual posts).
-  - **Security-Proof Admin Blog Dashboard**:
-    - Role-protected (`role == "admin"`) upload and edit controls preventing unauthorized submissions.
+  - **Standalone Blog Studio (`/blog-studio`) & Author Account Settings**:
+    - Dedicated workspace for authors (`role == "blog_author"` or `admin`) with real-time editor, live preview, BOM component selector, and media embeds.
+    - **Author Security & Account Settings**: In-studio settings modal allowing authenticated authors to update their access email ID and password with mandatory current password verification and continuous JWT session renewal.
     - Strict XSS sanitization engine using `bleach` and regex stripping `<script>`, `<style>`, `<iframe>`, and malicious `onerror`/`onclick` event handlers.
     - Automatic SEO slug generator with duplicate collision resolution (appends counter suffix).
     - Live WebP image conversion and validation pipeline via `/upload`.
-    - Real-time **Live Preview** tab allowing the team to inspect formatting side-by-side before publishing.
     - 1-click Draft vs Published status toggling.
 - **Rate Limiting & Caching**: Security features with Slowapi rate limiters and Redis/InMemory backend caching.
 

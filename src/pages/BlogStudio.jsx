@@ -37,6 +37,10 @@ import {
     User,
     Play,
     Film,
+    Settings,
+    Key,
+    Lock,
+    Mail,
 } from 'lucide-react';
 import client from '../api/client';
 import { getImageUrl, formatBlogHtml } from '../utils/imageUtils';
@@ -92,6 +96,19 @@ const BlogStudio = () => {
     const [videoMode, setVideoMode] = useState('url'); // 'url' or 'upload'
     const [videoUrlInput, setVideoUrlInput] = useState('');
     const [insertVideoFile, setInsertVideoFile] = useState(null);
+
+    // Author Account & Credentials Settings Modal States
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+    const [settingsForm, setSettingsForm] = useState({
+        current_password: '',
+        new_email: '',
+        new_password: '',
+        confirm_new_password: '',
+    });
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [isSavingSettings, setIsSavingSettings] = useState(false);
 
     const fileInputRef = useRef(null);
     const avatarInputRef = useRef(null);
@@ -532,6 +549,83 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
         }
     };
 
+    const handleOpenSettings = () => {
+        setSettingsForm({
+            current_password: '',
+            new_email: authorUser.email || authorUser.author_id || '',
+            new_password: '',
+            confirm_new_password: '',
+        });
+        setShowCurrentPassword(false);
+        setShowNewPassword(false);
+        setShowConfirmPassword(false);
+        setIsSettingsModalOpen(true);
+    };
+
+    const handleSaveSettings = async (e) => {
+        e.preventDefault();
+        if (!settingsForm.current_password) {
+            toast.error('Current password is required to verify your identity');
+            return;
+        }
+
+        const currentEmail = (authorUser.email || authorUser.author_id || '').toLowerCase().trim();
+        const enteredEmail = (settingsForm.new_email || '').toLowerCase().trim();
+        const emailChanged = enteredEmail && enteredEmail !== currentEmail;
+        const passwordChanged = Boolean(settingsForm.new_password && settingsForm.new_password.trim());
+
+        if (!emailChanged && !passwordChanged) {
+            toast.error('Please enter a new email address or new password to update');
+            return;
+        }
+
+        if (passwordChanged) {
+            if (settingsForm.new_password.length < 6) {
+                toast.error('New password must be at least 6 characters');
+                return;
+            }
+            if (settingsForm.new_password !== settingsForm.confirm_new_password) {
+                toast.error('New passwords do not match');
+                return;
+            }
+        }
+
+        setIsSavingSettings(true);
+        try {
+            const payload = {
+                current_password: settingsForm.current_password,
+                new_email: emailChanged ? enteredEmail : null,
+                new_password: passwordChanged ? settingsForm.new_password : null,
+            };
+
+            const res = await client.put('/blogs/author/credentials', payload);
+            const { access_token, user_name, role, email } = res.data;
+
+            if (access_token) {
+                localStorage.setItem('tronix_token', access_token);
+                client.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+            }
+
+            const updatedUser = {
+                ...(authorUser || {}),
+                email: email,
+                full_name: user_name,
+                role: role,
+                author_id: email,
+            };
+            localStorage.setItem('tronix_user', JSON.stringify(updatedUser));
+            setAuthorUser(updatedUser);
+
+            toast.success('Author credentials updated successfully!');
+            setIsSettingsModalOpen(false);
+        } catch (error) {
+            console.error('Error updating author credentials:', error);
+            toast.error(error.response?.data?.detail || 'Failed to update credentials');
+        } finally {
+            setIsSavingSettings(false);
+        }
+    };
+
     const totalCount = posts.length;
     const publishedCount = posts.filter((p) => p.is_published).length;
     const draftCount = posts.filter((p) => !p.is_published).length;
@@ -563,7 +657,15 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                    <div className="flex items-center gap-3 w-full md:w-auto justify-end flex-wrap">
+                        <button
+                            onClick={handleOpenSettings}
+                            className="px-4 py-2 rounded-xl bg-tronix-accent/10 hover:bg-tronix-accent/20 border border-tronix-accent/30 text-xs font-semibold text-tronix-accent hover:text-white transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+                        >
+                            <Settings size={16} />
+                            Account Settings
+                        </button>
+
                         <Link
                             to="/blogs"
                             className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-gray-300 hover:text-white transition-all flex items-center gap-2"
@@ -1735,6 +1837,192 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                                 </>
                                             ) : (
                                                 'Embed Video Player'
+                                            )}
+                                        </button>
+                                    </div>
+                                </form>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
+
+                {/* Author Account & Credentials Settings Modal */}
+                <AnimatePresence>
+                    {isSettingsModalOpen && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                                className="bg-neutral-900 border border-white/10 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl"
+                            >
+                                {/* Modal Header */}
+                                <div className="p-5 border-b border-white/10 flex items-center justify-between bg-neutral-950/60">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-tronix-accent/15 border border-tronix-accent/30 flex items-center justify-center text-tronix-accent shrink-0">
+                                            <Settings size={20} />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-display font-bold text-base text-white">
+                                                Author Account Settings
+                                            </h3>
+                                            <p className="text-xs text-gray-400">
+                                                Change your login email ID and password
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => setIsSettingsModalOpen(false)}
+                                        className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                </div>
+
+                                {/* Current Identity Banner */}
+                                <div className="px-5 pt-4">
+                                    <div className="p-3 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between">
+                                        <div className="min-w-0 pr-2">
+                                            <span className="text-[10px] uppercase font-bold tracking-wider text-gray-400 block">
+                                                Current Active Login ID
+                                            </span>
+                                            <span className="text-xs font-semibold text-white mt-0.5 block truncate">
+                                                {authorUser.email || authorUser.author_id}
+                                            </span>
+                                        </div>
+                                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-tronix-accent/20 text-tronix-accent border border-tronix-accent/30 shrink-0">
+                                            {authorUser.role || 'blog_author'}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Form */}
+                                <form onSubmit={handleSaveSettings} className="p-5 space-y-4">
+                                    {/* Current Password Field (Mandatory) */}
+                                    <div className="space-y-1">
+                                        <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                                            <Lock size={12} className="text-tronix-accent" />
+                                            Current Password *
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type={showCurrentPassword ? 'text' : 'password'}
+                                                required
+                                                value={settingsForm.current_password}
+                                                onChange={(e) => setSettingsForm({ ...settingsForm, current_password: e.target.value })}
+                                                placeholder="Enter current password to authorize"
+                                                className="w-full bg-neutral-950/80 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-tronix-accent pr-9"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                                            >
+                                                {showCurrentPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                                            </button>
+                                        </div>
+                                        <span className="text-[10px] text-gray-500">
+                                            Required to verify ownership before modifying credentials.
+                                        </span>
+                                    </div>
+
+                                    <div className="border-t border-white/5 pt-3 space-y-3">
+                                        {/* New Email Address */}
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                                                <Mail size={12} className="text-blue-400" />
+                                                New Email ID / Login Access ID
+                                            </label>
+                                            <input
+                                                type="email"
+                                                value={settingsForm.new_email}
+                                                onChange={(e) => setSettingsForm({ ...settingsForm, new_email: e.target.value })}
+                                                placeholder="new_author@tronix365.in"
+                                                className="w-full bg-neutral-950/80 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-tronix-accent"
+                                            />
+                                            <span className="text-[10px] text-gray-500">
+                                                Leave unchanged if you only wish to reset your password.
+                                            </span>
+                                        </div>
+
+                                        {/* New Password */}
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                                                <Key size={12} className="text-emerald-400" />
+                                                New Password
+                                            </label>
+                                            <div className="relative">
+                                                <input
+                                                    type={showNewPassword ? 'text' : 'password'}
+                                                    value={settingsForm.new_password}
+                                                    onChange={(e) => setSettingsForm({ ...settingsForm, new_password: e.target.value })}
+                                                    placeholder="Enter new password (min. 6 chars)"
+                                                    className="w-full bg-neutral-950/80 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-tronix-accent pr-9"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowNewPassword(!showNewPassword)}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                                                >
+                                                    {showNewPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                                                </button>
+                                            </div>
+                                            <span className="text-[10px] text-gray-500">
+                                                Leave blank if you only wish to change your email ID.
+                                            </span>
+                                        </div>
+
+                                        {/* Confirm New Password */}
+                                        {settingsForm.new_password && (
+                                            <div className="space-y-1">
+                                                <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                                                    <Check size={12} className="text-emerald-400" />
+                                                    Confirm New Password
+                                                </label>
+                                                <div className="relative">
+                                                    <input
+                                                        type={showConfirmPassword ? 'text' : 'password'}
+                                                        value={settingsForm.confirm_new_password}
+                                                        onChange={(e) => setSettingsForm({ ...settingsForm, confirm_new_password: e.target.value })}
+                                                        placeholder="Confirm new password"
+                                                        className="w-full bg-neutral-950/80 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-tronix-accent pr-9"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                                                    >
+                                                        {showConfirmPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="pt-3 flex items-center justify-end gap-3 border-t border-white/10">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsSettingsModalOpen(false)}
+                                            className="px-4 py-2 rounded-xl text-xs font-semibold text-gray-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={isSavingSettings}
+                                            className="px-4 py-2 rounded-xl bg-gradient-to-r from-tronix-accent to-emerald-500 hover:from-tronix-accent hover:to-emerald-400 text-white font-bold text-xs shadow-lg shadow-tronix-accent/20 flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 cursor-pointer"
+                                        >
+                                            {isSavingSettings ? (
+                                                <>
+                                                    <RefreshCw className="animate-spin" size={14} />
+                                                    Updating...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Check size={14} />
+                                                    Save Credentials
+                                                </>
                                             )}
                                         </button>
                                     </div>
