@@ -1,14 +1,14 @@
 import os
-from fastapi import FastAPI, Request, Response, HTTPException
+from fastapi import FastAPI, Request, Response, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
 import redis
 
 from database import engine, Base, get_db
-from models import ProductDB
+from models import ProductDB, UploadedMediaDB
 from auto_migrate import auto_migrate
 from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
@@ -130,7 +130,44 @@ app.add_middleware(
 if not os.path.exists("email_assets"):
     os.makedirs("email_assets")
 
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+# Uploads serving: Checks disk first for instant static I/O;
+# If missing from disk (e.g. Render container restart / wiped ephemeral storage),
+# automatically retrieves from the persistent database and re-caches to disk.
+@app.get("/uploads/{filename:path}")
+async def serve_uploaded_media(filename: str, db: Session = Depends(get_db)):
+    safe_filename = os.path.basename(filename)
+    local_path = os.path.join(UPLOAD_DIR, safe_filename)
+
+    # 1. Disk Cache Hit: Serve immediately with long-lived client caching
+    if os.path.exists(local_path) and os.path.isfile(local_path):
+        return FileResponse(
+            local_path,
+            headers={
+                "Cache-Control": "public, max-age=31536000, immutable",
+                "Access-Control-Allow-Origin": "*",
+            },
+        )
+
+    # 2. Disk Miss: Fallback to persistent database storage
+    media = db.query(UploadedMediaDB).filter(UploadedMediaDB.filename == safe_filename).first()
+    if media and media.data:
+        try:
+            with open(local_path, "wb") as f:
+                f.write(media.data)
+        except Exception as e:
+            print(f"Warning: could not write local cache file: {e}")
+
+        return Response(
+            content=media.data,
+            media_type=media.mime_type or "image/webp",
+            headers={
+                "Cache-Control": "public, max-age=31536000, immutable",
+                "Access-Control-Allow-Origin": "*",
+            },
+        )
+
+    raise HTTPException(status_code=404, detail="Uploaded file not found")
+
 app.mount("/email-assets", StaticFiles(directory="email_assets"), name="email_assets")
 
 # Base endpoints

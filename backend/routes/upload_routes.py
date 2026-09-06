@@ -1,7 +1,9 @@
 import os
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
-from models import UserDB
+from sqlalchemy.orm import Session
+from database import get_db
+from models import UserDB, UploadedMediaDB
 from deps import get_current_user
 from utils import process_image
 
@@ -11,11 +13,23 @@ UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
 
+# Cloudinary Integration (Optional: activates if CLOUDINARY_URL or CLOUDINARY_CLOUD_NAME is present in environment)
+CLOUDINARY_ENABLED = bool(os.getenv("CLOUDINARY_URL") or os.getenv("CLOUDINARY_CLOUD_NAME"))
+if CLOUDINARY_ENABLED:
+    try:
+        import cloudinary
+        import cloudinary.uploader
+        print("Cloudinary cloud media storage initialized.")
+    except Exception as e:
+        CLOUDINARY_ENABLED = False
+        print(f"Cloudinary import error: {e}")
+
 
 @router.post("/upload")
 async def upload_image(
     file: UploadFile = File(...),
     current_user: UserDB = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     # 1. Check file extension against whitelist
     filename = file.filename or ""
@@ -56,8 +70,39 @@ async def upload_image(
         optimized_path = process_image(file_path)
         final_filename = os.path.basename(optimized_path)
 
-        if not os.path.exists(optimized_path):
-            raise HTTPException(status_code=500, detail="Failed to process image.")
+        # 1. Cloudinary CDN Upload (if CLOUDINARY_URL is configured)
+        if CLOUDINARY_ENABLED:
+            try:
+                c_res = cloudinary.uploader.upload(
+                    optimized_path,
+                    folder="tronix365_uploads",
+                    resource_type="image",
+                )
+                cloud_url = c_res.get("secure_url")
+                if cloud_url:
+                    return {"url": cloud_url, "provider": "cloudinary"}
+            except Exception as c_err:
+                print(f"Cloudinary upload failed, using database storage: {c_err}")
+
+        # 2. Persist bytes in database for lifetime persistence across Render container restarts
+        try:
+            with open(optimized_path, "rb") as f:
+                img_data = f.read()
+            rec = db.query(UploadedMediaDB).filter(UploadedMediaDB.filename == final_filename).first()
+            if not rec:
+                rec = UploadedMediaDB(
+                    filename=final_filename,
+                    mime_type="image/webp",
+                    file_size=len(img_data),
+                    data=img_data,
+                )
+                db.add(rec)
+            else:
+                rec.data = img_data
+                rec.file_size = len(img_data)
+            db.commit()
+        except Exception as err:
+            print(f"Warning: Failed to save uploaded media to database: {err}")
 
         return {"url": f"/uploads/{final_filename}"}
     except HTTPException as he:
@@ -72,6 +117,7 @@ async def upload_image(
 async def upload_media_file(
     file: UploadFile = File(...),
     current_user: UserDB = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     """Controlled upload for blog media: images (auto WebP, max 10MB) and videos (MP4/WebM, max 30MB)."""
     filename = file.filename or ""
@@ -113,8 +159,77 @@ async def upload_media_file(
 
             optimized_path = process_image(file_path)
             final_filename = os.path.basename(optimized_path)
+
+            # Cloudinary CDN Upload
+            if CLOUDINARY_ENABLED:
+                try:
+                    c_res = cloudinary.uploader.upload(
+                        optimized_path,
+                        folder="tronix365_blogs",
+                        resource_type="image",
+                    )
+                    cloud_url = c_res.get("secure_url")
+                    if cloud_url:
+                        return {"url": cloud_url, "media_type": "image", "provider": "cloudinary"}
+                except Exception as c_err:
+                    print(f"Cloudinary image upload failed, using database storage: {c_err}")
+
+            # Persist to DB
+            try:
+                with open(optimized_path, "rb") as f:
+                    img_data = f.read()
+                rec = db.query(UploadedMediaDB).filter(UploadedMediaDB.filename == final_filename).first()
+                if not rec:
+                    rec = UploadedMediaDB(
+                        filename=final_filename,
+                        mime_type="image/webp",
+                        file_size=len(img_data),
+                        data=img_data,
+                    )
+                    db.add(rec)
+                else:
+                    rec.data = img_data
+                    rec.file_size = len(img_data)
+                db.commit()
+            except Exception as err:
+                print(f"Warning: Failed to save uploaded image to database: {err}")
+
             return {"url": f"/uploads/{final_filename}", "media_type": "image"}
         else:
+            # Video file
+            if CLOUDINARY_ENABLED:
+                try:
+                    c_res = cloudinary.uploader.upload(
+                        file_path,
+                        folder="tronix365_blogs",
+                        resource_type="video",
+                    )
+                    cloud_url = c_res.get("secure_url")
+                    if cloud_url:
+                        return {"url": cloud_url, "media_type": "video", "provider": "cloudinary"}
+                except Exception as c_err:
+                    print(f"Cloudinary video upload failed, using database storage: {c_err}")
+
+            try:
+                with open(file_path, "rb") as f:
+                    vid_data = f.read()
+                mime = "video/mp4" if file_extension == "mp4" else "video/webm"
+                rec = db.query(UploadedMediaDB).filter(UploadedMediaDB.filename == unique_filename).first()
+                if not rec:
+                    rec = UploadedMediaDB(
+                        filename=unique_filename,
+                        mime_type=mime,
+                        file_size=len(vid_data),
+                        data=vid_data,
+                    )
+                    db.add(rec)
+                else:
+                    rec.data = vid_data
+                    rec.file_size = len(vid_data)
+                db.commit()
+            except Exception as err:
+                print(f"Warning: Failed to save video to database: {err}")
+
             return {"url": f"/uploads/{unique_filename}", "media_type": "video"}
     except HTTPException as he:
         raise he

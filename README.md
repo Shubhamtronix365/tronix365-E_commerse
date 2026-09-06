@@ -454,6 +454,10 @@ python seed.py
 
 _(Warning: Running seed.py drops existing tables and resets the local database)._
 
+- **Lifetime Media Storage & Cloudinary CDN Integration**:
+  - **Dual-Tier Self-Healing Persistence**: Uploaded images and videos are written to disk and backed up permanently as binary `BYTEA` data in the PostgreSQL database (`UploadedMediaDB`). If Render container restarts/redeploys wipe the ephemeral filesystem, `/uploads/{filename}` automatically queries PostgreSQL, restores the file to disk, and serves it with 200 OK.
+  - **Cloudinary CDN Ready**: Pre-configured automatic switchover. Add `CLOUDINARY_URL` (e.g. `cloudinary://API_KEY:API_SECRET@CLOUD_NAME`) to Render Environment Variables to instantly route all uploads to Cloudinary's global media CDN with zero disk dependencies.
+
 ---
 
 ## 🔮 Future Scope
@@ -461,4 +465,3 @@ _(Warning: Running seed.py drops existing tables and resets the local database).
 - **Live Payments**: Integrate production payment APIs (Razorpay / Stripe).
 - **Admin Dashboard Visuals**: Add interactive line charts for tracking daily sales, profit margins, and peak shopping hours.
 - **Mobile Integration**: Package components using React Native.
-- **CDN Integrations**: Store media/product assets on AWS S3 or Cloudinary.

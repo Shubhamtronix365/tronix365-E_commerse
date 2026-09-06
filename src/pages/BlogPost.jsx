@@ -22,7 +22,7 @@ import {
     ShieldCheck,
 } from 'lucide-react';
 import client from '../api/client';
-import { getImageUrl, formatBlogHtml } from '../utils/imageUtils';
+import { getImageUrl, formatBlogHtml, FALLBACK_BLOG_IMAGE } from '../utils/imageUtils';
 
 const BlogPost = () => {
     const { slug } = useParams();
@@ -263,17 +263,17 @@ const BlogPost = () => {
 
                     {/* Author Meta Box with Uploaded Photo & Name */}
                     <div className="flex items-center gap-3.5 py-1">
-                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden bg-neutral-800 border border-white/15 shrink-0 shadow-md">
-                            {post.author_avatar ? (
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden border border-white/15 shrink-0 shadow-md relative flex items-center justify-center font-bold text-lg text-tronix-accent bg-gradient-to-br from-tronix-accent/20 to-emerald-500/20">
+                            <span>{post.author_name?.[0]?.toUpperCase() || 'A'}</span>
+                            {post.author_avatar && (
                                 <img
                                     src={getImageUrl(post.author_avatar)}
                                     alt={post.author_name}
-                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                    }}
+                                    className="absolute inset-0 w-full h-full object-cover"
                                 />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center font-bold text-lg text-tronix-accent bg-gradient-to-br from-tronix-accent/20 to-emerald-500/20">
-                                    {post.author_name?.[0]?.toUpperCase() || 'A'}
-                                </div>
                             )}
                         </div>
                         <div>
@@ -295,6 +295,10 @@ const BlogPost = () => {
                         <img
                             src={getImageUrl(post.cover_image)}
                             alt={post.title}
+                            onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = FALLBACK_BLOG_IMAGE;
+                            }}
                             className="w-full h-full object-cover"
                         />
                     </div>

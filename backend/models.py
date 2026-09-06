@@ -7,6 +7,7 @@ from sqlalchemy import (
     JSON,
     Boolean,
     DateTime,
+    LargeBinary,
 )
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -1077,4 +1078,20 @@ class BlogPostListResponse(BaseModel):
     page: int
     limit: int
     total_pages: int
+
+
+# =====================================================================
+# PERSISTENT UPLOADED MEDIA (DATABASE BACKED FOR LIFETIME STORAGE)
+# =====================================================================
+
+class UploadedMediaDB(Base):
+    __tablename__ = "uploaded_media"
+
+    id = Column(Integer, primary_key=True, index=True)
+    filename = Column(String(255), unique=True, index=True, nullable=False)
+    mime_type = Column(String(100), nullable=False)
+    file_size = Column(Integer, nullable=False)
+    data = Column(LargeBinary, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
 

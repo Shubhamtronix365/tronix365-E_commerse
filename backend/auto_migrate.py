@@ -26,6 +26,10 @@ def auto_migrate():
             if engine.dialect.name == "sqlite":
                 return "JSON"
             return "JSONB"
+        elif "BLOB" in type_name or "BINARY" in type_name or "BYTEA" in type_name:
+            if engine.dialect.name == "sqlite":
+                return "BLOB"
+            return "BYTEA"
         return type_name
 
     # Check and create tables if they don't exist

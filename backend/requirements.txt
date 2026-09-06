@@ -22,3 +22,4 @@ pytest
 httpx
 imageio
 imageio-ffmpeg
+cloudinary

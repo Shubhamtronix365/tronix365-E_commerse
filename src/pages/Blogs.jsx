@@ -24,7 +24,7 @@ import {
     KeyRound,
 } from 'lucide-react';
 import client from '../api/client';
-import { getImageUrl } from '../utils/imageUtils';
+import { getImageUrl, FALLBACK_BLOG_IMAGE } from '../utils/imageUtils';
 
 const Blogs = () => {
     const navigate = useNavigate();
@@ -230,6 +230,10 @@ const Blogs = () => {
                                     <img
                                         src={getImageUrl(heroPost.cover_image)}
                                         alt={heroPost.title}
+                                        onError={(e) => {
+                                            e.currentTarget.onerror = null;
+                                            e.currentTarget.src = FALLBACK_BLOG_IMAGE;
+                                        }}
                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                     />
                                 ) : (
@@ -406,6 +410,10 @@ const Blogs = () => {
                                             <img
                                                 src={getImageUrl(post.cover_image)}
                                                 alt={post.title}
+                                                onError={(e) => {
+                                                    e.currentTarget.onerror = null;
+                                                    e.currentTarget.src = FALLBACK_BLOG_IMAGE;
+                                                }}
                                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                             />
                                         ) : (
