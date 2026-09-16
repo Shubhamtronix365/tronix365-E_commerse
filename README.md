@@ -82,6 +82,12 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
   - **Self-Healing URL Redirects & Broken Link Prevention**: Automatic client-side redirects for legacy `/products` and `/products/:slug` paths to `/shop` with full URL query preservation (`/products?search=esp32` $\to$ `/shop?search=esp32`).
   - **Interactive Multi-Channel Blog Sharing (`BlogShareModal.jsx`)**: Native Web Share API integration, 1-click canonical clipboard copy with instant feedback, direct channels (WhatsApp, Telegram, X/Twitter, LinkedIn, Facebook, Email), and QR code preview across both the main blog cards and detailed article view.
 - **Rate Limiting & Caching**: Security features with Slowapi rate limiters and Redis/InMemory backend caching.
+- **Automated National-Level Shiprocket Logistics Engine**:
+  - **Zero-Touch Automated Order Dispatch**: When a customer places an order with courier shipping (Surface, Express, Standard), the backend automatically registers the order with Shiprocket via background workers without blocking checkout response times.
+  - **Smart Local Pickup & Free Delivery Filter**: Orders placed with Store Pickup, Office Pickup, or Free Delivery bypass Shiprocket completely and are reserved for in-house fulfillment.
+  - **Two-Way Cancellation Synchronization**: When an administrator cancels an order from the Admin Dashboard, the backend automatically cancels the corresponding order and AWB on the Shiprocket dashboard.
+  - **Real-Time Webhook Processing**: Accepts incoming Shiprocket tracking webhooks (`/api/shipping/webhook`) to sync live courier tracking numbers, AWBs, and milestone delivery statuses (*Shipped*, *Out for Delivery*, *Delivered*).
+  - **Zero Frontend Clutter**: Frontend remains 100% clean and identical to native Tronix365 user experience, with all logistics logic executed securely in the backend.
 
 ---
 
@@ -177,6 +183,12 @@ First, make sure you have the following installed on your machine:
    PAYU_ENV=TEST
    PAYU_KEY=xFdsL0
    PAYU_SALT=VOo7u1I9JuewBQQwyA1X9PvonouDaDex
+
+   # Shiprocket Logistics Integration
+   SHIPROCKET_API_EMAIL=your_shiprocket_email@example.com
+   SHIPROCKET_API_PASSWORD=your_shiprocket_password
+   SHIPROCKET_PICKUP_PINCODE=411001
+   SHIPROCKET_PICKUP_LOCATION=Primary
    ```
 
 6. **Initialize and Seed the Database:**
