@@ -49,6 +49,14 @@ class ProductDB(Base):
     shipping_lead_days = Column(Integer, default=3)  # Shipping transit time
     moq = Column(Integer, default=1)  # Minimum Order Quantity for Tower Orders
 
+    # Shipping & Dimensions (Shiprocket)
+    sku = Column(String, nullable=True, index=True)
+    weight = Column(Float, default=0.2)    # in kg (default 200g)
+    length = Column(Float, default=10.0)   # in cm
+    breadth = Column(Float, default=10.0)  # in cm
+    height = Column(Float, default=5.0)    # in cm
+
+
 
 
 class UserDB(Base):
@@ -145,6 +153,23 @@ class OrderDB(Base):
     # Customer-selected Shipping Method
     shipping_method = Column(String, nullable=True)   # e.g. 'express', 'surface', 'pickup'
     shipping_cost = Column(Float, default=0.0)         # shipping charge in ₹
+    country = Column(String, default="India")
+
+    # Shiprocket Logistics & Shipping Integration
+    shiprocket_order_id = Column(String, nullable=True, index=True)
+    shiprocket_shipment_id = Column(String, nullable=True, unique=True, index=True)
+    shiprocket_awb_code = Column(String, nullable=True, index=True)
+    shiprocket_courier_name = Column(String, nullable=True)
+    shiprocket_courier_id = Column(Integer, nullable=True)
+    shiprocket_status = Column(String, nullable=True)
+    shiprocket_status_code = Column(Integer, nullable=True)
+    shiprocket_pickup_token = Column(String, nullable=True)
+    shiprocket_label_url = Column(String, nullable=True)
+    shiprocket_manifest_url = Column(String, nullable=True)
+    shiprocket_tracking_data = Column(JSON, nullable=True)
+    shiprocket_created_at = Column(DateTime(timezone=True), nullable=True)
+    shiprocket_last_tracking_update = Column(DateTime(timezone=True), nullable=True)
+
 
 
 # Pydantic Schemas (API Request/Response)
@@ -185,6 +210,11 @@ class ProductBase(BaseModel):
     factory_lead_days: Optional[int] = 7
     shipping_lead_days: Optional[int] = 3
     moq: Optional[int] = 1
+    sku: Optional[str] = None
+    weight: Optional[float] = 0.2
+    length: Optional[float] = 10.0
+    breadth: Optional[float] = 10.0
+    height: Optional[float] = 5.0
 
     @field_validator("specs", "features", "applications", "useful_links", "package_includes", "attachments", mode="before")
     @classmethod
@@ -228,6 +258,12 @@ class ProductUpdate(BaseModel):
     factory_lead_days: Optional[int] = None
     shipping_lead_days: Optional[int] = None
     moq: Optional[int] = None
+    sku: Optional[str] = None
+    weight: Optional[float] = None
+    length: Optional[float] = None
+    breadth: Optional[float] = None
+    height: Optional[float] = None
+
 
 
 
@@ -269,6 +305,7 @@ class OrderCreate(BaseModel):
     subtotal_before_gst: Optional[float] = None
     shipping_method: Optional[str] = None
     shipping_cost: Optional[float] = 0.0
+    country: Optional[str] = "India"
 
 
 class Order(OrderCreate):
@@ -295,9 +332,24 @@ class Order(OrderCreate):
     subtotal_before_gst: Optional[float] = 0.0
     shipping_method: Optional[str] = None
     shipping_cost: Optional[float] = 0.0
+    country: Optional[str] = "India"
+    shiprocket_order_id: Optional[str] = None
+    shiprocket_shipment_id: Optional[str] = None
+    shiprocket_awb_code: Optional[str] = None
+    shiprocket_courier_name: Optional[str] = None
+    shiprocket_courier_id: Optional[int] = None
+    shiprocket_status: Optional[str] = None
+    shiprocket_status_code: Optional[int] = None
+    shiprocket_pickup_token: Optional[str] = None
+    shiprocket_label_url: Optional[str] = None
+    shiprocket_manifest_url: Optional[str] = None
+    shiprocket_tracking_data: Optional[Any] = None
+    shiprocket_created_at: Optional[datetime] = None
+    shiprocket_last_tracking_update: Optional[datetime] = None
 
     class Config:
         from_attributes = True
+
 
 
 class OrderStatusUpdate(BaseModel):
