@@ -1,7 +1,14 @@
 import axios from 'axios';
 
+const getBaseURL = () => {
+    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+        return import.meta.env.VITE_DEV_API_URL || 'http://localhost:8000';
+    }
+    return import.meta.env.VITE_API_URL || 'http://localhost:8000';
+};
+
 const client = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+    baseURL: getBaseURL(),
     timeout: 30000, // 30 second timeout to accommodate Render cold starts
     headers: {
         'Content-Type': 'application/json',
