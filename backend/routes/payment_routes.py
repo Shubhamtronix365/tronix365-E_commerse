@@ -18,6 +18,7 @@ from models import (
 )
 from deps import get_current_user
 from payu_utils import generate_payu_hash, verify_payu_hash
+from services.shiprocket import shiprocket_automation
 
 router = APIRouter(tags=["Payments"])
 
@@ -364,8 +365,8 @@ async def payment_callback(
     order = db.query(OrderDB).filter(OrderDB.txnid == txnid).first()
     if order:
         if status == "success":
-            if not order.status:
-                order.status = "pending"
+            if not order.status or order.status == "pending":
+                order.status = "confirmed"
             db.commit()
             db.refresh(order)
 
@@ -373,6 +374,10 @@ async def payment_callback(
             if user_obj:
                 db.query(CartItemDB).filter(CartItemDB.user_id == user_obj.id, CartItemDB.selected == True).delete()
                 db.commit()
+
+            # Automatic Shiprocket Order Placement for eligible shipping methods (Surface, Express, etc.)
+            if shiprocket_automation.is_shiprocket_eligible(order.shipping_method):
+                background_tasks.add_task(shiprocket_automation.auto_create_shiprocket_shipment, order.id)
         else:
             order.status = "failed"
             db.commit()

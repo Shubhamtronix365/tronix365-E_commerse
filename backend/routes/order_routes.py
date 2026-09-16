@@ -22,6 +22,7 @@ from models import (
 )
 from deps import get_current_user, get_current_admin
 from email_utils import send_order_status_email
+from services.shiprocket import shiprocket_automation
 
 logger = logging.getLogger("order_routes")
 router = APIRouter(tags=["Orders"])
@@ -88,6 +89,8 @@ async def create_order(
     db.refresh(new_order)
 
     background_tasks.add_task(send_order_status_email, new_order.id, "pending")
+    if shiprocket_automation.is_shiprocket_eligible(new_order.shipping_method):
+        background_tasks.add_task(shiprocket_automation.auto_create_shiprocket_shipment, new_order.id)
 
     return {
         "message": "Order placed successfully. Pending admin approval.",
@@ -183,8 +186,21 @@ async def update_order_status(
 
     try:
         background_tasks.add_task(send_order_status_email, order.id, new_status, True)
+
+        # Automatically sync cancellation with Shiprocket dashboard
+        if new_status in ["cancelled", "deleted"]:
+            background_tasks.add_task(
+                shiprocket_automation.auto_cancel_shiprocket_shipment,
+                order.id,
+                order.cancellation_reason or "Cancelled by Store Administrator",
+            )
+        # Automatically create shipment in Shiprocket if admin confirms an order
+        elif new_status == "confirmed":
+            if not order.shiprocket_order_id and shiprocket_automation.is_shiprocket_eligible(order.shipping_method):
+                background_tasks.add_task(shiprocket_automation.auto_create_shiprocket_shipment, order.id)
+
     except Exception as e:
-        logger.error(f"Error queueing background email task for order #{order.id}: {e}")
+        logger.error(f"Error queueing background tasks for order #{order.id}: {e}")
 
     return {
         "message": f"Order status updated to '{new_status}' successfully",
