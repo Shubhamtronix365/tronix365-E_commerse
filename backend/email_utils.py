@@ -3,12 +3,15 @@ import logging
 import requests
 from datetime import datetime
 from typing import List, Union, Optional
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("email_utils")
 
 BREVO_API_KEY = os.getenv("BREVO_API_KEY")
-SENDER_EMAIL = os.getenv("SENDER_EMAIL", "shubham.tronix365@gmail.com")
+SENDER_EMAIL = os.getenv("SENDER_EMAIL") or os.getenv("CONTACT_EMAIL") or "shubham.tronix365@gmail.com"
 MANDATORY_CC_EMAIL = "shubham.tronix365@gmail.com"
 
 
@@ -61,7 +64,8 @@ def send_email_via_brevo(
     MANDATORY REQUIREMENT: Always sends simultaneously to customer email and shubham.tronix365@gmail.com.
     """
     if not sender_email:
-        sender_email = SENDER_EMAIL
+        sender_email = os.getenv("SENDER_EMAIL") or os.getenv("CONTACT_EMAIL") or SENDER_EMAIL
+    sender_email = sender_email.strip().strip('"').strip("'")
 
     to_list = []
     if isinstance(to_email, list):
@@ -81,7 +85,8 @@ def send_email_via_brevo(
 
     recipients_str = ", ".join([r["email"] for r in to_list])
 
-    if not BREVO_API_KEY:
+    api_key = (os.getenv("BREVO_API_KEY") or BREVO_API_KEY or "").strip().strip('"').strip("'")
+    if not api_key:
         msg = "BREVO_API_KEY environment variable not configured."
         logger.warning(msg)
         log_email_to_db(order_id, recipients_str, subject, status_trigger, "failed", msg)
@@ -89,7 +94,7 @@ def send_email_via_brevo(
 
     headers = {
         "accept": "application/json",
-        "api-key": BREVO_API_KEY,
+        "api-key": api_key,
         "content-type": "application/json",
     }
 
@@ -120,6 +125,11 @@ def send_email_via_brevo(
         err_msg = str(e)
         if hasattr(e, "response") and e.response is not None:
             err_msg += f" | Brevo API Response: {e.response.text}"
+            if e.response.status_code == 401:
+                logger.error(
+                    "Brevo 401 Unauthorized: The BREVO_API_KEY is invalid, revoked, or you may have provided an SMTP key instead of an API Key. "
+                    "Generate a valid v3 API Key in Brevo under Settings -> API Keys (https://app.brevo.com/settings/keys/api) and set BREVO_API_KEY."
+                )
         logger.error(f"Failed to send email via Brevo: {err_msg}")
         log_email_to_db(order_id, recipients_str, subject, status_trigger, "failed", err_msg)
         return False
