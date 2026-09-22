@@ -19,6 +19,7 @@ from models import (
 from deps import get_current_user
 from payu_utils import generate_payu_hash, verify_payu_hash
 from services.shiprocket import shiprocket_automation
+from email_utils import send_order_status_email
 
 router = APIRouter(tags=["Payments"])
 
@@ -378,6 +379,9 @@ async def payment_callback(
             # Automatic Shiprocket Order Placement for eligible shipping methods (Surface, Express, etc.)
             if shiprocket_automation.is_shiprocket_eligible(order.shipping_method):
                 background_tasks.add_task(shiprocket_automation.auto_create_shiprocket_shipment, order.id)
+
+            # Automatic Order Confirmation Email to both Customer and Store Admin
+            background_tasks.add_task(send_order_status_email, order.id, "confirmed", True)
         else:
             order.status = "failed"
             db.commit()

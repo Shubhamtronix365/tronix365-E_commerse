@@ -65,7 +65,9 @@ def send_email_via_brevo(
     """
     if not sender_email:
         sender_email = os.getenv("SENDER_EMAIL") or os.getenv("CONTACT_EMAIL") or SENDER_EMAIL
-    sender_email = sender_email.strip().strip('"').strip("'")
+    sender_email = sender_email.strip().strip('"').strip("'") if sender_email else "shubham.tronix365@gmail.com"
+    if not sender_email or "@" not in sender_email:
+        sender_email = "shubham.tronix365@gmail.com"
 
     to_list = []
     if isinstance(to_email, list):
@@ -75,13 +77,28 @@ def send_email_via_brevo(
     elif to_email and str(to_email).strip():
         to_list.append({"email": str(to_email).strip()})
 
-    # Ensure mandatory co-recipient is present
-    has_mandatory = any(
-        r.get("email", "").lower() == MANDATORY_CC_EMAIL.lower()
-        for r in to_list
-    )
-    if not has_mandatory:
-        to_list.append({"email": MANDATORY_CC_EMAIL})
+    # Collect and ensure all admin/owner email addresses receive a copy
+    admin_recipients = []
+    for env_k in ["ADMIN_EMAIL", "CONTACT_EMAIL"]:
+        val = os.getenv(env_k)
+        if val and val.strip() and "@" in val and "." in val:
+            admin_recipients.append(val.strip().lower())
+    if MANDATORY_CC_EMAIL and "@" in MANDATORY_CC_EMAIL and "." in MANDATORY_CC_EMAIL:
+        admin_recipients.append(MANDATORY_CC_EMAIL.strip().lower())
+
+    seen_emails = {r.get("email", "").lower() for r in to_list if r.get("email")}
+    for adm in admin_recipients:
+        if adm not in seen_emails:
+            to_list.append({"email": adm})
+            seen_emails.add(adm)
+
+    # Clean and validate recipient list
+    valid_to_list = []
+    for r in to_list:
+        em = r.get("email", "").strip()
+        if em and "@" in em and "." in em.split("@")[-1]:
+            valid_to_list.append({"email": em})
+    to_list = valid_to_list
 
     recipients_str = ", ".join([r["email"] for r in to_list])
 
@@ -247,7 +264,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
         f"- {order.pincode}" if getattr(order, "pincode", None) else None,
     ]
     address_formatted = (
-        ", ".join([p for p in address_parts if p]) if any(address_parts) else "N/A"
+        ", ".join([str(p).strip() for p in address_parts if p and str(p).strip()]) if any(address_parts) else "N/A"
     )
 
     # Hosted logo image — high availability public CDN with fallback text
@@ -931,7 +948,12 @@ def send_order_status_email(order_or_id, status: str, force_send: bool = False):
         raw_id_sub = getattr(order_loaded, "id", 0)
         order_id_num_sub = int(raw_id_sub) if str(raw_id_sub).isdigit() else 0
         order_id_str_sub = f"{order_id_num_sub:04d}" if order_id_num_sub > 0 else str(raw_id_sub)
-        subject = f"Order #{order_id_str_sub} Update: {formatted_status} - Tronix365"
+        if status_lower == "pending":
+            subject = f"Order Placed #{order_id_str_sub} - Tronix365"
+        elif status_lower == "confirmed":
+            subject = f"Order Confirmed #{order_id_str_sub} - Tronix365"
+        else:
+            subject = f"Order #{order_id_str_sub} Update: {formatted_status} - Tronix365"
 
         html_content = generate_order_status_email_html(order_loaded, status_lower, frontend_url)
 
@@ -1019,7 +1041,7 @@ def send_contact_form_notification(name: str, email: str, message: str):
     """
     Sends a notification to the admin/support email when a contact form is submitted.
     """
-    to_email = os.getenv("CONTACT_EMAIL", MANDATORY_CC_EMAIL)
+    to_email = os.getenv("CONTACT_EMAIL") or os.getenv("ADMIN_EMAIL") or MANDATORY_CC_EMAIL
     frontend_url = get_canonical_frontend_url()
     logo_url = LOGO_PUBLIC_URL
 
