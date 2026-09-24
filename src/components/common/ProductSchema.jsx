@@ -50,16 +50,28 @@ const ProductSchema = ({
     'brand': {
       '@type': 'Brand',
       'name': 'Tronix365',
+      'url': 'https://www.tronix365.in/e-commerse/',
+    },
+    'manufacturer': {
+      '@type': 'Organization',
+      'name': 'Tronix365',
+      'url': 'https://www.tronix365.in/e-commerse/',
     },
     'offers': {
       '@type': 'Offer',
       'url': url || window.location.href,
       'priceCurrency': 'INR',
       'price': price,
+      'priceValidUntil': new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       'itemCondition': 'https://schema.org/NewCondition',
       'availability': inStock
         ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',
+      'seller': {
+        '@type': 'Organization',
+        'name': 'Tronix365',
+        'url': 'https://www.tronix365.in/e-commerse/',
+      },
       'shippingDetails': {
         '@type': 'OfferShippingDetails',
         'shippingRate': {
@@ -96,6 +108,18 @@ const ProductSchema = ({
         'returnFees': 'https://schema.org/ReturnShippingFees',
       },
     },
+    'additionalProperty': [
+      {
+        '@type': 'PropertyValue',
+        'name': 'Category',
+        'value': category || 'Electronics'
+      },
+      {
+        '@type': 'PropertyValue', 
+        'name': 'Condition',
+        'value': 'New'
+      }
+    ]
   };
 
   // Always include image (using fallback store logo if placeholder) to comply with Google Search rules
