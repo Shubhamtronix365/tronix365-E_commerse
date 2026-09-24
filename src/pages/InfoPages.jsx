@@ -28,9 +28,9 @@ const PageLayout = ({ title, description, keywords, url, children }) => (
 
 export const About = () => (
     <PageLayout 
-        title="About Us"
-        description="Learn about Tronix365, our mission, guaranteed quality, and expert technical support for electronics makers and hobbyists."
-        keywords="about Tronix365, electronics store, Arduino supplier, IoT components"
+        title="About Tronix365 | India's Trusted Electronics Store"
+        description="Tronix365 is India's leading online electronics store since 2024. We provide genuine Arduino boards, ESP32 modules, sensors, and IoT components with quality guarantee and expert support."
+        keywords="about Tronix365, electronics store India, Arduino supplier India, IoT components store, electronic components shop, Tronix365 company"
         url="https://www.tronix365.in/e-commerse/about"
     >
         <p className="text-lg leading-relaxed mb-6">
@@ -74,9 +74,9 @@ export const Contact = () => {
 
     return (
         <PageLayout 
-            title="Contact Us"
-            description="Get in touch with Tronix365 support for product questions, order help, and sales. Contact via email, phone, or live form."
-            keywords="contact Tronix365, support email, customer service, electronics help"
+            title="Contact Tronix365 | Customer Support & Sales India"
+            description="Contact Tronix365 for product support, order help, and sales inquiries. Get expert assistance for Arduino, ESP32, sensors, and electronic components via email, phone, or contact form."
+            keywords="contact Tronix365 India, electronics store support, customer service, Arduino help, ESP32 support, electronic components contact, sales inquiry"
             url="https://www.tronix365.in/e-commerse/contact"
         >
             <p className="text-lg mb-8">
@@ -153,9 +153,9 @@ export const Contact = () => {
 
 export const Terms = () => (
     <PageLayout 
-        title="Terms & Conditions"
-        description="Read the terms and conditions for purchasing genuine electronic components and using the Tronix365 platform."
-        keywords="terms and conditions, user agreement, shopping policies"
+        title="Terms & Conditions | Tronix365 Electronics Store India"
+        description="Tronix365 terms and conditions for purchasing electronic components, Arduino boards, sensors, and IoT modules. Read our user agreement and shopping policies."
+        keywords="Tronix365 terms and conditions, electronics store terms, user agreement India, shopping policies, Arduino purchase terms, electronic components terms"
         url="https://www.tronix365.in/e-commerse/terms"
     >
         <p className="mb-4">Last Updated: January 2026</p>
@@ -172,9 +172,9 @@ export const Terms = () => (
 
 export const Privacy = () => (
     <PageLayout 
-        title="Privacy Policy"
-        description="Review the privacy policy of Tronix365. We protect your personal data and ensure secure transactions."
-        keywords="privacy policy, data protection, secure shopping"
+        title="Privacy Policy | Tronix365 Secure Electronics Shopping India"
+        description="Tronix365 privacy policy for secure electronics shopping. We protect your personal data during purchase of Arduino, ESP32, sensors, and electronic components."
+        keywords="Tronix365 privacy policy, secure shopping India, data protection, electronics store privacy, online shopping security, personal data protection"
         url="https://www.tronix365.in/e-commerse/privacy"
     >
         <p className="mb-4">Last Updated: January 2026</p>
@@ -227,9 +227,9 @@ export const ReturnRefund = () => {
 
     return (
         <PageLayout 
-            title="Return, Refund & Cancellation Policy"
-            description="Read the comprehensive return, refund, and cancellation policies for Tronix365 products and orders."
-            keywords="return policy, refund policy, order cancellation, Tronix365 policies"
+            title="Return Refund Cancellation Policy | Tronix365 Electronics India"
+            description="Tronix365 return, refund, and cancellation policy for electronic components. Easy returns for Arduino, ESP32, sensors, and IoT modules within 5 days. Fast refund processing."
+            keywords="Tronix365 return policy India, electronics refund policy, Arduino return policy, ESP32 return, electronic components return, order cancellation policy, refund process"
             url="https://www.tronix365.in/e-commerse/return-refund"
         >
             <p className="text-gray-400 text-sm mb-8">Last Updated: January 2026</p>
