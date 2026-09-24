@@ -5,6 +5,12 @@ const path = require('path');
 const BASE_URL = 'https://www.tronix365.in/e-commerse';
 const API_URL = process.env.VITE_API_URL || 'https://tronix365-e-commerse.onrender.com';
 
+// Ensure BASE_URL has trailing slash for consistency
+const BASE_URL_WITH_SLASH = BASE_URL.endsWith('/') ? BASE_URL : `${BASE_URL}/`;
+
+// Current date for lastmod
+const getCurrentDate = () => new Date().toISOString().split('T')[0];
+
 const slugify = (text) => {
   if (!text) return '';
   return text
@@ -39,16 +45,8 @@ const fallbackCategories = [
   'motors',
   'battery',
   'displays',
-  'relays',
-  'led',
-  'wheels',
-  'socket',
-  'connector',
-  'keypad',
-  'switches',
-  'cables',
-  'miscellaneous',
-  'other'
+  'robotics-kits',
+  'iot-devices'
 ];
 
 async function generate() {
@@ -136,6 +134,7 @@ async function generate() {
     // Determine priority
     let priority = '0.5';
     let changefreq = 'monthly';
+    let lastmod = getCurrentDate();
 
     if (route === '') {
       priority = '1.0';
@@ -157,10 +156,13 @@ async function generate() {
       changefreq = 'weekly';
     }
 
-    const loc = route === '' ? `${BASE_URL}/` : `${BASE_URL}${route}`;
-
+    // Ensure consistent URL formatting
+    const formattedRoute = route === '' ? '' : route;
+    const fullUrl = `${BASE_URL_WITH_SLASH}${formattedRoute.replace(/^\//, '')}`;
+  
     return `  <url>
-    <loc>${loc}</loc>
+    <loc>${fullUrl}</loc>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
   </url>`;
@@ -184,6 +186,23 @@ ${xmlEntries}
   if (fs.existsSync(distDir)) {
     fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemapXml, 'utf8');
     console.log(`Sitemap also written to ${path.join(distDir, 'sitemap.xml')}`);
+  }
+  
+  // Create sitemap index for better organization
+  const sitemapIndexXml = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>${BASE_URL_WITH_SLASH}sitemap.xml</loc>
+    <lastmod>${getCurrentDate()}</lastmod>
+  </sitemap>
+</sitemapindex>`;
+  
+  fs.writeFileSync(path.join(publicDir, 'sitemap_index.xml'), sitemapIndexXml, 'utf8');
+  console.log(`Sitemap index written to ${path.join(publicDir, 'sitemap_index.xml')}`);
+  
+  if (fs.existsSync(distDir)) {
+    fs.writeFileSync(path.join(distDir, 'sitemap_index.xml'), sitemapIndexXml, 'utf8');
+    console.log(`Sitemap index also written to ${path.join(distDir, 'sitemap_index.xml')}`);
   }
 }
 
