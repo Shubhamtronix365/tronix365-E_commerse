@@ -12,9 +12,9 @@ const Home = () => {
     return (
         <main className="min-h-screen pt-16">
             <SEO 
-                title="Premium Electronic Components & IoT Modules" 
-                description="Shop genuine Arduino boards, ESP32 modules, sensors, motors, and IoT displays at Tronix365. Best price and fast delivery in India." 
-                keywords="Arduino, ESP32, IoT Modules, Sensors, Robotics, Tronix365"
+                title="Buy Electronic Components Online India | Arduino, ESP32, Sensors, IoT Modules" 
+                description="Tronix365 - India's trusted online electronics store. Shop genuine Arduino boards, ESP32 modules, sensors, motors, robotics kits at lowest prices with fast delivery across India." 
+                keywords="buy electronic components India, Arduino Uno price India, ESP32 module online, electronic sensors store, robotics kits India, IoT modules, development boards, microcontrollers, online electronics shop India"
             />
             <HeroSlider />
 
