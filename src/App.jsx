@@ -1,8 +1,9 @@
 import React from 'react';
 import { Toaster } from 'react-hot-toast';
-import { BrowserRouter as Router, Routes, Route, useLocation, useParams, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useParams, Navigate, Link } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
+import SEO from './components/common/SEO';
 
 // Fallback redirects for legacy or canonical /products URLs with query preservation
 const ProductsRedirect = () => {
@@ -199,7 +200,22 @@ const AppContent = () => {
               <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
               <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />
               <Route path="/return-refund" element={<PageTransition><ReturnRefund /></PageTransition>} />
-              <Route path="*" element={<PageTransition><Home /></PageTransition>} />
+              <Route path="*" element={
+                <PageTransition>
+                  <SEO 
+                    title="Page Not Found" 
+                    description="The page you're looking for doesn't exist or has been moved. Browse our electronics store for Arduino, ESP32, sensors, and more."
+                    noindex={true}
+                  />
+                  <div className="min-h-screen pt-24 flex flex-col items-center justify-center text-white">
+                    <h1 className="text-4xl font-bold mb-4">Page Not Found</h1>
+                    <p className="text-gray-400 mb-8">The page you're looking for doesn't exist or has been moved.</p>
+                    <Link to="/" className="bg-tronix-primary hover:bg-violet-600 text-white font-bold px-6 py-3 rounded-lg transition-colors">
+                      Return to Home
+                    </Link>
+                  </div>
+                </PageTransition>
+              } />
               </Routes>
             </AnimatePresence>
           </React.Suspense>
