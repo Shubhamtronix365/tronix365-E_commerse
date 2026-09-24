@@ -163,8 +163,9 @@ const ProductDetails = () => {
     return (
         <div className="min-h-screen pt-20 sm:pt-24 pb-28 lg:pb-12 px-3 sm:px-6 lg:px-8">
             <SEO
-                title={`${product.title} | Buy Online`}
-                description={product.description}
+                title={`${product.title} | Buy Online at Best Price India`}
+                description={product.description || `Buy ${product.title} online at Tronix365. Genuine ${product.category} component with fast delivery across India. Best price for ${product.title}.`}
+                keywords={`${product.title}, buy ${product.title} India, ${product.category} online, electronic components, ${product.skv || product.title}, Tronix365`}
                 image={realProductImage}
                 url={canonicalProductUrl}
                 type="product"
