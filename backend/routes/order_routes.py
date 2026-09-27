@@ -32,9 +32,9 @@ router = APIRouter(tags=["Orders"])
 async def create_order(
     order: OrderCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)
 ):
-    total_amount = max(0.0, order.total_amount)
-    shipping_cost = order.shipping_cost if order.shipping_cost is not None else 0.0
-    items_total_with_gst = max(0.0, total_amount - shipping_cost)
+    total_amount = round(max(0.0, order.total_amount), 2)
+    shipping_cost = round(order.shipping_cost if order.shipping_cost is not None else 0.0, 2)
+    items_total_with_gst = round(max(0.0, total_amount - shipping_cost), 2)
     gst_rate = order.gst_rate if order.gst_rate is not None else 18.0
     subtotal_before_gst = round(items_total_with_gst / (1 + (gst_rate / 100)), 2)
     gst_amount = round(items_total_with_gst - subtotal_before_gst, 2)
@@ -54,10 +54,10 @@ async def create_order(
         company_name=order.company_name.strip() if order.company_name else None,
         company_address=order.company_address.strip() if order.company_address else None,
         gst_rate=gst_rate,
-        gst_amount=order.gst_amount if order.gst_amount is not None else gst_amount,
-        subtotal_before_gst=order.subtotal_before_gst if order.subtotal_before_gst is not None else subtotal_before_gst,
+        gst_amount=round(order.gst_amount, 2) if order.gst_amount is not None else gst_amount,
+        subtotal_before_gst=round(order.subtotal_before_gst, 2) if order.subtotal_before_gst is not None else subtotal_before_gst,
         shipping_method=order.shipping_method or 'surface',
-        shipping_cost=order.shipping_cost if order.shipping_cost is not None else 0.0,
+        shipping_cost=shipping_cost,
     )
 
     for item in order.items:

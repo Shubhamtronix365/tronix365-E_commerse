@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useRef } from 'r
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
+import { roundToTwo } from '../utils/priceUtils';
 
 const CartContext = createContext();
 
@@ -310,9 +311,9 @@ export const CartProvider = ({ children }) => {
         });
 
         return {
-            subtotal,
-            bundleDiscounts,
-            total: subtotal - bundleDiscounts
+            subtotal: roundToTwo(subtotal),
+            bundleDiscounts: roundToTwo(bundleDiscounts),
+            total: Math.max(0, roundToTwo(subtotal - bundleDiscounts))
         };
     };
 

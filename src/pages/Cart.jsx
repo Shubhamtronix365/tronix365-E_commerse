@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, Truck, Zap, Store } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getImageUrl } from '../utils/imageUtils';
+import { calculateTaxAndTotals, formatCurrency, formatPrice } from '../utils/priceUtils';
 
 const Cart = () => {
     const {
@@ -178,7 +179,7 @@ const Cart = () => {
                                         <div className="flex items-center gap-2 mt-0.5">
                                             <p className="text-xs sm:text-sm text-gray-400">{item.category}</p>
                                         </div>
-                                        <div className={`mt-1 sm:mt-2 text-base sm:text-lg font-bold ${item.selected === false ? 'text-gray-600' : 'text-tronix-accent'}`}>₹{item.price}</div>
+                                        <div className={`mt-1 sm:mt-2 text-base sm:text-lg font-bold ${item.selected === false ? 'text-gray-600' : 'text-tronix-accent'}`}>₹{formatPrice(item.price)}</div>
                                     </div>
 
                                     <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
@@ -245,9 +246,9 @@ const Cart = () => {
                                                 </h3>
                                             </div>
                                             <div className="text-right">
-                                                <span className="text-sm text-gray-500 line-through block">₹{group.original_price}</span>
+                                                <span className="text-sm text-gray-500 line-through block">₹{formatPrice(group.original_price)}</span>
                                                 <span className={`text-xl font-bold ${group.selected === false ? 'text-gray-600' : 'text-tronix-accent'}`}>
-                                                    ₹{group.bundle_price}
+                                                    ₹{formatPrice(group.bundle_price)}
                                                 </span>
                                             </div>
                                         </div>
@@ -316,12 +317,12 @@ const Cart = () => {
                             <div className="space-y-3 mb-4 pb-4 border-b border-white/5">
                                 <div className="flex justify-between text-gray-400">
                                     <span>Subtotal ({selectedCount} items)</span>
-                                    <span className="text-white">₹{cartTotal}</span>
+                                    <span className="text-white">₹{formatCurrency(cartTotal)}</span>
                                 </div>
                                 {bundleDiscounts > 0 && (
                                     <div className="flex justify-between text-emerald-400 font-medium">
                                         <span>Bundle Savings</span>
-                                        <span>- ₹{bundleDiscounts}</span>
+                                        <span>- ₹{formatCurrency(bundleDiscounts)}</span>
                                     </div>
                                 )}
                             </div>
@@ -362,7 +363,7 @@ const Cart = () => {
                                                 <span className={`text-sm font-bold shrink-0 ${
                                                     opt.cost === 0 ? 'text-emerald-400' : (isActive ? 'text-tronix-accent' : 'text-gray-400')
                                                 }`}>
-                                                    {opt.cost === 0 ? 'FREE' : `₹${opt.cost}`}
+                                                    {opt.cost === 0 ? 'FREE' : `₹${formatPrice(opt.cost)}`}
                                                 </span>
                                             </label>
                                         );
@@ -372,32 +373,29 @@ const Cart = () => {
 
                             {/* CGST + SGST Breakdown */}
                             {(() => {
-                                const taxableBase = cartTotal; // after bundle discounts, before GST
-                                const cgst = Math.round(taxableBase * 0.09);
-                                const sgst = Math.round(taxableBase * 0.09);
-                                const grandTotal = taxableBase + cgst + sgst + activeShipping.cost;
+                                const { cgst, sgst, grandTotal } = calculateTaxAndTotals(cartTotal, activeShipping.cost);
                                 return (
                                     <>
                                         <div className="space-y-2 mb-4 pb-4 border-b border-white/5">
                                             <div className="flex justify-between text-gray-400 text-sm">
                                                 <span>CGST (9%)</span>
-                                                <span className="text-white">₹{cgst}</span>
+                                                <span className="text-white">₹{formatCurrency(cgst)}</span>
                                             </div>
                                             <div className="flex justify-between text-gray-400 text-sm">
                                                 <span>SGST (9%)</span>
-                                                <span className="text-white">₹{sgst}</span>
+                                                <span className="text-white">₹{formatCurrency(sgst)}</span>
                                             </div>
                                             {activeShipping.cost > 0 && (
                                                 <div className="flex justify-between text-gray-400 text-sm">
                                                     <span>Shipping ({activeShipping.label})</span>
-                                                    <span className="text-white">₹{activeShipping.cost}</span>
+                                                    <span className="text-white">₹{formatPrice(activeShipping.cost)}</span>
                                                 </div>
                                             )}
                                         </div>
 
                                         <div className="flex justify-between text-lg font-bold text-white mb-8">
                                             <span>Total</span>
-                                            <span className="text-tronix-accent">₹{grandTotal}</span>
+                                            <span className="text-tronix-accent">₹{formatCurrency(grandTotal)}</span>
                                         </div>
                                     </>
                                 );
@@ -433,7 +431,7 @@ const Cart = () => {
                                 {selectedCount} {selectedCount === 1 ? 'item' : 'items'} selected
                             </span>
                             <div className="text-lg font-black text-white leading-tight">
-                                ₹{cartTotal + Math.round(cartTotal * 0.18) + activeShipping.cost}
+                                ₹{formatCurrency(calculateTaxAndTotals(cartTotal, activeShipping.cost).grandTotal)}
                             </div>
                             <span className="text-[10px] text-gray-500">Incl. GST & Shipping</span>
                         </div>

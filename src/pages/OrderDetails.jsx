@@ -256,12 +256,12 @@ const OrderDetails = () => {
                                             <span>
                                                 Total Discount {order.coupon_code ? `(${order.coupon_code})` : ''}:
                                             </span>
-                                            <span>- ₹{order.discount_amount}</span>
+                                            <span>- ₹{Number(order.discount_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                         </div>
                                     )}
                                     <div className="flex justify-between text-lg font-black text-emerald-400 pt-1 border-t border-white/10 mt-2">
                                         <span>Grand Total:</span>
-                                        <span>₹{order.total_amount.toLocaleString()}</span>
+                                        <span>₹{Number(order.total_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     </div>
                                 </div>
                             </div>

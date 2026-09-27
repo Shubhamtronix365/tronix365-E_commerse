@@ -9,6 +9,7 @@ import client from '../api/client';
 import { getImageUrl } from '../utils/imageUtils';
 import ShippingMethodSelector from '../components/checkout/ShippingMethodSelector';
 import CheckoutOrderSummary from '../components/checkout/CheckoutOrderSummary';
+import { calculateTaxAndTotals, roundToTwo, formatPrice } from '../utils/priceUtils';
 
 const Checkout = () => {
     const { selectedItems, cartTotal, subtotal: cartSubtotal, bundleDiscounts, clearCart } = useCart();
@@ -243,15 +244,11 @@ const Checkout = () => {
     const [paymentMethod, setPaymentMethod] = useState('payu');
     
     // Derived Totals
-    const subtotal = cartSubtotal; // Raw subtotal before bundle/coupon discounts
-    const couponDiscount = appliedCoupon ? appliedCoupon.discount_amount : 0;
-    const totalDiscount = bundleDiscounts + couponDiscount;
-    const taxableBase = subtotal - totalDiscount;         // base on which GST applies
-    const cgst = Math.round(taxableBase * 0.09);          // CGST 9%
-    const sgst = Math.round(taxableBase * 0.09);          // SGST 9%
-    const gst = cgst + sgst;                              // total GST 18%
-    const shipping = activeShipping.cost;                 // customer-selected shipping
-    const totalAmount = taxableBase + gst + shipping;
+    const subtotal = roundToTwo(cartSubtotal); // Raw subtotal before bundle/coupon discounts
+    const couponDiscount = appliedCoupon ? roundToTwo(appliedCoupon.discount_amount) : 0;
+    const totalDiscount = roundToTwo((bundleDiscounts || 0) + couponDiscount);
+    const taxableBase = Math.max(0, roundToTwo(subtotal - totalDiscount)); // base on which GST applies
+    const { cgst, sgst, gst, grandTotal: totalAmount } = calculateTaxAndTotals(taxableBase, activeShipping.cost);
 
     const handleApplyCoupon = async () => {
         if (!couponCode) return;

@@ -2,6 +2,7 @@ import React from 'react';
 import { ShieldCheck, Trash2, Lock, Loader, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getImageUrl } from '../../utils/imageUtils';
+import { formatCurrency, formatPrice } from '../../utils/priceUtils';
 
 const CheckoutOrderSummary = ({
     appliedCoupon,
@@ -96,7 +97,7 @@ const CheckoutOrderSummary = ({
                                 <p className="text-sm text-gray-300 truncate">{item.title}</p>
                                 <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
                             </div>
-                            <p className="text-sm font-medium text-white">₹{item.price * item.quantity}</p>
+                            <p className="text-sm font-medium text-white">₹{formatPrice(item.price * item.quantity)}</p>
                         </div>
                     ))}
 
@@ -115,10 +116,10 @@ const CheckoutOrderSummary = ({
                                 </div>
                                 <div className="text-right">
                                     <span className="text-xs text-gray-500 line-through block">
-                                        ₹{group.original_price * group.quantity}
+                                        ₹{formatPrice(group.original_price * group.quantity)}
                                     </span>
                                     <span className="text-sm font-bold text-tronix-accent">
-                                        ₹{group.bundle_price * group.quantity}
+                                        ₹{formatPrice(group.bundle_price * group.quantity)}
                                     </span>
                                 </div>
                             </div>
@@ -147,31 +148,31 @@ const CheckoutOrderSummary = ({
                 <div className="border-t border-white/10 pt-4 space-y-2 mb-6">
                     <div className="flex justify-between text-gray-400 text-sm">
                         <span>Items ({selectedItems.length}):</span>
-                        <span>₹{subtotal}</span>
+                        <span>₹{formatCurrency(subtotal)}</span>
                     </div>
                     {totalDiscount > 0 && (
                         <div className="flex justify-between text-emerald-400 text-sm font-medium">
                             <span>Discount:</span>
-                            <span>- ₹{totalDiscount}</span>
+                            <span>- ₹{formatCurrency(totalDiscount)}</span>
                         </div>
                     )}
                     <div className="flex justify-between text-gray-400 text-sm">
                         <span>CGST (9%):</span>
-                        <span>₹{cgst}</span>
+                        <span>₹{formatCurrency(cgst)}</span>
                     </div>
                     <div className="flex justify-between text-gray-400 text-sm">
                         <span>SGST (9%):</span>
-                        <span>₹{sgst}</span>
+                        <span>₹{formatCurrency(sgst)}</span>
                     </div>
                     <div className="flex justify-between text-gray-400 text-sm">
                         <span>Shipping ({activeShipping.label}):</span>
                         <span className={activeShipping.cost === 0 ? 'text-emerald-400' : 'text-white'}>
-                            {activeShipping.cost === 0 ? 'FREE' : `₹${activeShipping.cost}`}
+                            {activeShipping.cost === 0 ? 'FREE' : `₹${formatPrice(activeShipping.cost)}`}
                         </span>
                     </div>
                     <div className="flex justify-between text-white font-bold text-lg pt-2 border-t border-white/10 mt-2">
                         <span>Order Total:</span>
-                        <span className="text-tronix-accent">₹{totalAmount}</span>
+                        <span className="text-tronix-accent">₹{formatCurrency(totalAmount)}</span>
                     </div>
                 </div>
 
@@ -213,7 +214,7 @@ const CheckoutOrderSummary = ({
                     <div className="flex flex-col">
                         <span className="text-[11px] text-gray-400 font-medium leading-none">Total Payable</span>
                         <div className="flex items-baseline gap-1 mt-1">
-                            <span className="text-xl font-black text-tronix-accent">₹{totalAmount}</span>
+                            <span className="text-xl font-black text-tronix-accent">₹{formatCurrency(totalAmount)}</span>
                             <span className="text-[10px] text-gray-400">(incl. GST)</span>
                         </div>
                     </div>

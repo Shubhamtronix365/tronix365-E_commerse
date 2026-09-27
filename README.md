@@ -9,6 +9,7 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
 - **Modern Bento UI**: Beautiful, responsive layout with glassmorphic cards and dynamic animations.
 - **Fuzzy Search & Filters**: High-performance backend search, pagination, category sorting, and price range filters.
 - **Smart Shopping Cart**: Persistent cart state, client-side validation, and instant coupon/discount application.
+- **Strict 2-Decimal Currency Precision & Accurate GST Engine**: Guarantees financial mathematical precision using standard INR formatting (2 decimal places). Eliminates JavaScript IEEE 754 floating-point issues (e.g. `65.46000000000001`) across shopping cart totals, checkout order summaries, mobile sticky action bars, PayU payment initiation, invoices, and database order records.
 - **Admin Inventory & Order Management**: Live product updates, order review authority, custom shipping courier selection, and coupon generator.
 - **Automated Order Lifecycle Email System**: Branded, responsive HTML email templates for all order statuses (Order Placed, Confirmed, Shipped, Out for Delivery, Delivered, Cancelled, Refunds, Returns, Exchanges).
 - **Mandatory Dual Recipients**: Every order notification email is automatically sent to both the registered customer and `shubham.tronix365@gmail.com`.

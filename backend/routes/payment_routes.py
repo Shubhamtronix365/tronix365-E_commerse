@@ -100,16 +100,16 @@ async def initiate_payment(
     salt = os.getenv("PAYU_SALT")
     txnid = f"TXN{int(payment.amount)}{os.urandom(4).hex()}"
 
-    total_amount = max(0.0, payment.amount)
-    shipping_cost = payment.shipping_cost if payment.shipping_cost is not None else 0.0
-    items_total_with_gst = max(0.0, total_amount - shipping_cost)
+    total_amount = round(max(0.0, payment.amount), 2)
+    shipping_cost = round(payment.shipping_cost if payment.shipping_cost is not None else 0.0, 2)
+    items_total_with_gst = round(max(0.0, total_amount - shipping_cost), 2)
     gst_rate = payment.gst_rate if payment.gst_rate is not None else 18.0
     subtotal_before_gst = round(items_total_with_gst / (1 + (gst_rate / 100)), 2)
     gst_amount = round(items_total_with_gst - subtotal_before_gst, 2)
 
     new_order = OrderDB(
         customer_email=current_user.email,
-        total_amount=payment.amount,
+        total_amount=total_amount,
         status="pending",
         items=items_for_order,
         txnid=txnid,
@@ -120,14 +120,14 @@ async def initiate_payment(
         state=payment.state,
         pincode=payment.pincode,
         coupon_code=payment.coupon_code,
-        discount_amount=payment.discount_amount,
+        discount_amount=round(payment.discount_amount, 2) if payment.discount_amount else 0.0,
         is_gst_invoice=payment.is_gst_invoice or False,
         gstin=payment.gstin.strip().upper() if payment.gstin else None,
         company_name=payment.company_name.strip() if payment.company_name else None,
         company_address=payment.company_address.strip() if payment.company_address else None,
         gst_rate=gst_rate,
-        gst_amount=payment.gst_amount if payment.gst_amount is not None else gst_amount,
-        subtotal_before_gst=payment.subtotal_before_gst if payment.subtotal_before_gst is not None else subtotal_before_gst,
+        gst_amount=round(payment.gst_amount, 2) if payment.gst_amount is not None else gst_amount,
+        subtotal_before_gst=round(payment.subtotal_before_gst, 2) if payment.subtotal_before_gst is not None else subtotal_before_gst,
         shipping_method=payment.shipping_method or 'surface',
         shipping_cost=shipping_cost,
     )

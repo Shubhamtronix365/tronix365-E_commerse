@@ -244,18 +244,18 @@ const PaymentStatus = () => {
                                         <div className="flex justify-between text-xs text-gray-400">
                                             <span>Shipping ({order.shipping_method ? order.shipping_method.charAt(0).toUpperCase() + order.shipping_method.slice(1) : 'Standard'}):</span>
                                             <span className={order.shipping_cost > 0 ? 'text-white' : 'text-emerald-400'}>
-                                                {order.shipping_cost > 0 ? `₹${order.shipping_cost}` : 'FREE'}
+                                                {order.shipping_cost > 0 ? `₹${Number(order.shipping_cost).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'FREE'}
                                             </span>
                                         </div>
                                         {order.coupon_code && (
                                             <div className="flex justify-between text-xs text-emerald-400">
                                                 <span>Coupon Discount ({order.coupon_code}):</span>
-                                                <span>- ₹{order.discount_amount}</span>
+                                                <span>- ₹{Number(order.discount_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                             </div>
                                         )}
                                         <div className="flex justify-between text-sm font-bold text-white pt-2 border-t border-white/10">
                                             <span>Paid Amount:</span>
-                                            <span className="text-tronix-accent">₹{order.total_amount}</span>
+                                            <span className="text-tronix-accent">₹{Number(order.total_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                         </div>
                                     </div>
                                 </div>
