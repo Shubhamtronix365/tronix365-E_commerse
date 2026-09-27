@@ -9,6 +9,7 @@ email-validator
 requests
 python-multipart
 psycopg2-binary
+psycopg[binary]
 alembic
 slowapi
 bleach
