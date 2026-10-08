@@ -110,17 +110,22 @@ async def get_products(
     if in_stock_only:
         query = query.filter(ProductDB.stock > 0)
 
+    # Always ensure products with pending prices appear at the very end of lists
+    from sqlalchemy import case
+
+    pending_order = case((ProductDB.is_price_pending == True, 1), else_=0)
+
     if sort_by:
         if sort_by == "price_asc":
-            query = query.order_by(ProductDB.price.asc())
+            query = query.order_by(pending_order.asc(), ProductDB.price.asc())
         elif sort_by == "price_desc":
-            query = query.order_by(ProductDB.price.desc())
+            query = query.order_by(pending_order.asc(), ProductDB.price.desc())
         elif sort_by == "name_asc":
-            query = query.order_by(ProductDB.title.asc())
+            query = query.order_by(pending_order.asc(), ProductDB.title.asc())
         else:
-            query = query.order_by(ProductDB.id.desc())
+            query = query.order_by(pending_order.asc(), ProductDB.id.desc())
     else:
-        query = query.order_by(ProductDB.id.desc())
+        query = query.order_by(pending_order.asc(), ProductDB.id.desc())
 
     products = query.offset(skip).limit(limit).all()
     return products

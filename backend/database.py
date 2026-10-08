@@ -4,6 +4,10 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
+if not os.getenv("DATABASE_URL"):
+    backend_env = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+    if os.path.exists(backend_env):
+        load_dotenv(backend_env)
 
 # Format: postgresql://user:password@localhost/dbname
 # Format: postgresql://user:password@localhost/dbname

@@ -9,6 +9,7 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
 - **Modern Bento UI**: Beautiful, responsive layout with glassmorphic cards and dynamic animations.
 - **Fuzzy Search & Filters**: High-performance backend search, pagination, category sorting, and price range filters.
 - **Smart Shopping Cart**: Persistent cart state, client-side validation, and instant coupon/discount application.
+- **Smart Catalog Sorting & Price Pending Prioritization**: Automatically identifies products imported from supplier catalogs without established retail prices (flagged `is_price_pending`), placing them gracefully at the very end of all shop catalog and category listings so active, priced inventory is always prioritized.
 - **Strict 2-Decimal Currency Precision & Accurate GST Engine**: Guarantees financial mathematical precision using standard INR formatting (2 decimal places). Eliminates JavaScript IEEE 754 floating-point issues (e.g. `65.46000000000001`) across shopping cart totals, checkout order summaries, mobile sticky action bars, PayU payment initiation, invoices, and database order records.
 - **Admin Inventory & Order Management**: Live product updates, order review authority, custom shipping courier selection, and coupon generator.
 - **Automated Order Lifecycle Email System**: Branded, responsive HTML email templates for all order statuses (Order Placed, Confirmed, Shipped, Out for Delivery, Delivered, Cancelled, Refunds, Returns, Exchanges).
@@ -240,16 +241,17 @@ First, make sure you have the following installed on your machine:
 
 ---
 
-## 📦 Bulk Product CSV Import & Image Management
+## 📦 Bulk Product CSV & Excel (.xlsx) Import & Image Management
 
-The platform includes an automated bulk import engine (`import_products.py`) to import or update hundreds of products directly into your database (SQLite locally or NeonDB in production).
+The platform includes an automated bulk import engine (`import_products.py`) to import or update hundreds of products directly into your database (SQLite locally or NeonDB in production) directly from **Excel (`.xlsx`)** or **CSV (`.csv`)** files.
 
 ### 1. File Locations & Structure
-* **CSV File**: Save your Excel file as CSV UTF-8 at: `backend/products.csv`
-* **Images Folder**: Place product images inside: `backend/components/`
+* **Data File**: Place your Excel file at `backend/products.xlsx` or CSV file at `backend/products.csv`.
+* **Images Folder**: Place component product images inside: `backend/components/`
   *(Supported extensions: `.jpg`, `.jpeg`, `.png`, `.webp`, `.svg`)*
+  *(Or specify any custom folder using `--images-dir <folder_path>`)*
 
-### 2. CSV Columns
+### 2. Sheet / CSV Columns
 | Column Header | Required? | Description & Format |
 | :--- | :--- | :--- |
 | `skv` | **YES** | Unique SKU code (e.g. `ARD-001`). Duplicate SKUs auto-append unique suffixes. |
@@ -258,36 +260,48 @@ The platform includes an automated bulk import engine (`import_products.py`) to 
 | `sale_price` | **YES** | Selling Price customer pays (e.g. `450`). |
 | `mrp` | No | Original Price displayed strikethrough (e.g. `650`). |
 | `stock` | No | Available stock count (default: `100`). |
-| `image` | **YES** | Filename in `components/` or direct HTTP/HTTPS web link. |
+| `image` | No | Filename in `components/` (or custom images folder) or direct HTTP/HTTPS web link. |
 | `description` | No | Detail description text. |
 | `features` | No | Bullet list separated by `|` (e.g. `5V Logic|USB-C|ATmega328P`). |
 | `specs` | No | Technical key-values separated by `|` & `:` (e.g. `Voltage:5V|Memory:2KB`). |
 
 ### 3. Smart Resiliency Features
-* **Multi-Encoding Auto-Detect**: Auto-detects `UTF-8`, `UTF-8-SIG`, `CP1252`, and `Latin-1` encodings with fallback `errors="replace"` to prevent charmap decode crashes from Excel symbols.
-* **Smart Image Matcher**: Case-insensitive and title-fallback image matching (e.g. matches `16x2 LCD Display` to `16x2 LCD Display.jpg`).
-* **Automatic `uploads/` Sync**: Copies matched images from `components/` into `backend/uploads/` and links `/uploads/filename.jpg` in the database.
+* **Direct Excel & CSV Support**: Reads native `.xlsx` files (via `openpyxl`) or CSV files (`UTF-8`, `UTF-8-SIG`, `CP1252`, `Latin-1`).
+* **Auto-File Detection**: Automatically looks for `products.xlsx` or `products.csv` in `backend/` if no file path is specified.
+* **Smart Image Matcher**: Case-insensitive and title-fallback image matching across `components/`, `images/`, or any folder specified via `--images-dir`.
+* **Automatic `uploads/` Sync**: Copies matched images from your component folder into `backend/uploads/` and links `/uploads/filename.jpg` in the database.
 
 ### 4. Import Commands
 ```powershell
 cd backend
 myenv\Scripts\activate
 
-# Import / Update existing products
+# Import / Update directly from Excel .xlsx
+python import_products.py products.xlsx
+
+# Or import from CSV
 python import_products.py products.csv
 
+# Auto-detects products.xlsx or products.csv automatically:
+python import_products.py
+
+# Import using custom images folder
+python import_products.py products.xlsx --images-dir components
+
 # Wipe DB and fresh re-import (IDs reset to 1)
-python import_products.py products.csv --reset
+python import_products.py products.xlsx --reset
 ```
 
-### 5. Syncing Images for Live Hosting (Render + NeonDB + Hostinger)
-When deploying images to your live website:
+### 5. Syncing Images to Cloudinary CDN (Hostinger & Render)
+To serve all product images globally via Cloudinary CDN without hosting local files on Hostinger or Render:
 ```powershell
-git add backend/uploads
-git commit -m "feat: sync product images for live site"
-git push origin main
+cd backend
+myenv\Scripts\activate
+
+# Upload all local images to Cloudinary and update NeonDB with CDN URLs
+python sync_to_cloudinary.py
 ```
-Render automatically deploys the uploaded image directory, serving all product images live at `https://tronix365-e-commerse.onrender.com/uploads/`.
+This guarantees that all images render instantly on your live Hostinger website (`https://tronix365.in`) without 404 broken image errors.
 
 ---
 

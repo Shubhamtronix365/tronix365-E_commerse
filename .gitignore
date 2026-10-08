@@ -78,4 +78,7 @@ ehthumbs.db
 backend/tronix365.db.bak
 backend/otp_debug.txt
 *.csv
+backend/uploads/
+backend/components/
+*.xlsx
 

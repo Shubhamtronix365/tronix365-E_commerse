@@ -55,6 +55,7 @@ class ProductDB(Base):
     length = Column(Float, default=10.0)   # in cm
     breadth = Column(Float, default=10.0)  # in cm
     height = Column(Float, default=5.0)    # in cm
+    is_price_pending = Column(Boolean, default=False)  # True if product lacked price in Excel
 
 
 
@@ -215,6 +216,7 @@ class ProductBase(BaseModel):
     length: Optional[float] = 10.0
     breadth: Optional[float] = 10.0
     height: Optional[float] = 5.0
+    is_price_pending: Optional[bool] = False
 
     @field_validator("specs", "features", "applications", "useful_links", "package_includes", "attachments", mode="before")
     @classmethod
@@ -263,6 +265,7 @@ class ProductUpdate(BaseModel):
     length: Optional[float] = None
     breadth: Optional[float] = None
     height: Optional[float] = None
+    is_price_pending: Optional[bool] = None
 
 
 

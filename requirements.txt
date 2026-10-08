@@ -20,3 +20,4 @@ google-auth
 jinja2
 pytest
 httpx
+openpyxl
