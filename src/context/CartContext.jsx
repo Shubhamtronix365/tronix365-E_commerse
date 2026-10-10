@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import axios from 'axios';
+import client from '../api/client';
 import { useAuth } from './AuthContext';
 import { roundToTwo } from '../utils/priceUtils';
 
@@ -31,11 +31,11 @@ export const CartProvider = ({ children }) => {
                             quantity: item.quantity,
                             selected: item.selected !== false
                         }));
-                        await axios.post('/cart/merge', { items: guestItems });
+                        await client.post('/cart/merge', { items: guestItems });
                     }
                     
                     // 2. Fetch fresh cart from backend
-                    const response = await axios.get('/cart');
+                    const response = await client.get('/cart');
                     const mergedItems = response.data.map(item => ({
                         ...item.product,
                         cart_item_id: item.id, // Store backend ID for updates
@@ -46,7 +46,9 @@ export const CartProvider = ({ children }) => {
                     }));
                     setCartItems(mergedItems);
                 } catch (error) {
-                    console.error("Failed to sync cart:", error);
+                    if (error.response?.status !== 401) {
+                        console.error("Failed to sync cart:", error);
+                    }
                 } finally {
                     isMerging.current = false;
                 }
@@ -66,7 +68,7 @@ export const CartProvider = ({ children }) => {
     const addToCart = async (product, quantity = 1) => {
         if (isAuthenticated) {
             try {
-                const response = await axios.post('/cart', {
+                const response = await client.post('/cart', {
                     product_id: product.id,
                     quantity,
                     selected: true
@@ -126,9 +128,9 @@ export const CartProvider = ({ children }) => {
         }
 
         try {
-            await axios.post(`/cart/bundle/${bundleId}`);
+            await client.post(`/cart/bundle/${bundleId}`);
             // Refetch cart to get updated items with bundle_ids
-            const response = await axios.get('/cart');
+            const response = await client.get('/cart');
             const mergedItems = response.data.map(item => ({
                 ...item.product,
                 cart_item_id: item.id,
@@ -151,7 +153,7 @@ export const CartProvider = ({ children }) => {
             const item = cartItems.find(i => (i.cart_item_id || i.id) === identifier);
             if (item?.cart_item_id) {
                 try {
-                    await axios.delete(`/cart/${item.cart_item_id}`);
+                    await client.delete(`/cart/${item.cart_item_id}`);
                 } catch (error) {
                     console.error("Failed to remove from cart:", error);
                 }
@@ -174,7 +176,7 @@ export const CartProvider = ({ children }) => {
 
         if (isAuthenticated && item.cart_item_id) {
             try {
-                await axios.put(`/cart/${item.cart_item_id}`, { quantity: newQuantity });
+                await client.put(`/cart/${item.cart_item_id}`, { quantity: newQuantity });
             } catch (error) {
                 toast.error("Failed to update quantity");
                 return;
@@ -196,7 +198,7 @@ export const CartProvider = ({ children }) => {
 
         if (isAuthenticated && item.cart_item_id) {
             try {
-                await axios.put(`/cart/${item.cart_item_id}`, { selected: newSelected });
+                await client.put(`/cart/${item.cart_item_id}`, { selected: newSelected });
             } catch (error) {
                 console.error("Failed to toggle selection:", error);
             }
@@ -216,7 +218,7 @@ export const CartProvider = ({ children }) => {
         try {
             await Promise.all(
                 itemsToRemove.map(item => 
-                    item.cart_item_id ? axios.delete(`/cart/${item.cart_item_id}`) : Promise.resolve()
+                    item.cart_item_id ? client.delete(`/cart/${item.cart_item_id}`) : Promise.resolve()
                 )
             );
         } catch (error) {
@@ -241,7 +243,7 @@ export const CartProvider = ({ children }) => {
         try {
             await Promise.all(
                 bundleItems.map(item =>
-                    item.cart_item_id ? axios.put(`/cart/${item.cart_item_id}`, { quantity: newQuantity }) : Promise.resolve()
+                    item.cart_item_id ? client.put(`/cart/${item.cart_item_id}`, { quantity: newQuantity }) : Promise.resolve()
                 )
             );
         } catch (error) {
@@ -266,7 +268,7 @@ export const CartProvider = ({ children }) => {
         try {
             await Promise.all(
                 bundleItems.map(item =>
-                    item.cart_item_id ? axios.put(`/cart/${item.cart_item_id}`, { selected: newSelected }) : Promise.resolve()
+                    item.cart_item_id ? client.put(`/cart/${item.cart_item_id}`, { selected: newSelected }) : Promise.resolve()
                 )
             );
         } catch (error) {
