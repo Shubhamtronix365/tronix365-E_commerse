@@ -152,14 +152,15 @@ async def update_order_status(
         order.rejection_reason = status_update.rejection_reason.strip()
 
     try:
-        if new_status in ["deleted", "cancelled"] and previous_status.lower() in ["confirmed", "shipped", "delivered", "out_for_delivery"]:
+        cancellation_statuses = ["deleted", "cancelled", "payment_cancelled", "payment_bounced", "payment_failed"]
+        if new_status in cancellation_statuses and previous_status.lower() in ["confirmed", "shipped", "delivered", "out_for_delivery"]:
             for item in (order.items or []):
                 if item.product_id:
                     product = db.query(ProductDB).filter(ProductDB.id == item.product_id).first()
                     if product:
                         product.stock = (product.stock or 0) + item.quantity
 
-        if new_status == "confirmed" and previous_status.lower() == "pending":
+        if new_status in ["confirmed", "payment_received"] and previous_status.lower() in ["pending", "payment_bounced", "payment_cancelled", "payment_failed"]:
             for item in (order.items or []):
                 if item.product_id:
                     product = db.query(ProductDB).filter(ProductDB.id == item.product_id).first()

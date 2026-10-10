@@ -299,9 +299,27 @@ async def mock_payment_process(
     if parsed_furl.netloc and parsed_furl.netloc not in allowed_hosts:
         raise HTTPException(status_code=400, detail="Invalid failure redirect URL (Open Redirect prohibited)")
 
+    fn_lower = (firstname or "").lower().strip()
     status = "success"
-    if firstname.lower() == "failure":
+    unmappedstatus = "captured"
+    error_msg = ""
+    target_url = surl
+
+    if "bounce" in fn_lower:
         status = "failure"
+        unmappedstatus = "bounced"
+        error_msg = "Bank server bounced transaction - card declined"
+        target_url = furl
+    elif "cancel" in fn_lower:
+        status = "failure"
+        unmappedstatus = "userCancelled"
+        error_msg = "Customer cancelled payment at checkout"
+        target_url = furl
+    elif "fail" in fn_lower:
+        status = "failure"
+        unmappedstatus = "failed"
+        error_msg = "Gateway declined payment authorization"
+        target_url = furl
 
     salt = os.getenv("PAYU_SALT")
 
@@ -312,8 +330,10 @@ async def mock_payment_process(
     <html>
         <head><title>Processing Payment...</title></head>
         <body onload="document.forms[0].submit()">
-            <form action="{surl}" method="post">
+            <form action="{target_url}" method="post">
                 <input type="hidden" name="status" value="{status}" />
+                <input type="hidden" name="unmappedstatus" value="{unmappedstatus}" />
+                <input type="hidden" name="error" value="{error_msg}" />
                 <input type="hidden" name="firstname" value="{firstname}" />
                 <input type="hidden" name="amount" value="{amount}" />
                 <input type="hidden" name="txnid" value="{txnid}" />
@@ -339,6 +359,8 @@ async def payment_callback(
     productinfo: str = Form(...),
     email: str = Form(...),
     error: Optional[str] = Form(None),
+    unmappedstatus: Optional[str] = Form(None),
+    error_Message: Optional[str] = Form(None),
     db: Session = Depends(get_db),
 ):
     key = os.getenv("PAYU_KEY")
@@ -361,7 +383,7 @@ async def payment_callback(
             status_code=303,
         )
 
-    print(f"Payment Callback: {status} for {txnid}")
+    print(f"Payment Callback: {status} (unmapped: {unmappedstatus}, error: {error}) for {txnid}")
 
     order = db.query(OrderDB).filter(OrderDB.txnid == txnid).first()
     if order:
@@ -383,7 +405,20 @@ async def payment_callback(
             # Automatic Order Confirmation Email to both Customer and Store Admin
             background_tasks.add_task(send_order_status_email, order.id, "confirmed", True)
         else:
-            order.status = "failed"
+            err_lower = f"{error or ''} {error_Message or ''} {unmappedstatus or ''}".lower().strip()
+            from datetime import datetime
+
+            if "bounce" in err_lower:
+                order.status = "payment_bounced"
+                order.cancellation_reason = f"Payment Bounced: {error or error_Message or 'Bank declined / card transaction bounced'}"
+            elif "cancel" in err_lower or "usercancelled" in err_lower:
+                order.status = "payment_cancelled"
+                order.cancellation_reason = f"Payment Cancelled: {error or error_Message or 'Cancelled by user at gateway'}"
+            else:
+                order.status = "payment_failed"
+                order.cancellation_reason = f"Payment Failed: {error or error_Message or 'Transaction declined by payment gateway'}"
+
+            order.cancellation_date = datetime.utcnow()
             db.commit()
 
     if ("tronix365.in" in frontend_url or "tronix.in" in frontend_url) and "/e-commerse" not in frontend_url:
@@ -394,6 +429,27 @@ async def payment_callback(
             url=f"{frontend_url}/payment/success?txnid={txnid}", status_code=303
         )
     else:
+        order_st = order.status if order else "payment_failed"
         return RedirectResponse(
-            url=f"{frontend_url}/payment/failure?txnid={txnid}", status_code=303
+            url=f"{frontend_url}/payment/failure?txnid={txnid}&status={order_st}", status_code=303
         )
+
+
+@router.post("/payment/cancel/{txnid}")
+async def cancel_payment_by_txnid(
+    txnid: str,
+    db: Session = Depends(get_db),
+):
+    """Allows customer or frontend to explicitly register payment cancellation when checkout is aborted."""
+    order = db.query(OrderDB).filter(OrderDB.txnid == txnid).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if order.status in ["pending", "failed", "payment_failed"]:
+        from datetime import datetime
+        order.status = "payment_cancelled"
+        order.cancellation_reason = "Payment Cancelled: Customer aborted checkout"
+        order.cancellation_date = datetime.utcnow()
+        db.commit()
+        db.refresh(order)
+    return {"message": "Payment marked as cancelled", "status": order.status}
