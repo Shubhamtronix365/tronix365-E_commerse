@@ -68,7 +68,7 @@ def check_abandoned_carts(force_resend: bool = False, hours_threshold: int = 1):
 
             if not recent_order:
                 print(f"Sending recovery email to {user.email}...")
-                success = send_abandoned_cart_email(user, items, coupon_code="RECOVER5")
+                success = send_abandoned_cart_email(user, items)
                 if success:
                     emails_sent += 1
                     # Stamp all items in this cart so user isn't spammed

@@ -247,11 +247,28 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
     order_id_num = int(raw_id) if str(raw_id).isdigit() else 0
     order_id_str = f"{order_id_num:04d}" if order_id_num > 0 else str(raw_id)
 
-    date_str = (
-        order.created_at.strftime("%B %d, %Y")
-        if hasattr(order, "created_at") and hasattr(order.created_at, "strftime")
-        else str(getattr(order, "created_at", "N/A")).split(".")[0].replace("T", " ")
-    )
+    from datetime import timedelta, timezone
+    try:
+        from zoneinfo import ZoneInfo
+        ist_tz = ZoneInfo("Asia/Kolkata")
+    except Exception:
+        ist_tz = timezone(timedelta(hours=5, minutes=30))
+
+    created_dt = getattr(order, "created_at", None)
+    if hasattr(created_dt, "strftime"):
+        if getattr(created_dt, "tzinfo", None) is None:
+            created_dt_ist = created_dt.replace(tzinfo=timezone.utc).astimezone(ist_tz)
+        else:
+            created_dt_ist = created_dt.astimezone(ist_tz)
+        date_str = created_dt_ist.strftime("%B %d, %Y")
+        ordered_time_str = created_dt_ist.strftime("%B %d, %Y at %I:%M %p IST")
+        ready_start = created_dt_ist + timedelta(hours=2)
+        ready_end = created_dt_ist + timedelta(hours=3)
+        ready_window_str = f"{ready_start.strftime('%I:%M %p')} - {ready_end.strftime('%I:%M %p')} IST"
+    else:
+        date_str = str(created_dt or "N/A").split(".")[0].replace("T", " ")
+        ordered_time_str = date_str
+        ready_window_str = "Within 2–3 Hours"
 
     customer_name = getattr(order, "full_name", None) or (
         order.customer_email.split("@")[0] if getattr(order, "customer_email", None) else "Valued Customer"
@@ -683,6 +700,107 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
         </tr>
         """
 
+    # Prominent Store Pickup & Free Shipping Ready Notice (2-3 Hours Window)
+    shipping_m = str(getattr(order, "shipping_method", "") or "").lower().strip()
+    shipping_c = float(getattr(order, "shipping_cost", -1) or -1)
+    is_pickup = "pickup" in shipping_m or "store" in shipping_m
+    is_free_shipping = (not is_pickup) and (
+        "free" in shipping_m or shipping_c == 0
+    )
+
+    pickup_or_free_card_html = ""
+    if is_pickup:
+        pickup_or_free_card_html = f"""
+        <tr>
+            <td style="padding: 0 28px 20px;">
+                <div style="background-color: #f5f3ff; border: 2px solid #7c3aed; border-radius: 12px; padding: 18px 20px; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.12);">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td style="vertical-align: top; width: 38px; padding-right: 14px;">
+                                <div style="width: 38px; height: 38px; border-radius: 50%; background-color: #7c3aed; color: #ffffff; text-align: center; line-height: 38px; font-size: 20px;">🏬</div>
+                            </td>
+                            <td style="vertical-align: top;">
+                                <div style="margin-bottom: 6px;">
+                                    <span style="display: inline-block; background-color: #7c3aed; color: #ffffff; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        Store / Office Pickup
+                                    </span>
+                                    <span style="display: inline-block; background-color: #fef3c7; color: #92400e; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #fde68a; margin-left: 6px;">
+                                        ⏱️ Ready in 2–3 Hours
+                                    </span>
+                                </div>
+                                <h3 style="margin: 0 0 6px; font-size: 17px; font-weight: 900; color: #4c1d95; line-height: 1.3;">
+                                    Your order will be ready for pickup in 2–3 hours from placing time!
+                                </h3>
+                                <p style="margin: 0 0 12px; font-size: 13px; color: #5b21b6; line-height: 1.5;">
+                                    Our Pune team has received your order and is currently testing, assembling, and packaging your hardware components.
+                                </p>
+                                <div style="background-color: #ffffff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;">
+                                    <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 13px; color: #374151;">
+                                        <tr>
+                                            <td style="padding: 4px 0; color: #6b7280;"><strong>Ordered At:</strong></td>
+                                            <td style="padding: 4px 0; text-align: right; color: #111827; font-weight: 700;">{ordered_time_str}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 4px 0; color: #6b7280;"><strong>Estimated Ready Window:</strong></td>
+                                            <td style="padding: 4px 0; text-align: right; color: #7c3aed; font-weight: 900; font-size: 14px;">Within 2–3 Hours ({ready_window_str})</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <p style="margin: 0; font-size: 12px; color: #6d28d9; line-height: 1.4;">
+                                    📍 <strong>Pickup Desk:</strong> Tronix365 Pune Office &nbsp;|&nbsp; 🕒 <strong>Hours:</strong> 9:30 AM – 6:00 PM
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+        """
+    elif is_free_shipping:
+        pickup_or_free_card_html = f"""
+        <tr>
+            <td style="padding: 0 28px 20px;">
+                <div style="background-color: #f0fdf4; border: 2px solid #16a34a; border-radius: 12px; padding: 18px 20px; box-shadow: 0 4px 14px rgba(22, 163, 74, 0.12);">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td style="vertical-align: top; width: 38px; padding-right: 14px;">
+                                <div style="width: 38px; height: 38px; border-radius: 50%; background-color: #16a34a; color: #ffffff; text-align: center; line-height: 38px; font-size: 20px;">⚡</div>
+                            </td>
+                            <td style="vertical-align: top;">
+                                <div style="margin-bottom: 6px;">
+                                    <span style="display: inline-block; background-color: #16a34a; color: #ffffff; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        Free Shipping Priority
+                                    </span>
+                                    <span style="display: inline-block; background-color: #fef3c7; color: #92400e; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #fde68a; margin-left: 6px;">
+                                        ⚡ Prepared in 2–3 Hours
+                                    </span>
+                                </div>
+                                <h3 style="margin: 0 0 6px; font-size: 17px; font-weight: 900; color: #14532d; line-height: 1.3;">
+                                    Your free shipping order will be packed and ready in 2–3 hours from placing time!
+                                </h3>
+                                <p style="margin: 0 0 12px; font-size: 13px; color: #166534; line-height: 1.5;">
+                                    Our fulfillment warehouse has prioritized your order for swift packaging, inspection, and dispatch handoff.
+                                </p>
+                                <div style="background-color: #ffffff; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 14px;">
+                                    <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 13px; color: #374151;">
+                                        <tr>
+                                            <td style="padding: 4px 0; color: #6b7280;"><strong>Ordered At:</strong></td>
+                                            <td style="padding: 4px 0; text-align: right; color: #111827; font-weight: 700;">{ordered_time_str}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 4px 0; color: #6b7280;"><strong>Estimated Ready Window:</strong></td>
+                                            <td style="padding: 4px 0; text-align: right; color: #16a34a; font-weight: 900; font-size: 14px;">Within 2–3 Hours ({ready_window_str})</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+        """
+
     html_template = f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -727,6 +845,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
                         </tr>
 
                         {progress_bar_html}
+                        {pickup_or_free_card_html}
                         {shipping_card_html}
                         {cancellation_card_html}
                         {reason_card_html}
@@ -749,7 +868,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
                                         <td style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; width: 48%; vertical-align: top;">
                                             <p style="margin: 0 0 6px; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Order Summary</p>
                                             <p style="margin: 0 0 2px; font-size: 13px; color: #374151;"><strong>Order ID:</strong> {order_link_html}</p>
-                                            <p style="margin: 0 0 2px; font-size: 13px; color: #374151;"><strong>Date:</strong> {date_str}</p>
+                                            <p style="margin: 0 0 2px; font-size: 13px; color: #374151;"><strong>Ordered At:</strong> {ordered_time_str}</p>
                                             <p style="margin: 0 0 2px; font-size: 13px; color: #374151;"><strong>Payment:</strong> {getattr(order, 'txnid', None) or 'Paid / Online'}</p>
                                             <p style="margin: 0; font-size: 13px; color: #374151;"><strong>Status:</strong> <span style="color: {cfg['color']}; font-weight: 700;">{formatted_status}</span></p>
                                         </td>
@@ -847,7 +966,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
                                     </tr>
                                     <tr>
                                         <td align="center" style="padding-bottom: 4px;">
-                                            <a href="mailto:admin@tronix365.in" style="color: #a78bfa; font-size: 13px; text-decoration: none; font-weight: 600;">✉ admin@tronix365.in</a>
+                                            <a href="mailto:shubham.tronix365@gmail.com" style="color: #a78bfa; font-size: 13px; text-decoration: none; font-weight: 600;">✉ shubham.tronix365@gmail.com</a>
                                         </td>
                                     </tr>
                                     <tr>
@@ -1309,8 +1428,8 @@ def generate_tower_order_email_base(
         <!-- Footer -->
         <tr>
             <td style="background: #0f172a; padding: 24px 32px; text-align: center; color: #94a3b8; font-size: 12px;">
-                <p style="margin: 0 0 6px 0; font-weight: 600; color: #cbd5e1;">Tronix365 Electronics — Direct Factory Sourcing & Supply Chain Partner</p>
-                <p style="margin: 0; color: #64748b;">© {datetime.utcnow().year} Tronix365. All rights reserved.</p>
+                <p style="margin: 0 0 6px 0; font-weight: 600; color: #cbd5e1;">tronix365 — Direct Factory Sourcing & Supply Chain Partner</p>
+                <p style="margin: 0; color: #64748b;">© {datetime.utcnow().year} tronix365. All rights reserved.</p>
             </td>
         </tr>
     </table>
@@ -1530,12 +1649,12 @@ def send_tower_order_dispatched_email(order, frontend_url: str = "http://localho
 def send_abandoned_cart_email(
     user,
     items,
-    coupon_code: str = "RECOVER5",
+    coupon_code: Optional[str] = None,
     frontend_url: Optional[str] = None
 ) -> bool:
     """
-    Sends a high-converting abandoned cart recovery email to a user with items left in cart.
-    Includes item thumbnails, quantities, subtotal, an exclusive discount voucher, and a recovery link.
+    Sends an abandoned cart recovery reminder email to a user with items left in cart.
+    Includes item thumbnails, quantities, subtotal, and a clean recovery link.
     """
     if not frontend_url:
         frontend_url = os.getenv("FRONTEND_URL", "https://www.tronix365.in/e-commerse")
@@ -1580,7 +1699,7 @@ def send_abandoned_cart_email(
         """)
 
     items_table_html = "".join(rows_html)
-    recovery_url = f"{frontend_url}/cart?recovered=true&coupon={coupon_code}"
+    recovery_url = f"{frontend_url}/cart"
 
     html_content = f"""
     <!DOCTYPE html>
@@ -1588,7 +1707,7 @@ def send_abandoned_cart_email(
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Your Tronix365 Cart is Waiting</title>
+        <title>Your tronix365 Cart is Waiting</title>
     </head>
     <body style="margin: 0; padding: 0; background-color: #0b0f19; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f8fafc;">
         <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0b0f19; padding: 20px 0;">
@@ -1599,7 +1718,7 @@ def send_abandoned_cart_email(
                         <!-- Header / Logo -->
                         <tr>
                             <td style="padding: 30px; text-align: center; background: linear-gradient(180deg, rgba(124, 58, 237, 0.2) 0%, rgba(15, 23, 42, 0) 100%); border-bottom: 1px solid #1e293b;">
-                                <img src="{LOGO_PUBLIC_URL}" alt="Tronix365" height="42" style="margin-bottom: 15px;" />
+                                <img src="{LOGO_PUBLIC_URL}" alt="tronix365" height="42" style="margin-bottom: 15px;" />
                                 <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">
                                     Did you forget something, {customer_name}? 🛒
                                 </h1>
@@ -1629,21 +1748,18 @@ def send_abandoned_cart_email(
                             </td>
                         </tr>
 
-                        <!-- Special Recovery Voucher Callout -->
+                        <!-- Resume Cart Callout -->
                         <tr>
                             <td style="padding: 0 30px 24px 30px;">
-                                <div style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(56, 189, 248, 0.15)); border: 1px dashed #a855f7; border-radius: 12px; padding: 18px; text-align: center;">
-                                    <div style="font-size: 12px; font-weight: 700; color: #c084fc; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">
-                                        ⚡ Limited-Time Recovery Perk
+                                <div style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(56, 189, 248, 0.1)); border: 1px solid #7c3aed; border-radius: 12px; padding: 22px; text-align: center;">
+                                    <div style="font-size: 17px; font-weight: 800; color: #ffffff; margin-bottom: 8px;">
+                                        Your items are saved in your cart
                                     </div>
-                                    <div style="font-size: 18px; font-weight: 800; color: #ffffff; margin-bottom: 6px;">
-                                        Get 5% Off Your Entire Cart
-                                    </div>
-                                    <p style="margin: 0 0 10px 0; color: #cbd5e1; font-size: 13px;">
-                                        Use voucher code <span style="background: #1e1b4b; border: 1px solid #7c3aed; color: #38bdf8; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-family: monospace;">{coupon_code}</span> at checkout.
+                                    <p style="margin: 0 0 16px 0; color: #cbd5e1; font-size: 13px;">
+                                        Return to your cart anytime to complete your checkout.
                                     </p>
-                                    <a href="{recovery_url}" style="display: inline-block; background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); color: #ffffff; text-decoration: none; font-weight: 700; font-size: 15px; padding: 12px 28px; border-radius: 9999px; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4); margin-top: 6px;">
-                                        Resume Cart & Claim 5% Off →
+                                    <a href="{recovery_url}" style="display: inline-block; background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); color: #ffffff; text-decoration: none; font-weight: 700; font-size: 15px; padding: 13px 34px; border-radius: 9999px; box-shadow: 0 4px 18px rgba(124, 58, 237, 0.45);">
+                                        Resume Cart & Checkout →
                                     </a>
                                 </div>
                             </td>
@@ -1654,17 +1770,13 @@ def send_abandoned_cart_email(
                             <td style="padding: 0 30px 30px 30px;">
                                 <table width="100%" cellpadding="0" cellspacing="0" style="border-top: 1px solid #1e293b; padding-top: 20px;">
                                     <tr>
-                                        <td width="33%" align="center" style="color: #94a3b8; font-size: 12px;">
-                                            <div style="color: #38bdf8; font-weight: 700; font-size: 13px;">⚡ Fast Dispatch</div>
-                                            Same-day packing
-                                        </td>
-                                        <td width="33%" align="center" style="color: #94a3b8; font-size: 12px;">
+                                        <td width="50%" align="center" style="color: #94a3b8; font-size: 12px;">
                                             <div style="color: #34d399; font-weight: 700; font-size: 13px;">🛡️ 100% Genuine</div>
                                             Tested Maker Hardware
                                         </td>
-                                        <td width="33%" align="center" style="color: #f472b6; font-weight: 700; font-size: 13px;">
+                                        <td width="50%" align="center" style="color: #f472b6; font-weight: 700; font-size: 13px;">
                                             <div style="color: #f472b6; font-weight: 700; font-size: 13px;">💬 Dedicated Support</div>
-                                            Electronics engineers
+                                            Electronics Engineers
                                         </td>
                                     </tr>
                                 </table>
@@ -1675,10 +1787,10 @@ def send_abandoned_cart_email(
                         <tr>
                             <td style="padding: 20px 30px; background-color: #070b14; border-top: 1px solid #1e293b; text-align: center; font-size: 12px; color: #64748b;">
                                 <p style="margin: 0 0 6px 0;">
-                                    Tronix365 Electronics • Pune, Maharashtra, India
+                                    tronix365 • Pune, Maharashtra, India
                                 </p>
                                 <p style="margin: 0;">
-                                    Need help with your circuit or project? Reply to this email or reach us at <a href="mailto:support@tronix365.in" style="color: #a855f7; text-decoration: none;">support@tronix365.in</a>
+                                    Need help with your circuit or project? Reply to this email or reach us at <a href="mailto:shubham.tronix365@gmail.com" style="color: #a855f7; text-decoration: none;">shubham.tronix365@gmail.com</a>
                                 </p>
                             </td>
                         </tr>
@@ -1691,12 +1803,12 @@ def send_abandoned_cart_email(
     </html>
     """
 
-    subject = f"Did you forget something, {customer_name}? Your Tronix365 cart is waiting! (Save 5% with {coupon_code})"
+    subject = f"Did you forget something, {customer_name}? Your tronix365 cart is waiting!"
     return send_email_via_brevo(
         to_email=customer_email,
         subject=subject,
         html_content=html_content,
-        sender_name="Tronix365 Cart Recovery",
+        sender_name="tronix365 Cart Recovery",
         status_trigger="abandoned_cart_recovery"
     )
 

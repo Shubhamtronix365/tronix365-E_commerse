@@ -32,10 +32,9 @@ const Cart = () => {
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         if (searchParams.get('recovered') === 'true') {
-            const coupon = searchParams.get('coupon') || 'RECOVER5';
-            setRecoveryBanner(coupon);
-            toast.success(`Welcome back! Use voucher ${coupon} at checkout for an extra 5% off!`, {
-                duration: 6000,
+            setRecoveryBanner(true);
+            toast.success(`Welcome back! Your cart items are saved and ready for checkout.`, {
+                duration: 5000,
                 icon: '🛒'
             });
         }
@@ -126,12 +125,12 @@ const Cart = () => {
                             <div>
                                 <p className="text-white font-semibold text-sm">Welcome Back to Your Cart!</p>
                                 <p className="text-xs text-gray-300">
-                                    We preserved your electronics components. Use voucher <span className="font-mono text-cyan-300 font-bold bg-white/10 px-1.5 py-0.5 rounded">{recoveryBanner}</span> at checkout for an extra 5% discount.
+                                    We preserved all your items. You can proceed directly to checkout whenever you're ready.
                                 </p>
                             </div>
                         </div>
                         <button
-                            onClick={() => setRecoveryBanner(null)}
+                            onClick={() => setRecoveryBanner(false)}
                             className="text-gray-400 hover:text-white text-xs px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 cursor-pointer transition-colors"
                         >
                             Dismiss

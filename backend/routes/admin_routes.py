@@ -210,7 +210,7 @@ async def send_single_abandoned_cart_reminder(
         raise HTTPException(status_code=404, detail="No active cart items found for this user")
 
     user = items[0].user
-    success = send_abandoned_cart_email(user, items, coupon_code="RECOVER5")
+    success = send_abandoned_cart_email(user, items)
     if success:
         now = datetime.utcnow()
         for itm in items:
