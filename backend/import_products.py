@@ -348,6 +348,10 @@ def import_products(csv_file_path, reset=False, images_dir=None):
                 features_raw = row.get("features")
 
                 # 5. Handle Updates or Creation
+                if not existing_product and is_pending and ("placehold" in final_image_path or not final_image_path):
+                    # Skip products whose pricing was not given and have no image
+                    continue
+
                 if existing_product:
                     if title:
                         existing_product.title = title
