@@ -1,6 +1,6 @@
-# 📦 Product CSV Import & Image Management Guide
+# 📦 Product CSV & Excel (.xlsx) Import & Image Management Guide
 
-This guide details how to prepare your product data CSV/Excel files, place product images, execute the automated import script (`import_products.py`), and synchronize uploaded images for live production hosting (Render + NeonDB).
+This guide details how to prepare your product data Excel (`.xlsx`) or CSV files, place product images, execute the automated import script (`import_products.py`), and synchronize uploaded images for live production hosting (Render + NeonDB).
 
 ---
 
@@ -9,17 +9,18 @@ This guide details how to prepare your product data CSV/Excel files, place produ
 You can supply product images via local files or direct web URLs.
 
 ### Option A: Local Images (Recommended)
-1. **Place Raw Images**: Place all your raw product images inside the folder:
+1. **Place Raw Images**: Place all your raw product/component images inside:
    ```text
    backend/components/
    ```
+   *(Or in any new folder you prefer, e.g. `backend/components/` or pass `--images-dir <folder>`)*
    * *Supported extensions*: `.jpg`, `.jpeg`, `.png`, `.webp`, `.svg`
    * *Example filenames*: `Arduino_Uno R3.jpg`, `SG90 Micro Servo Motor.jpg`, `16x2 LCD Display.jpg`
 
 2. **Smart Automatic Image Matching**:
    The `import_products.py` script automatically performs:
    * **Case-insensitive matching**: Matches `arduino.jpg` to `Arduino_Uno R3.jpg`.
-   * **Title fallback matching**: If the `image` column in CSV is blank, it automatically searches for image files matching the product title.
+   * **Title fallback matching**: If the `image` column in your sheet is blank, it automatically searches for image files matching the product title.
    * **Whitespace trimming**: Handles spaces before file extensions (e.g. `motor .jpg`).
 
 3. **Automatic Copy to `uploads/`**:
@@ -30,7 +31,7 @@ You can supply product images via local files or direct web URLs.
    And recorded in the database with relative URL paths like `/uploads/Arduino_Uno R3.jpg`.
 
 ### Option B: Direct Web Image URLs
-In your CSV, paste full HTTP/HTTPS image links:
+In your Excel/CSV sheet, paste full HTTP/HTTPS image links:
 ```csv
 skv,title,sale_price,image
 ARD-001,Arduino Uno R3,450,https://images.unsplash.com/photo-1553406830-ef2513450d76
@@ -38,12 +39,14 @@ ARD-001,Arduino Uno R3,450,https://images.unsplash.com/photo-1553406830-ef251345
 
 ---
 
-## 2. 📊 CSV File Format & Structure
+## 2. 📊 Excel (.xlsx) or CSV File Format & Structure
 
-Save your product file as **`products.csv`** (or export from Microsoft Excel as **CSV UTF-8 (Comma delimited) (*.csv)**) and place it inside:
+Place your new file directly inside:
 ```text
-backend/products.csv
+backend/products.xlsx
 ```
+*(or `backend/products.csv`)*
+
 
 ### Column Specifications
 
@@ -89,28 +92,44 @@ source myenv/bin/activate
 
 ### Step 3: Run the import script
 
-* **Normal Import / Update**:
+* **Direct Import / Update from Excel (.xlsx)**:
+  ```powershell
+  python import_products.py products.xlsx
+  ```
+
+* **Import / Update from CSV**:
   ```powershell
   python import_products.py products.csv
   ```
 
+* **Auto-Detect File** *(Runs whatever exists: products.xlsx or products.csv)*:
+  ```powershell
+  python import_products.py
+  ```
+
+* **With Custom Images Folder**:
+  ```powershell
+  python import_products.py products.xlsx --images-dir components
+  ```
+
 * **Fresh Reset & Re-Import** *(Wipes existing products & resets database IDs to 1)*:
   ```powershell
-  python import_products.py products.csv --reset
+  python import_products.py products.xlsx --reset
   ```
 
 ---
 
-## 🌐 5. Deploying Images to Live Production Hosting (Render + NeonDB)
+## 🌐 5. Deploying Images to Cloudinary CDN (Recommended)
 
-When running the import script against your live **NeonDB PostgreSQL** instance:
+When using Cloudinary for global, high-speed image delivery across Hostinger & Render:
 
-1. The script updates your live NeonDB database records.
-2. The product image files are copied into `backend/uploads/`.
-3. To deploy these local upload images to **Render** (so your live website can render them):
-   ```powershell
-   git add backend/uploads
-   git commit -m "feat: sync product images for live site"
-   git push origin main
-   ```
-4. Render will deploy the `backend/uploads` directory, and your live website will display all product images!
+```powershell
+cd backend
+myenv\Scripts\activate
+
+# Upload all local images to Cloudinary and update NeonDB with CDN URLs
+python sync_to_cloudinary.py
+```
+
+This immediately uploads any `/uploads/...` images to Cloudinary folder `tronix365_products` and replaces their paths in NeonDB with high-speed CDN URLs (`https://res.cloudinary.com/...`). Your live site on Hostinger will instantly display all images without requiring any file uploads to Hostinger.
+

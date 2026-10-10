@@ -85,13 +85,13 @@ const Footer = () => {
                         </h3>
                         <ul className="space-y-5">
                             <li>
-                                <a href="mailto:admin@tronix365.in" className="flex items-start gap-4 group">
+                                <a href="mailto:shubham.tronix365@gmail.com" className="flex items-start gap-4 group">
                                     <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-tronix-primary/20 group-hover:border-tronix-primary/50 transition-all shrink-0">
                                         <Mail size={18} className="text-gray-400 group-hover:text-tronix-primary transition-colors" />
                                     </div>
                                     <div>
                                         <p className="text-[10px] uppercase font-bold text-gray-500 tracking-widest mb-0.5">Drop an Email</p>
-                                        <p className="text-gray-300 group-hover:text-white text-sm font-medium transition-colors">admin@tronix365.in</p>
+                                        <p className="text-gray-300 group-hover:text-white text-sm font-medium transition-colors">shubham.tronix365@gmail.com</p>
                                     </div>
                                 </a>
                             </li>

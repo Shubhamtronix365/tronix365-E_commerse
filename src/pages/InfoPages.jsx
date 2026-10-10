@@ -89,10 +89,10 @@ export const Contact = () => {
                     <h3 className="text-white font-bold mb-2">Visit Us</h3>
                     <p className="text-sm text-gray-300 group-hover:text-white transition-colors">Tronix365, Near Datta Mandir<br />Sinhgad College Campus, Vadgaon Budruk<br />Pune, Maharashtra 411041</p>
                 </a>
-                <a href="mailto:admin@tronix365.in" className="bg-white/5 hover:bg-white/10 transition-colors p-6 rounded-xl flex flex-col items-center text-center group cursor-pointer border border-white/5 hover:border-violet-500/30">
+                <a href="mailto:shubham.tronix365@gmail.com" className="bg-white/5 hover:bg-white/10 transition-colors p-6 rounded-xl flex flex-col items-center text-center group cursor-pointer border border-white/5 hover:border-violet-500/30">
                     <Mail className="text-tronix-primary mb-4 group-hover:scale-110 transition-transform" size={32} />
                     <h3 className="text-white font-bold mb-2">Email Us</h3>
-                    <p className="text-sm text-gray-300 group-hover:text-white transition-colors">admin@tronix365.in<br />support@tronix365.in</p>
+                    <p className="text-sm text-gray-300 group-hover:text-white transition-colors">shubham.tronix365@gmail.com</p>
                 </a>
                 <a href="tel:+918830153805" className="bg-white/5 hover:bg-white/10 transition-colors p-6 rounded-xl flex flex-col items-center text-center group cursor-pointer border border-white/5 hover:border-violet-500/30">
                     <Phone className="text-tronix-primary mb-4 group-hover:scale-110 transition-transform" size={32} />
@@ -364,11 +364,11 @@ export const ReturnRefund = () => {
                         WhatsApp
                     </a>
                     <a 
-                        href="mailto:admin@tronix365.in" 
+                        href="mailto:shubham.tronix365@gmail.com" 
                         className="bg-tronix-primary hover:bg-violet-600 text-white font-bold px-5 py-2.5 rounded-xl transition-colors flex items-center gap-2 text-sm shadow-lg shadow-tronix-primary/20"
                     >
                         <Mail size={16} />
-                        admin@tronix365.in
+                        shubham.tronix365@gmail.com
                     </a>
                 </div>
             </div>

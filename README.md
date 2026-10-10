@@ -11,7 +11,12 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
 - **Smart Shopping Cart**: Persistent cart state, client-side validation, and instant coupon/discount application.
 - **Smart Catalog Sorting & Price Pending Prioritization**: Automatically identifies products imported from supplier catalogs without established retail prices (flagged `is_price_pending`), placing them gracefully at the very end of all shop catalog and category listings so active, priced inventory is always prioritized.
 - **Strict 2-Decimal Currency Precision & Accurate GST Engine**: Guarantees financial mathematical precision using standard INR formatting (2 decimal places). Eliminates JavaScript IEEE 754 floating-point issues (e.g. `65.46000000000001`) across shopping cart totals, checkout order summaries, mobile sticky action bars, PayU payment initiation, invoices, and database order records.
-- **Admin Inventory & Order Management**: Live product updates, order review authority, custom shipping courier selection, and coupon generator.
+- **Admin High-Capacity Inventory & Catalog Management**: Enterprise-grade product management designed for catalogs of any scale (300+ to 10,000+ items).
+  - **Dynamic Page Size Selector**: Switch instantly between 25, 50, 100, 250, or **"All Products"** (`limit=0`), eliminating repetitive clicks on "Load More".
+  - **Fast Multi-Field Server Search**: Instant debounced search querying product titles, descriptions, categories, and SKUs directly in PostgreSQL.
+  - **Comprehensive Multi-Dimensional Filters**: Filter by Category dropdown, Stock status pills (*All*, *In Stock*, *Low Stock $\le 10$*, *Out of Stock*), and Sort options (*Newest*, *Oldest*, *Name A–Z*, *Name Z–A*, *Price Low–High*, *Price High–Low*, *Stock Low–High*, *Stock High–Low*).
+  - **Interactive Numbered Pagination & Jump Controls**: First (`«`), Previous (`‹`), dynamic numbered window (`1, 2, 3 ...`), Next (`›`), and Last (`»`) controls with accurate item range indicators (`Showing 1–50 of 366 products`).
+  - **Product Productivity Enhancements**: 1-click SKU copying to clipboard, direct storefront product link (`ExternalLink`), real-time stock badges, and synchronized dual-tier image storage.
 - **Automated Order Lifecycle Email System**: Branded, responsive HTML email templates for all order statuses (Order Placed, Confirmed, Shipped, Out for Delivery, Delivered, Cancelled, Refunds, Returns, Exchanges).
 - **Mandatory Dual Recipients**: Every order notification email is automatically sent to both the registered customer and `shubham.tronix365@gmail.com`.
 - **Database Email Audit Logging**: Records every sent/failed email with recipient details, subject, order ID, status trigger, and timestamp.
@@ -49,7 +54,7 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
 - **Abandoned Cart Recovery & Automated Email Engine**:
   - Automatically identifies uncompleted shopping carts inactive for $\ge 1$ hour where no subsequent orders have been placed.
   - Anti-spam safeguard: stamps items with `abandoned_email_sent_at` and automatically resets upon customer cart interaction (`add_to_cart`, `update_cart_item`, `merge_cart`).
-  - Sends high-converting branded HTML recovery emails via Brevo with item thumbnails, quantities, subtotal, and an exclusive 5% incentive voucher code (`RECOVER5`).
+  - Sends branded HTML recovery reminder emails via Brevo with item thumbnails, quantities, subtotal, and 1-click cart resume CTA.
   - Mandatory dual-recipient compliance (`shubham.tronix365@gmail.com`) and audit logged into `EmailLogDB`.
   - Admin Dashboard "Abandoned Carts" management tab with real-time pending badges, customer search, pending/sent filters, and 1-click single & bulk reminder dispatching.
   - CLI / Cron background runner (`backend/scripts/abandoned_cart_check.py`) for automated background execution.
@@ -58,6 +63,11 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
   - Complete compliance with Indian GST laws: displays seller details (Tronix365 Technologies Pvt. Ltd., Pune, GSTIN `27AABCT3650Q1Z5`), HSN/SAC codes (8542 for ICs/boards, 8504 for power modules, 9031 for sensors), intra-state CGST (9%) + SGST (9%) or inter-state IGST (18%) breakdowns.
   - Full B2B support: includes customer company name, customer GSTIN, registered tax address, and Indian Rupee amount-in-words converter.
   - Print engine: scoped `@media print` CSS cleanly outputs directly to physical printers or browser **"Save as PDF"** without page clutter.
+- **Highlighted 2–3 Hour Preparation Notice (Store Pickup & Free Shipping)**:
+  - **Full Dual-Channel Synchrony**: Displayed prominently in transactional order emails and across the frontend ([`PaymentStatus.jsx`](file:///c:/Users/Hi/Desktop/tronix365-E_commerse/src/pages/PaymentStatus.jsx), [`OrderDetails.jsx`](file:///c:/Users/Hi/Desktop/tronix365-E_commerse/src/pages/OrderDetails.jsx), [`OrdersSection.jsx`](file:///c:/Users/Hi/Desktop/tronix365-E_commerse/src/components/dashboard/OrdersSection.jsx), and checkout shipping selector).
+  - **Exact Order Timestamping**: Explicitly renders the exact order placement time with hour, minute, and AM/PM format (e.g. `October 10, 2026 at 11:05 AM IST`).
+  - **Dynamic 2–3 Hour Readiness Window**: Calculates and displays the estimated readiness/dispatch window (`Within 2–3 Hours: 1:05 PM – 2:05 PM IST`).
+  - **Office Pickup Logistics**: Highlights Pune Office pickup counter location and operational hours (`9:30 AM – 6:00 PM`).
 - **Modernized Engineering Blog Platform & Security-Proof Admin Dashboard**:
   - **High-Presence Public Blog Hub (`/blogs`)**: Futuristic bento-grid layout featuring hero spotlight cards, category filter pills (Tutorials, Hardware Review, Robotics & AI, IoT, Guides), search bar, reading time metrics, and responsive author badges.
   - **Interactive Hardware Post Reader (`/blog/:slug`)**:
@@ -84,6 +94,22 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
   - **Self-Healing URL Redirects & Broken Link Prevention**: Automatic client-side redirects for legacy `/products` and `/products/:slug` paths to `/shop` with full URL query preservation (`/products?search=esp32` $\to$ `/shop?search=esp32`).
   - **Interactive Multi-Channel Blog Sharing (`BlogShareModal.jsx`)**: Native Web Share API integration, 1-click canonical clipboard copy with instant feedback, direct channels (WhatsApp, Telegram, X/Twitter, LinkedIn, Facebook, Email), and QR code preview across both the main blog cards and detailed article view.
 - **Rate Limiting & Caching**: Security features with Slowapi rate limiters and Redis/InMemory backend caching.
+- **Intelligent Payment Bounce & Cancellation Diagnostics (PayU Integration)**:
+  - **Elimination of Ambiguous "Pending" Flags**: Prevents abandoned, cancelled, or bank-declined checkout transactions from remaining vaguely marked as "Pending" in the system.
+  - **Automated Gateway Diagnostics Capture**: Captures PayU parameters (`unmappedstatus`, `error`, `error_Message`) on payment callbacks to record exact bank diagnostic reasons.
+  - **Distinct Order Lifecycle States**:
+    - `payment_bounced`: Triggered when card issuers or banks decline transactions (card authorization failure, daily spending limits, insufficient balance). Highlighted with amber badges, bank reason chips, and 1-click retry.
+    - `payment_cancelled`: Triggered when the user cancels checkout before completion. Highlighted with rose badges and logged into the audit trail.
+    - `payment_failed`: Triggered on transaction timeouts or network gateway errors.
+    - `payment_received`: Triggered upon verified payment clearance.
+  - **Admin Orders Segmentation Tabs**: Direct tab filters for *All Orders*, *✓ Payment Received*, *⏳ Awaiting Payment*, *⚠ Payment Bounced*, *⊘ Payment Cancelled*, *✕ Payment Failed*, *📦 Shipped*, and *🎉 Delivered*.
+  - **Synchronized Multi-Screen User Experience**: Reflected identically across Admin Order Details Modal, Customer Order Details ([`OrderDetails.jsx`](file:///c:/Users/Hi/Desktop/tronix365-E_commerse/src/pages/OrderDetails.jsx)), User Profile Dashboard ([`OrdersSection.jsx`](file:///c:/Users/Hi/Desktop/tronix365-E_commerse/src/components/dashboard/OrdersSection.jsx)), and Checkout Return screen ([`PaymentStatus.jsx`](file:///c:/Users/Hi/Desktop/tronix365-E_commerse/src/pages/PaymentStatus.jsx)).
+- **Dual-Fulfillment B2B Tower Order Architecture (Immediate Stock + Factory Indent Query)**:
+  - **Visual Distinction for Sourcing Types**:
+    - **`⚡ Payment + B2B Query`**: Split hybrid orders where the customer purchases immediate warehouse stock (e.g. 10 units paid and cleared) while requesting the remaining quantity as a factory procurement RFQ indent.
+    - **`🏭 Pure B2B Tower Query`**: 100% factory indent RFQ inquiries for backorders and non-inventory electronic components.
+  - **Admin Sourcing Dashboard Tabs**: Fast filters for *All Sourcing Orders*, *⚡ Payment + B2B Query (Split)*, and *🏭 Pure B2B Tower Queries*.
+  - **Two-Phase Fulfillment Strategy Modal**: Transparent breakdown showing **Phase 1: In-Stock Immediate Payment & Dispatch** and **Phase 2: B2B Factory Indent Sourcing Query**.
 - **Automated National-Level Shiprocket Logistics Engine**:
   - **Zero-Touch Automated Order Dispatch**: When a customer places an order with courier shipping (Surface, Express, Standard), the backend automatically registers the order with Shiprocket via background workers without blocking checkout response times.
   - **Smart Local Pickup & Free Delivery Filter**: Orders placed with Store Pickup, Office Pickup, or Free Delivery bypass Shiprocket completely and are reserved for in-house fulfillment.

@@ -148,9 +148,9 @@ export const ContactSection = () => {
                                 },
                                 { 
                                     icon: <Mail size={24} />, 
-                                    text: "admin@tronix365.in", 
+                                    text: "shubham.tronix365@gmail.com", 
                                     label: "Email Support",
-                                    href: "mailto:admin@tronix365.in" 
+                                    href: "mailto:shubham.tronix365@gmail.com" 
                                 },
                                 { 
                                     icon: <Phone size={24} />, 

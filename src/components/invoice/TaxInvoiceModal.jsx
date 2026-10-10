@@ -176,7 +176,7 @@ const TaxInvoiceModal = ({ isOpen, onClose, order }) => {
                                 <strong>GSTIN:</strong> 27AABCT3650Q1Z5 &nbsp;|&nbsp; <strong>State Code:</strong> 27 (Maharashtra)
                             </p>
                             <p className="text-gray-600 text-xs">
-                                <strong>Email:</strong> support@tronix365.in &nbsp;|&nbsp; <strong>Web:</strong> www.tronix365.in
+                                <strong>Email:</strong> shubham.tronix365@gmail.com &nbsp;|&nbsp; <strong>Web:</strong> www.tronix365.in
                             </p>
                         </div>
 
