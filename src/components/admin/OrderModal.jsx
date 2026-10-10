@@ -24,18 +24,20 @@ const PRESET_COURIERS = [
 ];
 
 const ORDER_STATUS_OPTIONS = [
-    { value: "pending", label: "Pending Verification" },
-    { value: "confirmed", label: "Order Confirmed" },
+    { value: "pending", label: "Awaiting Payment / Verification" },
+    { value: "confirmed", label: "Payment Confirmed / Received" },
     { value: "payment_received", label: "Payment Received" },
+    { value: "payment_bounced", label: "Payment Bounced" },
+    { value: "payment_cancelled", label: "Payment Cancelled" },
+    { value: "payment_failed", label: "Payment Failed" },
     { value: "processing", label: "Order Processing" },
     { value: "packed", label: "Packed & Sealed" },
     { value: "shipped", label: "Dispatched / Shipped" },
     { value: "out_for_delivery", label: "Out for Delivery" },
     { value: "delivered", label: "Delivered" },
-    { value: "cancelled", label: "Cancelled" },
+    { value: "cancelled", label: "Order Cancelled" },
     { value: "refund_initiated", label: "Refund Initiated" },
     { value: "refund_completed", label: "Refund Completed" },
-    { value: "failed_payment", label: "Payment Failed" },
     { value: "return_requested", label: "Return Requested" },
     { value: "return_approved", label: "Return Approved" },
     { value: "return_rejected", label: "Return Declined" },
@@ -197,14 +199,21 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                                     <div>
                                         <h2 className="text-sm sm:text-lg font-extrabold text-white flex flex-wrap items-center gap-1.5 sm:gap-2">
                                             Order #order_tronix_{String(order.id).padStart(4, '0')}
-                                            <span className={`px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider ${
-                                                order.status === 'confirmed' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
-                                                order.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+                                            <span className={`px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider ${
+                                                order.status === 'confirmed' || order.status === 'payment_received' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                                                order.status === 'payment_bounced' || order.status === 'bounced' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' :
+                                                order.status === 'payment_cancelled' || order.status === 'cancelled' ? 'bg-orange-500/20 text-orange-300 border border-orange-500/40' :
+                                                order.status === 'payment_failed' || order.status === 'failed' ? 'bg-red-500/20 text-red-300 border border-red-500/40' :
                                                 order.status === 'shipped' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
                                                 order.status === 'delivered' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
-                                                'bg-red-500/20 text-red-400 border border-red-500/30'
+                                                'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
                                             }`}>
-                                                {order.status}
+                                                {order.status === 'confirmed' || order.status === 'payment_received' ? '✓ Payment Received' :
+                                                 order.status === 'payment_bounced' || order.status === 'bounced' ? '⚠ Payment Bounced' :
+                                                 order.status === 'payment_cancelled' || order.status === 'cancelled' ? '⊘ Payment Cancelled' :
+                                                 order.status === 'payment_failed' || order.status === 'failed' ? '✕ Payment Failed' :
+                                                 order.status === 'pending' ? '⏳ Awaiting Payment' :
+                                                 order.status.replace('_', ' ')}
                                             </span>
                                         </h2>
                                         <p className="text-[10px] sm:text-xs text-gray-400 flex items-center gap-1.5 mt-0.5">
@@ -223,6 +232,79 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
 
                             {/* Modal Content Scrollable Area */}
                             <div className="p-6 overflow-y-auto space-y-6 flex-1 text-sm custom-scrollbar">
+
+                                {/* Prominent Payment Status & Diagnostics Banner */}
+                                {order.status === 'payment_bounced' || order.status === 'bounced' ? (
+                                    <div className="p-4 rounded-xl bg-rose-500/15 border border-rose-500/30 space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-xs uppercase tracking-wider font-bold text-rose-300 flex items-center gap-1.5">
+                                                <AlertTriangle size={15} /> Payment Bounced Notice
+                                            </p>
+                                            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-200">
+                                                TXN: {order.txnid || 'N/A'}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-rose-200">
+                                            <strong>Diagnostic:</strong> {order.cancellation_reason || 'The transaction was declined or bounced by the customer\'s bank/card network.'}
+                                        </p>
+                                    </div>
+                                ) : order.status === 'payment_cancelled' || order.status === 'cancelled' ? (
+                                    <div className="p-4 rounded-xl bg-orange-500/15 border border-orange-500/30 space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-xs uppercase tracking-wider font-bold text-orange-300 flex items-center gap-1.5">
+                                                <X size={15} /> Payment Cancelled Record
+                                            </p>
+                                            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-orange-500/20 text-orange-200">
+                                                TXN: {order.txnid || 'N/A'}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-orange-200">
+                                            <strong>Reason:</strong> {order.cancellation_reason || 'Customer cancelled transaction or aborted checkout at gateway.'}
+                                        </p>
+                                    </div>
+                                ) : order.status === 'payment_failed' || order.status === 'failed' ? (
+                                    <div className="p-4 rounded-xl bg-red-500/15 border border-red-500/30 space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-xs uppercase tracking-wider font-bold text-red-300 flex items-center gap-1.5">
+                                                <AlertTriangle size={15} /> Payment Authorization Failed
+                                            </p>
+                                            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-red-500/20 text-red-200">
+                                                TXN: {order.txnid || 'N/A'}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-red-200">
+                                            <strong>Error Details:</strong> {order.cancellation_reason || 'Gateway declined authorization or transaction timed out.'}
+                                        </p>
+                                    </div>
+                                ) : order.status === 'pending' ? (
+                                    <div className="p-4 rounded-xl bg-amber-500/15 border border-amber-500/30 space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-xs uppercase tracking-wider font-bold text-amber-300 flex items-center gap-1.5">
+                                                <Clock size={15} /> Awaiting Payment Confirmation
+                                            </p>
+                                            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-200">
+                                                TXN: {order.txnid || 'Pending'}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-amber-200">
+                                            Checkout was initiated by customer. Payment confirmation has not yet been received from gateway. You can confirm manually if funds were received via NEFT/UPI.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/30 space-y-1">
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-xs uppercase tracking-wider font-bold text-emerald-300 flex items-center gap-1.5">
+                                                <Check size={15} /> Payment Verified & Order Confirmed
+                                            </p>
+                                            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-200">
+                                                TXN: {order.txnid || 'Verified'}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-emerald-200">
+                                            Payment captured and verified. Amount: ₹{Number(order.total_amount || 0).toLocaleString()}.
+                                        </p>
+                                    </div>
+                                )}
                                 
                                 {/* Quick Status Management Bar */}
                                 <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
@@ -232,15 +314,31 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
 
                                     {/* Action Buttons */}
                                     <div className="flex flex-wrap items-center gap-2">
-                                        {order.status === 'pending' && (
+                                        {order.status !== 'confirmed' && order.status !== 'payment_received' && (
                                             <button
                                                 onClick={() => onUpdateOrderStatus(order.id, { status: 'confirmed' })}
                                                 className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-1.5"
                                             >
-                                                <Check size={14} /> Confirm Order
+                                                <Check size={14} /> Mark Payment Confirmed
                                             </button>
                                         )}
-                                        {order.status === 'confirmed' && (
+                                        {order.status !== 'payment_bounced' && (
+                                            <button
+                                                onClick={() => onUpdateOrderStatus(order.id, { status: 'payment_bounced', cancellation_reason: 'Payment Bounced: Bank declined transaction' })}
+                                                className="px-4 py-2 bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-500/30 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5"
+                                            >
+                                                <AlertTriangle size={14} /> Mark Payment Bounced
+                                            </button>
+                                        )}
+                                        {order.status !== 'payment_cancelled' && order.status !== 'cancelled' && (
+                                            <button
+                                                onClick={() => onUpdateOrderStatus(order.id, { status: 'payment_cancelled', cancellation_reason: 'Payment Cancelled by customer' })}
+                                                className="px-4 py-2 bg-orange-500/20 hover:bg-orange-500 text-orange-300 hover:text-white border border-orange-500/30 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5"
+                                            >
+                                                <X size={14} /> Mark Payment Cancelled
+                                            </button>
+                                        )}
+                                        {(order.status === 'confirmed' || order.status === 'payment_received') && (
                                             <button
                                                 onClick={() => handleOpenShippingModal('shipped')}
                                                 className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold text-xs transition-all shadow-lg shadow-blue-500/20 flex items-center gap-1.5"
@@ -269,7 +367,7 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                                                 onClick={() => setIsCancelModalOpen(true)}
                                                 className="px-4 py-2 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5"
                                             >
-                                                <X size={14} /> Cancel Order
+                                                <X size={14} /> Full Cancel Order
                                             </button>
                                         )}
                                     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { Package, Users, DollarSign, TrendingUp, Plus, Search, Edit, Trash2, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -48,66 +48,114 @@ const AdminDashboard = () => {
 
     const isFirstMount = useRef(true);
 
-    const filteredProducts = products;
-
     const filteredOrders = orders.filter(o => {
-        const matchesStatus = orderStatusFilter === 'All' ||
-            (o.status && o.status.toLowerCase() === orderStatusFilter.toLowerCase());
-
-        return matchesStatus;
+        if (orderStatusFilter === 'All') return true;
+        const s = (o.status || '').toLowerCase();
+        const f = orderStatusFilter.toLowerCase();
+        if (f === 'failed') return s === 'failed' || s === 'payment_failed';
+        if (f === 'bounced') return s === 'bounced' || s === 'payment_bounced';
+        if (f === 'cancelled') return s === 'cancelled' || s === 'payment_cancelled' || s === 'deleted';
+        if (f === 'confirmed') return s === 'confirmed' || s === 'payment_received';
+        if (f === 'shipped') return s === 'shipped' || s === 'out_for_delivery';
+        return s === f;
     });
 
-    // Fetch search data from backend dynamically
-    const fetchSearchData = async () => {
+    // Product Management State (High-Capacity Pagination & Filtering)
+    const [productPage, setProductPage] = useState(1);
+    const [productPageSize, setProductPageSize] = useState(50);
+    const [productSearch, setProductSearch] = useState('');
+    const [debouncedProductSearch, setDebouncedProductSearch] = useState('');
+    const [productCategory, setProductCategory] = useState('All');
+    const [productStockFilter, setProductStockFilter] = useState('all');
+    const [productSortBy, setProductSortBy] = useState('id_desc');
+    const [totalProductsCount, setTotalProductsCount] = useState(0);
+    const [loadingProducts, setLoadingProducts] = useState(false);
+
+    // Orders Pagination State
+    const [ordersPage, setOrdersPage] = useState(1);
+    const [hasMoreOrders, setHasMoreOrders] = useState(true);
+    const ORDERS_LIMIT = 10;
+
+    const [loading, setLoading] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [error, setError] = useState(null);
+
+    // Debounce product search input
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedProductSearch(productSearch);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [productSearch]);
+
+    // Fetch Products (Server-side Pagination, Filters, and Search)
+    const fetchAdminProducts = useCallback(async () => {
+        setLoadingProducts(true);
         try {
-            const prodRes = await client.get(`/products?skip=0&limit=${LIMIT}&search=${searchQuery}`);
-            setProducts(prodRes.data);
-            setProductsPage(1);
-            if (prodRes.data.length < LIMIT) {
-                setHasMoreProducts(false);
-            } else {
-                setHasMoreProducts(true);
+            const isShowAll = productPageSize === 'all' || productPageSize === 0;
+            const limit = isShowAll ? 0 : Number(productPageSize);
+            const skip = isShowAll ? 0 : (productPage - 1) * limit;
+
+            const params = new URLSearchParams();
+            params.append('skip', String(skip));
+            params.append('limit', String(limit));
+            if (debouncedProductSearch && debouncedProductSearch.trim()) {
+                params.append('search', debouncedProductSearch.trim());
+            }
+            if (productCategory && productCategory !== 'All') {
+                params.append('category', productCategory);
+            }
+            if (productStockFilter === 'in_stock') {
+                params.append('in_stock_only', 'true');
+            }
+            if (productSortBy) {
+                params.append('sort_by', productSortBy);
             }
 
-            const ordRes = await client.get(`/orders?skip=0&limit=${LIMIT}&search=${searchQuery}`);
-            setOrders(ordRes.data);
-            setOrdersPage(1);
-            if (ordRes.data.length < LIMIT) {
-                setHasMoreOrders(false);
+            const res = await client.get(`/products?${params.toString()}`);
+            setProducts(res.data);
+
+            const countHeader = res.headers['x-total-count'];
+            if (countHeader !== undefined && countHeader !== null) {
+                setTotalProductsCount(parseInt(countHeader, 10));
             } else {
-                setHasMoreOrders(true);
+                setTotalProductsCount(res.data.length);
             }
-        } catch (error) {
-            console.error("Error searching admin data:", error);
+        } catch (err) {
+            console.error("Failed to fetch admin products:", err);
+            toast.error("Failed to load products");
+        } finally {
+            setLoadingProducts(false);
         }
-    };
+    }, [productPage, productPageSize, debouncedProductSearch, productCategory, productStockFilter, productSortBy]);
 
-    // Debounced search logic
+    // Trigger product fetch whenever query parameters change
+    useEffect(() => {
+        fetchAdminProducts();
+    }, [fetchAdminProducts]);
+
+    // Debounced orders search
     useEffect(() => {
         if (isFirstMount.current) {
             isFirstMount.current = false;
             return;
         }
 
-        const delayDebounceFn = setTimeout(() => {
-            fetchSearchData();
+        const delayDebounceFn = setTimeout(async () => {
+            try {
+                const ordRes = await client.get(`/orders?skip=0&limit=${ORDERS_LIMIT}&search=${searchQuery}`);
+                setOrders(ordRes.data);
+                setOrdersPage(1);
+                setHasMoreOrders(ordRes.data.length >= ORDERS_LIMIT);
+            } catch (error) {
+                console.error("Error searching orders:", error);
+            }
         }, 300);
 
         return () => clearTimeout(delayDebounceFn);
     }, [searchQuery]);
 
-    // Pagination States
-    const [productsPage, setProductsPage] = useState(1);
-    const [ordersPage, setOrdersPage] = useState(1);
-    const [hasMoreProducts, setHasMoreProducts] = useState(true);
-    const [hasMoreOrders, setHasMoreOrders] = useState(true);
-    const LIMIT = 10;
-
-    const [loading, setLoading] = useState(true);
-    const [loadingMore, setLoadingMore] = useState(false);
-    const [error, setError] = useState(null);
-
-    // Initial Load
+    // Initial Load (Dashboard Stats, Orders, Abandoned Carts)
     useEffect(() => {
         const fetchInitialData = async () => {
             setLoading(true);
@@ -116,15 +164,10 @@ const AdminDashboard = () => {
                 const statsRes = await client.get('/admin/stats');
                 setStats(statsRes.data);
 
-                // Fetch Initial Products
-                const prodRes = await client.get(`/products?skip=0&limit=${LIMIT}`);
-                setProducts(prodRes.data);
-                if (prodRes.data.length < LIMIT) setHasMoreProducts(false);
-
                 // Fetch Initial Orders
-                const ordRes = await client.get(`/orders?skip=0&limit=${LIMIT}`);
+                const ordRes = await client.get(`/orders?skip=0&limit=${ORDERS_LIMIT}`);
                 setOrders(ordRes.data);
-                if (ordRes.data.length < LIMIT) setHasMoreOrders(false);
+                if (ordRes.data.length < ORDERS_LIMIT) setHasMoreOrders(false);
 
                 // Fetch Pending Abandoned Carts Count
                 try {
@@ -136,7 +179,6 @@ const AdminDashboard = () => {
 
             } catch (error) {
                 console.error('Error fetching admin data:', error);
-                // Fallback to mock/zeros if backend fails (graceful degradation)
                 setError("Failed to load dashboard data. Ensure backend is running.");
             } finally {
                 setLoading(false);
@@ -145,28 +187,19 @@ const AdminDashboard = () => {
         fetchInitialData();
     }, []);
 
+    // Load more for Orders
     const loadMore = async () => {
         setLoadingMore(true);
         try {
-            if (activeTab === 'products') {
-                const nextSkip = productsPage * LIMIT;
-                const res = await client.get(`/products?skip=${nextSkip}&limit=${LIMIT}&search=${searchQuery}`);
-                const newItems = res.data;
+            const nextSkip = ordersPage * ORDERS_LIMIT;
+            const res = await client.get(`/orders?skip=${nextSkip}&limit=${ORDERS_LIMIT}&search=${searchQuery}`);
+            const newItems = res.data;
 
-                setProducts(prev => [...prev, ...newItems]);
-                setProductsPage(prev => prev + 1);
-                if (newItems.length < LIMIT) setHasMoreProducts(false);
-            } else {
-                const nextSkip = ordersPage * LIMIT;
-                const res = await client.get(`/orders?skip=${nextSkip}&limit=${LIMIT}&search=${searchQuery}`);
-                const newItems = res.data;
-
-                setOrders(prev => [...prev, ...newItems]);
-                setOrdersPage(prev => prev + 1);
-                if (newItems.length < LIMIT) setHasMoreOrders(false);
-            }
+            setOrders(prev => [...prev, ...newItems]);
+            setOrdersPage(prev => prev + 1);
+            if (newItems.length < ORDERS_LIMIT) setHasMoreOrders(false);
         } catch (err) {
-            toast.error("Failed to load more items");
+            toast.error("Failed to load more orders");
         } finally {
             setLoadingMore(false);
         }
@@ -265,13 +298,14 @@ const AdminDashboard = () => {
             if (editingProduct) {
                 // Update existing
                 const res = await client.put(`/products/${editingProduct.id}`, payload);
-                setProducts(products.map(p => p.id === editingProduct.id ? res.data : p));
+                setProducts(prev => prev.map(p => p.id === editingProduct.id ? res.data : p));
                 toast.success('Product updated successfully');
             } else {
                 // Create new
-                const res = await client.post('/products', payload);
-                setProducts([res.data, ...products]);
+                await client.post('/products', payload);
                 toast.success('Product added successfully');
+                fetchAdminProducts();
+                setStats(prev => ({ ...prev, total_products: (prev.total_products || 0) + 1 }));
             }
             setIsAddProductOpen(false);
             setNewProduct({ 
@@ -315,10 +349,13 @@ const AdminDashboard = () => {
         if (!productToDelete) return;
         try {
             await client.delete(`/products/${productToDelete.id}`);
-            setProducts(products.filter(p => p.id !== productToDelete.id));
+            setProducts(prev => prev.filter(p => p.id !== productToDelete.id));
+            setTotalProductsCount(prev => Math.max(0, prev - 1));
+            setStats(prev => ({ ...prev, total_products: Math.max(0, (prev.total_products || 1) - 1) }));
             toast.success('Product deleted successfully');
             setIsDeleteModalOpen(false);
             setProductToDelete(null);
+            fetchAdminProducts();
         } catch (error) {
             console.error("Delete product error:", error);
             toast.error('Failed to delete product');
@@ -560,28 +597,42 @@ const AdminDashboard = () => {
                             </button>
                         </div>
 
-                        <div className="relative mt-4 sm:mt-0 w-full sm:w-auto">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
-                            <input
-                                type="text"
-                                placeholder="Search..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="bg-black/20 border border-white/10 rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-tronix-primary w-full sm:w-64 transition-all focus:sm:w-72"
-                            />
-                        </div>
+                        {activeTab === 'orders' && (
+                            <div className="relative mt-4 sm:mt-0 w-full sm:w-auto">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
+                                <input
+                                    type="text"
+                                    placeholder="Search orders..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="bg-black/20 border border-white/10 rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-tronix-primary w-full sm:w-64 transition-all focus:sm:w-72"
+                                />
+                            </div>
+                        )}
                     </div>
 
                     <div className="p-6 flex-1">
                         {activeTab === 'products' && (
                             <ProductTable 
-                                products={filteredProducts}
-                                searchQuery={searchQuery}
+                                products={products}
+                                totalProducts={totalProductsCount}
+                                searchQuery={productSearch}
+                                setSearchQuery={setProductSearch}
+                                categoryFilter={productCategory}
+                                setCategoryFilter={setProductCategory}
+                                stockFilter={productStockFilter}
+                                setStockFilter={setProductStockFilter}
+                                sortBy={productSortBy}
+                                setSortBy={setProductSortBy}
+                                pageSize={productPageSize}
+                                setPageSize={setProductPageSize}
+                                currentPage={productPage}
+                                setCurrentPage={setProductPage}
+                                categories={categories}
+                                loading={loadingProducts}
+                                onRefresh={fetchAdminProducts}
                                 handleOpenEditModal={handleOpenEditModal}
                                 handleDeleteClick={handleDeleteClick}
-                                hasMoreProducts={hasMoreProducts}
-                                loadMore={loadMore}
-                                loadingMore={loadingMore}
                             />
                         )}
 
