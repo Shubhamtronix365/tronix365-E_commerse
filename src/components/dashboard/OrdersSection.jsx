@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Package, Calendar, Eye, FileText } from 'lucide-react';
+import { Package, Calendar, Eye, FileText, Clock, Store, Zap } from 'lucide-react';
 import TaxInvoiceModal from '../invoice/TaxInvoiceModal';
+import { formatOrderDateTime, isPickupOrFreeShipping } from '../../utils/orderUtils';
 
 const OrdersSection = ({
     orders,
@@ -81,23 +81,31 @@ const OrdersSection = ({
                                 <div>
                                     <h3 className="text-white font-bold text-lg leading-tight flex items-center gap-2">
                                         Order #order_tronix_{String(order.id).padStart(4, '0')}
-                                        <span className="text-xs font-normal text-gray-500 flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded-md border border-white/5">
-                                            <Calendar size={12} />
-                                            {order.created_at
-                                                ? new Date(order.created_at).toLocaleDateString(undefined, {
-                                                      month: 'short',
-                                                      day: 'numeric',
-                                                      year: 'numeric',
-                                                  })
-                                                : 'N/A'}
+                                        <span className="text-xs font-normal text-gray-400 flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded-md border border-white/5">
+                                            <Clock size={12} className="text-violet-400" />
+                                            {formatOrderDateTime(order.created_at)}
                                         </span>
                                     </h3>
-                                    {order.courier && (
-                                        <p className="text-xs text-blue-300 font-medium mt-0.5 flex items-center gap-1">
-                                            🚚 Courier: <strong className="text-white">{order.courier}</strong>{' '}
-                                            {order.tracking_number ? `(${order.tracking_number})` : ''}
-                                        </p>
-                                    )}
+                                    <div className="flex flex-wrap items-center gap-2 mt-1">
+                                        {isPickupOrFreeShipping(order).isPickup && (
+                                            <span className="text-[11px] font-bold text-violet-300 bg-violet-500/20 px-2 py-0.5 rounded-md border border-violet-500/30 flex items-center gap-1">
+                                                <Store size={11} className="text-violet-400" />
+                                                Store Pickup (Ready in 2–3 hrs)
+                                            </span>
+                                        )}
+                                        {isPickupOrFreeShipping(order).isFreeShipping && (
+                                            <span className="text-[11px] font-bold text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-md border border-emerald-500/30 flex items-center gap-1">
+                                                <Zap size={11} className="text-emerald-400" />
+                                                Free Shipping (Ready in 2–3 hrs)
+                                            </span>
+                                        )}
+                                        {order.courier && (
+                                            <p className="text-xs text-blue-300 font-medium flex items-center gap-1">
+                                                🚚 <strong className="text-white">{order.courier}</strong>{' '}
+                                                {order.tracking_number ? `(${order.tracking_number})` : ''}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
@@ -130,8 +138,14 @@ const OrdersSection = ({
                                     </p>
                                     <span
                                         className={`px-2.5 py-1 rounded-md text-[10px] uppercase tracking-wider font-bold ${
-                                            order.status === 'confirmed'
+                                            order.status === 'confirmed' || order.status === 'payment_received'
                                                 ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+                                                : order.status === 'payment_bounced'
+                                                ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                                                : order.status === 'payment_cancelled'
+                                                ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
+                                                : order.status === 'payment_failed'
+                                                ? 'bg-red-500/15 text-red-400 border border-red-500/30'
                                                 : order.status === 'pending'
                                                 ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
                                                 : order.status === 'shipped' || order.status === 'out_for_delivery'
@@ -143,11 +157,19 @@ const OrdersSection = ({
                                     >
                                         {order.status === 'confirmed'
                                             ? 'Order Confirmed'
+                                            : order.status === 'payment_received'
+                                            ? 'Payment Received'
+                                            : order.status === 'payment_bounced'
+                                            ? 'Payment Bounced'
+                                            : order.status === 'payment_cancelled'
+                                            ? 'Payment Cancelled'
+                                            : order.status === 'payment_failed'
+                                            ? 'Payment Failed'
                                             : order.status === 'pending'
-                                            ? 'Pending Approval'
+                                            ? 'Awaiting Payment'
                                             : order.status === 'deleted' || order.status === 'cancelled'
-                                            ? 'Cancelled (Refund 3-7 days)'
-                                            : order.status.replace('_', ' ')}
+                                            ? 'Cancelled'
+                                            : order.status.replace(/_/g, ' ')}
                                     </span>
                                 </div>
                             </div>

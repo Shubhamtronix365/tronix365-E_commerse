@@ -12,6 +12,8 @@ import {
     MapPin, 
     CreditCard,
     AlertCircle,
+    AlertTriangle,
+    Ban,
     Loader
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -19,10 +21,14 @@ import { useCart } from '../context/CartContext';
 import client from '../api/client';
 import { getImageUrl } from '../utils/imageUtils';
 import GoogleCustomerReviewsOptIn from '../components/GoogleCustomerReviewsOptIn';
+import OrderReadyNotice from '../components/common/OrderReadyNotice';
+import { formatOrderDateTime } from '../utils/orderUtils';
 
 const PaymentStatus = () => {
     const [searchParams] = useSearchParams();
     const txnid = searchParams.get('txnid');
+    const statusParam = (searchParams.get('status') || '').toLowerCase();
+    const reasonParam = searchParams.get('reason') || '';
     const navigate = useNavigate();
     const { clearCart } = useCart();
 
@@ -30,8 +36,10 @@ const PaymentStatus = () => {
     const [loadingOrder, setLoadingOrder] = useState(true);
     const [retrying, setRetrying] = useState(false);
 
-    // Determine status based on URL path
+    // Determine status based on URL path & query parameters
     const isSuccess = window.location.pathname.includes('success');
+    const isBounced = !isSuccess && (order?.status === 'payment_bounced' || statusParam.includes('bounce'));
+    const isCancelled = !isSuccess && (order?.status === 'payment_cancelled' || statusParam.includes('cancel'));
 
     // Fetch order details by Transaction ID
     useEffect(() => {
@@ -128,6 +136,22 @@ const PaymentStatus = () => {
                             >
                                 <CheckCircle className="text-emerald-500 w-24 h-24 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]" />
                             </motion.div>
+                        ) : isBounced ? (
+                            <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                            >
+                                <AlertTriangle className="text-amber-400 w-24 h-24 drop-shadow-[0_0_15px_rgba(251,191,36,0.35)]" />
+                            </motion.div>
+                        ) : isCancelled ? (
+                            <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                            >
+                                <Ban className="text-rose-400 w-24 h-24 drop-shadow-[0_0_15px_rgba(251,113,133,0.35)]" />
+                            </motion.div>
                         ) : (
                             <motion.div
                                 initial={{ scale: 0 }}
@@ -140,12 +164,22 @@ const PaymentStatus = () => {
                     </div>
 
                     <h1 className="text-3xl sm:text-4xl font-display font-bold text-white mb-3">
-                        {isSuccess ? 'Payment Successful!' : 'Payment Failed'}
+                        {isSuccess 
+                            ? 'Payment Successful!' 
+                            : isBounced 
+                            ? 'Payment Bounced / Bank Declined' 
+                            : isCancelled 
+                            ? 'Payment Cancelled' 
+                            : 'Payment Failed'}
                     </h1>
 
                     <p className="text-gray-400 max-w-md mx-auto mb-6 text-sm sm:text-base">
                         {isSuccess
-                            ? "Thank you! Your transaction completed successfully. Your order is placed and pending admin confirmation."
+                            ? "Thank you! Your transaction completed successfully. Your order is placed and pending fulfillment."
+                            : isBounced
+                            ? (reasonParam || order?.cancellation_reason || "Your bank or card issuer declined the transaction (e.g. card limit, insufficient funds, or authentication bounce). Your order is saved and you can retry below.")
+                            : isCancelled
+                            ? "Checkout was cancelled before the transaction was completed. Your cart and order details are safe, and you can retry anytime below."
                             : "We couldn't process your payment. Your cart remains intact, and you can try again below."}
                     </p>
 
@@ -184,12 +218,40 @@ const PaymentStatus = () => {
                                     <div className="flex items-center gap-3">
                                         <Calendar className="text-gray-400" size={20} />
                                         <div>
-                                            <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">Order Date</p>
+                                            <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">Order Placed At</p>
                                             <p className="text-white font-medium text-sm">
-                                                {order.created_at ? new Date(order.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
+                                                {formatOrderDateTime(order.created_at)}
                                             </p>
                                         </div>
                                     </div>
+                                    <div className="flex items-center">
+                                        {order.status === 'payment_bounced' ? (
+                                            <span className="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1.5 shadow-sm">
+                                                <AlertTriangle size={13} className="text-amber-400" /> Payment Bounced
+                                            </span>
+                                        ) : order.status === 'payment_cancelled' ? (
+                                            <span className="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-rose-500/15 text-rose-300 border border-rose-500/30 flex items-center gap-1.5 shadow-sm">
+                                                <Ban size={13} className="text-rose-400" /> Payment Cancelled
+                                            </span>
+                                        ) : order.status === 'payment_failed' ? (
+                                            <span className="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-red-500/15 text-red-300 border border-red-500/30 flex items-center gap-1.5 shadow-sm">
+                                                <XCircle size={13} className="text-red-400" /> Payment Failed
+                                            </span>
+                                        ) : order.status === 'payment_received' || order.status === 'confirmed' ? (
+                                            <span className="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5 shadow-sm">
+                                                <CheckCircle size={13} className="text-emerald-400" /> Payment Confirmed
+                                            </span>
+                                        ) : (
+                                            <span className="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-yellow-500/15 text-yellow-300 border border-yellow-500/30 flex items-center gap-1.5">
+                                                ⏳ Awaiting Payment
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Highlighted Order Ready / Pickup Notice */}
+                                <div className="px-6 pt-6">
+                                    <OrderReadyNotice order={order} />
                                 </div>
 
                                 {/* Items list */}

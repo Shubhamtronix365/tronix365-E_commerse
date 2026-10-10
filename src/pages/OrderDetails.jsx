@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Package, ChevronLeft, CheckCircle, Clock, XCircle, FileText, Truck, CreditCard, User, Check, Calendar, AlertTriangle, Printer } from 'lucide-react';
+import { Package, ChevronLeft, CheckCircle, Clock, XCircle, FileText, Truck, CreditCard, User, Check, Calendar, AlertTriangle, Ban, Printer } from 'lucide-react';
 import toast from 'react-hot-toast';
 import client from '../api/client';
 import { getImageUrl } from '../utils/imageUtils';
 import TaxInvoiceModal from '../components/invoice/TaxInvoiceModal';
 import { slugify } from '../utils/slugify';
+import OrderReadyNotice from '../components/common/OrderReadyNotice';
+import { formatOrderDateTime } from '../utils/orderUtils';
 
 const OrderDetails = () => {
     const { id } = useParams();
@@ -39,7 +41,22 @@ const OrderDetails = () => {
         return <div className="min-h-screen pt-24 text-center text-white">Order not found.</div>;
     }
 
-    const formattedStatus = order.status ? order.status.replace('_', ' ').toUpperCase() : 'PENDING';
+    const formattedStatus = 
+        order.status === 'payment_bounced' ? 'Payment Bounced' :
+        order.status === 'payment_cancelled' ? 'Payment Cancelled' :
+        order.status === 'payment_failed' ? 'Payment Failed' :
+        order.status === 'payment_received' ? 'Payment Received' :
+        order.status === 'confirmed' ? 'Order Confirmed' :
+        order.status === 'pending' ? 'Awaiting Payment' :
+        order.status ? order.status.replace(/_/g, ' ').toUpperCase() : 'PENDING';
+
+    const statusBadgeStyle = 
+        order.status === 'payment_bounced' ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' :
+        order.status === 'payment_cancelled' ? 'bg-rose-500/20 text-rose-300 border-rose-500/30' :
+        order.status === 'payment_failed' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+        order.status === 'payment_received' || order.status === 'confirmed' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' :
+        order.status === 'pending' ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30' :
+        'bg-violet-500/20 text-violet-300 border-violet-500/30';
 
     return (
         <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 bg-tronix-bg">
@@ -58,34 +75,54 @@ const OrderDetails = () => {
                         <div>
                             <h2 className="text-2xl font-bold text-white mb-1">Order Details</h2>
                             <p className="text-sm text-gray-400">
-                                Ordered on {new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                Ordered on {formatOrderDateTime(order.created_at)}
                                 <span className="mx-2">|</span>
                                 Order #order_tronix_{String(order.id).padStart(4, '0')}
                             </p>
                         </div>
                         <div className="flex items-center gap-3">
-                            {/* Bill / Tax Invoice generation button temporarily hidden
-                            <button
-                                onClick={() => setShowInvoiceModal(true)}
-                                className="px-4 py-1.5 bg-violet-600/20 hover:bg-violet-600/30 border border-violet-500/40 text-violet-300 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all hover:scale-105 cursor-pointer shadow-sm"
-                                title="Download Official GST Tax Invoice"
-                            >
-                                <FileText size={14} />
-                                <span>Tax Invoice</span>
-                            </button>
-                            */}
-                            <span className="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                            <span className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider border ${statusBadgeStyle}`}>
                                 {formattedStatus}
                             </span>
                         </div>
                     </div>
 
                     <div className="p-6 md:p-8">
-                        {/* Status Pipeline Stepper */}
+                        {/* Status Pipeline Stepper or Diagnostic Banner */}
                         <div className="bg-black/20 border border-white/5 rounded-2xl p-6 relative overflow-hidden mb-8">
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500/20 via-fuchsia-500/20 to-emerald-500/20"></div>
-                            {order.status === 'cancelled' || order.status === 'deleted' ? (
-                                <div className="flex flex-col items-center justify-center py-4">
+                            {order.status === 'payment_bounced' ? (
+                                <div className="flex flex-col items-center justify-center py-4 text-center">
+                                    <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center border border-amber-500/30 mb-3">
+                                        <AlertTriangle size={32} className="text-amber-400" />
+                                    </div>
+                                    <h3 className="text-amber-300 font-bold text-lg">Payment Bounced / Bank Declined</h3>
+                                    <p className="text-gray-300 text-sm mt-1 max-w-lg font-medium">
+                                        {order.cancellation_reason || 'Your payment was declined by your bank or card issuer (card authentication bounce, limit exceeded, or insufficient balance). Your order is saved, and you can retry payment anytime.'}
+                                    </p>
+                                </div>
+                            ) : order.status === 'payment_cancelled' ? (
+                                <div className="flex flex-col items-center justify-center py-4 text-center">
+                                    <div className="w-16 h-16 rounded-full bg-rose-500/20 flex items-center justify-center border border-rose-500/30 mb-3">
+                                        <Ban size={32} className="text-rose-400" />
+                                    </div>
+                                    <h3 className="text-rose-400 font-bold text-lg">Payment Cancelled</h3>
+                                    <p className="text-gray-300 text-sm mt-1 max-w-lg font-medium">
+                                        The checkout transaction was cancelled before payment could complete. You can resume checkout or place a new order anytime.
+                                    </p>
+                                </div>
+                            ) : order.status === 'payment_failed' ? (
+                                <div className="flex flex-col items-center justify-center py-4 text-center">
+                                    <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center border border-red-500/30 mb-3">
+                                        <XCircle size={32} className="text-red-500" />
+                                    </div>
+                                    <h3 className="text-red-400 font-bold text-lg">Payment Failed</h3>
+                                    <p className="text-gray-300 text-sm mt-1 max-w-lg font-medium">
+                                        {order.cancellation_reason || 'We were unable to complete this payment transaction. Please verify your payment details and retry.'}
+                                    </p>
+                                </div>
+                            ) : order.status === 'cancelled' || order.status === 'deleted' ? (
+                                <div className="flex flex-col items-center justify-center py-4 text-center">
                                     <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center border border-red-500/30 mb-3">
                                         <XCircle size={32} className="text-red-500" />
                                     </div>
@@ -98,9 +135,10 @@ const OrderDetails = () => {
                             ) : (
                                 <div className="flex items-center justify-between relative z-10">
                                     {['pending', 'confirmed', 'shipped', 'delivered'].map((step, idx, arr) => {
-                                        const stepIndex = arr.indexOf(order.status);
-                                        const isActive = order.status === step || (stepIndex !== -1 && stepIndex >= idx);
-                                        const isCurrent = order.status === step;
+                                        const pipelineStatus = order.status === 'payment_received' ? 'confirmed' : order.status;
+                                        const stepIndex = arr.indexOf(pipelineStatus);
+                                        const isActive = pipelineStatus === step || (stepIndex !== -1 && stepIndex >= idx);
+                                        const isCurrent = pipelineStatus === step;
                                         return (
                                             <div key={step} className="flex flex-col items-center flex-1 relative">
                                                 {/* Connecting Line */}
@@ -119,7 +157,7 @@ const OrderDetails = () => {
 
                                                 {/* Step Label */}
                                                 <p className={`mt-3 text-xs font-bold uppercase tracking-wider ${isActive ? 'text-white' : 'text-gray-500'}`}>
-                                                    {step === 'pending' ? 'Pending Approval' : step === 'confirmed' ? 'Order Placed' : step.replace('_', ' ')}
+                                                    {step === 'pending' ? 'Awaiting Payment' : step === 'confirmed' ? 'Order Confirmed' : step.replace('_', ' ')}
                                                 </p>
                                             </div>
                                         );
@@ -127,6 +165,9 @@ const OrderDetails = () => {
                                 </div>
                             )}
                         </div>
+
+                        {/* Prominent Order Ready Notice for Store Pickup & Free Shipping */}
+                        <OrderReadyNotice order={order} className="mb-8" />
 
                         {/* Active Shipping Details Box (Synchronized with Admin Input) */}
                         {(order.courier || order.tracking_number || order.estimated_delivery_date || order.estimated_arrival_time) && (
