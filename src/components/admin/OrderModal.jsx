@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
     X, Check, Truck, AlertTriangle, Package, Calendar, Mail, Phone, 
-    MapPin, Building, CreditCard, ShieldCheck, Tag, ChevronRight, Eye, ExternalLink
+    MapPin, Building, CreditCard, ShieldCheck, Tag, ChevronRight, Eye, ExternalLink, Clock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getImageUrl } from '../../utils/imageUtils';
