@@ -222,10 +222,19 @@ const TowerOrderAdminModal = ({
                             <Factory size={22} />
                         </div>
                         <div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
                                 <h3 className="text-lg font-bold text-white font-mono">
                                     {order.order_number}
                                 </h3>
+                                {order.immediate_qty > 0 ? (
+                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-gradient-to-r from-amber-500/20 to-teal-500/20 text-amber-300 border border-amber-500/40">
+                                        ⚡ Payment + B2B Query (Split)
+                                    </span>
+                                ) : (
+                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                                        🏭 Pure B2B Tower Query
+                                    </span>
+                                )}
                                 <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                                     order.status === 'shipped' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
                                     order.status === 'in_production' ? 'bg-teal-500/20 text-teal-300 border border-teal-500/30' :
@@ -281,6 +290,42 @@ const TowerOrderAdminModal = ({
                     {/* SECTION 1: OVERVIEW */}
                     {activeSection === 'overview' && (
                         <div className="space-y-6">
+                            {/* Fulfillment Strategy Breakdown */}
+                            {order.immediate_qty > 0 ? (
+                                <div className="p-4 rounded-xl bg-gradient-to-r from-amber-500/10 via-black/40 to-teal-500/10 border border-amber-500/30 space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs uppercase font-extrabold text-amber-300 flex items-center gap-1.5">
+                                            ⚡ Split Order Fulfillment Strategy
+                                        </span>
+                                        <span className="text-xs text-gray-400">Total Requirement: <strong className="text-white">{order.requested_qty} units</strong></span>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+                                        <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/25 space-y-1">
+                                            <span className="text-[10px] uppercase font-bold text-emerald-400 block">Phase 1: In-Stock Immediate Payment & Dispatch</span>
+                                            <p className="text-white font-bold text-sm">{order.immediate_qty} units</p>
+                                            <p className="text-gray-300 text-[11px]">Ready to bill and ship immediately from Pune warehouse stock.</p>
+                                        </div>
+                                        <div className="p-3 rounded-lg bg-violet-500/10 border border-violet-500/25 space-y-1">
+                                            <span className="text-[10px] uppercase font-bold text-violet-400 block">Phase 2: B2B Factory Indent Sourcing Query</span>
+                                            <p className="text-white font-bold text-sm">{order.backorder_qty || (order.requested_qty - order.immediate_qty)} units</p>
+                                            <p className="text-gray-300 text-[11px]">Placed as custom factory sourcing inquiry. Requires P.I. quote & lead time ({order.factory_lead_days || 7}d).</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/30 space-y-1.5">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs uppercase font-bold text-purple-300 flex items-center gap-1.5">
+                                            🏭 Pure B2B Factory Sourcing Query
+                                        </span>
+                                        <span className="text-xs text-gray-400 font-mono">Target: ₹{order.target_price}/unit</span>
+                                    </div>
+                                    <p className="text-xs text-gray-300">
+                                        Customer requested <strong className="text-white">{order.requested_qty} units</strong> directly through our factory sourcing channel. Issue P.I. with quoted pricing in Step 3.
+                                    </p>
+                                </div>
+                            )}
+
                             {/* Product & Quantities Card */}
                             <div className="p-5 rounded-xl bg-white/5 border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                 <div className="flex items-center gap-4">
