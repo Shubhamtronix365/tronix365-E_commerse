@@ -122,12 +122,27 @@ async def get_products(
             query = query.order_by(pending_order.asc(), ProductDB.price.desc())
         elif sort_by == "name_asc":
             query = query.order_by(pending_order.asc(), ProductDB.title.asc())
+        elif sort_by == "name_desc":
+            query = query.order_by(pending_order.asc(), ProductDB.title.desc())
+        elif sort_by == "stock_asc":
+            query = query.order_by(pending_order.asc(), ProductDB.stock.asc())
+        elif sort_by == "stock_desc":
+            query = query.order_by(pending_order.asc(), ProductDB.stock.desc())
+        elif sort_by == "id_asc":
+            query = query.order_by(pending_order.asc(), ProductDB.id.asc())
         else:
             query = query.order_by(pending_order.asc(), ProductDB.id.desc())
     else:
         query = query.order_by(pending_order.asc(), ProductDB.id.desc())
 
-    products = query.offset(skip).limit(limit).all()
+    total_count = query.count()
+    response.headers["X-Total-Count"] = str(total_count)
+    response.headers["Access-Control-Expose-Headers"] = "X-Total-Count"
+
+    if limit is not None and limit > 0:
+        products = query.offset(skip).limit(limit).all()
+    else:
+        products = query.offset(skip).all()
     return products
 
 
