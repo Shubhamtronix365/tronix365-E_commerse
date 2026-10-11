@@ -506,7 +506,7 @@ const ProductDetails = () => {
                                 <Truck className="text-tronix-accent" size={24} />
                                 <div>
                                     <div className="text-white font-medium text-sm">Fast Delivery</div>
-                                    <div className="text-gray-400 text-xs">Same Day Delivery in Pune</div>
+                                    <div className="text-gray-400 text-xs">Next Day Delivery in Pune</div>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3 p-4 border border-white/5 rounded-xl bg-white/5">
@@ -646,71 +646,7 @@ const ProductDetails = () => {
                                             </ol>
                                         </div>
                                     )}
-
-                                    {/* 2. APPLICATIONS SECOND */}
-                                    {(product.applications && product.applications.length > 0) ? (
-                                        <div className="space-y-3 pt-4 border-t border-white/10">
-                                            <h4 className="text-white font-extrabold text-base flex items-center gap-2">
-                                                <PackageCheck className="text-violet-400" size={18} /> Applications:
-                                            </h4>
-                                            <ol className="list-decimal list-inside space-y-2 pl-2 text-gray-300">
-                                                {product.applications.map((app, idx) => (
-                                                    <li key={idx} className="leading-snug">{app}</li>
-                                                ))}
-                                            </ol>
-                                        </div>
-                                    ) : (
-                                        <div className="space-y-3 pt-4 border-t border-white/10">
-                                            <h4 className="text-white font-extrabold text-base flex items-center gap-2">
-                                                <PackageCheck className="text-violet-400" size={18} /> Applications:
-                                            </h4>
-                                            <ol className="list-decimal list-inside space-y-2 pl-2 text-gray-300">
-                                                <li>Internet of Things (IoT) terminal & smart controller.</li>
-                                                <li>Robotics, Automation & STEM Education projects.</li>
-                                                <li>DIY electronic creation & rapid prototyping.</li>
-                                                <li>Smart home automation equipment.</li>
-                                            </ol>
-                                        </div>
-                                    )}
-
-                                    {/* 3. USEFUL LINKS THIRD */}
-                                    {(product.useful_links && product.useful_links.length > 0) ? (
-                                        <div className="space-y-2 pt-4 border-t border-white/10">
-                                            <h4 className="text-white font-extrabold text-base flex items-center gap-2">
-                                                <ExternalLink className="text-sky-400" size={18} /> Useful Links:
-                                            </h4>
-                                            <div className="space-y-1.5 pl-2">
-                                                {product.useful_links.map((link, idx) => (
-                                                    <a
-                                                        key={idx}
-                                                        href={typeof link === 'object' ? link.url : link}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="text-violet-400 hover:text-violet-300 text-sm underline flex items-center gap-1.5 transition-colors"
-                                                    >
-                                                        <span>{typeof link === 'object' ? (link.title || link.name || link.url) : link}</span>
-                                                        <ExternalLink size={12} />
-                                                    </a>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="space-y-2 pt-4 border-t border-white/10">
-                                            <h4 className="text-white font-extrabold text-base flex items-center gap-2">
-                                                <ExternalLink className="text-sky-400" size={18} /> Useful Links:
-                                            </h4>
-                                            <a
-                                                href={`https://docs.tronix365.in/${slug}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-violet-400 hover:text-violet-300 text-sm underline flex items-center gap-1.5 pl-2"
-                                            >
-                                                https://docs.tronix365.in/{slug} <ExternalLink size={12} />
-                                            </a>
-                                        </div>
-                                    )}
-
-                                    {/* 4. PACKAGE INCLUDES FOURTH (NO SAFETY MANUAL) */}
+                                    {/* 2. PACKAGE INCLUDES (NO SAFETY MANUAL) */}
                                     <div className="space-y-3 pt-4 border-t border-white/10">
                                         <h4 className="text-white font-extrabold text-base flex items-center gap-2">
                                             <Truck className="text-amber-400" size={18} /> Package Includes:

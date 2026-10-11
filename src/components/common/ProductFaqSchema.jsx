@@ -7,10 +7,6 @@ import React from 'react';
 const ProductFaqSchema = ({ product }) => {
   if (!product || !product.title) return null;
 
-  const appText = Array.isArray(product.applications) && product.applications.length > 0
-    ? product.applications.join(', ')
-    : 'Electronics prototyping, IoT development, robotics kits, automation projects, and university engineering labs';
-
   const pkgList = Array.isArray(product.package_includes) && product.package_includes.length > 0
     ? product.package_includes.filter(i => !/manual|guide/i.test(i)).join(', ')
     : `1x ${product.title}`;
@@ -29,18 +25,10 @@ const ProductFaqSchema = ({ product }) => {
       },
       {
         '@type': 'Question',
-        'name': `Is same-day delivery available for ${product.title} in Pune?`,
+        'name': `Is next-day delivery available for ${product.title} in Pune?`,
         'acceptedAnswer': {
           '@type': 'Answer',
-          'text': `Yes! Tronix365 offers same-day express delivery in Pune (all 411xxx pincodes) for orders placed before 2 PM. Standard and express courier shipping across other Indian states takes 2 to 4 business days.`
-        }
-      },
-      {
-        '@type': 'Question',
-        'name': `What are the primary applications of ${product.title}?`,
-        'acceptedAnswer': {
-          '@type': 'Answer',
-          'text': `The ${product.title} is commonly used for: ${appText}.`
+          'text': `Yes! Tronix365 offers guaranteed next-day express delivery in Pune (all 411xxx pincodes). Standard and express courier shipping across other Indian states takes 2 to 4 business days.`
         }
       },
       {

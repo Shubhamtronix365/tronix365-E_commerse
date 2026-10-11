@@ -92,7 +92,7 @@ const SEO = ({
             "url": "https://www.tronix365.in/e-commerse/",
             "logo": "https://www.tronix365.in/e-commerse/Tronix3650final_circular.png",
             "image": "https://www.tronix365.in/e-commerse/Tronix3650final_circular.png",
-            "description": "Leading electronics component supplier in Pune, India. Specializing in Arduino, ESP32, sensors, robotics kits, IoT modules with same-day delivery in Pune and express nationwide shipping.",
+            "description": "Leading electronics component supplier in Pune, India. Specializing in Arduino, ESP32, sensors, robotics kits, IoT modules with next-day delivery in Pune and express nationwide shipping.",
             "telephone": "+918830153805",
             "email": "shubham.tronix365@gmail.com",
             "priceRange": "₹",

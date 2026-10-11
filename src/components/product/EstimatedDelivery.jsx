@@ -162,18 +162,15 @@ const EstimatedDelivery = () => {
                         <Truck className="text-amber-500 shrink-0" size={16} />
                         <span>Or by <strong className="text-gray-200">{surfaceDate}</strong> - Standard Shipping</span>
                     </div>
-
-                    {/* Pune Same Day / Next Day Delivery Highlight */}
+                    {/* Pune Next Day Delivery Highlight */}
                     {isPune && (
                         <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-1">
                             <div className="flex items-center gap-2 text-amber-300 font-extrabold text-xs sm:text-sm">
                                 <Zap className="text-amber-400 shrink-0" size={16} />
-                                <span>Same Day Delivery in Pune</span>
+                                <span>Next Day Delivery in Pune</span>
                             </div>
                             <p className="text-[11px] sm:text-xs text-amber-200/90 pl-6 leading-relaxed">
-                                {isBefore2PM
-                                    ? 'Order before 2:00 PM today to get it delivered today by 8:00 PM!'
-                                    : 'Order by 11:59 PM today and get it delivered tomorrow between 10 AM and 6 PM.'}
+                                Order today and get guaranteed next day delivery between 10:00 AM and 6:00 PM with express local dispatch.
                             </p>
                         </div>
                     )}
