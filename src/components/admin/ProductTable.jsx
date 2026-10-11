@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { 
     Edit, 
     Trash2, 
@@ -325,8 +326,8 @@ const ProductTable = ({
                                                 />
                                             </div>
                                             <div className="min-w-0">
-                                                <a
-                                                    href={`/product/${itemSlug}`}
+                                                <Link
+                                                    to={`/product/${itemSlug}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="font-bold text-white hover:text-tronix-primary transition-colors line-clamp-1 flex items-center gap-1.5"
@@ -334,7 +335,7 @@ const ProductTable = ({
                                                 >
                                                     <span>{item.title}</span>
                                                     <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity text-tronix-primary shrink-0" />
-                                                </a>
+                                                </Link>
                                                 <p className="text-[11px] text-gray-500 font-mono mt-0.5">ID: {item.id}</p>
                                             </div>
                                         </div>
@@ -402,15 +403,15 @@ const ProductTable = ({
                                     {/* Actions */}
                                     <td className="px-6 py-3.5 text-right">
                                         <div className="flex items-center justify-end gap-1.5">
-                                            <a
-                                                href={`/product/${itemSlug}`}
+                                            <Link
+                                                to={`/product/${itemSlug}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-colors"
                                                 title="View on storefront"
                                             >
                                                 <ExternalLink size={15} />
-                                            </a>
+                                            </Link>
                                             <button
                                                 onClick={() => handleOpenEditModal(item)}
                                                 className="p-2 bg-white/5 hover:bg-blue-500/20 rounded-xl text-blue-400 hover:text-blue-300 transition-colors"

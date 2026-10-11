@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
     BookOpen,
@@ -768,15 +769,15 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                                 )}
 
                                                 {post.is_published && (
-                                                    <a
-                                                        href={`/blog/${post.slug}`}
+                                                    <Link
+                                                        to={`/blog/${post.slug}`}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         title="View Live Public Post"
                                                         className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                                                     >
                                                         <ExternalLink size={16} />
-                                                    </a>
+                                                    </Link>
                                                 )}
                                                 <button
                                                     onClick={() => handleOpenEditModal(post)}
@@ -935,15 +936,15 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                 {/* Standard Action Row */}
                                 <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/5 text-xs">
                                     {post.is_published && (
-                                        <a
-                                            href={`/blog/${post.slug}`}
+                                        <Link
+                                            to={`/blog/${post.slug}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white flex items-center gap-1 transition-colors"
                                         >
                                             <ExternalLink size={13} />
                                             <span>View</span>
-                                        </a>
+                                        </Link>
                                     )}
                                     <button
                                         onClick={() => handleOpenEditModal(post)}

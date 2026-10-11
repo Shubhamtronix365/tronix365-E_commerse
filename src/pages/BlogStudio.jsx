@@ -985,15 +985,15 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                             <td className="px-6 py-4 text-right">
                                                 <div className="flex items-center justify-end gap-2">
                                                     {post.is_published && (
-                                                        <a
-                                                            href={`/blog/${post.slug}`}
+                                                        <Link
+                                                            to={`/blog/${post.slug}`}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
                                                             title="View Live Article"
                                                             className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                                                         >
                                                             <ExternalLink size={16} />
-                                                        </a>
+                                                        </Link>
                                                     )}
                                                     <button
                                                         onClick={() => handleOpenEditModal(post)}
@@ -1138,15 +1138,15 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
 
                                         <div className="flex items-center gap-1.5">
                                             {post.is_published && (
-                                                <a
-                                                    href={`/blog/${post.slug}`}
+                                                <Link
+                                                    to={`/blog/${post.slug}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     title="View Live Article"
                                                     className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors active:scale-95"
                                                 >
                                                     <ExternalLink size={16} />
-                                                </a>
+                                                </Link>
                                             )}
                                             <button
                                                 onClick={() => handleOpenEditModal(post)}

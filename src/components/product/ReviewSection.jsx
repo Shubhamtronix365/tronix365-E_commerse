@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Star, User, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -126,9 +127,9 @@ const ReviewSection = ({ productId, onStatsChange }) => {
                     <div className="bg-white/5 border border-white/10 rounded-xl p-6 text-center">
                         <User size={32} className="mx-auto mb-3 text-gray-500" />
                         <p className="text-gray-300 mb-4">Please log in to share your thoughts about this product.</p>
-                        <a href="/login" className="inline-block bg-tronix-primary hover:bg-violet-600 text-white font-medium px-6 py-2 rounded-lg transition-colors">
+                        <Link to="/login" className="inline-block bg-tronix-primary hover:bg-violet-600 text-white font-medium px-6 py-2 rounded-lg transition-colors">
                             Log In to Review
-                        </a>
+                        </Link>
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit} className="space-y-4">
