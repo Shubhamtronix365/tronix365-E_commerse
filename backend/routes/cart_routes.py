@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Response
 from sqlalchemy.orm import Session, joinedload
 from database import get_db
 from models import (
@@ -90,6 +90,10 @@ async def update_cart_item(
         raise HTTPException(status_code=404, detail="Cart item not found")
 
     if item_update.quantity is not None:
+        if item_update.quantity <= 0:
+            db.delete(db_item)
+            db.commit()
+            return Response(status_code=204)
         db_item.quantity = item_update.quantity
     if item_update.selected is not None:
         db_item.selected = item_update.selected
@@ -99,6 +103,21 @@ async def update_cart_item(
     db.commit()
     db.refresh(db_item)
     return db_item
+
+
+@router.delete("/cart")
+async def clear_cart(
+    current_user: UserDB = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Clear all items from the current user's cart in the database."""
+    deleted_count = (
+        db.query(CartItemDB)
+        .filter(CartItemDB.user_id == current_user.id)
+        .delete()
+    )
+    db.commit()
+    return {"message": f"Cart cleared successfully ({deleted_count} items removed)"}
 
 
 @router.delete("/cart/{item_id}")

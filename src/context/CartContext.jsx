@@ -149,23 +149,24 @@ export const CartProvider = ({ children }) => {
     };
 
     const removeFromCart = async (identifier) => {
-        if (isAuthenticated) {
-            const item = cartItems.find(i => (i.cart_item_id || i.id) === identifier);
-            if (item?.cart_item_id) {
-                try {
-                    await client.delete(`/cart/${item.cart_item_id}`);
-                } catch (error) {
-                    console.error("Failed to remove from cart:", error);
-                }
+        const item = cartItems.find(i => i.cart_item_id === identifier || i.id === identifier);
+        if (isAuthenticated && item?.cart_item_id) {
+            try {
+                await client.delete(`/cart/${item.cart_item_id}`);
+            } catch (error) {
+                console.error("Failed to remove from cart:", error);
             }
         }
-        setCartItems(prevItems => prevItems.filter(item => (item.cart_item_id || item.id) !== identifier));
+        setCartItems(prevItems => prevItems.filter(item => item.cart_item_id !== identifier && item.id !== identifier));
     };
 
     const updateQuantity = async (identifier, newQuantity) => {
-        if (newQuantity < 1) return;
+        if (newQuantity <= 0) {
+            await removeFromCart(identifier);
+            return;
+        }
         
-        const item = cartItems.find(i => (i.cart_item_id || i.id) === identifier);
+        const item = cartItems.find(i => i.cart_item_id === identifier || i.id === identifier);
         if (!item) return;
 
         const maxAllowed = item.stock || 0;
@@ -185,7 +186,7 @@ export const CartProvider = ({ children }) => {
 
         setCartItems(prevItems =>
             prevItems.map(i =>
-                (i.cart_item_id || i.id) === identifier ? { ...i, quantity: newQuantity } : i
+                (i.cart_item_id === identifier || i.id === identifier) ? { ...i, quantity: newQuantity } : i
             )
         );
     };
@@ -288,7 +289,14 @@ export const CartProvider = ({ children }) => {
         );
     };
 
-    const clearCart = () => {
+    const clearCart = async () => {
+        if (isAuthenticated) {
+            try {
+                await client.delete('/cart');
+            } catch (error) {
+                console.error("Failed to clear cart on backend:", error);
+            }
+        }
         setCartItems([]);
     };
 

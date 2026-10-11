@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { ShoppingBag, Send, MailCheck, AlertCircle, Search, RefreshCw, Clock, DollarSign, Users } from 'lucide-react';
+import { ShoppingBag, Send, MailCheck, AlertCircle, Search, RefreshCw, Clock, DollarSign, Users, Trash2, CheckSquare } from 'lucide-react';
 import client from '../../api/client';
 import { getImageUrl } from '../../utils/imageUtils';
 import Image from '../common/Image';
@@ -8,10 +8,11 @@ import Skeleton from '../common/Skeleton';
 
 const AbandonedCartTable = ({ onRefreshStats }) => {
     const [loading, setLoading] = useState(true);
-    const [actionLoading, setActionLoading] = useState(null); // userId or 'all'
+    const [actionLoading, setActionLoading] = useState(null); // userId or 'all' or 'selected'
     const [data, setData] = useState({ summary: {}, carts: [] });
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'pending', 'sent'
+    const [selectedUserIds, setSelectedUserIds] = useState([]);
 
     const fetchAbandonedCarts = async () => {
         setLoading(true);
@@ -31,6 +32,34 @@ const AbandonedCartTable = ({ onRefreshStats }) => {
         fetchAbandonedCarts();
     }, []);
 
+    const filteredCarts = (data.carts || []).filter((c) => {
+        const matchesQuery =
+            !searchQuery ||
+            c.customer_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            c.customer_email?.toLowerCase().includes(searchQuery.toLowerCase());
+
+        const matchesStatus =
+            filterStatus === 'all' ||
+            (filterStatus === 'pending' && !c.reminder_sent) ||
+            (filterStatus === 'sent' && c.reminder_sent);
+
+        return matchesQuery && matchesStatus;
+    });
+
+    const handleToggleSelect = (userId) => {
+        setSelectedUserIds(prev =>
+            prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
+        );
+    };
+
+    const handleToggleSelectAll = () => {
+        if (selectedUserIds.length === filteredCarts.length && filteredCarts.length > 0) {
+            setSelectedUserIds([]);
+        } else {
+            setSelectedUserIds(filteredCarts.map(c => c.user_id));
+        }
+    };
+
     const handleSendSingleReminder = async (userId, customerName) => {
         setActionLoading(userId);
         try {
@@ -40,6 +69,27 @@ const AbandonedCartTable = ({ onRefreshStats }) => {
         } catch (error) {
             console.error('Failed to send reminder:', error);
             const msg = error.response?.data?.detail || 'Failed to dispatch recovery reminder';
+            toast.error(msg);
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleSendSelectedReminders = async () => {
+        if (selectedUserIds.length === 0) return;
+        if (!window.confirm(`Send recovery email reminders with 5% discount voucher to ${selectedUserIds.length} selected customer(s)?`)) {
+            return;
+        }
+
+        setActionLoading('selected');
+        try {
+            const res = await client.post('/admin/abandoned-carts/send-bulk', { user_ids: selectedUserIds });
+            toast.success(res.data.message || `Dispatched reminders to ${selectedUserIds.length} customer(s)`);
+            setSelectedUserIds([]);
+            await fetchAbandonedCarts();
+        } catch (error) {
+            console.error('Selected dispatch failed:', error);
+            const msg = error.response?.data?.detail || 'Failed to dispatch selected reminders';
             toast.error(msg);
         } finally {
             setActionLoading(null);
@@ -65,19 +115,46 @@ const AbandonedCartTable = ({ onRefreshStats }) => {
         }
     };
 
-    const filteredCarts = (data.carts || []).filter((c) => {
-        const matchesQuery =
-            !searchQuery ||
-            c.customer_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            c.customer_email?.toLowerCase().includes(searchQuery.toLowerCase());
+    const handleDeleteSingleCart = async (userId, customerName) => {
+        if (!window.confirm(`Delete abandoned cart for ${customerName}? This will remove their unpurchased cart items from the database.`)) {
+            return;
+        }
 
-        const matchesStatus =
-            filterStatus === 'all' ||
-            (filterStatus === 'pending' && !c.reminder_sent) ||
-            (filterStatus === 'sent' && c.reminder_sent);
+        setActionLoading(`delete_${userId}`);
+        try {
+            const res = await client.delete(`/admin/abandoned-carts/${userId}`);
+            toast.success(res.data.message || `Deleted abandoned cart for ${customerName}`);
+            setSelectedUserIds(prev => prev.filter(id => id !== userId));
+            await fetchAbandonedCarts();
+        } catch (error) {
+            console.error('Failed to delete cart:', error);
+            const msg = error.response?.data?.detail || 'Failed to delete abandoned cart';
+            toast.error(msg);
+        } finally {
+            setActionLoading(null);
+        }
+    };
 
-        return matchesQuery && matchesStatus;
-    });
+    const handleDeleteSelectedCarts = async () => {
+        if (selectedUserIds.length === 0) return;
+        if (!window.confirm(`Delete ${selectedUserIds.length} selected abandoned cart(s)? This will remove their unpurchased cart items from the database.`)) {
+            return;
+        }
+
+        setActionLoading('delete_selected');
+        try {
+            const res = await client.post('/admin/abandoned-carts/delete-bulk', { user_ids: selectedUserIds });
+            toast.success(res.data.message || `Deleted ${selectedUserIds.length} abandoned cart(s)`);
+            setSelectedUserIds([]);
+            await fetchAbandonedCarts();
+        } catch (error) {
+            console.error('Failed to delete selected carts:', error);
+            const msg = error.response?.data?.detail || 'Failed to delete selected carts';
+            toast.error(msg);
+        } finally {
+            setActionLoading(null);
+        }
+    };
 
     const summary = data.summary || {
         total_abandoned_carts: 0,
@@ -150,7 +227,7 @@ const AbandonedCartTable = ({ onRefreshStats }) => {
                     <div className="flex bg-white/5 border border-white/10 rounded-xl p-1 text-xs">
                         <button
                             onClick={() => setFilterStatus('all')}
-                            className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+                            className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
                                 filterStatus === 'all' ? 'bg-tronix-primary text-white shadow' : 'text-gray-400 hover:text-white'
                             }`}
                         >
@@ -158,7 +235,7 @@ const AbandonedCartTable = ({ onRefreshStats }) => {
                         </button>
                         <button
                             onClick={() => setFilterStatus('pending')}
-                            className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+                            className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
                                 filterStatus === 'pending' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'text-gray-400 hover:text-white'
                             }`}
                         >
@@ -166,7 +243,7 @@ const AbandonedCartTable = ({ onRefreshStats }) => {
                         </button>
                         <button
                             onClick={() => setFilterStatus('sent')}
-                            className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+                            className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
                                 filterStatus === 'sent' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'text-gray-400 hover:text-white'
                             }`}
                         >
@@ -179,7 +256,7 @@ const AbandonedCartTable = ({ onRefreshStats }) => {
                     <button
                         onClick={fetchAbandonedCarts}
                         disabled={loading}
-                        className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white transition-colors"
+                        className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer"
                         title="Refresh List"
                     >
                         <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
@@ -200,11 +277,56 @@ const AbandonedCartTable = ({ onRefreshStats }) => {
                 </div>
             </div>
 
+            {/* Multi-Select Floating Action Bar */}
+            {selectedUserIds.length > 0 && (
+                <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-violet-950/50 border border-violet-500/30 text-white shadow-lg shadow-violet-500/10">
+                    <div className="flex items-center gap-2 text-xs font-semibold">
+                        <span className="w-6 h-6 rounded-lg bg-violet-600 text-white flex items-center justify-center text-xs font-bold">
+                            {selectedUserIds.length}
+                        </span>
+                        <span>cart{selectedUserIds.length > 1 ? 's' : ''} selected</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                        <button
+                            onClick={handleSendSelectedReminders}
+                            disabled={actionLoading === 'selected'}
+                            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow"
+                        >
+                            <Send size={13} className={actionLoading === 'selected' ? 'animate-spin' : ''} />
+                            <span>Send to Selected ({selectedUserIds.length})</span>
+                        </button>
+                        <button
+                            onClick={handleDeleteSelectedCarts}
+                            disabled={actionLoading === 'delete_selected'}
+                            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30 text-xs font-bold transition-all disabled:opacity-50 cursor-pointer"
+                        >
+                            <Trash2 size={13} className={actionLoading === 'delete_selected' ? 'animate-spin' : ''} />
+                            <span>Delete Selected ({selectedUserIds.length})</span>
+                        </button>
+                        <button
+                            onClick={() => setSelectedUserIds([])}
+                            className="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-xs transition-colors cursor-pointer"
+                        >
+                            Deselect
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Table Area */}
             <div className="overflow-x-auto rounded-xl border border-white/10 bg-slate-950/40">
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="border-b border-white/10 bg-white/[0.02] text-xs font-semibold uppercase tracking-wider text-gray-400">
+                            <th className="p-4 w-12 text-center">
+                                <input
+                                    type="checkbox"
+                                    checked={filteredCarts.length > 0 && selectedUserIds.length === filteredCarts.length}
+                                    onChange={handleToggleSelectAll}
+                                    className="w-4 h-4 rounded border-white/20 bg-white/5 text-violet-600 focus:ring-violet-500 cursor-pointer accent-violet-600"
+                                    title={selectedUserIds.length === filteredCarts.length ? 'Deselect all' : 'Select all'}
+                                />
+                            </th>
                             <th className="p-4">Customer</th>
                             <th className="p-4">Abandoned Products</th>
                             <th className="p-4">Cart Total</th>
@@ -217,6 +339,7 @@ const AbandonedCartTable = ({ onRefreshStats }) => {
                         {loading ? (
                             [...Array(4)].map((_, i) => (
                                 <tr key={i} className="animate-pulse">
+                                    <td className="p-4 text-center"><Skeleton className="h-4 w-4 mx-auto rounded" /></td>
                                     <td className="p-4"><Skeleton className="h-4 w-32 mb-1" /><Skeleton className="h-3 w-40" /></td>
                                     <td className="p-4"><Skeleton className="h-10 w-48 rounded-lg" /></td>
                                     <td className="p-4"><Skeleton className="h-4 w-16" /></td>
@@ -227,7 +350,7 @@ const AbandonedCartTable = ({ onRefreshStats }) => {
                             ))
                         ) : filteredCarts.length === 0 ? (
                             <tr>
-                                <td colSpan="6" className="p-12 text-center text-gray-500">
+                                <td colSpan="7" className="p-12 text-center text-gray-500">
                                     <ShoppingBag size={36} className="mx-auto mb-3 opacity-40 text-tronix-primary" />
                                     <p className="text-base font-semibold text-gray-400">No Abandoned Carts Found</p>
                                     <p className="text-xs text-gray-500 mt-1">
@@ -238,6 +361,8 @@ const AbandonedCartTable = ({ onRefreshStats }) => {
                         ) : (
                             filteredCarts.map((cart) => {
                                 const isSendingThis = actionLoading === cart.user_id;
+                                const isDeletingThis = actionLoading === `delete_${cart.user_id}`;
+                                const isSelected = selectedUserIds.includes(cart.user_id);
                                 const lastActiveDate = cart.last_active
                                     ? new Date(cart.last_active).toLocaleString('en-IN', {
                                           month: 'short',
@@ -257,7 +382,22 @@ const AbandonedCartTable = ({ onRefreshStats }) => {
                                     : null;
 
                                 return (
-                                    <tr key={cart.user_id} className="hover:bg-white/[0.02] transition-colors">
+                                    <tr 
+                                        key={cart.user_id} 
+                                        className={`transition-colors ${
+                                            isSelected ? 'bg-violet-950/20' : 'hover:bg-white/[0.02]'
+                                        }`}
+                                    >
+                                        {/* Row Checkbox */}
+                                        <td className="p-4 text-center">
+                                            <input
+                                                type="checkbox"
+                                                checked={isSelected}
+                                                onChange={() => handleToggleSelect(cart.user_id)}
+                                                className="w-4 h-4 rounded border-white/20 bg-white/5 text-violet-600 focus:ring-violet-500 cursor-pointer accent-violet-600"
+                                            />
+                                        </td>
+
                                         {/* Customer */}
                                         <td className="p-4">
                                             <p className="font-semibold text-white">{cart.customer_name}</p>
@@ -317,26 +457,38 @@ const AbandonedCartTable = ({ onRefreshStats }) => {
                                             )}
                                         </td>
 
-                                        {/* Action Button */}
+                                        {/* Action Buttons */}
                                         <td className="p-4 text-right">
-                                            <button
-                                                onClick={() => handleSendSingleReminder(cart.user_id, cart.customer_name)}
-                                                disabled={isSendingThis}
-                                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                                                    cart.reminder_sent
-                                                        ? 'bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10'
-                                                        : 'bg-tronix-primary/20 hover:bg-tronix-primary/30 text-tronix-primary border border-tronix-primary/40'
-                                                } disabled:opacity-50 cursor-pointer`}
-                                            >
-                                                <Send size={13} className={isSendingThis ? 'animate-spin' : ''} />
-                                                <span>
-                                                    {isSendingThis
-                                                        ? 'Sending...'
-                                                        : cart.reminder_sent
-                                                        ? 'Resend Reminder'
-                                                        : 'Send Reminder'}
-                                                </span>
-                                            </button>
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button
+                                                    onClick={() => handleSendSingleReminder(cart.user_id, cart.customer_name)}
+                                                    disabled={isSendingThis || isDeletingThis}
+                                                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                                                        cart.reminder_sent
+                                                            ? 'bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10'
+                                                            : 'bg-tronix-primary/20 hover:bg-tronix-primary/30 text-tronix-primary border border-tronix-primary/40'
+                                                    } disabled:opacity-50 cursor-pointer`}
+                                                    title={cart.reminder_sent ? 'Resend recovery reminder' : 'Send recovery reminder'}
+                                                >
+                                                    <Send size={13} className={isSendingThis ? 'animate-spin' : ''} />
+                                                    <span>
+                                                        {isSendingThis
+                                                            ? 'Sending...'
+                                                            : cart.reminder_sent
+                                                            ? 'Resend'
+                                                            : 'Send Reminder'}
+                                                    </span>
+                                                </button>
+
+                                                <button
+                                                    onClick={() => handleDeleteSingleCart(cart.user_id, cart.customer_name)}
+                                                    disabled={isDeletingThis || isSendingThis}
+                                                    className="p-1.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all cursor-pointer"
+                                                    title="Delete abandoned cart from database"
+                                                >
+                                                    <Trash2 size={15} className={isDeletingThis ? 'animate-spin text-red-400' : ''} />
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 );

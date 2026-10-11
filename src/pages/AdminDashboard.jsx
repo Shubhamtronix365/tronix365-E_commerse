@@ -223,6 +223,7 @@ const AdminDashboard = () => {
         setNewProduct({ 
             title: '', 
             category: 'Development Boards', 
+            sku: '',
             price: '', 
             mrp: '', 
             description: '', 
@@ -242,6 +243,7 @@ const AdminDashboard = () => {
         setEditingProduct(product);
         setNewProduct({
             ...product,
+            sku: product.sku || product.skv || '',
             features: product.features && Array.isArray(product.features) ? product.features.join('\n') : (product.features || ''),
             applications: product.applications && Array.isArray(product.applications) ? product.applications.join('\n') : (product.applications || ''),
             package_includes: product.package_includes && Array.isArray(product.package_includes) ? product.package_includes.join('\n') : (product.package_includes || ''),
@@ -262,6 +264,7 @@ const AdminDashboard = () => {
         try {
             const payload = { 
                 ...newProduct,
+                sku: newProduct.sku ? newProduct.sku.trim() : null,
                 price: newProduct.price === '' ? 0 : Number(newProduct.price),
                 mrp: newProduct.mrp === '' ? null : Number(newProduct.mrp),
                 stock: newProduct.stock === '' ? 0 : Number(newProduct.stock)
@@ -309,7 +312,7 @@ const AdminDashboard = () => {
             }
             setIsAddProductOpen(false);
             setNewProduct({ 
-                title: '', category: 'Development Boards', price: '', mrp: '', description: '', image: '', features: '',
+                title: '', category: 'Development Boards', sku: '', price: '', mrp: '', description: '', image: '', features: '',
                 applications: '', package_includes: '', useful_links: '', attachments: '', warranty_info: '', country_of_origin: ''
             });
         } catch (error) {

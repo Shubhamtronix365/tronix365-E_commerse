@@ -27,7 +27,7 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
   - **Fast Multi-Field Server Search**: Instant debounced search querying product titles, descriptions, categories, and SKUs directly in PostgreSQL.
   - **Comprehensive Multi-Dimensional Filters**: Filter by Category dropdown, Stock status pills (*All*, *In Stock*, *Low Stock $\le 10$*, *Out of Stock*), and Sort options (*Newest*, *Oldest*, *Name A–Z*, *Name Z–A*, *Price Low–High*, *Price High–Low*, *Stock Low–High*, *Stock High–Low*).
   - **Interactive Numbered Pagination & Jump Controls**: First (`«`), Previous (`‹`), dynamic numbered window (`1, 2, 3 ...`), Next (`›`), and Last (`»`) controls with accurate item range indicators (`Showing 1–50 of 366 products`).
-  - **Product Productivity Enhancements**: 1-click SKU copying to clipboard, direct storefront product link (`ExternalLink`), real-time stock badges, and synchronized dual-tier image storage.
+  - **Product Productivity Enhancements**: Dedicated SKU input in add/edit product modal, 1-click SKU copying to clipboard, direct storefront product link (`ExternalLink`), real-time stock badges, and synchronized dual-tier image storage.
 - **Automated Order Lifecycle Email System**: Branded, responsive HTML email templates for all order statuses (Order Placed, Confirmed, Shipped, Out for Delivery, Delivered, Cancelled, Refunds, Returns, Exchanges).
 - **Mandatory Dual Recipients**: Every order notification email is automatically sent to both the registered customer and `shubham.tronix365@gmail.com`.
 - **Database Email Audit Logging**: Records every sent/failed email with recipient details, subject, order ID, status trigger, and timestamp.
@@ -73,7 +73,8 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
   - Anti-spam safeguard: stamps items with `abandoned_email_sent_at` and automatically resets upon customer cart interaction (`add_to_cart`, `update_cart_item`, `merge_cart`).
   - Sends branded HTML recovery reminder emails via Brevo with item thumbnails, quantities, subtotal, and 1-click cart resume CTA.
   - Mandatory dual-recipient compliance (`shubham.tronix365@gmail.com`) and audit logged into `EmailLogDB`.
-  - Admin Dashboard "Abandoned Carts" management tab with real-time pending badges, customer search, pending/sent filters, and 1-click single & bulk reminder dispatching.
+  - Admin Dashboard "Abandoned Carts" management tab with real-time pending badges, customer search, pending/sent filters, **multi-select checkboxes with "Select All"**, **bulk email reminders**, and **single / bulk cart deletion controls**.
+  - **Storefront Cart Sync**: Whenever a customer removes an item or clears their shopping cart on the storefront, items are immediately deleted from `CartItemDB`, permanently removing empty carts from the admin recovery queue.
   - CLI / Cron background runner (`backend/scripts/abandoned_cart_check.py`) for automated background execution.
 - **Instant GST Tax Invoice & Reimbursement PDF Generator**:
   - One-click print-ready A4 Tax Invoice modal across User Dashboard, Order Details, and Admin Orders table.
@@ -468,6 +469,9 @@ FastAPI generates interactive documentation at [http://127.0.0.1:8000/docs](http
   - `GET /products/{id}` - Fetch single product specs
 - **E-Commerce Actions**:
   - `GET /cart` / `POST /cart` - Retrieve or modify active shopping items
+  - `PUT /cart/{item_id}` - Update quantity for specific cart item (sets $\le 0$ removes item from database)
+  - `DELETE /cart/{item_id}` - Remove individual item from cart and database
+  - `DELETE /cart` - Clear all cart items in database for authenticated user (instantly cleans abandoned cart queue)
   - `GET /wishlist` / `POST /wishlist` - Manage bookmark listings
   - `POST /orders` - Process checks, verify stocks, and submit orders
 - **Tower Orders (B2B Factory Procurement & On-Demand Sourcing)**:
@@ -490,7 +494,10 @@ FastAPI generates interactive documentation at [http://127.0.0.1:8000/docs](http
 - **Abandoned Cart Recovery**:
   - `GET /admin/abandoned-carts` - List all inactive carts ($\ge 1\text{h}$) with items, cart value, customer information, email status, and overall summary metrics
   - `POST /admin/abandoned-carts/{target_user_id}/send` - Send a recovery email reminder with item summaries & voucher code to a specific user
+  - `POST /admin/abandoned-carts/send-bulk` - Send recovery reminders in bulk to a selected list of user IDs
   - `POST /admin/abandoned-carts/send-all` - Bulk send recovery reminders to all pending abandoned carts that have not yet been notified
+  - `DELETE /admin/abandoned-carts/{target_user_id}` - Permanently delete unpurchased cart items for a specific user from the database
+  - `POST /admin/abandoned-carts/delete-bulk` - Permanently delete unpurchased cart items in bulk for selected user IDs
 - **Engineering Blog & Author Studio (`/blogs`, `/blog-studio`)**:
   - `POST /blogs/author/login` - Author & engineering team authentication via system-generated credentials (rate-limited, returns JWT access/refresh token)
   - `GET /blogs` - Public paginated feed with category and text query filters

@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Request
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session, joinedload
@@ -17,6 +18,10 @@ from deps import get_current_admin, limiter
 from email_utils import send_contact_form_notification, send_abandoned_cart_email
 
 router = APIRouter(tags=["Admin & General"])
+
+
+class BulkCartActionRequest(BaseModel):
+    user_ids: List[int]
 
 
 class ContactMessage(BaseModel):
@@ -138,6 +143,7 @@ async def get_abandoned_carts(
         .options(joinedload(CartItemDB.user), joinedload(CartItemDB.product))
         .filter(
             CartItemDB.user_id.isnot(None),
+            CartItemDB.quantity > 0,
             CartItemDB.updated_at <= threshold_start,
             CartItemDB.updated_at >= threshold_end,
         )
@@ -263,4 +269,83 @@ async def send_all_abandoned_cart_reminders(
     return {
         "message": f"Bulk reminder check completed. Sent {result['emails_sent']} recovery emails.",
         "details": result,
+    }
+
+
+@router.post("/admin/abandoned-carts/send-bulk")
+async def send_bulk_abandoned_cart_reminders(
+    payload: BulkCartActionRequest,
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
+    """Dispatch recovery reminders to selected user IDs."""
+    if not payload.user_ids:
+        return {"message": "No carts selected", "sent_count": 0}
+
+    sent_count = 0
+    now = datetime.utcnow()
+    for uid in payload.user_ids:
+        items = (
+            db.query(CartItemDB)
+            .options(joinedload(CartItemDB.user), joinedload(CartItemDB.product))
+            .filter(CartItemDB.user_id == uid, CartItemDB.quantity > 0)
+            .all()
+        )
+        if not items or not items[0].user or not items[0].user.email:
+            continue
+        user = items[0].user
+        success = send_abandoned_cart_email(user, items)
+        if success:
+            sent_count += 1
+            for itm in items:
+                itm.abandoned_email_sent_at = now
+
+    db.commit()
+    return {
+        "message": f"Successfully dispatched reminders to {sent_count} selected customer(s)",
+        "success": True,
+        "sent_count": sent_count,
+    }
+
+
+@router.delete("/admin/abandoned-carts/{target_user_id}")
+async def delete_single_abandoned_cart(
+    target_user_id: int,
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
+    """Delete an abandoned cart from DB by user ID."""
+    deleted_count = (
+        db.query(CartItemDB)
+        .filter(CartItemDB.user_id == target_user_id)
+        .delete()
+    )
+    db.commit()
+    return {
+        "message": f"Abandoned cart successfully deleted ({deleted_count} items removed)",
+        "success": True,
+        "deleted_count": deleted_count,
+    }
+
+
+@router.post("/admin/abandoned-carts/delete-bulk")
+async def delete_bulk_abandoned_carts(
+    payload: BulkCartActionRequest,
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
+    """Delete multiple abandoned carts for selected user IDs."""
+    if not payload.user_ids:
+        return {"message": "No carts selected", "deleted_count": 0}
+
+    deleted_count = (
+        db.query(CartItemDB)
+        .filter(CartItemDB.user_id.in_(payload.user_ids))
+        .delete(synchronize_session=False)
+    )
+    db.commit()
+    return {
+        "message": f"Successfully deleted {len(payload.user_ids)} abandoned carts ({deleted_count} items removed)",
+        "success": True,
+        "deleted_count": deleted_count,
     }
