@@ -47,8 +47,14 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
 - **Saved Address Book & 1-Click Fast Checkout**: Complete multi-address book for registered customers (Home, Office, Factory, Warehouse, Other) with default address flags, automatic PIN code postal lookup (India Post API), and B2B GSTIN tax invoicing support.
   - **User Dashboard Address Book**: Add, edit, delete, and switch default shipping destinations with an intuitive dark bento UI.
   - **1-Click Checkout Autofill**: Automatic pre-selection of primary default address during checkout, interactive address cards, and seamless "+ Save this address" checkbox for new locations.
-- **Mobile-First Responsiveness & Ergonomics**: Fully optimized touch experience across all screen sizes (360px phones up to 4K displays).
-  - **Quick-Access Mobile Navbar**: Dedicated search and cart triggers directly in the top header with live animated item count badges.
+- **Mobile-First Responsiveness & Dynamic Device Adaptation**: Fully optimized touch and screen experience across all form factors (320px–430px compact phones, 768px–1024px tablets, laptops, and ultra-wide displays).
+  - **Bezel-Less Viewport & Safe-Area Insets**: `<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />` with CSS `safe-area-bottom` (`padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px))`) ensuring sticky bars never collide with home indicators on modern iPhones or Android navigation gestures.
+  - **2-Column Mobile Retail Grid**: Converted mobile catalog and featured product feeds to standard 2-column e-commerce grids (`grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4`), eliminating oversized single-column cards on phones.
+  - **Mobile Drawer Auto-Dismissal**: Navigation links in the mobile drawer automatically close the menu overlay upon route transition.
+  - **Zero Horizontal Overflow**: Added global `-webkit-overflow-scrolling: touch`, `max-width: 100vw`, and `overflow-x: hidden` preventing sideways layout shifting on all viewports.
+  - **Fluid 6-Digit OTP Sizing**: Responsive OTP input dimensions (`w-9 h-11 xs:w-11 xs:h-12 sm:w-12 sm:h-12 gap-1.5 sm:gap-2`) preventing modal card overflow on narrow 320px–360px screens.
+  - **Virtual Keyboard Clearance**: Constrained `SearchOverlay` top padding (`pt-16 sm:pt-24`) and max height (`max-h-[82vh]`) to prevent search results from being hidden behind software keyboards.
+  - **Sticky Action Bar Content Clearance**: Added bottom padding (`pb-28 sm:pb-32 lg:pb-16`) to `ProductDetails` and `Checkout` so persistent bottom action bars never obscure reviews, related items, or agreement terms.
   - **Mobile Dashboard Navigation**: App-style horizontal scrolling tabs and touch carousels for order status filters, removing ~400px of vertical scrolling.
   - **Mobile Sticky Action Bars**:
     - **Checkout & Cart**: Fixed sticky bottom bar displaying real-time grand total, tax/shipping indicators, item counts, and 1-tap checkout CTA.

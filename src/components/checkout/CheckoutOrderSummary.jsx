@@ -209,7 +209,7 @@ const CheckoutOrderSummary = ({
             </div>
 
             {/* Mobile Sticky Bottom Bar */}
-            <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0b0f19]/95 backdrop-blur-xl border-t border-white/10 px-4 py-3 shadow-[0_-10px_25px_rgba(0,0,0,0.5)]">
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0b0f19]/95 backdrop-blur-xl border-t border-white/10 px-4 py-3 shadow-[0_-10px_25px_rgba(0,0,0,0.5)] safe-area-bottom">
                 <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
                     <div className="flex flex-col">
                         <span className="text-[11px] text-gray-400 font-medium leading-none">Total Payable</span>

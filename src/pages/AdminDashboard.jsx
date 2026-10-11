@@ -476,7 +476,7 @@ const AdminDashboard = () => {
     }
 
     return (
-        <div className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen pt-20 sm:pt-24 pb-12 px-3 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
 
                 {/* Header */}
@@ -530,41 +530,41 @@ const AdminDashboard = () => {
                 {/* Content Area */}
                 <div className="bg-tronix-card border border-white/5 rounded-xl overflow-hidden min-h-[500px] flex flex-col">
                     <div className="border-b border-white/5 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex gap-2 sm:gap-4 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide">
+                        <div className="flex gap-2 sm:gap-4 overflow-x-auto pb-2 sm:pb-0 scrollbar-none">
                             <button
                                 onClick={() => setActiveTab('products')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'products' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors shrink-0 whitespace-nowrap ${activeTab === 'products' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
                             >
                                 Products
                             </button>
                             <button
                                 onClick={() => setActiveTab('orders')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'orders' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors shrink-0 whitespace-nowrap ${activeTab === 'orders' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
                             >
                                 Orders
                             </button>
                             <button
                                 onClick={() => setActiveTab('tower_orders')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${activeTab === 'tower_orders' ? 'bg-tronix-accent/20 text-tronix-accent border border-tronix-accent/40 font-semibold' : 'text-gray-400 hover:text-white'}`}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 shrink-0 whitespace-nowrap ${activeTab === 'tower_orders' ? 'bg-tronix-accent/20 text-tronix-accent border border-tronix-accent/40 font-semibold' : 'text-gray-400 hover:text-white'}`}
                             >
                                 <span className="w-2 h-2 rounded-full bg-tronix-accent"></span>
                                 Tower Orders
                             </button>
                             <button
                                 onClick={() => setActiveTab('categories')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'categories' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors shrink-0 whitespace-nowrap ${activeTab === 'categories' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
                             >
                                 Categories
                             </button>
                             <button
                                 onClick={() => setActiveTab('coupons')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'coupons' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors shrink-0 whitespace-nowrap ${activeTab === 'coupons' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
                             >
                                 Coupons
                             </button>
                             <button
                                 onClick={() => setActiveTab('bundles')}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'bundles' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors shrink-0 whitespace-nowrap ${activeTab === 'bundles' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
                             >
                                 Bundles
                             </button>

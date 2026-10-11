@@ -242,7 +242,7 @@ const ProductDetails = () => {
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="bg-white rounded-3xl p-8 flex items-center justify-center h-[320px] sm:h-[450px] lg:h-[500px] shadow-2xl shadow-violet-500/10 border border-white/20 overflow-hidden"
+                        className="bg-white rounded-3xl p-4 sm:p-8 flex items-center justify-center h-[280px] xs:h-[340px] sm:h-[450px] lg:h-[500px] shadow-2xl shadow-violet-500/10 border border-white/20 overflow-hidden"
                     >
                         <Image
                             src={getImageUrl(product.image)}
@@ -260,11 +260,11 @@ const ProductDetails = () => {
                         <div className="mb-2 text-tronix-primary font-medium tracking-wide uppercase text-sm">
                             {product.category}
                         </div>
-                        <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-white mb-4 break-words">
                             {product.title}
                         </h1>
 
-                        <div className="flex items-center gap-4 mb-6">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-6">
                             <div className="flex text-yellow-500">
                                 {[1, 2, 3, 4, 5].map((star) => (
                                     <Star
@@ -579,7 +579,7 @@ const ProductDetails = () => {
                     </div>
 
                     {/* Tab Panels */}
-                    <div className="bg-tronix-card/40 rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl">
+                    <div className="bg-tronix-card/40 rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-white/10 shadow-2xl overflow-hidden">
                         {/* TAB 1: Description Panel */}
                         {activeTab === 'description' && (() => {
                             // Clean and normalize features

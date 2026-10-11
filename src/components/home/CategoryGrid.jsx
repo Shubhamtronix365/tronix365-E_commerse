@@ -77,7 +77,7 @@ const CategoryGrid = () => {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-6">
                     {categories.filter(c => c.is_active !== false).map((cat) => {
                         const { IconComponent, colorGradient } = resolveCategoryVisuals(cat);
                         const slug = cat.name.toLowerCase().replace(/\s+/g, '-');
@@ -85,7 +85,7 @@ const CategoryGrid = () => {
                             <Link to={`/category/${slug}`} key={cat.id || cat.name}>
                                 <motion.div
                                     whileHover={{ y: -5 }}
-                                    className="glass-card p-6 rounded-2xl flex flex-col items-center justify-center text-center h-full group border border-white/5 hover:border-tronix-primary/40 transition-all shadow-lg hover:shadow-tronix-primary/10"
+                                    className="glass-card p-4 sm:p-6 rounded-2xl flex flex-col items-center justify-center text-center h-full group border border-white/5 hover:border-tronix-primary/40 transition-all shadow-lg hover:shadow-tronix-primary/10"
                                 >
                                     <div className={`p-4 rounded-full bg-gradient-to-br ${colorGradient} mb-4 group-hover:scale-110 transition-transform duration-300 shadow-md`}>
                                         <IconComponent className="text-white w-8 h-8" />

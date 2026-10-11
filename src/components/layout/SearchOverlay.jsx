@@ -87,26 +87,26 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[100] bg-[#0F172A]/90 backdrop-blur-xl flex justify-center pt-24 px-4"
+                    className="fixed inset-0 z-[100] bg-[#0F172A]/90 backdrop-blur-xl flex justify-center pt-16 sm:pt-24 px-3 sm:px-4"
                     onClick={onClose}
                 >
                     <motion.div
                         initial={{ scale: 0.95, y: -20 }}
                         animate={{ scale: 1, y: 0 }}
                         exit={{ scale: 0.95, y: -20 }}
-                        className="w-full max-w-2xl bg-tronix-card border border-white/10 rounded-2xl shadow-2xl overflow-hidden h-fit max-h-[70vh] flex flex-col"
+                        className="w-full max-w-2xl bg-tronix-card border border-white/10 rounded-2xl shadow-2xl overflow-hidden h-fit max-h-[82vh] flex flex-col"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Search Input Area */}
-                        <div className="p-4 border-b border-white/10 flex items-center gap-4 relative">
-                            <Search className="text-gray-400" size={20} />
+                        <div className="p-3 sm:p-4 border-b border-white/10 flex items-center gap-3 sm:gap-4 relative">
+                            <Search className="text-gray-400 shrink-0" size={20} />
                             <input
                                 ref={inputRef}
                                 type="text"
                                 placeholder="Search products, categories, or brands..."
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
-                                className="w-full bg-transparent border-none outline-none text-white text-lg placeholder:text-gray-500"
+                                className="w-full bg-transparent border-none outline-none text-white text-base sm:text-lg placeholder:text-gray-500"
                             />
                             {isLoading ? (
                                 <Loader className="text-tronix-primary animate-spin" size={20} />

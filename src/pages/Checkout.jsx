@@ -424,7 +424,7 @@ const Checkout = () => {
     if (selectedItems.length === 0) return null;
 
     return (
-        <div className="min-h-screen pt-20 sm:pt-24 pb-28 lg:pb-12 px-3 sm:px-6 bg-[#0F172A]">
+        <div className="min-h-screen pt-20 sm:pt-24 pb-32 lg:pb-12 px-3 sm:px-6 bg-[#0F172A]">
             <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
 
                 {/* LEFT COLUMN: Steps */}

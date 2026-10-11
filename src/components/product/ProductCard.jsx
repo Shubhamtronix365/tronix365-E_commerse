@@ -41,7 +41,7 @@ const ProductCard = ({ product }) => {
                 className="group relative bg-[#0a0d24]/75 border border-slate-800/80 rounded-2xl overflow-hidden hover:border-purple-500/50 hover:shadow-xl hover:shadow-purple-500/10 backdrop-blur-md transition-all duration-300 h-full flex flex-col justify-between"
             >
                 {/* Image & Quick Action Overlay Container */}
-                <div className="relative h-44 sm:h-48 overflow-hidden bg-gradient-to-b from-purple-950/20 via-slate-950/70 to-slate-950/90 p-3 flex items-center justify-center border-b border-white/5">
+                <div className="relative h-36 xs:h-40 sm:h-48 overflow-hidden bg-gradient-to-b from-purple-950/20 via-slate-950/70 to-slate-950/90 p-2.5 sm:p-3 flex items-center justify-center border-b border-white/5">
                     {/* Top Floating Glassmorphic Action Bar (Share & Wishlist) */}
                     <div className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1 bg-black/50 backdrop-blur-md p-1 rounded-full border border-white/10 shadow-lg">
                         <button
@@ -104,7 +104,7 @@ const ProductCard = ({ product }) => {
                 </div>
 
                 {/* Content Details */}
-                <div className="p-3.5 sm:p-4 flex-1 flex flex-col justify-between space-y-3">
+                <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between space-y-2 sm:space-y-3">
                     <div>
                         <div className="text-[11px] sm:text-xs text-purple-400 font-medium mb-1 truncate">
                             {product.category || 'Development Boards'}
@@ -133,7 +133,7 @@ const ProductCard = ({ product }) => {
                         <button
                             onClick={handleAddToCart}
                             disabled={product.stock === 0}
-                            className="w-full bg-slate-900/60 hover:bg-purple-600 text-white text-xs sm:text-sm font-semibold py-2.5 px-3 rounded-xl border border-slate-700/80 hover:border-purple-500 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:bg-slate-900/60 cursor-pointer shadow-md"
+                            className="w-full bg-slate-900/60 hover:bg-purple-600 text-white text-[11px] sm:text-sm font-semibold py-2 sm:py-2.5 px-2.5 sm:px-3 rounded-xl border border-slate-700/80 hover:border-purple-500 transition-all flex items-center justify-center gap-1.5 sm:gap-2 disabled:opacity-50 disabled:hover:bg-slate-900/60 cursor-pointer shadow-md"
                         >
                             <ShoppingCart size={15} />
                             <span>{product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}</span>

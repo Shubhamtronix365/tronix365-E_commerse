@@ -43,7 +43,7 @@ const HeroSlider = () => {
     }, []);
 
     return (
-        <section className="relative h-[420px] sm:h-[500px] md:h-[600px] overflow-hidden bg-tronix-bg">
+        <section className="relative min-h-[460px] sm:min-h-[500px] md:h-[600px] overflow-hidden bg-tronix-bg">
             <AnimatePresence mode="wait">
                 <motion.div
                     key={current}
@@ -66,7 +66,7 @@ const HeroSlider = () => {
 
                     {/* Content */}
                     <div className="absolute inset-0 flex items-center z-10">
-                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-10 sm:pb-0">
                             <div className="max-w-2xl">
                                 <motion.div
                                     initial={{ x: -50, opacity: 0 }}
@@ -82,7 +82,7 @@ const HeroSlider = () => {
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.3, duration: 0.5 }}
-                                    className="text-3xl sm:text-5xl md:text-7xl font-display font-bold text-white mb-4 sm:mb-6 leading-tight"
+                                    className="text-2xl xs:text-3xl sm:text-5xl md:text-7xl font-display font-bold text-white mb-3 sm:mb-6 leading-tight"
                                 >
                                     {slides[current].title}
                                 </motion.h1>
@@ -91,7 +91,7 @@ const HeroSlider = () => {
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.4, duration: 0.5 }}
-                                    className="text-sm sm:text-base md:text-lg text-gray-300 mb-6 sm:mb-8 leading-relaxed max-w-lg"
+                                    className="text-xs sm:text-base md:text-lg text-gray-300 mb-5 sm:mb-8 leading-relaxed max-w-lg line-clamp-3 sm:line-clamp-none"
                                 >
                                     {slides[current].description}
                                 </motion.p>
@@ -101,7 +101,7 @@ const HeroSlider = () => {
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.5, duration: 0.5 }}
                                     onClick={() => navigate('/shop')}
-                                    className="group flex items-center gap-2 bg-tronix-primary hover:bg-violet-600 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-full text-sm sm:text-base font-bold transition-all shadow-xl shadow-violet-500/25 cursor-pointer"
+                                    className="group flex items-center gap-2 bg-tronix-primary hover:bg-violet-600 text-white px-5 py-2.5 sm:px-8 sm:py-4 rounded-full text-xs sm:text-base font-bold transition-all shadow-xl shadow-violet-500/25 cursor-pointer"
                                 >
                                     Explore Now
                                     <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
@@ -113,7 +113,7 @@ const HeroSlider = () => {
             </AnimatePresence>
 
             {/* Indicators */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+            <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-3 z-20">
                 {slides.map((_, index) => (
                     <button
                         key={index}

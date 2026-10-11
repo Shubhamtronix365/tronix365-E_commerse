@@ -145,11 +145,11 @@ const Navbar = () => {
                             className="md:hidden bg-tronix-bg/95 backdrop-blur-xl border-t border-white/10"
                         >
                             <div className="px-4 pt-2 pb-6 space-y-2">
-                                <Link to="/" className="block py-3 text-base font-medium text-white border-b border-white/5">Home</Link>
-                                <Link to="/shop" className="block py-3 text-base font-medium text-gray-300 border-b border-white/5">Shop</Link>
-                                <Link to="/categories" className="block py-3 text-base font-medium text-gray-300 border-b border-white/5">Categories</Link>
-                                <Link to="/blogs" className="block py-3 text-base font-medium text-gray-300 border-b border-white/5">Blogs & Guides</Link>
-                                <Link to="/tower-orders" className="flex items-center justify-between py-3 text-base font-medium text-tronix-accent border-b border-white/5">
+                                <Link to="/" onClick={() => setIsOpen(false)} className="block py-3 text-base font-medium text-white border-b border-white/5 active:text-tronix-primary">Home</Link>
+                                <Link to="/shop" onClick={() => setIsOpen(false)} className="block py-3 text-base font-medium text-gray-300 border-b border-white/5 active:text-tronix-primary">Shop</Link>
+                                <Link to="/categories" onClick={() => setIsOpen(false)} className="block py-3 text-base font-medium text-gray-300 border-b border-white/5 active:text-tronix-primary">Categories</Link>
+                                <Link to="/blogs" onClick={() => setIsOpen(false)} className="block py-3 text-base font-medium text-gray-300 border-b border-white/5 active:text-tronix-primary">Blogs & Guides</Link>
+                                <Link to="/tower-orders" onClick={() => setIsOpen(false)} className="flex items-center justify-between py-3 text-base font-medium text-tronix-accent border-b border-white/5 active:text-white">
                                     <span className="flex items-center gap-2">
                                         <span className="w-2 h-2 rounded-full bg-tronix-accent"></span>
                                         Tower Orders (B2B Factory)
@@ -159,10 +159,10 @@ const Navbar = () => {
                                 {user ? (
                                     <div className="pt-4 border-t border-white/5 mt-2 space-y-4">
                                         <div className="flex items-center justify-between">
-                                            <Link to={user.role === 'admin' ? '/admin' : '/dashboard'} className="flex items-center gap-2 text-tronix-primary font-medium">
+                                            <Link to={user.role === 'admin' ? '/admin' : '/dashboard'} onClick={() => setIsOpen(false)} className="flex items-center gap-2 text-tronix-primary font-medium">
                                                 <User size={20} /> <span className="truncate max-w-[150px]">{user.full_name || user.name || 'User'}</span>
                                             </Link>
-                                            <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 p-2">
+                                            <button onClick={() => { setIsOpen(false); handleLogout(); }} className="text-gray-400 hover:text-red-500 p-2">
                                                 <LogOut size={20} />
                                             </button>
                                         </div>

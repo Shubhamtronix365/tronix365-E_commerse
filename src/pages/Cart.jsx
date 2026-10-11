@@ -159,7 +159,7 @@ const Cart = () => {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
-                                className={`bg-tronix-card/50 border ${item.selected !== false ? 'border-tronix-primary/50' : 'border-white/5'} rounded-xl p-4 flex gap-4 items-center transition-colors`}
+                                className={`bg-tronix-card/50 border ${item.selected !== false ? 'border-tronix-primary/50' : 'border-white/5'} rounded-xl p-3 sm:p-4 flex gap-2.5 sm:gap-4 items-center transition-colors`}
                             >
                                 <input
                                     type="checkbox"
@@ -232,11 +232,11 @@ const Cart = () => {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
-                                className={`bg-tronix-primary/5 border ${group.selected ? 'border-tronix-primary/50' : 'border-tronix-primary/20'} rounded-xl p-4 transition-colors relative overflow-hidden`}
+                                className={`bg-tronix-primary/5 border ${group.selected ? 'border-tronix-primary/50' : 'border-tronix-primary/20'} rounded-xl p-3 sm:p-4 transition-colors relative overflow-hidden`}
                             >
                                 <div className="absolute inset-0 bg-gradient-to-r from-tronix-primary/10 to-transparent opacity-30 pointer-events-none" />
 
-                                <div className="flex gap-4 items-start relative z-10">
+                                <div className="flex gap-2.5 sm:gap-4 items-start relative z-10">
                                     <input
                                         type="checkbox"
                                         checked={group.selected}

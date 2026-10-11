@@ -274,7 +274,7 @@ const Login = () => {
             </div>
 
             {/* RIGHT COLUMN: AUTH FORM */}
-            <div className="flex flex-col justify-center items-center px-6 py-6 lg:py-8 bg-tronix-bg relative overflow-y-auto w-full lg:h-full">
+            <div className="flex flex-col justify-center items-center px-4 sm:px-6 py-6 lg:py-8 bg-tronix-bg relative overflow-y-auto w-full lg:h-full">
                 {/* Background Glow */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-tronix-primary/10 rounded-full blur-[100px] pointer-events-none" />
                 
@@ -282,7 +282,7 @@ const Login = () => {
                     initial={{ opacity: 0, x: 30 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ type: 'spring', damping: 25, stiffness: 120 }}
-                    className="w-full max-w-md relative z-10 glass-card p-5 md:p-6 rounded-2xl border border-white/10"
+                    className="w-full max-w-md relative z-10 glass-card p-4 sm:p-6 rounded-2xl border border-white/10"
                 >
                     <div className="text-center mb-4 md:mb-6">
                         <img src={logo} alt="Tronix365 Logo" className="w-12 h-12 mx-auto mb-4 md:hidden" />
@@ -336,7 +336,7 @@ const Login = () => {
                                 </div>
                                 
                                 {/* 6-Digit box elements */}
-                                <div className="flex justify-between gap-2">
+                                <div className="flex justify-between gap-1.5 sm:gap-2">
                                     {otp.map((data, index) => (
                                         <input
                                             key={index}
@@ -346,7 +346,7 @@ const Login = () => {
                                             value={data}
                                             onChange={(e) => handleOtpChange(e.target, index)}
                                             onKeyDown={(e) => handleOtpKeyDown(e, index)}
-                                            className="w-12 h-12 text-center text-xl font-bold bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-tronix-primary transition-all"
+                                            className="w-9 h-11 xs:w-11 xs:h-12 sm:w-12 sm:h-12 text-center text-lg sm:text-xl font-bold bg-white/5 border border-white/10 rounded-lg sm:rounded-xl text-white focus:outline-none focus:border-tronix-primary transition-all"
                                         />
                                     ))}
                                 </div>

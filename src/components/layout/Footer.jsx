@@ -5,13 +5,13 @@ import logo from '../../assets/logo.png';
 
 const Footer = () => {
     return (
-        <footer className="relative bg-tronix-dark/95 border-t border-white/5 pt-20 pb-10 overflow-hidden mt-12">
+        <footer className="relative bg-tronix-dark/95 border-t border-white/5 pt-12 sm:pt-20 pb-10 overflow-hidden mt-12">
             {/* Background Glow Effects */}
             <div className="absolute top-0 left-1/4 w-96 h-96 bg-tronix-primary/5 rounded-full blur-[120px] -translate-y-1/2 pointer-events-none"></div>
             <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-violet-600/5 rounded-full blur-[120px] translate-y-1/2 pointer-events-none"></div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 mb-10 sm:mb-16">
 
                     {/* Brand & Identity */}
                     <div className="space-y-6 lg:col-span-1 border-r-0 lg:border-r border-white/5 lg:pr-8">
@@ -146,7 +146,7 @@ const Footer = () => {
                     <p className="text-gray-500 text-xs font-medium text-center md:text-left">
                         &copy; 2025 Tronix365. All rights reserved. Prepared with ❤️ for developers and makers.
                     </p>
-                    <div className="flex items-center gap-4 text-xs font-medium text-gray-500">
+                    <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-4 gap-y-2 text-xs font-medium text-gray-500">
                         <Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
                         <span className="w-1 h-1 bg-gray-600 rounded-full"></span>
                         <Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link>

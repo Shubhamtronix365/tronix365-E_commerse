@@ -384,7 +384,7 @@ const Shop = () => {
 
                         {/* Loading State on initial load */}
                         {loading && products.length === 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                                 {[...Array(LIMIT)].map((_, i) => (
                                     <ProductCardSkeleton key={i} />
                                 ))}
@@ -393,7 +393,7 @@ const Shop = () => {
                             <div className="text-center text-red-500 py-10">{error}</div>
                         ) : filteredProducts.length > 0 ? (
                             <div className={`transition-opacity duration-200 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                                     {filteredProducts.map((product) => (
                                         <ProductCard key={product.id} product={product} />
                                     ))}
