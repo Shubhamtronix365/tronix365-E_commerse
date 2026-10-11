@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Edit, Plus, Info, Tag, Boxes, Package, List, DollarSign, Image as ImageIcon, Loader, Save, Factory } from 'lucide-react';
+import { X, Edit, Plus, Info, Tag, Boxes, Package, List, DollarSign, Image as ImageIcon, Loader, Save, Factory, Globe } from 'lucide-react';
 import { getImageUrl } from '../../utils/imageUtils';
+import { slugify } from '../../utils/slugify';
 
 import { useCategories } from '../../hooks/useCategories';
 
@@ -87,6 +88,15 @@ const ProductModal = ({
                                                     className="w-full bg-black/20 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-white placeholder-gray-600 focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary focus:bg-white/5 transition-all outline-none"
                                                 />
                                             </div>
+                                            {newProduct.title && (
+                                                <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-400 font-mono bg-white/[0.03] px-3 py-1.5 rounded-lg border border-white/5 overflow-hidden">
+                                                    <Globe size={13} className="text-violet-400 shrink-0" />
+                                                    <span className="text-violet-400 font-semibold shrink-0">Storefront URL:</span>
+                                                    <span className="truncate text-gray-300">
+                                                        /product/<strong className="text-white">{slugify(newProduct.title)}</strong>
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

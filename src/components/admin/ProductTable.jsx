@@ -17,7 +17,8 @@ import {
     Boxes, 
     AlertTriangle, 
     CheckCircle2,
-    RefreshCw
+    RefreshCw,
+    Share2
 } from 'lucide-react';
 import { getImageUrl } from '../../utils/imageUtils';
 import { slugify } from '../../utils/slugify';
@@ -45,6 +46,7 @@ const ProductTable = ({
     handleDeleteClick
 }) => {
     const [copiedSku, setCopiedSku] = useState(null);
+    const [copiedProductLinkId, setCopiedProductLinkId] = useState(null);
 
     const handleCopySku = (sku) => {
         if (!sku) return;
@@ -52,6 +54,42 @@ const ProductTable = ({
         setCopiedSku(sku);
         toast.success(`Copied SKU: ${sku}`, { duration: 1500 });
         setTimeout(() => setCopiedSku(null), 2000);
+    };
+
+    const handleCopyProductLink = (item) => {
+        if (!item) return;
+        const itemSlug = item.slug || slugify(item.title);
+        const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.tronix365.in';
+        const pathPrefix = (typeof window !== 'undefined' && window.location.pathname.startsWith('/e-commerse')) ? '/e-commerse' : '';
+        const shareUrl = `${origin}${pathPrefix}/product/${itemSlug}`;
+
+        if (navigator?.clipboard) {
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                setCopiedProductLinkId(item.id);
+                toast.success('Copied shareable product link!', { duration: 2000 });
+                setTimeout(() => setCopiedProductLinkId(null), 2500);
+            }).catch(() => {
+                fallbackCopy(shareUrl, item.id);
+            });
+        } else {
+            fallbackCopy(shareUrl, item.id);
+        }
+    };
+
+    const fallbackCopy = (text, id) => {
+        try {
+            const input = document.createElement('input');
+            input.value = text;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+            setCopiedProductLinkId(id);
+            toast.success('Copied shareable product link!', { duration: 2000 });
+            setTimeout(() => setCopiedProductLinkId(null), 2500);
+        } catch {
+            toast.error('Failed to copy link');
+        }
     };
 
     // Calculate pagination values
@@ -412,6 +450,18 @@ const ProductTable = ({
                                             >
                                                 <ExternalLink size={15} />
                                             </Link>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleCopyProductLink(item)}
+                                                className="p-2 bg-white/5 hover:bg-violet-500/20 rounded-xl text-gray-400 hover:text-violet-300 transition-colors"
+                                                title="Copy shareable product link"
+                                            >
+                                                {copiedProductLinkId === item.id ? (
+                                                    <Check size={15} className="text-emerald-400" />
+                                                ) : (
+                                                    <Share2 size={15} />
+                                                )}
+                                            </button>
                                             <button
                                                 onClick={() => handleOpenEditModal(item)}
                                                 className="p-2 bg-white/5 hover:bg-blue-500/20 rounded-xl text-blue-400 hover:text-blue-300 transition-colors"
