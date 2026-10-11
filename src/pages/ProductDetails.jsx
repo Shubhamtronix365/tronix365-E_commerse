@@ -86,9 +86,24 @@ const ProductDetails = () => {
                 try {
                     prodRes = await client.get(endpoint);
                 } catch (err) {
-                    if (!isId && (slug.includes('-amp-') || slug.includes('-and-'))) {
-                        const cleanSlug = slug.replace(/-amp-/g, '-').replace(/-and-/g, '-');
-                        prodRes = await client.get(`/products/slug/${cleanSlug}`);
+                    if (!isId) {
+                        try {
+                            const cleanSlug = slug.replace(/-amp-/g, '-').replace(/-and-/g, '-');
+                            prodRes = await client.get(`/products/slug/${cleanSlug}`);
+                        } catch (err2) {
+                            // Fallback to fuzzy search matching product words
+                            const searchWords = slug.replace(/[-_]+/g, ' ').replace(/\b(and|amp|for|the|with)\b/gi, '').trim();
+                            if (searchWords) {
+                                const searchRes = await client.get(`/products/search?q=${encodeURIComponent(searchWords)}`);
+                                if (searchRes.data && searchRes.data.length > 0) {
+                                    prodRes = { data: searchRes.data[0] };
+                                } else {
+                                    throw err2;
+                                }
+                            } else {
+                                throw err2;
+                            }
+                        }
                     } else {
                         throw err;
                     }

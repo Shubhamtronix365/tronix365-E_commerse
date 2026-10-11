@@ -443,11 +443,18 @@ async def refresh_token_endpoint(refresh_token: str, db: Session = Depends(get_d
     db_token = (
         db.query(RefreshTokenDB).filter(RefreshTokenDB.token == refresh_token).first()
     )
-    if not db_token or db_token.expires_at < datetime.utcnow():
-        if db_token:
-            db.delete(db_token)
-            db.commit()
+    if not db_token:
         raise HTTPException(status_code=401, detail="Refresh token expired or invalid")
+
+    expires_at = (
+        db_token.expires_at.replace(tzinfo=None)
+        if db_token.expires_at and db_token.expires_at.tzinfo
+        else db_token.expires_at
+    )
+    if expires_at and expires_at < datetime.utcnow():
+        db.delete(db_token)
+        db.commit()
+        raise HTTPException(status_code=401, detail="Refresh token expired")
 
     user = db.query(UserDB).filter(UserDB.id == db_token.user_id).first()
     if not user:

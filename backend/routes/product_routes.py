@@ -216,39 +216,118 @@ async def get_product(product_id: int, db: Session = Depends(get_db)):
 @router.get("/products/slug/{slug}", response_model=Product)
 @cache(expire=3600, namespace="products")
 async def get_product_by_slug(slug: str, db: Session = Depends(get_db)):
-    def normalize(s: str) -> str:
+    import html, re
+
+    def clean_slug(s: str) -> str:
         if not s:
             return ""
-        import html
-        s = html.unescape(s)
+        s = html.unescape(str(s)).lower().strip()
+        s = re.sub(r'&amp;', ' and ', s, flags=re.IGNORECASE)
+        s = re.sub(r'&', ' and ', s)
+        s = re.sub(r'\.', '-', s)
+        s = re.sub(r'[\s_]+', '-', s)
+        s = re.sub(r'[^a-z0-9-]', '', s)
+        s = re.sub(r'-+', '-', s)
+        return s.strip('-')
+
+    def frontend_slug(s: str) -> str:
+        if not s:
+            return ""
+        s = html.unescape(str(s)).lower().strip()
         s = re.sub(r'&amp;', '', s, flags=re.IGNORECASE)
-        t = s.lower()
-        t = re.sub(r'-amp-', '-', t)
-        t = re.sub(r'-and-', '-', t)
-        t = re.sub(r'[^a-z0-9\s_-]', '', t)
-        t = re.sub(r'[\s_-]+', '-', t)
+        s = re.sub(r'&', '', s)
+        s = re.sub(r'\.', '-', s)
+        s = re.sub(r'_', '-', s)
+        s = re.sub(r'\s+', '-', s)
+        s = re.sub(r'[^\w\-]+', '', s)
+        s = re.sub(r'\-\-+', '-', s)
+        return s.strip('-')
+
+    def strip_connectors(s_val: str) -> str:
+        t = re.sub(r'-(and|amp)-', '-', f"-{s_val}-")
+        t = re.sub(r'-+', '-', t)
         return t.strip('-')
 
-    target = normalize(slug)
-    products = db.query(ProductDB).all()
+    slug_raw = slug.strip().lower()
 
+    # 1. Direct ID check
+    if slug_raw.isdigit():
+        p_by_id = db.query(ProductDB).filter(ProductDB.id == int(slug_raw)).first()
+        if p_by_id:
+            p_by_id.variants = get_product_variants_list(p_by_id, db)
+            return p_by_id
+
+    # 2. SKV / SKU exact match
+    p_by_skv = db.query(ProductDB).filter(
+        or_(
+            ProductDB.skv.ilike(slug_raw),
+            ProductDB.sku.ilike(slug_raw)
+        )
+    ).first()
+    if p_by_skv:
+        p_by_skv.variants = get_product_variants_list(p_by_skv, db)
+        return p_by_skv
+
+    products = db.query(ProductDB).all()
     found_product = None
+
+    # 3. Clean slug exact match
+    target_clean = clean_slug(slug_raw)
     for p in products:
-        if p.title and normalize(p.title) == target:
+        if p.title and clean_slug(p.title) == target_clean:
             found_product = p
             break
 
+    # 4. Frontend slug exact match
     if not found_product:
+        target_fe = frontend_slug(slug_raw)
         for p in products:
-            if p.skv and (normalize(p.skv) == target or p.skv.lower() == slug.lower()):
+            if p.title and frontend_slug(p.title) == target_fe:
                 found_product = p
                 break
 
+    # 5. Connector-stripped match (-and- / -amp-)
     if not found_product:
+        target_stripped = strip_connectors(target_clean)
         for p in products:
-            if p.title and p.title.lower().strip() == slug.lower().strip():
+            if p.title and strip_connectors(clean_slug(p.title)) == target_stripped:
                 found_product = p
                 break
+        if not found_product:
+            for p in products:
+                if p.title and strip_connectors(frontend_slug(p.title)) == target_stripped:
+                    found_product = p
+                    break
+
+    # 6. Stopwords-free token match
+    if not found_product:
+        STOPWORDS = {'and', 'amp', 'for', 'with', 'the', 'in', 'of', 'to'}
+        target_tokens = set(re.findall(r'[a-z0-9]+', slug_raw)) - STOPWORDS
+        if target_tokens:
+            for p in products:
+                if p.title:
+                    p_tokens = set(re.findall(r'[a-z0-9]+', p.title.lower())) - STOPWORDS
+                    if target_tokens == p_tokens:
+                        found_product = p
+                        break
+
+    # 7. Fallback word-overlap match (if user slug is >= 75% similar)
+    if not found_product:
+        target_words = set(re.findall(r'[a-z0-9]{2,}', slug_raw))
+        best_match = None
+        best_score = 0.0
+        if target_words:
+            for p in products:
+                if p.title:
+                    p_words = set(re.findall(r'[a-z0-9]{2,}', p.title.lower()))
+                    intersection = target_words & p_words
+                    if intersection:
+                        score = len(intersection) / max(len(target_words), len(p_words))
+                        if score > best_score and score >= 0.75:
+                            best_score = score
+                            best_match = p
+        if best_match:
+            found_product = best_match
 
     if not found_product:
         raise HTTPException(status_code=404, detail="Product not found")

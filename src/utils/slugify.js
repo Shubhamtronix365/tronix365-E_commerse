@@ -6,6 +6,7 @@ export const slugify = (text) => {
     .trim()
     .replace(/&amp;/g, '')         // Remove HTML entity &amp;
     .replace(/&/g, '')             // Remove &
+    .replace(/\./g, '-')          // Replace dots with - (preserves decimals like 4.7K vs 47K)
     .replace(/_/g, '-')           // Replace underscores with -
     .replace(/\s+/g, '-')         // Replace spaces with -
     .replace(/[^\w\-]+/g, '')     // Remove all non-word chars
