@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Request
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session, joinedload
@@ -49,44 +49,75 @@ async def send_contact_email(
     return {"message": "Message sent successfully, queued for delivery"}
 
 
+VALID_PAID_STATUSES = ["confirmed", "payment_received", "shipped", "out_for_delivery", "delivered"]
+
+
 @router.get("/admin/stats")
-@cache(expire=3600)
 async def get_admin_stats(
     db: Session = Depends(get_db),
     current_admin: UserDB = Depends(get_current_admin),
 ):
     total_orders = db.query(OrderDB).count()
-    total_revenue = db.query(func.sum(OrderDB.total_amount)).scalar() or 0.0
     total_products = db.query(ProductDB).count()
     total_users = db.query(UserDB).count()
 
-    now = datetime.utcnow()
-    thirty_days_ago = now - timedelta(days=30)
-    sixty_days_ago = now - timedelta(days=60)
-
-    current_revenue = (
+    # Real paid revenue: only confirmed, delivered, shipped orders (actual money collected)
+    paid_revenue = (
         db.query(func.sum(OrderDB.total_amount))
-        .filter(OrderDB.created_at >= thirty_days_ago)
+        .filter(OrderDB.status.in_(VALID_PAID_STATUSES))
         .scalar()
         or 0.0
     )
-    previous_revenue = (
+
+    # Real paid orders count
+    paid_orders = (
+        db.query(OrderDB)
+        .filter(OrderDB.status.in_(VALID_PAID_STATUSES))
+        .count()
+    )
+
+    # Pending checkout revenue (unpaid attempts)
+    pending_revenue = (
+        db.query(func.sum(OrderDB.total_amount))
+        .filter(OrderDB.status == "pending")
+        .scalar()
+        or 0.0
+    )
+
+    now = datetime.now(timezone.utc)
+    thirty_days_ago = now - timedelta(days=30)
+    sixty_days_ago = now - timedelta(days=60)
+
+    current_paid_revenue = (
         db.query(func.sum(OrderDB.total_amount))
         .filter(
-            OrderDB.created_at >= sixty_days_ago, OrderDB.created_at < thirty_days_ago
+            OrderDB.status.in_(VALID_PAID_STATUSES),
+            OrderDB.created_at >= thirty_days_ago,
+        )
+        .scalar()
+        or 0.0
+    )
+    previous_paid_revenue = (
+        db.query(func.sum(OrderDB.total_amount))
+        .filter(
+            OrderDB.status.in_(VALID_PAID_STATUSES),
+            OrderDB.created_at >= sixty_days_ago,
+            OrderDB.created_at < thirty_days_ago,
         )
         .scalar()
         or 0.0
     )
 
-    if previous_revenue == 0:
-        growth = 100.0 if current_revenue > 0 else 0.0
+    if previous_paid_revenue == 0:
+        growth = 100.0 if current_paid_revenue > 0 else 0.0
     else:
-        growth = ((current_revenue - previous_revenue) / previous_revenue) * 100.0
+        growth = ((current_paid_revenue - previous_paid_revenue) / previous_paid_revenue) * 100.0
 
     return {
-        "total_revenue": total_revenue,
+        "total_revenue": round(paid_revenue, 2),
+        "pending_revenue": round(pending_revenue, 2),
         "total_orders": total_orders,
+        "paid_orders": paid_orders,
         "total_products": total_products,
         "active_users": total_users,
         "growth": round(growth, 1),

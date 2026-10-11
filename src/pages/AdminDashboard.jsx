@@ -499,25 +499,29 @@ const AdminDashboard = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 mt-4">
                     <StatCard 
                         title="Total Revenue" 
-                        value={`₹${stats.total_revenue.toLocaleString()}`} 
+                        value={`₹${Number(stats.total_revenue || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} 
+                        subtitle={stats.pending_revenue > 0 ? `₹${Number(stats.pending_revenue).toLocaleString('en-IN', { minimumFractionDigits: 2 })} in pending` : 'Cleared & Confirmed'}
                         icon={DollarSign} 
                         color="text-emerald-500" 
                     />
                     <StatCard 
                         title="Total Orders" 
-                        value={stats.total_orders} 
+                        value={stats.paid_orders !== undefined ? `${stats.paid_orders} Paid` : stats.total_orders} 
+                        subtitle={`${stats.total_orders} total attempts`}
                         icon={Package} 
                         color="text-violet-500" 
                     />
                     <StatCard 
                         title="Active Users" 
                         value={stats.active_users} 
+                        subtitle="Registered Accounts"
                         icon={Users} 
                         color="text-purple-500" 
                     />
                     <StatCard 
                         title="Monthly Growth" 
                         value={`${stats.growth > 0 ? '+' : ''}${stats.growth || 0}%`} 
+                        subtitle="Real Paid Sales Growth"
                         icon={TrendingUp} 
                         color={stats.growth >= 0 ? 'text-emerald-500' : 'text-red-500'} 
                     />
