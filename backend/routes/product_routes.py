@@ -219,7 +219,12 @@ async def get_product_by_slug(slug: str, db: Session = Depends(get_db)):
     def normalize(s: str) -> str:
         if not s:
             return ""
+        import html
+        s = html.unescape(s)
+        s = re.sub(r'&amp;', '', s, flags=re.IGNORECASE)
         t = s.lower()
+        t = re.sub(r'-amp-', '-', t)
+        t = re.sub(r'-and-', '-', t)
         t = re.sub(r'[^a-z0-9\s_-]', '', t)
         t = re.sub(r'[\s_-]+', '-', t)
         return t.strip('-')

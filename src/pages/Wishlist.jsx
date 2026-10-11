@@ -7,6 +7,7 @@ import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
 import { getImageUrl } from '../utils/imageUtils';
 import { slugify } from '../utils/slugify';
+import { formatPrice } from '../utils/priceUtils';
 import Image from '../components/common/Image';
 
 const Wishlist = () => {
@@ -59,7 +60,7 @@ const Wishlist = () => {
                                             {product.title}
                                         </h3>
                                         <div className="flex items-center justify-between">
-                                            <span className="text-lg font-bold text-white">₹{product.price}</span>
+                                            <span className="text-lg font-bold text-white">₹{formatPrice(product.price)}</span>
                                             <span className="text-xs text-green-400 bg-green-400/10 px-2 py-1 rounded-full">In Stock</span>
                                         </div>
                                     </div>

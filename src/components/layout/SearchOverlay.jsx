@@ -7,6 +7,7 @@ import { getImageUrl } from '../../utils/imageUtils';
 import Skeleton from '../common/Skeleton';
 import Image from '../common/Image';
 import { slugify } from '../../utils/slugify';
+import { formatPrice } from '../../utils/priceUtils';
 
 const SearchOverlay = ({ isOpen, onClose }) => {
     const [query, setQuery] = useState('');
@@ -162,9 +163,9 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                                                     <p className="text-xs text-gray-400">{product.category}</p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="text-tronix-accent font-bold">₹{product.price}</p>
+                                                    <p className="text-tronix-accent font-bold">₹{formatPrice(product.price)}</p>
                                                     {product.mrp && Number(product.mrp) > Number(product.price) && (
-                                                        <p className="text-[10px] text-gray-500 line-through">₹{product.mrp}</p>
+                                                        <p className="text-[10px] text-gray-500 line-through">₹{formatPrice(product.mrp)}</p>
                                                     )}
                                                 </div>
                                                 <ArrowRight size={16} className={`transition-all ${

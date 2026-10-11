@@ -70,6 +70,16 @@ export const products = [
         stock: 200
     },
     {
+        id: 12,
+        title: "DHT22 Module Temp & Humidity Sensor",
+        description: "High accuracy digital temperature and humidity sensor module with single-bus digital signal output.",
+        price: 240,
+        category: "Sensors",
+        image: "https://images.unsplash.com/photo-1581092918056-0c4c3acd90f9?auto=format&fit=crop&q=80&w=1000",
+        specs: { "Model": "DHT22 / AM2302", "Operating Voltage": "3.3V - 5.5V", "Temp Range": "-40°C to 80°C", "Humidity Range": "0% - 100%" },
+        stock: 150
+    },
+    {
         id: 8,
         title: "OLED Display 0.96 inch",
         description: "I2C OLED display module for Arduino and Pi.",

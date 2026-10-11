@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import client from '../../api/client';
 import { getImageUrl } from '../../utils/imageUtils';
 import { slugify } from '../../utils/slugify';
+import { formatPrice } from '../../utils/priceUtils';
 
 const SearchOverlay = ({ isOpen, onClose }) => {
     const [query, setQuery] = useState('');
@@ -114,7 +115,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                                                 <h4 className="text-white font-medium group-hover:text-tronix-primary transition-colors">{product.title}</h4>
                                                 <p className="text-sm text-gray-400">{product.category}</p>
                                             </div>
-                                            <span className="text-tronix-accent font-bold">₹{product.price}</span>
+                                            <span className="text-tronix-accent font-bold">₹{formatPrice(product.price)}</span>
                                             <ArrowRight size={20} className="text-gray-500 group-hover:text-white -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all" />
                                         </Link>
                                     ))

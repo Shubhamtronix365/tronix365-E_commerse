@@ -466,19 +466,42 @@ def parse_list(raw_str):
     if not raw_str:
         return []
     import json
+    import html
+    import re
 
     try:
         decoded = json.loads(raw_str)
         if isinstance(decoded, list):
-            return [str(item).strip() for item in decoded if str(item).strip()]
+            res = []
+            for item in decoded:
+                s = str(item).strip()
+                s = re.sub(r'^[{"\s]+|[}"\s]+$', '', s)
+                if s:
+                    res.append(s)
+            return res
+        elif isinstance(decoded, dict):
+            res = []
+            for k, v in decoded.items():
+                if v and str(v).strip():
+                    clean_k = str(k).strip().replace('"', '')
+                    clean_v = str(v).strip().replace('"', '')
+                    res.append(f"{clean_k}: {clean_v}")
+            return res
     except:
         pass
 
     # Delimiter fallback
     delimiter = "|" if "|" in raw_str else ("," if "," in raw_str else None)
     if delimiter:
-        return [f.strip() for f in raw_str.split(delimiter) if f.strip()]
-    return [raw_str.strip()]
+        res = []
+        for f in raw_str.split(delimiter):
+            s = f.strip()
+            s = re.sub(r'^[{"\s]+|[}"\s]+$', '', s)
+            if s and not s.endswith(':'):
+                res.append(s)
+        return res
+    clean_s = re.sub(r'^[{"\s]+|[}"\s]+$', '', raw_str.strip())
+    return [clean_s] if clean_s else []
 
 
 def parse_dict(raw_str):

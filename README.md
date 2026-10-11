@@ -10,7 +10,18 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
 - **Fuzzy Search & Filters**: High-performance backend search, pagination, category sorting, and price range filters.
 - **Smart Shopping Cart**: Persistent cart state, client-side validation, and instant coupon/discount application.
 - **Smart Catalog Sorting & Price Pending Prioritization**: Automatically identifies products imported from supplier catalogs without established retail prices (flagged `is_price_pending`), placing them gracefully at the very end of all shop catalog and category listings so active, priced inventory is always prioritized.
-- **Strict 2-Decimal Currency Precision & Accurate GST Engine**: Guarantees financial mathematical precision using standard INR formatting (2 decimal places). Eliminates JavaScript IEEE 754 floating-point issues (e.g. `65.46000000000001`) across shopping cart totals, checkout order summaries, mobile sticky action bars, PayU payment initiation, invoices, and database order records.
+- **Strict 2-Decimal Currency Precision & Accurate GST Engine**: Guarantees financial mathematical precision using standard INR formatting (2 decimal places). Enforces 2 decimal float formatting (e.g. `261.00`, `36.36`) across product cards, product details, shopping cart totals, wishlist, search overlays, and invoices.
+- **Direct Quantity Input for Large Orders**: Product details and shopping cart now feature direct editable numeric inputs in addition to `-` and `+` steppers, allowing customers to easily type exact quantities (e.g., 50, 100, 500 units) without repeated clicking.
+- **Resilient Product Slug Matching & Entity Sanitization**: Resolves 404 errors on products containing ampersands or HTML entities (e.g., DHT11 and DHT22 digital temperature & humidity sensors). Front-end `slugify.js` and back-end `get_product_by_slug` normalize `-amp-` and `-and-` slugs to guarantee seamless routing and canonical redirects.
+- **Dynamic Pincode Delivery Estimator & Pune Same Day Delivery**:
+  - Interactive PIN code checker supporting all Indian postal codes with instant City/State lookup via India Post API.
+  - Dynamically calculates BlueDart Air and Standard Surface shipping dates.
+  - Highlights **"Same Day Delivery in Pune"** (orders before 2 PM) and next-day delivery for all Pune postal codes (`411xxx`), along with fast delivery badges.
+- **Cleaned Product Dossier & Specifications Table**:
+  - Description tab re-ordered for optimal reading: **Key Features** → **Applications** → **Useful Links** → **Package Includes**.
+  - Strips malformed curly braces `{}` and raw JSON strings in product features; accurately formats attributes (e.g. `Model: PZEM-004T`, `Operating Voltage: 3.5V to 5.5V`).
+  - Completely removed "Quick Start Guide & Safety Manual" boilerplate from Package Includes across all products.
+  - Formatted Specifications tab as a responsive, high-contrast HTML table with Specification and Details columns.
 - **Admin High-Capacity Inventory & Catalog Management**: Enterprise-grade product management designed for catalogs of any scale (300+ to 10,000+ items).
   - **Dynamic Page Size Selector**: Switch instantly between 25, 50, 100, 250, or **"All Products"** (`limit=0`), eliminating repetitive clicks on "Load More".
   - **Fast Multi-Field Server Search**: Instant debounced search querying product titles, descriptions, categories, and SKUs directly in PostgreSQL.
@@ -115,7 +126,16 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
   - **Smart Local Pickup & Free Delivery Filter**: Orders placed with Store Pickup, Office Pickup, or Free Delivery bypass Shiprocket completely and are reserved for in-house fulfillment.
   - **Two-Way Cancellation Synchronization**: When an administrator cancels an order from the Admin Dashboard, the backend automatically cancels the corresponding order and AWB on the Shiprocket dashboard.
   - **Real-Time Webhook Processing**: Accepts incoming Shiprocket tracking webhooks (`/api/shipping/webhook`) to sync live courier tracking numbers, AWBs, and milestone delivery statuses (*Shipped*, *Out for Delivery*, *Delivered*).
-  - **Zero Frontend Clutter**: Frontend remains 100% clean and identical to native Tronix365 user experience, with all logistics logic executed securely in the backend.
+- **Robust Customer Dashboard & Profile Management (`/dashboard`)**:
+  - Resilient profile management with order history filtering, address book, factory sourcing tracking, and real-time order status tracking.
+  - Hardened component state imports across modular sub-sections (`OrdersSection`, `TowerOrdersSection`, `ProfileSection`, `SavedAddressesSection`).
+  - Seamless tax invoice previews and responsive mobile navigation.
+- **Interactive Pincode Delivery Estimation & Pune Same Day Delivery**:
+  - Real-time India Post PIN lookup with BlueDart Express and Standard Surface calculation.
+  - Automated detection and badging for Pune (`411xxx`) with same-day delivery messaging.
+- **Flexible B2B Quantity Ordering & Float Price Formatting**:
+  - Direct typed numeric quantity inputs on Product Details and Cart.
+  - Uniform 2-decimal precision (`₹261.00`, `₹36.36`).
 
 ---
 

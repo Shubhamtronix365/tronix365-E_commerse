@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Utility functions for currency formatting, decimal rounding, and tax calculations.
  * Ensures consistent 2-decimal precision across cart, checkout, payments, and invoices.
  */
@@ -44,7 +44,7 @@ export const formatCurrency = (num) => {
  * @param {boolean} forceDecimals
  * @returns {string}
  */
-export const formatPrice = (num, forceDecimals = false) => {
+export const formatPrice = (num, forceDecimals = true) => {
     const val = roundToTwo(num);
     if (!forceDecimals && Number.isInteger(val)) {
         return val.toLocaleString('en-IN');

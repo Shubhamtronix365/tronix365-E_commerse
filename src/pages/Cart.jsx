@@ -181,20 +181,32 @@ const Cart = () => {
                                         <div className={`mt-1 sm:mt-2 text-base sm:text-lg font-bold ${item.selected === false ? 'text-gray-600' : 'text-tronix-accent'}`}>₹{formatPrice(item.price)}</div>
                                     </div>
 
-                                    <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
-                                        <div className="flex items-center gap-2 bg-white/[0.03] sm:bg-transparent rounded-lg p-1 sm:p-0">
+                                        <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
+                                        <div className="flex items-center gap-1.5 bg-white/[0.03] sm:bg-white/5 rounded-xl p-1 border border-white/5">
                                             <button
                                                 onClick={() => updateQuantity(item.cart_item_id || item.id, item.quantity - 1)}
-                                                className="w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors active:scale-95"
+                                                className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors active:scale-95"
                                                 aria-label="Decrease quantity"
                                             >
                                                 <Minus size={14} />
                                             </button>
-                                            <span className="w-8 text-center text-white font-medium text-sm sm:text-base">{item.quantity}</span>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                value={item.quantity}
+                                                onChange={(e) => {
+                                                    const val = parseInt(e.target.value, 10);
+                                                    if (!isNaN(val) && val >= 1) {
+                                                        updateQuantity(item.cart_item_id || item.id, Math.min(item.stock || 9999, val));
+                                                    }
+                                                }}
+                                                className="w-12 sm:w-14 py-1 text-center text-white font-bold text-sm bg-transparent border-x border-white/10 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                aria-label="Cart item quantity"
+                                            />
                                             <button
                                                 onClick={() => updateQuantity(item.cart_item_id || item.id, item.quantity + 1)}
                                                 disabled={item.quantity >= item.stock}
-                                                className={`w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-white/5 flex items-center justify-center transition-colors active:scale-95 ${item.quantity >= item.stock ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}
+                                                className={`w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center transition-colors active:scale-95 ${item.quantity >= item.stock ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}
                                                 aria-label="Increase quantity"
                                             >
                                                 <Plus size={14} />
@@ -265,18 +277,30 @@ const Cart = () => {
 
                                         <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-2">
                                             <div className="flex items-center gap-4">
-                                                <div className="flex items-center gap-2 bg-white/[0.03] sm:bg-transparent rounded-lg p-1 sm:p-0">
+                                                <div className="flex items-center gap-1.5 bg-white/[0.03] sm:bg-white/5 rounded-xl p-1 border border-white/5">
                                                     <button
                                                         onClick={() => updateBundleQuantity(group.id, group.quantity - 1)}
-                                                        className="w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors active:scale-95"
+                                                        className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors active:scale-95"
                                                         aria-label="Decrease bundle quantity"
                                                     >
                                                         <Minus size={14} />
                                                     </button>
-                                                    <span className="w-8 text-center text-white font-medium text-sm sm:text-base">{group.quantity}</span>
+                                                    <input
+                                                        type="number"
+                                                        min="1"
+                                                        value={group.quantity}
+                                                        onChange={(e) => {
+                                                            const val = parseInt(e.target.value, 10);
+                                                            if (!isNaN(val) && val >= 1) {
+                                                                updateBundleQuantity(group.id, val);
+                                                            }
+                                                        }}
+                                                        className="w-12 sm:w-14 py-1 text-center text-white font-bold text-sm bg-transparent border-x border-white/10 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                        aria-label="Bundle quantity"
+                                                    />
                                                     <button
                                                         onClick={() => updateBundleQuantity(group.id, group.quantity + 1)}
-                                                        className="w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-white/5 flex items-center justify-center transition-colors active:scale-95 text-gray-400 hover:text-white hover:bg-white/10"
+                                                        className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center transition-colors active:scale-95 text-gray-400 hover:text-white hover:bg-white/10"
                                                         aria-label="Increase bundle quantity"
                                                     >
                                                         <Plus size={14} />

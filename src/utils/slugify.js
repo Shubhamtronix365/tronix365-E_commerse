@@ -4,6 +4,8 @@ export const slugify = (text) => {
     .toString()
     .toLowerCase()
     .trim()
+    .replace(/&amp;/g, '')         // Remove HTML entity &amp;
+    .replace(/&/g, '')             // Remove &
     .replace(/_/g, '-')           // Replace underscores with -
     .replace(/\s+/g, '-')         // Replace spaces with -
     .replace(/[^\w\-]+/g, '')     // Remove all non-word chars

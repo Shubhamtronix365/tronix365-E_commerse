@@ -8,6 +8,7 @@ import TaxInvoiceModal from '../components/invoice/TaxInvoiceModal';
 import { slugify } from '../utils/slugify';
 import OrderReadyNotice from '../components/common/OrderReadyNotice';
 import { formatOrderDateTime } from '../utils/orderUtils';
+import { formatPrice } from '../utils/priceUtils';
 
 const OrderDetails = () => {
     const { id } = useParams();
@@ -288,7 +289,7 @@ const OrderDetails = () => {
                                             }):
                                         </span>
                                         <span className={order.shipping_cost > 0 ? 'text-white font-bold' : 'text-emerald-400 font-bold'}>
-                                            {order.shipping_cost > 0 ? `+ ₹${order.shipping_cost}` : 'FREE (₹0.00)'}
+                                            {order.shipping_cost > 0 ? `+ ₹${formatPrice(order.shipping_cost)}` : 'FREE (₹0.00)'}
                                         </span>
                                     </div>
 
@@ -340,7 +341,7 @@ const OrderDetails = () => {
                                         </h4>
                                         <p className="text-sm text-gray-400">Sold by: Tronix365</p>
                                         <div className="text-sm text-white font-medium mt-2">
-                                            ₹{item.price_at_purchase || (item.product && (item.product.price || item.product.sale_price))}
+                                            ₹{formatPrice(item.price_at_purchase || (item.product && (item.product.price || item.product.sale_price)) || 0)}
                                         </div>
                                     </div>
 

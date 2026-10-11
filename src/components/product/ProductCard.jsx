@@ -8,6 +8,7 @@ import { useCart } from '../../context/CartContext';
 import { useCartAnimation } from '../../context/CartAnimationContext';
 import { getImageUrl } from '../../utils/imageUtils';
 import { slugify } from '../../utils/slugify';
+import { formatPrice } from '../../utils/priceUtils';
 import Image from '../common/Image';
 import ShareModal from '../common/ShareModal';
 
@@ -118,11 +119,11 @@ const ProductCard = ({ product }) => {
                         <div className="flex items-center gap-2 mt-2">
                             {product.mrp && Number(product.mrp) > Number(product.price) ? (
                                 <>
-                                    <span className="text-sm sm:text-base font-bold text-cyan-400">₹{Number(product.price).toLocaleString()}</span>
-                                    <span className="text-xs text-tronix-muted line-through">₹{Number(product.mrp).toLocaleString()}</span>
+                                    <span className="text-sm sm:text-base font-bold text-cyan-400">₹{formatPrice(product.price)}</span>
+                                    <span className="text-xs text-tronix-muted line-through">₹{formatPrice(product.mrp)}</span>
                                 </>
                             ) : (
-                                <span className="text-sm sm:text-base font-bold text-cyan-400">₹{Number(product.price).toLocaleString()}</span>
+                                <span className="text-sm sm:text-base font-bold text-cyan-400">₹{formatPrice(product.price)}</span>
                             )}
                         </div>
                     </div>

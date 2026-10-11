@@ -20,7 +20,45 @@ import ShareModal from '../components/common/ShareModal';
 import VariantSelector from '../components/product/VariantSelector';
 import TowerOrderModal from '../components/towerOrder/TowerOrderModal';
 import ProductDetailSkeleton from '../components/product/ProductDetailSkeleton';
+import EstimatedDelivery from '../components/product/EstimatedDelivery';
 import { slugify } from '../utils/slugify';
+import { formatPrice } from '../utils/priceUtils';
+
+const parseFeature = (feat) => {
+    if (!feat) return null;
+    if (typeof feat === 'object') {
+        const entries = Object.entries(feat);
+        if (entries.length > 0) {
+            const [k, v] = entries[0];
+            if (!v || v === '""') return null;
+            return { key: k.trim(), value: String(v).trim() };
+        }
+    }
+    let str = String(feat).trim();
+    // Strip curly braces and extraneous quotes
+    str = str.replace(/^\{+/, '').replace(/\}+$/, '').trim();
+    str = str.replace(/^"+/, '').replace(/"+$/, '').trim();
+    
+    // Fix common unicode mojibake
+    str = str.replace(/Â°/g, '°')
+             .replace(/Â±/g, '±')
+             .replace(/Âµ/g, 'µ')
+             .replace(/â€“/g, '–')
+             .replace(/â€”/g, '—');
+
+    if (!str) return null;
+
+    // Check if it's "Key": "Value" or Key: Value
+    const kvMatch = str.match(/^["']?([^"':]+)["']?\s*:\s*["']?(.*?)["']?$/);
+    if (kvMatch) {
+        const key = kvMatch[1].trim();
+        const value = kvMatch[2].trim().replace(/^"+/, '').replace(/"+$/, '').replace(/\}$/, '').trim();
+        if (!value || value === '""') return null;
+        return { key, value };
+    }
+
+    return { key: null, value: str };
+};
 
 const ProductDetails = () => {
     const { slug } = useParams();
@@ -43,7 +81,17 @@ const ProductDetails = () => {
             try {
                 const isId = /^\d+$/.test(slug);
                 const endpoint = isId ? `/products/${slug}` : `/products/slug/${slug}`;
-                const prodRes = await client.get(endpoint);
+                let prodRes;
+                try {
+                    prodRes = await client.get(endpoint);
+                } catch (err) {
+                    if (!isId && (slug.includes('-amp-') || slug.includes('-and-'))) {
+                        const cleanSlug = slug.replace(/-amp-/g, '-').replace(/-and-/g, '-');
+                        prodRes = await client.get(`/products/slug/${cleanSlug}`);
+                    } else {
+                        throw err;
+                    }
+                }
                 const productData = prodRes.data;
                 setProduct(productData);
 
@@ -58,10 +106,11 @@ const ProductDetails = () => {
                     found = mockProducts.find(p => p.id === parseInt(slug));
                 } else {
                     const { slugify } = await import('../utils/slugify');
-                    const targetSlug = slug.toLowerCase().replace(/_/g, '-');
+                    const targetSlug = slug.toLowerCase().replace(/_/g, '-').replace(/-amp-/g, '-').replace(/-and-/g, '-');
                     found = mockProducts.find(p => {
                         const pSlug = slugify(p.title);
-                        return pSlug === slug || pSlug.replace(/_/g, '-') === targetSlug || (p.skv && p.skv.toLowerCase() === slug.toLowerCase());
+                        const cleanPSlug = pSlug.replace(/-amp-/g, '-').replace(/-and-/g, '-');
+                        return pSlug === slug || pSlug.replace(/_/g, '-') === targetSlug || cleanPSlug === targetSlug || (p.skv && p.skv.toLowerCase() === slug.toLowerCase());
                     });
                 }
                 setProduct(found || null);
@@ -252,7 +301,7 @@ const ProductDetails = () => {
                         <div className="flex items-end gap-3 mb-6">
                             <div className="flex flex-col">
                                 <span className="text-4xl font-bold text-white">
-                                    ₹{product.price}
+                                    ₹{formatPrice(product.price)}
                                 </span>
                             </div>
                         </div>
@@ -279,7 +328,7 @@ const ProductDetails = () => {
 
                                 <button
                                     onClick={() => {
-                                        setRequestedTowerQty(quantity);
+                                        setRequestedTowerQty(Math.max(1, parseInt(quantity, 10) || 1));
                                         setIsTowerModalOpen(true);
                                     }}
                                     className="w-full font-extrabold py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-violet-600 to-indigo-600 hover:from-amber-400 hover:to-indigo-500 text-white flex items-center justify-center gap-3 shadow-2xl shadow-violet-600/40 text-base transition-all duration-300 hover:scale-[1.01] active:scale-98 border border-white/10"
@@ -292,7 +341,7 @@ const ProductDetails = () => {
                         ) : (
                             /* STANDARD PRODUCT WITH SPLIT / TOWER ORDER CAPABILITY */
                             <div className="space-y-3 mb-8">
-                                {quantity > (product.stock || 0) && (product.stock || 0) > 0 && (
+                                {(parseInt(quantity, 10) || 1) > (product.stock || 0) && (product.stock || 0) > 0 && (
                                     <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                                         <div className="flex items-center gap-2">
                                             <Split size={16} className="text-amber-400 flex-shrink-0" />
@@ -300,7 +349,7 @@ const ProductDetails = () => {
                                         </div>
                                         <button
                                             onClick={() => {
-                                                setRequestedTowerQty(quantity);
+                                                setRequestedTowerQty(Math.max(1, parseInt(quantity, 10) || 1));
                                                 setIsTowerModalOpen(true);
                                             }}
                                             className="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-lg text-xs flex-shrink-0 transition-colors"
@@ -311,19 +360,41 @@ const ProductDetails = () => {
                                 )}
 
                                 <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                                    <div className="flex items-center border border-white/10 rounded-lg">
+                                    <div className="flex items-center border border-white/10 rounded-lg bg-black/20">
                                         <button
-                                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                            className="px-4 py-2 text-white hover:bg-white/5 transition-colors"
+                                            type="button"
+                                            onClick={() => setQuantity(Math.max(1, (parseInt(quantity, 10) || 1) - 1))}
+                                            className="px-3.5 py-2 text-white hover:bg-white/10 transition-colors"
+                                            aria-label="Decrease quantity"
                                         >
                                             -
                                         </button>
-                                        <span className="px-4 py-2 text-white font-medium border-x border-white/10">
-                                            {quantity}
-                                        </span>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            value={quantity}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                if (val === '') {
+                                                    setQuantity('');
+                                                } else {
+                                                    const parsed = parseInt(val, 10);
+                                                    if (!isNaN(parsed)) setQuantity(Math.max(1, parsed));
+                                                }
+                                            }}
+                                            onBlur={() => {
+                                                if (!quantity || parseInt(quantity, 10) < 1) {
+                                                    setQuantity(1);
+                                                }
+                                            }}
+                                            className="w-16 sm:w-20 py-2 text-center text-white font-bold bg-transparent border-x border-white/10 focus:outline-none focus:bg-white/5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-base"
+                                            aria-label="Quantity"
+                                        />
                                         <button
-                                            onClick={() => setQuantity(quantity + 1)}
-                                            className="px-4 py-2 text-white hover:bg-white/5 transition-colors"
+                                            type="button"
+                                            onClick={() => setQuantity((parseInt(quantity, 10) || 0) + 1)}
+                                            className="px-3.5 py-2 text-white hover:bg-white/10 transition-colors"
+                                            aria-label="Increase quantity"
                                         >
                                             +
                                         </button>
@@ -360,7 +431,8 @@ const ProductDetails = () => {
 
                                 <button
                                     onClick={() => {
-                                        const success = addToCart(product, quantity);
+                                        const currentQty = Math.max(1, parseInt(quantity, 10) || 1);
+                                        const success = addToCart(product, currentQty);
                                         if (success) {
                                             navigate('/cart');
                                         }
@@ -396,7 +468,7 @@ const ProductDetails = () => {
                                         <button
                                             type="button"
                                             onClick={() => {
-                                                setRequestedTowerQty(quantity > (product.stock || 0) ? quantity : Math.max(10, (product.stock || 0) * 2));
+                                                setRequestedTowerQty((parseInt(quantity, 10) || 1) > (product.stock || 0) ? (parseInt(quantity, 10) || 1) : Math.max(10, (product.stock || 0) * 2));
                                                 setIsTowerModalOpen(true);
                                             }}
                                             className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-gray-950 font-black text-xs uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95 shrink-0"
@@ -409,13 +481,15 @@ const ProductDetails = () => {
                             </div>
                         )}
 
+                        {/* Pincode Delivery Estimator */}
+                        <EstimatedDelivery />
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="flex items-center gap-3 p-4 border border-white/5 rounded-xl bg-white/5">
                                 <Truck className="text-tronix-accent" size={24} />
                                 <div>
                                     <div className="text-white font-medium text-sm">Fast Delivery</div>
-                                    <div className="text-gray-500 text-xs">Same Day Delivery</div>
+                                    <div className="text-gray-400 text-xs">Same Day Delivery in Pune</div>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3 p-4 border border-white/5 rounded-xl bg-white/5">
@@ -443,8 +517,8 @@ const ProductDetails = () => {
                                                     <p className="text-xs text-gray-400">{bundle.description}</p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <span className="text-xs text-gray-500 line-through block">₹{bundle.original_price}</span>
-                                                    <span className="text-lg font-bold text-tronix-accent">₹{bundle.bundle_price}</span>
+                                                    <span className="text-xs text-gray-500 line-through block">₹{formatPrice(bundle.original_price)}</span>
+                                                    <span className="text-lg font-bold text-tronix-accent">₹{formatPrice(bundle.bundle_price)}</span>
                                                 </div>
                                             </div>
                                             <div className="flex items-center justify-between gap-4">
@@ -459,7 +533,7 @@ const ProductDetails = () => {
                                                     onClick={() => addBundle(bundle.id)}
                                                     className="bg-tronix-primary text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-violet-600 transition-colors"
                                                 >
-                                                    Add Bundle to Cart
+                                                    Add Deal
                                                 </button>
                                             </div>
                                         </div>
@@ -505,100 +579,127 @@ const ProductDetails = () => {
                     {/* Tab Panels */}
                     <div className="bg-tronix-card/40 rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl">
                         {/* TAB 1: Description Panel */}
-                        {activeTab === 'description' && (
-                            <div className="space-y-8 text-gray-300 leading-relaxed text-sm">
-                                {/* Main Description */}
-                                <div>
-                                    <p className="text-gray-200 text-sm sm:text-base leading-relaxed">
-                                        {product.description}
-                                    </p>
-                                </div>
+                        {activeTab === 'description' && (() => {
+                            // Clean and normalize features
+                            const rawFeatures = product.features || [];
+                            const cleanFeatures = (Array.isArray(rawFeatures) ? rawFeatures : [rawFeatures])
+                                .map(feat => parseFeature(feat))
+                                .filter(Boolean);
 
-                                {/* Applications */}
-                                {(product.applications && product.applications.length > 0) ? (
-                                    <div className="space-y-3 pt-4 border-t border-white/10">
-                                        <h4 className="text-white font-extrabold text-base flex items-center gap-2">
-                                            <PackageCheck className="text-violet-400" size={18} /> Applications:
-                                        </h4>
-                                        <ol className="list-decimal list-inside space-y-2 pl-2 text-gray-300">
-                                            {product.applications.map((app, idx) => (
-                                                <li key={idx} className="leading-snug">{app}</li>
-                                            ))}
-                                        </ol>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-3 pt-4 border-t border-white/10">
-                                        <h4 className="text-white font-extrabold text-base flex items-center gap-2">
-                                            <PackageCheck className="text-violet-400" size={18} /> Applications:
-                                        </h4>
-                                        <ol className="list-decimal list-inside space-y-2 pl-2 text-gray-300">
-                                            <li>Internet of Things (IoT) terminal & smart controller.</li>
-                                            <li>Robotics, Automation & STEM Education projects.</li>
-                                            <li>DIY electronic creation & rapid prototyping.</li>
-                                            <li>Smart home automation equipment.</li>
-                                        </ol>
-                                    </div>
-                                )}
+                            // Clean Package Includes (Filter out any Safety Manual or Start Guide)
+                            const rawIncludes = (product.package_includes && product.package_includes.length > 0)
+                                ? product.package_includes
+                                : [`1x ${product.title}`];
+                            const filteredIncludes = rawIncludes.filter(item => {
+                                const lower = String(item).toLowerCase();
+                                return !lower.includes('quick start') && !lower.includes('safety manual') && !lower.includes('start guide') && !lower.includes('manual');
+                            });
+                            const finalPackageIncludes = filteredIncludes.length > 0 ? filteredIncludes : [`1x ${product.title}`];
 
-                                {/* Features */}
-                                {(product.features && product.features.length > 0) && (
-                                    <div className="space-y-3 pt-4 border-t border-white/10">
-                                        <h4 className="text-white font-extrabold text-base flex items-center gap-2">
-                                            <Check className="text-emerald-400" size={18} /> Key Features:
-                                        </h4>
-                                        <ol className="list-decimal list-inside space-y-2 pl-2 text-gray-300">
-                                            {product.features.map((feat, idx) => (
-                                                <li key={idx} className="leading-snug">{feat}</li>
-                                            ))}
-                                        </ol>
-                                    </div>
-                                )}
-
-                                {/* Useful Link */}
-                                {(product.useful_links && product.useful_links.length > 0) ? (
-                                    <div className="space-y-2 pt-4 border-t border-white/10">
-                                        <h4 className="text-white font-extrabold text-base flex items-center gap-2">
-                                            <ExternalLink className="text-sky-400" size={18} /> Useful Links:
-                                        </h4>
-                                        <div className="space-y-1.5 pl-2">
-                                            {product.useful_links.map((link, idx) => (
-                                                <a
-                                                    key={idx}
-                                                    href={typeof link === 'object' ? link.url : link}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-violet-400 hover:text-violet-300 text-sm underline flex items-center gap-1.5 transition-colors"
-                                                >
-                                                    <span>{typeof link === 'object' ? (link.title || link.name || link.url) : link}</span>
-                                                    <ExternalLink size={12} />
-                                                </a>
-                                            ))}
+                            return (
+                                <div className="space-y-8 text-gray-300 leading-relaxed text-sm">
+                                    {/* Main Description Intro Paragraph */}
+                                    {product.description && (
+                                        <div>
+                                            <p className="text-gray-200 text-sm sm:text-base leading-relaxed">
+                                                {product.description}
+                                            </p>
                                         </div>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-2 pt-4 border-t border-white/10">
-                                        <h4 className="text-white font-extrabold text-base flex items-center gap-2">
-                                            <ExternalLink className="text-sky-400" size={18} /> Useful Links:
-                                        </h4>
-                                        <a
-                                            href={`https://docs.tronix365.in/${slug}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-violet-400 hover:text-violet-300 text-sm underline flex items-center gap-1.5 pl-2"
-                                        >
-                                            https://docs.tronix365.in/{slug} <ExternalLink size={12} />
-                                        </a>
-                                    </div>
-                                )}
+                                    )}
 
-                                {/* Package Includes */}
-                                {(product.package_includes && product.package_includes.length > 0) ? (
+                                    {/* 1. KEY FEATURES FIRST */}
+                                    {cleanFeatures.length > 0 && (
+                                        <div className="space-y-3 pt-4 border-t border-white/10">
+                                            <h4 className="text-white font-extrabold text-base flex items-center gap-2">
+                                                <Check className="text-emerald-400" size={18} /> Key Features:
+                                            </h4>
+                                            <ol className="list-decimal list-inside space-y-2 pl-2 text-gray-300">
+                                                {cleanFeatures.map((feat, idx) => (
+                                                    <li key={idx} className="leading-snug">
+                                                        {feat.key ? (
+                                                            <span>
+                                                                <strong className="text-white font-semibold">{feat.key}:</strong>{' '}
+                                                                <span>{feat.value}</span>
+                                                            </span>
+                                                        ) : (
+                                                            <span>{feat.value}</span>
+                                                        )}
+                                                    </li>
+                                                ))}
+                                            </ol>
+                                        </div>
+                                    )}
+
+                                    {/* 2. APPLICATIONS SECOND */}
+                                    {(product.applications && product.applications.length > 0) ? (
+                                        <div className="space-y-3 pt-4 border-t border-white/10">
+                                            <h4 className="text-white font-extrabold text-base flex items-center gap-2">
+                                                <PackageCheck className="text-violet-400" size={18} /> Applications:
+                                            </h4>
+                                            <ol className="list-decimal list-inside space-y-2 pl-2 text-gray-300">
+                                                {product.applications.map((app, idx) => (
+                                                    <li key={idx} className="leading-snug">{app}</li>
+                                                ))}
+                                            </ol>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-3 pt-4 border-t border-white/10">
+                                            <h4 className="text-white font-extrabold text-base flex items-center gap-2">
+                                                <PackageCheck className="text-violet-400" size={18} /> Applications:
+                                            </h4>
+                                            <ol className="list-decimal list-inside space-y-2 pl-2 text-gray-300">
+                                                <li>Internet of Things (IoT) terminal & smart controller.</li>
+                                                <li>Robotics, Automation & STEM Education projects.</li>
+                                                <li>DIY electronic creation & rapid prototyping.</li>
+                                                <li>Smart home automation equipment.</li>
+                                            </ol>
+                                        </div>
+                                    )}
+
+                                    {/* 3. USEFUL LINKS THIRD */}
+                                    {(product.useful_links && product.useful_links.length > 0) ? (
+                                        <div className="space-y-2 pt-4 border-t border-white/10">
+                                            <h4 className="text-white font-extrabold text-base flex items-center gap-2">
+                                                <ExternalLink className="text-sky-400" size={18} /> Useful Links:
+                                            </h4>
+                                            <div className="space-y-1.5 pl-2">
+                                                {product.useful_links.map((link, idx) => (
+                                                    <a
+                                                        key={idx}
+                                                        href={typeof link === 'object' ? link.url : link}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-violet-400 hover:text-violet-300 text-sm underline flex items-center gap-1.5 transition-colors"
+                                                    >
+                                                        <span>{typeof link === 'object' ? (link.title || link.name || link.url) : link}</span>
+                                                        <ExternalLink size={12} />
+                                                    </a>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-2 pt-4 border-t border-white/10">
+                                            <h4 className="text-white font-extrabold text-base flex items-center gap-2">
+                                                <ExternalLink className="text-sky-400" size={18} /> Useful Links:
+                                            </h4>
+                                            <a
+                                                href={`https://docs.tronix365.in/${slug}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-violet-400 hover:text-violet-300 text-sm underline flex items-center gap-1.5 pl-2"
+                                            >
+                                                https://docs.tronix365.in/{slug} <ExternalLink size={12} />
+                                            </a>
+                                        </div>
+                                    )}
+
+                                    {/* 4. PACKAGE INCLUDES FOURTH (NO SAFETY MANUAL) */}
                                     <div className="space-y-3 pt-4 border-t border-white/10">
                                         <h4 className="text-white font-extrabold text-base flex items-center gap-2">
                                             <Truck className="text-amber-400" size={18} /> Package Includes:
                                         </h4>
                                         <div className="space-y-1.5 pl-2 text-gray-300 font-medium">
-                                            {product.package_includes.map((item, idx) => (
+                                            {finalPackageIncludes.map((item, idx) => (
                                                 <div key={idx} className="flex items-center gap-2">
                                                     <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                                                     <span>{item}</span>
@@ -606,56 +707,55 @@ const ProductDetails = () => {
                                             ))}
                                         </div>
                                     </div>
-                                ) : (
-                                    <div className="space-y-3 pt-4 border-t border-white/10">
-                                        <h4 className="text-white font-extrabold text-base flex items-center gap-2">
-                                            <Truck className="text-amber-400" size={18} /> Package Includes:
-                                        </h4>
-                                        <div className="space-y-1.5 pl-2 text-gray-300 font-medium">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                                                <span>1x {product.title}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                                                <span>1x Quick Start Guide & Safety Manual</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                                </div>
+                            );
+                        })()}
 
-                        {/* TAB 2: Specification Panel */}
-                        {activeTab === 'specs' && (
-                            <div>
-                                {product.specs && Object.keys(product.specs).length > 0 ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
-                                        {Object.entries(product.specs).map(([key, value]) => (
-                                            <div key={key} className="flex items-center justify-between border-b border-white/10 py-3">
-                                                <span className="text-gray-400 text-sm">{key}</span>
-                                                <span className="text-white font-bold text-sm">{value}</span>
-                                            </div>
-                                        ))}
+                        {/* TAB 2: Specification Panel (TABLE FORMAT) */}
+                        {activeTab === 'specs' && (() => {
+                            const specsList = (() => {
+                                if (product.specs && typeof product.specs === 'object' && Object.keys(product.specs).length > 0) {
+                                    return Object.entries(product.specs);
+                                }
+                                return [
+                                    ['Category', product.category || 'Electronic Components'],
+                                    ['SKU / Model', product.skv || `TRX-${product.id}`],
+                                    ['Stock Availability', (product.stock || 0) > 0 ? `${product.stock} Units In Stock` : 'Out of Stock'],
+                                    ['Procurement Mode', product.tower_order_only ? 'Factory Tower Order' : 'Standard Delivery Stock'],
+                                    ['Condition', '100% Brand New Genuine Component']
+                                ];
+                            })();
+
+                            return (
+                                <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">
+                                    <div className="overflow-x-auto custom-scrollbar">
+                                        <table className="w-full text-left text-sm border-collapse">
+                                            <thead>
+                                                <tr className="border-b border-white/10 bg-white/5 text-gray-300 text-xs uppercase tracking-wider">
+                                                    <th scope="col" className="px-5 sm:px-6 py-3.5 font-bold w-1/3 sm:w-1/4">Specification</th>
+                                                    <th scope="col" className="px-5 sm:px-6 py-3.5 font-bold">Details</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-white/5">
+                                                {specsList.map(([key, value], idx) => (
+                                                    <tr 
+                                                        key={idx} 
+                                                        className={`transition-colors hover:bg-white/[0.04] ${idx % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.015]'}`}
+                                                    >
+                                                        <td className="px-5 sm:px-6 py-3.5 text-gray-400 font-medium text-xs sm:text-sm border-r border-white/5 whitespace-nowrap sm:whitespace-normal">
+                                                            {key}
+                                                        </td>
+                                                        <td className="px-5 sm:px-6 py-3.5 text-white font-semibold text-xs sm:text-sm">
+                                                            {String(value)}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
                                     </div>
-                                ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
-                                        <div className="flex items-center justify-between border-b border-white/10 py-3">
-                                            <span className="text-gray-400 text-sm">Category</span>
-                                            <span className="text-white font-bold text-sm">{product.category}</span>
-                                        </div>
-                                        <div className="flex items-center justify-between border-b border-white/10 py-3">
-                                            <span className="text-gray-400 text-sm">SKU / Model</span>
-                                            <span className="text-white font-bold text-sm font-mono">{product.skv || `TRX-${product.id}`}</span>
-                                        </div>
-                                        <div className="flex items-center justify-between border-b border-white/10 py-3">
-                                            <span className="text-gray-400 text-sm">Stock Availability</span>
-                                            <span className="text-emerald-400 font-bold text-sm">{product.stock > 0 ? 'In Stock' : 'Out of Stock'}</span>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                                </div>
+                            );
+                        })()}
 
                         {/* TAB 3: Warranty Panel */}
                         {activeTab === 'warranty' && (
@@ -762,7 +862,7 @@ const ProductDetails = () => {
                 <div className="max-w-md mx-auto flex items-center justify-between gap-3">
                     <div className="min-w-0">
                         <span className="text-[10px] uppercase font-bold text-gray-400 block tracking-wider">Price</span>
-                        <div className="text-xl font-black text-white leading-tight">₹{product.price}</div>
+                        <div className="text-xl font-black text-white leading-tight">₹{formatPrice(product.price)}</div>
                         {product.stock > 0 && !product.tower_order_only ? (
                             <span className="text-[10px] text-emerald-400 font-medium">In Stock</span>
                         ) : product.tower_order_only ? (
@@ -776,7 +876,7 @@ const ProductDetails = () => {
                         {product.tower_order_only ? (
                             <button
                                 onClick={() => {
-                                    setRequestedTowerQty(quantity);
+                                    setRequestedTowerQty(Math.max(1, parseInt(quantity, 10) || 1));
                                     setIsTowerModalOpen(true);
                                 }}
                                 className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold py-3 px-4 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/20 active:scale-95"
@@ -802,7 +902,8 @@ const ProductDetails = () => {
 
                                 <button
                                     onClick={() => {
-                                        const success = addToCart(product, quantity);
+                                        const currentQty = Math.max(1, parseInt(quantity, 10) || 1);
+                                        const success = addToCart(product, currentQty);
                                         if (success) {
                                             navigate('/cart');
                                         }
