@@ -80,26 +80,81 @@ const SEO = ({
       {/* Additional SEO Tags */}
       <meta name="theme-color" content="#6366f1" />
       
-      {/* JSON-LD Structured Data for Organization */}
+      {/* JSON-LD Structured Data for Organization, LocalBusiness (GEO), and WebSite SearchAction (AEO) */}
       <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Organization",
-          "name": "Tronix365",
-          "url": "https://www.tronix365.in/e-commerse/",
-          "logo": "https://www.tronix365.in/e-commerse/Tronix3650final_circular.png",
-          "description": "Premium electronic components, Arduino boards, ESP32 modules, sensors, and IoT devices",
-          "address": {
-            "@type": "PostalAddress",
-            "addressCountry": "IN"
+        {JSON.stringify([
+          {
+            "@context": "https://schema.org",
+            "@type": ["ElectronicsStore", "Organization", "OnlineBusiness"],
+            "@id": "https://www.tronix365.in/e-commerse/#organization",
+            "name": "Tronix365",
+            "legalName": "Tronix365 Electronics",
+            "url": "https://www.tronix365.in/e-commerse/",
+            "logo": "https://www.tronix365.in/e-commerse/Tronix3650final_circular.png",
+            "image": "https://www.tronix365.in/e-commerse/Tronix3650final_circular.png",
+            "description": "Leading electronics component supplier in Pune, India. Specializing in Arduino, ESP32, sensors, robotics kits, IoT modules with same-day delivery in Pune and express nationwide shipping.",
+            "telephone": "+918830153805",
+            "email": "shubham.tronix365@gmail.com",
+            "priceRange": "₹",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Kothrud",
+              "addressLocality": "Pune",
+              "addressRegion": "Maharashtra",
+              "postalCode": "411038",
+              "addressCountry": "IN"
+            },
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": 18.5074,
+              "longitude": 73.8077
+            },
+            "areaServed": [
+              {
+                "@type": "City",
+                "name": "Pune"
+              },
+              {
+                "@type": "AdministrativeArea",
+                "name": "Maharashtra"
+              },
+              {
+                "@type": "Country",
+                "name": "India"
+              }
+            ],
+            "sameAs": [
+              "https://www.instagram.com/tronix365",
+              "https://www.linkedin.com/company/tronix365/",
+              "https://wa.me/8830153805"
+            ],
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "telephone": "+918830153805",
+              "contactType": "customer service",
+              "areaServed": "IN",
+              "availableLanguage": ["English", "Hindi", "Marathi"]
+            }
           },
-          "contactPoint": {
-            "@type": "ContactPoint",
-            "contactType": "customer service",
-            "areaServed": "IN",
-            "availableLanguage": "English"
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "@id": "https://www.tronix365.in/e-commerse/#website",
+            "url": "https://www.tronix365.in/e-commerse/",
+            "name": "Tronix365",
+            "publisher": {
+              "@id": "https://www.tronix365.in/e-commerse/#organization"
+            },
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://www.tronix365.in/e-commerse/shop?search={search_term_string}"
+              },
+              "query-input": "required name=search_term_string"
+            }
           }
-        })}
+        ])}
       </script>
     </Helmet>
   );

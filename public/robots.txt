@@ -1,6 +1,19 @@
 User-agent: *
 Allow: /
 
+# Allow AI Answer Engine Crawlers (AEO Optimization: ChatGPT, Perplexity, Claude, Gemini)
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
 # Block private/checkout pages from wasting search crawl budget
 Disallow: /e-commerse/cart
 Disallow: /e-commerse/checkout

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://www.tronix365.in/e-commerse/</loc>
     <lastmod>2026-10-11</lastmod>
@@ -167,1302 +168,2170 @@
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433785/tronix365_products/vuibi53vpahyzvo773r0.jpg</image:loc>
+      <image:title>ESP32-WROVER-IE-N16R8</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/esp32-wrover-e-n16r8</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433584/tronix365_products/oomvm9nrsrvvaa87jltt.jpg</image:loc>
+      <image:title>ESP32-WROVER-E-N16R8</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/esp32-s3-wroom-1u-n16r8</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433523/tronix365_products/dni383q4fov3n17ri5qy.jpg</image:loc>
+      <image:title>ESP32-S3-WROOM-1U-N16R8</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/esp32-s3-wroom-1-n16r8</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433594/tronix365_products/uirhzywu1dev9ez6svnc.webp</image:loc>
+      <image:title>ESP32-S3-WROOM-1-N16R8</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/esp32-c3-mini-1-n4</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433520/tronix365_products/uffudsc0ohdatjpdolqf.webp</image:loc>
+      <image:title>ESP32-C3-MINI-1-N4</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/esp32-c3-wroom-02-n4</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433515/tronix365_products/t75cciyt1anxy60j4foy.webp</image:loc>
+      <image:title>ESP32-C3-WROOM-02-N4</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/esp32-wroom-32e-n16</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433503/tronix365_products/xqo6nfqlgmouaueejv0r.webp</image:loc>
+      <image:title>ESP32-WROOM-32E-N16</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/esp32-wroom-32e-n8</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433500/tronix365_products/ogwhywdpxkmnmsmt7eq4.jpg</image:loc>
+      <image:title>ESP32-WROOM-32E-N8</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/esp32-wroom-32d-n4</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433784/tronix365_products/pyihhjzsrmtrlvjskiyg.webp</image:loc>
+      <image:title>ESP32-WROOM-32D-N4</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/esp32-wroom-32e-n4</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433783/tronix365_products/xhcekyg1fligbbbfax5m.jpg</image:loc>
+      <image:title>ESP32-WROOM-32E-N4</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/sn74hc595n</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433782/tronix365_products/evezgtslq1ulpuxmn7jm.webp</image:loc>
+      <image:title>SN74HC595N</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/atmega328p</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433781/tronix365_products/akqmkaexkx61r0uvshxb.webp</image:loc>
+      <image:title>ATMEGA328P</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/lm324n</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433780/tronix365_products/ipu9a7atcarx9gc4h7nx.jpg</image:loc>
+      <image:title>LM324N</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/hlf-ne-555-p-pdip-8-timer-ic</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433779/tronix365_products/dmauonbgwhlrgcjikvky.jpg</image:loc>
+      <image:title>HLF-NE 555 P PDIP-8 Timer IC</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/ne555p</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433728/tronix365_products/wf3loacfnk1v7fqfawzc.webp</image:loc>
+      <image:title>NE555P</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/ir2110</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433669/tronix365_products/mvjo8wx5eqtel7lury35.webp</image:loc>
+      <image:title>IR2110</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/uln2803</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433666/tronix365_products/nzps4bajwlrjr1smwjfk.jpg</image:loc>
+      <image:title>ULN2803</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/atmega8a-8p</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433663/tronix365_products/vruhzwvu0vybtnpgdumz.jpg</image:loc>
+      <image:title>ATMEGA8A (8P)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/cd4033be</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433656/tronix365_products/dtks1z6xwevloza2vttp.webp</image:loc>
+      <image:title>CD4033BE</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/pic16f876a</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433656/tronix365_products/fvtrkm0xtzyd5rbejjpf.webp</image:loc>
+      <image:title>PIC16F876A</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/lm393l-ic</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433655/tronix365_products/rnhczwwzxcojmeaxzulu.jpg</image:loc>
+      <image:title>LM393L IC</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/sn74ls83n</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433654/tronix365_products/vsifzufrpal9psrjrcsl.jpg</image:loc>
+      <image:title>SN74LS83N</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/ua741cn</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433653/tronix365_products/evgk6djz4rpizlbaoosu.jpg</image:loc>
+      <image:title>UA741CN</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/74hc595n-shift-res</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433650/tronix365_products/sj03zql5wbhwhdncs0nx.jpg</image:loc>
+      <image:title>74HC595N Shift Res</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/cd4047bd</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433647/tronix365_products/vljbpkmg3zc8kfwn4o98.webp</image:loc>
+      <image:title>CD4047BD</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/optocoupler-ic</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433646/tronix365_products/n9xmw4hsj1q8arsbxfzq.webp</image:loc>
+      <image:title>OPTOCOUPLER IC</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/cd4017</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433636/tronix365_products/qhb4okkgqdgssnkkteuh.jpg</image:loc>
+      <image:title>CD4017</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/tip122-npn-transistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433635/tronix365_products/ifgwbpvhrtnrtyhulpyj.jpg</image:loc>
+      <image:title>TIP122 NPN Transistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/7808-voltage-regulator</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433634/tronix365_products/d2clpdbr8wivhosxsxth.jpg</image:loc>
+      <image:title>7808 Voltage Regulator</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/irg4bc20ud</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433633/tronix365_products/psk0ize7vwezoghuyvbg.jpg</image:loc>
+      <image:title>IRG4BC20UD</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/irg4bc30ud</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433632/tronix365_products/il8j3xptvrgamectcqrf.jpg</image:loc>
+      <image:title>IRG4BC30UD</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/irf540n-mosfet</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433629/tronix365_products/qcxqrwch8gmd5kfsu1eh.jpg</image:loc>
+      <image:title>IRF540N MOSFET</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/7805-voltage-regulator</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433627/tronix365_products/t5crwwrggf6pzgudyead.jpg</image:loc>
+      <image:title>7805 Voltage Regulator</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/7905-voltage-regulator</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433626/tronix365_products/hi9yobmuhklijufythnh.webp</image:loc>
+      <image:title>7905 Voltage Regulator</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/7912-voltage-regulator</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433625/tronix365_products/mp88kgxepaazccj7j1lx.jpg</image:loc>
+      <image:title>7912 Voltage Regulator</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/irf9540-mosfet</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433624/tronix365_products/e90zpk1pahtkdu7rkb6k.webp</image:loc>
+      <image:title>IRF9540 MOSFET</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/l7809cv-regulator</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433623/tronix365_products/eahdlovihkl5bphk8ezu.jpg</image:loc>
+      <image:title>L7809CV Regulator</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/lm2576-transistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433622/tronix365_products/twrkwd3mflrt4cks7cyk.jpg</image:loc>
+      <image:title>LM2576  Transistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/rapid-lm317t</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433621/tronix365_products/amzivjk03mdng9qddw0p.webp</image:loc>
+      <image:title>RAPID LM317T</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/irf-z44n-transistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433620/tronix365_products/qnkqoj7bnabzgkqch16f.webp</image:loc>
+      <image:title>IRF Z44N Transistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/bd139-npn-power-transistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433619/tronix365_products/ceufg7npltfqpd5bsfph.webp</image:loc>
+      <image:title>BD139 NPN Power Transistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/display-connector</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433618/tronix365_products/untqzj0fzmpezk4cgivn.jpg</image:loc>
+      <image:title>DISPLAY CONNECTOR</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/bulb-holder</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433617/tronix365_products/ptwxqojcmgxtumn2hvou.webp</image:loc>
+      <image:title>Bulb Holder</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/seven-segment-display</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433616/tronix365_products/zmzyrxz2jnwhznrrtudd.webp</image:loc>
+      <image:title>Seven Segment Display</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/sen0322-oxygen-sensor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433615/tronix365_products/gkqsmmgovidgbiiuyj9s.jpg</image:loc>
+      <image:title>SEN0322 Oxygen Sensor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/sen66-environmental-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433614/tronix365_products/pcqgvz7r0vmz3nlvgzzv.jpg</image:loc>
+      <image:title>SEN66 Environmental Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/usb-camera</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433613/tronix365_products/cz1btdojlpu4linvu02z.jpg</image:loc>
+      <image:title>USB CAMERA</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/voltmeter-max-31865</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433612/tronix365_products/zfi977w4xj8es4sgygwo.jpg</image:loc>
+      <image:title>Voltmeter MAX 31865</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/1000uf-16v-cap</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433611/tronix365_products/l2xb5idaoz3vcsn0xi2h.jpg</image:loc>
+      <image:title>1000UF 16V CAP</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/white-dc-jack</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433610/tronix365_products/cyage1twyztvgorbwad9.jpg</image:loc>
+      <image:title>White DC Jack</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/d-win-display</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433607/tronix365_products/ptwrgixekp9e80bkgcck.jpg</image:loc>
+      <image:title>D WIN Display</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/6x6-copper-pcb</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433606/tronix365_products/wlweqm6s70ftpp8v5czu.webp</image:loc>
+      <image:title>6X6 COPPER PCB</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/heat-sink-pi51-40mm</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433605/tronix365_products/bs6fiztpltvrskf97lft.jpg</image:loc>
+      <image:title>Heat Sink PI51-40mm</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/aluminum-heatsink-cooling-for-lm7805-ic-transistor25mm</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433604/tronix365_products/o6fp7ugdewxtf3ji91yr.jpg</image:loc>
+      <image:title>Aluminum Heatsink Cooling for LM7805 IC Transistor(25mm)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/28-inch-spi-tft-touch-screen-display-module-240320-pixels-resistive-touch</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433602/tronix365_products/ibd4o1eahjzicztsz3tg.jpg</image:loc>
+      <image:title>2.8 Inch SPI TFT Touch Screen Display Module – 240×320 Pixels, Resistive Touch</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/28-inch-tft-color-lcd-display-module-spi-interface-ili9341-240320-pixels</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433601/tronix365_products/kiqfeacrilooph878akp.jpg</image:loc>
+      <image:title>2.8 Inch TFT Color LCD Display Module – SPI Interface, ILI9341, 240×320 Pixels</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/28-inch-spi-tft-lcd-display-module-240320-resolutionnon-touch</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433598/tronix365_products/xc5brdcyoykstmu7j5kj.jpg</image:loc>
+      <image:title>2.8 Inch SPI TFT LCD Display Module –240×320 Resolution,Non-Touch</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/24-inch-spi-tft-lcd-display-module-240320-pixels</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433597/tronix365_products/mzv7nomje1n5g4rhufo3.jpg</image:loc>
+      <image:title>2.4 Inch SPI TFT LCD Display Module – 240×320 Pixels</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/hi-link-hlk-5m12-12v-5w-ultra-compact-ac-to-dc-power-supply-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433596/tronix365_products/xsokqb4hqfwj2hrsp0uq.jpg</image:loc>
+      <image:title>Hi-Link HLK-5M12 – 12V 5W Ultra-Compact AC to DC Power Supply Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/hi-link-hlk-20m12-12v-20w-ac-to-dc-switching-power-supply-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433595/tronix365_products/nridzfiwg60dk6huhalt.jpg</image:loc>
+      <image:title>Hi-Link HLK-20M12 – 12V 20W AC to DC Switching Power Supply Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/hi-link-hlk-10m12-ac-to-dc-12v-10w-mini-power-supply-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433593/tronix365_products/ksqsmberbfezeuufc8fi.jpg</image:loc>
+      <image:title>Hi-Link HLK-10M12 – AC to DC 12V 10W Mini Power Supply Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/hi-link-hlk-5m05-5v5w-ac-dc-power-supply-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://placehold.co/400x400?text=No+Image</image:loc>
+      <image:title>Hi-Link HLK-5M05 5V/5W AC-DC Power Supply Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/hi-link-hlk-10m05-5v10w-ac-dc-power-supply-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433592/tronix365_products/ufxxq6hcc9vgso25nzin.jpg</image:loc>
+      <image:title>Hi-Link HLK-10M05 5V/10W AC-DC Power Supply Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/hi-link-hlk-pm01-5v3w-ac-dc-power-supply-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433584/tronix365_products/xhmr1di5kinsadpiwtih.jpg</image:loc>
+      <image:title>Hi-Link HLK-PM01 5V/3W AC-DC Power Supply Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/male-female-2155mm-dc-power-jack-connector-set</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433581/tronix365_products/mjbqyvfq8ibdahnjj60l.jpg</image:loc>
+      <image:title>Male + Female 2.1×5.5mm DC Power Jack Connector Set</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/tc-1103t-b-y-xkb-tactile-switch</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433580/tronix365_products/oq1pggzlams5yrpibh4w.jpg</image:loc>
+      <image:title>TC-1103T-B-Y XKB Tactile Switch</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/6x6x8mm-tactile-push-button-switch</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433576/tronix365_products/veqihtnabophdvury2m2.jpg</image:loc>
+      <image:title>6x6x8mm Tactile Push Button Switch</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/tactile-push-button-switch-6x6x5</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433572/tronix365_products/jf023lxlkfj41jqpibi1.jpg</image:loc>
+      <image:title>Tactile Push Button Switch 6x6x5</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/5a-3-pin-spdt-toggle-switch</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433571/tronix365_products/qv9hcohuekmrbeh1wnic.jpg</image:loc>
+      <image:title>5A 3 Pin SPDT Toggle Switch</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/st-link-v2-programmer-for-stm8-and-stm32</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433570/tronix365_products/ucnftxyjjgo2yl6jsh84.jpg</image:loc>
+      <image:title>ST-LINK V2 Programmer for STM8 and STM32</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/3-pin-screw-terminal-blockgreen-5mm-pitch</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433603/tronix365_products/ys8uz1a8hzjb9mjsbke0.jpg</image:loc>
+      <image:title>3 Pin Screw Terminal Block(Green)  5mm Pitch</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/2-pin-screw-terminal-blockgreen-254mm-pitch</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433599/tronix365_products/w1q6jdmnscjyj62qcvwi.jpg</image:loc>
+      <image:title>2 Pin Screw Terminal Block(Green) 2.54mm Pitch</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/20mhz-crystal-oscillator</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433565/tronix365_products/welvevdenmbhdif2i6q4.jpg</image:loc>
+      <image:title>20MHz Crystal Oscillator</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/16mhz-crystal-oscillator</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433588/tronix365_products/h8qo0cf401d9so4wxzqm.jpg</image:loc>
+      <image:title>16MHz Crystal Oscillator</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/110592mhz-crystal-oscillator</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433578/tronix365_products/boshzznz9sfgfbb20xwq.jpg</image:loc>
+      <image:title>11.0592MHz Crystal Oscillator</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/4mhz-crystal-oscillator</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433575/tronix365_products/rwiphlf6nzvjuusjq8of.jpg</image:loc>
+      <image:title>4MHz Crystal Oscillator</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/1n4007-1w-diode</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433568/tronix365_products/ekqelqnylnbcvbmd1unh.jpg</image:loc>
+      <image:title>1N4007 1W Diode</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/8-x-12-cm-universal-pcb-prototype-board-single-sided-254mm-hole-pitch</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433554/tronix365_products/g9xszqtsjhrv051kswvc.jpg</image:loc>
+      <image:title>8 x 12 cm Universal PCB Prototype Board Single-Sided 2.54mm Hole Pitch</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/9-x-15-cm-universal-pcb-prototype-board-single-sided-254mm-hole-pitch</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433563/tronix365_products/pyc6cxhm0palg7iwvpme.jpg</image:loc>
+      <image:title>9 x 15 cm Universal PCB Prototype Board Single-Sided 2.54mm Hole Pitch</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/6-x-8-cm-universal-pcb-prototype-board-single-sided-254mm-hole-pitch</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433562/tronix365_products/fi5mzw0soxpzsm07wrwc.jpg</image:loc>
+      <image:title>6 x 8 cm Universal PCB Prototype Board Single-Sided 2.54mm Hole Pitch</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/7-x-9-cm-universal-pcb-prototype-board-single-sided-254mm-hole-pitch</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433561/tronix365_products/ux0ovmo2xen6pgdttoox.jpg</image:loc>
+      <image:title>7 x 9 cm Universal PCB Prototype Board Single-Sided 2.54mm Hole Pitch</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/5-x-7-cm-universal-pcb-prototype-board-single-sided-254mm-hole-pitch</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433560/tronix365_products/s1mtlgas3byd6wunjlfe.jpg</image:loc>
+      <image:title>5 x 7 cm Universal PCB Prototype Board Single-Sided 2.54mm Hole Pitch</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/15-x-20-cm-universal-pcb-prototype-board-single-sided-254mm-hole-pitch</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433559/tronix365_products/plg31e8h59koxgesxks0.jpg</image:loc>
+      <image:title>15 x 20 cm Universal PCB Prototype Board Single-Sided 2.54mm Hole Pitch</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/12-x-18-cm-universal-pcb-prototype-board-single-sided-254mm-hole-pitch</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433558/tronix365_products/aqxvvi4qpj0c114u8frd.jpg</image:loc>
+      <image:title>12 x 18 cm Universal PCB Prototype Board Single-Sided 2.54mm Hole Pitch</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/10-x-15-cm-universal-pcb-prototype-board-single-sided-254mm-hole-pitch</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433557/tronix365_products/cr7pisvri7eldageyolt.jpg</image:loc>
+      <image:title>10 x 15 cm Universal PCB Prototype Board Single-Sided 2.54mm Hole Pitch</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/4-x-6-cm-universal-pcb-prototype-board-double-side</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433554/tronix365_products/nfk4nfufz2qi1kjl83hs.jpg</image:loc>
+      <image:title>4 x 6 cm Universal PCB Prototype Board Double-Side</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/7-x-9-cm-universal-pcb-prototype-board-double-sided</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433553/tronix365_products/gvfcediqbaypgswjgeaj.jpg</image:loc>
+      <image:title>7 X 9 CM Universal PCB Prototype Board Double-sided</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/9-x-15-cm-universal-pcb-prototype-board-double-side</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433552/tronix365_products/bl0pnra9z9hw0dtz5rch.jpg</image:loc>
+      <image:title>9 x 15 cm Universal PCB Prototype Board Double-Side</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/5-x-7-cm-universal-pcb-prototype-board-double-side</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433531/tronix365_products/bp0wmtrpzvgrzyywmvu5.jpg</image:loc>
+      <image:title>5 x 7 cm Universal PCB Prototype Board Double-Side</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/6-x-8-cm-universal-pcb-prototype-board-double-side</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433551/tronix365_products/jndl6mv0osvb9ifryjx3.jpg</image:loc>
+      <image:title>6 x 8 cm Universal PCB Prototype Board Double-Side</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/15-x-20-cm-universal-pcb-prototype-board-double-side</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439962/tronix365_products/fndtifc2gp7ilnxtjokh.jpg</image:loc>
+      <image:title>15 x 20 cm Universal PCB Prototype Board Double-Side</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/8-x-12-cm-universal-pcb-prototype-board-double-sided</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439710/tronix365_products/vtvkcqplq2bqy7dmfzmg.jpg</image:loc>
+      <image:title>8 x 12 CM Universal PCB Prototype Board Double-Sided</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/12-x-18-cm-universal-pcb-prototype-board-double-side</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439893/tronix365_products/qlyxz3mmoobuphgqhqgl.jpg</image:loc>
+      <image:title>12 x 18 cm Universal PCB Prototype Board Double-Side</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/3pi-miniq-44mm-n20-dc-gear-motor-wheel-for-miniq-car-robot</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439895/tronix365_products/d9s59vdvblepdy8jvh3h.jpg</image:loc>
+      <image:title>3PI miniQ 44mm N20 DC Gear Motor Wheel for MiniQ Car Robot</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/robot-wheel-100mm-diameter-x-44mm-width</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439892/tronix365_products/yuhhqttlj72gibl7o1v9.jpg</image:loc>
+      <image:title>Robot Wheel 100mm Diameter x 44mm Width</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/bo-wheel-7cm-dia-x-1cm-width-white</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439961/tronix365_products/cjbq4wliofaytfgzlyzx.jpg</image:loc>
+      <image:title>BO Wheel 7cm Dia. x 1cm Width (White)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/robot-wheel-70mm-diameter-x-40mm-width</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439872/tronix365_products/brhf8t0ia3t55mi5pfot.jpg</image:loc>
+      <image:title>Robot Wheel 70mm Diameter x 40mm Width</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/65mm-rubber-tyre-wheel-for-bo-motors-black</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439706/tronix365_products/kfydfg4jara2i93pb7gs.jpg</image:loc>
+      <image:title>65mm Rubber Tyre Wheel for BO Motors Black</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/65mm-robot-smart-car-wheel-for-bo-motors-red</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439888/tronix365_products/bwmp1rihdlvju9lgoeyk.jpg</image:loc>
+      <image:title>65mm Robot Smart Car Wheel for BO Motors Red</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/65mm-robot-smart-car-wheel-for-bo-motors-green</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439960/tronix365_products/aqqnfsk5cdppeygjtr5u.jpg</image:loc>
+      <image:title>65mm Robot Smart Car Wheel for BO Motors (Green)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/65mm-robot-smart-car-wheel-for-bo-motor-blue</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439956/tronix365_products/pkuhbkowxqohzznculyz.jpg</image:loc>
+      <image:title>65mm Robot Smart Car Wheel for BO Motor Blue</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/65mm-robot-wheel-for-bo-motors-yellow</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439871/tronix365_products/uh7riaaxjnjrqxbrxd2n.jpg</image:loc>
+      <image:title>65mm Robot Wheel for BO Motors (Yellow)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/smart-car-wheel-trace-robot-patrol-line-vehicle</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439700/tronix365_products/zyyyeylrps2etweaht7h.jpg</image:loc>
+      <image:title>Smart Car Wheel Trace Robot Patrol Line Vehicle</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/028-digital-voltmeter-ammeter-dc-100v-50a-with-led-display-shunt</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439891/tronix365_products/tncjt6qinkpz0rtfchmt.jpg</image:loc>
+      <image:title>0.28″ Digital Voltmeter Ammeter DC 100V 50A with LED Display &amp;amp; Shunt</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/12k-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439870/tronix365_products/nzqqp1rssc7xxcd32rdv.jpg</image:loc>
+      <image:title>12K resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/32k-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439890/tronix365_products/pqrlvfuxggw4t75giluh.webp</image:loc>
+      <image:title>32K resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/15k-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439869/tronix365_products/yhfdrztv6txjgfeeoyn7.jpg</image:loc>
+      <image:title>15K resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/0-ohms-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439868/tronix365_products/seovvgyp6wc5mbfiipui.jpg</image:loc>
+      <image:title>0 ohms resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/750k-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439867/tronix365_products/ld7v6k6vlrkepd3um8m7.jpg</image:loc>
+      <image:title>750K resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/56e-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439866/tronix365_products/lfgbey3ex8sey4bomisy.jpg</image:loc>
+      <image:title>56E resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/100k-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439865/tronix365_products/lhri9h84zqzakgltrden.jpg</image:loc>
+      <image:title>100K resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/150k-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439862/tronix365_products/ecsozhawpa2xrtwjywhd.jpg</image:loc>
+      <image:title>150K resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/22m-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439861/tronix365_products/fim6is4hlwjheryah2x6.jpg</image:loc>
+      <image:title>2.2M resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/820e-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439692/tronix365_products/fjdcmochmgq4wz2u41dm.jpg</image:loc>
+      <image:title>820E resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/820k-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439860/tronix365_products/f4s8a758t3bj1p0yfe9l.jpg</image:loc>
+      <image:title>820K resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/47k-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439853/tronix365_products/la27amrn6zddzr4cfsba.jpg</image:loc>
+      <image:title>47K resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/1m-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439860/tronix365_products/sbbet71ldmswsslhirxb.jpg</image:loc>
+      <image:title>1M resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/220k-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439882/tronix365_products/la6tkhpdydfmgqrv3wdk.jpg</image:loc>
+      <image:title>220K resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/10e-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439855/tronix365_products/ya8uu0yoed3st6sdxfyl.jpg</image:loc>
+      <image:title>10E resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/10-ohms-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439881/tronix365_products/nxsiktyzmetdpyiaxcjj.jpg</image:loc>
+      <image:title>10 ohms resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/470k-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439880/tronix365_products/m8dchhw5081c8voo13w8.jpg</image:loc>
+      <image:title>470K resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/39k-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439879/tronix365_products/ocyb7vwawo1fpjptiapf.jpg</image:loc>
+      <image:title>3.9K resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/56k-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439851/tronix365_products/vnqjoapdibp15abzhfmy.jpg</image:loc>
+      <image:title>5.6K resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/18k-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439877/tronix365_products/cxmjnajeblinvyylxeix.jpg</image:loc>
+      <image:title>18K resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/120k-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439685/tronix365_products/mylupwca41m7alkrkwxb.jpg</image:loc>
+      <image:title>120K resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/22k-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439852/tronix365_products/cgmf8ffngb3brlar8vd0.jpg</image:loc>
+      <image:title>22K resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/47m-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439750/tronix365_products/fynw1abeawjmgct7bdda.jpg</image:loc>
+      <image:title>4.7M resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/68-ohms-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439851/tronix365_products/bmq3hr5qqvq5ap8ex4bo.jpg</image:loc>
+      <image:title>68 ohms resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/33-ohms-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439731/tronix365_products/uebmphnphfqurz3qeorb.jpg</image:loc>
+      <image:title>33 ohms resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/68k-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439874/tronix365_products/q6howc3vstwl7rbnnaym.jpg</image:loc>
+      <image:title>68K resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/47e-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439875/tronix365_products/n79qbbxv5jxllkhk6ogi.jpg</image:loc>
+      <image:title>47E resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/22-ohms-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439848/tronix365_products/qtvobrakvjxrwr1roxtk.jpg</image:loc>
+      <image:title>22 ohms resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/560-ohms-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439847/tronix365_products/hmaiy3sifjelnp1hulnr.jpg</image:loc>
+      <image:title>560 ohms resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/18kohm-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439846/tronix365_products/oujeca2ep0wwvucr6b1u.jpg</image:loc>
+      <image:title>1.8Kohm resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/680e-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439896/tronix365_products/y0nymabubyp8tavitdnp.jpg</image:loc>
+      <image:title>680E Resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/240-ohms-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439845/tronix365_products/ocv67i2f39nbbfgkonwb.webp</image:loc>
+      <image:title>240 ohms resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/33k-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439845/tronix365_products/w2pbeukk1eyxulni9dc1.jpg</image:loc>
+      <image:title>3.3K resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/100-ohms-resistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439769/tronix365_products/cprgsoicvglp9n2fou4u.jpg</image:loc>
+      <image:title>100 ohms resistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/female-male-jumper-wire-set-of-40-wires</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439749/tronix365_products/smeq3btyhy7vukhjthd5.jpg</image:loc>
+      <image:title>Female-Male Jumper Wire (set of 40 wires)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/female-female-jumper-wire-set-of-40-wires</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439686/tronix365_products/cwny0oowmekawahkktfg.webp</image:loc>
+      <image:title>Female-Female Jumper Wire (set of 40 wires)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/male-male-jumper-wire-set-of-40-wires</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439737/tronix365_products/d6yxoejic496wou2lnud.jpg</image:loc>
+      <image:title>Male-Male Jumper Wire (set of 40 wires)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/254mm-1x40-pin-female-single-row-header-strip</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439682/tronix365_products/k14vuqcnwtpz2ggxwj9n.jpg</image:loc>
+      <image:title>2.54mm 1x40 Pin Female Single Row Header Strip</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/1x40-pin-254mm-berg-strip-male-connector</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439679/tronix365_products/sfl6spouutk5ne6xe8ih.jpg</image:loc>
+      <image:title>1x40 Pin 2.54MM Berg Strip Male connector</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/2x40-pin-2mm-pitch-male-berg-strip-straight-double-row-header-connector</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439955/tronix365_products/gwazq3wlhuambd1khse9.jpg</image:loc>
+      <image:title>2x40 Pin 2mm Pitch Male Berg Strip Straight Double Row Header Connector</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/2x40-pin-2mm-pitch-h-4mm-female-berg-strip-straight-double-row-header-connector</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439740/tronix365_products/kvgvgznfjphola9xkeym.jpg</image:loc>
+      <image:title>2x40 Pin 2mm Pitch H 4mm Female Berg Strip Straight Double Row Header Connector</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/5v-active-electromagnetic-buzzer</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439785/tronix365_products/kpg31acolncfmvkuivxx.jpg</image:loc>
+      <image:title>5V Active Electromagnetic Buzzer</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/micro-hdmi-male-to-female-adaptor-for-raspberry-pi</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439738/tronix365_products/tfcxbe2tghx8qqa2idw2.jpg</image:loc>
+      <image:title>Micro HDMI Male To Female Adaptor for Raspberry Pi</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/hdmi-to-vga-converter</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791610405/tronix365_products/lftzhvtmt4fvghrwf6qm.webp</image:loc>
+      <image:title>HDMI to VGA Converter</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/2-pin-power-cord-with-open-ended-cable</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439935/tronix365_products/tsrtlzno6wfr7rhspxkd.jpg</image:loc>
+      <image:title>2 Pin Power Cord with Open Ended Cable</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/raspberry-pi-pico-wh</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439735/tronix365_products/adprplmc1athepisjirv.jpg</image:loc>
+      <image:title>Raspberry Pi Pico-WH</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/raspberry-pi-pico</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439734/tronix365_products/a9l6kyj64wzwgedl0xep.jpg</image:loc>
+      <image:title>Raspberry Pi Pico</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/raspberry-pi-5-model-8gb</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439932/tronix365_products/ghc3aiydpajygvykfrzs.jpg</image:loc>
+      <image:title>Raspberry Pi 5 Model 8GB</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/raspberry-pi-5-model-4gb</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439931/tronix365_products/hkggfodfmkv7n0nosxge.jpg</image:loc>
+      <image:title>Raspberry Pi 5 Model 4GB</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/esp32-wroom-32-38-pin-development-board</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439930/tronix365_products/pzv628jdsrjiez6ayayt.jpg</image:loc>
+      <image:title>ESP32-WROOM-32 38-Pin Development Board</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/esp32-cam-mb-micro-usb-download-module-for-esp32-cam-development-board</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439928/tronix365_products/koys16s3vjsx3k0ut7j1.jpg</image:loc>
+      <image:title>ESP32-CAM-MB MICRO USB Download Module for ESP32 CAM Development Board</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/pro-mini-atmega328p</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439928/tronix365_products/a88mnlk08j2g64inl8sy.jpg</image:loc>
+      <image:title>Pro Mini ATmega328P</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/lora-antenna-868mhz</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439721/tronix365_products/mcel6syw0doo2s9agkd2.jpg</image:loc>
+      <image:title>Lora Antenna 868mhz</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/lora-antenna-433mhz</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439927/tronix365_products/tqof0jfsnoe8zjayhnlf.jpg</image:loc>
+      <image:title>Lora Antenna 433mhz</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/pvc-heat-shrink-sleeve-480mm-sky-blue</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439926/tronix365_products/ipvld1wqmz4gkpk2gnpz.jpg</image:loc>
+      <image:title>PVC Heat Shrink Sleeve 480mm Sky Blue</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/pvc-heat-shrink-sleeve-170mm-sky-blue</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439925/tronix365_products/vo6sqpuwfuwr0mkithw3.jpg</image:loc>
+      <image:title>PVC Heat Shrink Sleeve 170mm Sky Blue</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/pvc-heat-shrink-sleeve-630mm-sky-blue</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439746/tronix365_products/dlsj5ezts18yael09i5n.jpg</image:loc>
+      <image:title>PVC Heat Shrink Sleeve 630mm Sky Blue</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/300-rpm-12v-dc-center-shaft-geared-motor-high-torque-metal-gear-motor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439924/tronix365_products/k9ojddie4ylk74vg4g5g.jpg</image:loc>
+      <image:title>300 RPM 12V DC Center Shaft Geared Motor (High Torque Metal Gear Motor)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/35rpm-12v-dc-center-shaft-geared-motor-high-torque-metal-gear-motor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439727/tronix365_products/nswwrljeqkffzvunoalq.jpg</image:loc>
+      <image:title>3.5RPM 12V DC Center Shaft Geared Motor (High Torque Metal Gear Motor)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/towerpro-mg996r-digital-high-torque-servo-motor-360-rotation</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439923/tronix365_products/dvujj2v1lbtxgv51e3bt.jpg</image:loc>
+      <image:title>TowerPro MG996R Digital High Torque Servo Motor (360° Rotation)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/towerpro-mg995-metal-gear-servo-motor-360-continuous-rotation</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439922/tronix365_products/r5y3z5s2ehcjsqq53wbn.jpg</image:loc>
+      <image:title>TowerPro MG995 Metal Gear Servo Motor (360° Continuous Rotation)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/towerpro-mg995-plastic-gear-servo-motor-with-cnc-aluminum-steering-servo-horn-arm</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439920/tronix365_products/t3cnvpjo47wqugdmm7su.jpg</image:loc>
+      <image:title>TowerPro MG995 Plastic Gear Servo Motor with CNC Aluminum Steering Servo Horn Arm</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/5v-step-up-power-module-lithium-battery-charging-protection-board-usb</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439843/tronix365_products/d0fi5zoifnmabzzlhsgz.jpg</image:loc>
+      <image:title>5V Step-Up Power Module Lithium Battery Charging Protection Board USB</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/1-channel-5v-single-chanel-relay-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439913/tronix365_products/jdlbttuadhvtmwjjk16e.jpg</image:loc>
+      <image:title>1 channel 5V single Chanel Relay Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/ttp223-touch-key-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791566776/tronix365_products/wobb9qafjfz4jzndmjme.webp</image:loc>
+      <image:title>TTP223 Touch Key Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/lm35d-analog-temperature-sensor-module-cable</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439796/tronix365_products/ddkitwi4rqfeavifowin.jpg</image:loc>
+      <image:title>LM35D Analog Temperature Sensor Module + Cable</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/ir-flame-fire-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439795/tronix365_products/lxq59u12ah6y6macjr7i.jpg</image:loc>
+      <image:title>IR Flame / Fire Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/15-5v-dc-vibration-motor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439842/tronix365_products/mnkyzrolqfuj0t5s1ktd.jpg</image:loc>
+      <image:title>1.5-5V DC Vibration Motor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/spectra-symbol-flex-sensor-fs-l-055-253-mp-80mm-male-pins-connector</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439841/tronix365_products/sg8awhtrdhpvkx6sxgbi.jpg</image:loc>
+      <image:title>Spectra Symbol Flex Sensor-FS-L-055-253-MP 80mm Male Pins connector</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/sea-yf-s402b-5-24v-water-flow-sensor-flowmeter-03-6lmin</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439840/tronix365_products/p0kz0qigvbvoiqscrdxm.jpg</image:loc>
+      <image:title>SEA YF-S402B 5-24V Water Flow Sensor Flowmeter 0.3-6L/Min</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/dc6-12v-mini-aquarium-water-pump-r385</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439681/tronix365_products/kvnzo5uolzqk4ohgjuwl.jpg</image:loc>
+      <image:title>DC6-12V MINI Aquarium water Pump R385</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/yf-s201-water-flow-sensor-130-lmin-black</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439839/tronix365_products/ssnxhtqhhph1q7ok6iqp.jpg</image:loc>
+      <image:title>YF-S201 Water Flow Sensor 1–30 L/min Black</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/r307s-optical-fingerprint-reader-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439837/tronix365_products/brdfsg7gpmck0v6hddmp.jpg</image:loc>
+      <image:title>R307S Optical Fingerprint Reader Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/ad8232-ecg-heart-rate-monitoring-sensor-module-kit</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439837/tronix365_products/p8gplopwgnum2a8v4neu.jpg</image:loc>
+      <image:title>AD8232 ECG Heart Rate Monitoring Sensor Module Kit</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/ds18b20-water-proof-temperature-probe-1m-black</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439832/tronix365_products/kzcyo2jewvjzlmzhu6au.jpg</image:loc>
+      <image:title>DS18B20 Water Proof Temperature Probe 1M Black</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/dht22-digital-temperature-humidity-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439831/tronix365_products/rtencrtmlcpaxsmvoe0y.jpg</image:loc>
+      <image:title>DHT22  Digital Temperature &amp;amp; Humidity Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/dht11-digital-temperature-humidity-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439830/tronix365_products/k3pxpgfgow4ady5bumzj.jpg</image:loc>
+      <image:title>DHT11 Digital Temperature &amp;amp; Humidity Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/dht11-temp-humidity-sensor-module-with-led-indicator</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439828/tronix365_products/cipdjx0r2bdnq4nsgqzl.jpg</image:loc>
+      <image:title>DHT11 Temp Humidity Sensor Module with LED Indicator</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/peacefair-pzem-004t-with-coil-ct-with-outcasehot-ac-meter</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439827/tronix365_products/txeqow1pbskcrvk6cwfc.jpg</image:loc>
+      <image:title>Peacefair PZEM-004T with coil CT, with outcase(HOT) AC meter</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/peacefair-pzem-004t-100a</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439826/tronix365_products/udocywg7txyfjyapgh1g.jpg</image:loc>
+      <image:title>Peacefair PZEM-004T-100A</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/acs712-30a-current-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439825/tronix365_products/lxhbbixelhmtzv9ogpuf.jpg</image:loc>
+      <image:title>ACS712 30A Current Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/acs712-5a-current-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439824/tronix365_products/rtho7fp0zbaf7vcgaqsc.jpg</image:loc>
+      <image:title>ACS712 5A Current Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/acs712-20a-current-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439823/tronix365_products/tkidxnbvmvlx4r3exqwd.jpg</image:loc>
+      <image:title>ACS712 20A Current Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/13-inch-i2c-oled-display-module-4pin-white</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439821/tronix365_products/tdmavgs9lxyd3xdydz5q.jpg</image:loc>
+      <image:title>1.3 Inch I2C OLED Display Module 4pin- WHITE</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/096-inch-i2ciic-4pin-oled-display-module-blue</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439795/tronix365_products/pv8oid1fdzzcrpud6q0j.jpg</image:loc>
+      <image:title>0.96 Inch I2C/IIC 4pin OLED Display Module -BLUE</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/096-inch-i2ciic-4-pin-oled-display-module-white</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439677/tronix365_products/ywh9iztb2dzttnxon8xx.jpg</image:loc>
+      <image:title>0.96 Inch I2C/IIC 4-Pin OLED Display Module -WHITE</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/kp-403450-37v-1000mah-lipo-rechargeable-battery</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439794/tronix365_products/kf0i7nl59lxzlakqqlry.jpg</image:loc>
+      <image:title>KP 403450 3.7V 1000mAh Lipo Rechargeable Battery</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/female-male-jumper-wire</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439954/tronix365_products/bxwjle4dgf2ppeh4nqek.jpg</image:loc>
+      <image:title>Female-Male Jumper Wire</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/female-female-jumper-wire</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439953/tronix365_products/snldvvrz9u3ecnnhodxg.webp</image:loc>
+      <image:title>Female-Female Jumper Wire</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/male-male-jumper-wire</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439697/tronix365_products/l9480vbapdxmyw39ezek.jpg</image:loc>
+      <image:title>Male-Male Jumper Wire</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/840-points-breadboard</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439951/tronix365_products/ygiqoz1eei15aiybuwxf.jpg</image:loc>
+      <image:title>840 Points Breadboard</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/400-points-breadboard</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439951/tronix365_products/jwmmvbbrnyeigwlkqahp.webp</image:loc>
+      <image:title>400 Points Breadboard</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/170-points-mini-breadboard</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439717/tronix365_products/jwkxtld8xjmzkw0q0urr.webp</image:loc>
+      <image:title>170 points Mini Breadboard</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/stm32f103c8t6</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439950/tronix365_products/mrlyhdcceqkuqpg5zxyj.jpg</image:loc>
+      <image:title>STM32F103C8T6</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/2mm-pitch-female-berg-strip-40x1</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439724/tronix365_products/thgbdobilxfiqcee5brd.jpg</image:loc>
+      <image:title>2mm Pitch Female Berg Strip 40x1</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/2mm-pitch-male-bergstrip-40x1</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439699/tronix365_products/epv2ij6g5j4z1swtky5z.jpg</image:loc>
+      <image:title>2mm Pitch Male Bergstrip 40x1</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/28-pin-ic-socket</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439886/tronix365_products/gtsylsviqi4dsgup4dyj.jpg</image:loc>
+      <image:title>28 PIN IC SOCKET</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/20-pin-ic-socket</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439948/tronix365_products/n998kkrmj48zfffvatx3.jpg</image:loc>
+      <image:title>20 PIN IC SOCKET</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/18-pin-ic-socket</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439947/tronix365_products/dgwjxroblke0uili0f2h.jpg</image:loc>
+      <image:title>18 PIN IC SOCKET</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/16-pin-ic-socket</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439850/tronix365_products/pl66c9fwmwkiwbppibuj.jpg</image:loc>
+      <image:title>16 PIN IC SOCKET</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/14-pin-ic-socket</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439774/tronix365_products/s51fhlad3pnck3s0ixdc.jpg</image:loc>
+      <image:title>14 PIN IC SOCKET</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/8-pin-ic-socket</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439946/tronix365_products/nbbxjafjxnsruraimbh7.jpg</image:loc>
+      <image:title>8 PIN IC SOCKET</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/6-pin-ic-socket</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439945/tronix365_products/i6h0hmnwfqee0adzpqb1.jpg</image:loc>
+      <image:title>6 PIN IC SOCKET</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/white-led-5mm</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439773/tronix365_products/mem9kyor7chzsn5wdpwx.webp</image:loc>
+      <image:title>White LED 5MM</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/blue-led-5mm</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439772/tronix365_products/enm7tkt28hvgpz79tjxs.jpg</image:loc>
+      <image:title>Blue LED 5MM</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/green-led-5mm</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439944/tronix365_products/ydumd5jdgkwd0amb8dla.webp</image:loc>
+      <image:title>GREEN LED 5MM</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/orange-led-5mm</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439943/tronix365_products/vczhmbzhigubhzjpgtyq.jpg</image:loc>
+      <image:title>Orange LED 5MM</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/yellow-led-5mm</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439876/tronix365_products/vsfzzujkb6obfqyvx0yk.jpg</image:loc>
+      <image:title>Yellow LED 5MM</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/red-led-5mm</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439762/tronix365_products/ohkcemrg52dmtneo0h5v.webp</image:loc>
+      <image:title>Red LED 5mm</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/8-05w-speaker</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439942/tronix365_products/nsal7mhdtfcqaxccxtyu.jpg</image:loc>
+      <image:title>8Ω , 0.5W SPEAKER</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/9v-battery-cap-connector</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439941/tronix365_products/mc5dz4qqyxziso3aegok.jpg</image:loc>
+      <image:title>9V BATTERY CAP CONNECTOR</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/9v-battery</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439821/tronix365_products/vf51vib1zdfmpbpdkizt.jpg</image:loc>
+      <image:title>9V BATTERY</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/all-purpose-hot-melt-glue-sticks-for-glue-gun-1pcs</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439940/tronix365_products/mcq2rib1ql7s5f8gsfab.jpg</image:loc>
+      <image:title>All Purpose Hot Melt Glue Sticks for Glue Gun 1PCS</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/5mm-dc-jack-socket-female-connector-with-wire</loc>
@@ -1475,869 +2344,1449 @@
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439889/tronix365_products/vtzfueddjo1iatcm0sro.jpg</image:loc>
+      <image:title>5mm DC Jack Male Connector with Wire</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/55x21mm-female-dc-power-jack-supply-socket</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439819/tronix365_products/ipmb9mkfpunssaklbmpm.webp</image:loc>
+      <image:title>5.5x2.1mm Female DC Power Jack Supply Socket</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/round-rocker-switch-2-pin-on-off-black-button</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439939/tronix365_products/fpgcaxvyflcvcql9ihyz.jpg</image:loc>
+      <image:title>Round Rocker Switch 2 Pin ON-OFF Black Button</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/mini-rocker-switch-6a-250v-2pin</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439691/tronix365_products/gxghkxifzbx8eahge989.jpg</image:loc>
+      <image:title>Mini Rocker switch 6A 250V 2PIN</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/mini-rocker-switch-kcd5-101-2pin</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439938/tronix365_products/cqx2ikdwyw3kkgfxx6tb.jpg</image:loc>
+      <image:title>Mini Rocker Switch KCD5-101 2Pin</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/2n2222-npn-transistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439755/tronix365_products/dxjse4yzcgt1pzpjfaip.jpg</image:loc>
+      <image:title>2N2222-NPN Transistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/bc558-pnp-transistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439936/tronix365_products/rgbwx7nemdav5b7dtqe2.webp</image:loc>
+      <image:title>BC558-PNP Transistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/bc547-npn-transistor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439751/tronix365_products/sfvgogthfelblgfekli9.webp</image:loc>
+      <image:title>BC547-NPN-Transistor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/1000uf-50v-cap</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439747/tronix365_products/xjdeus8r1bouqnntrxes.jpg</image:loc>
+      <image:title>1000UF 50V CAP</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/470-uf-100v-cap</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439818/tronix365_products/kmtslgelh8n8yycbfzco.webp</image:loc>
+      <image:title>470 UF 100V CAP</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/100uf-50v-cap</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439741/tronix365_products/twqdngumpsxurlv5tnfk.jpg</image:loc>
+      <image:title>100UF 50V CAP</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/22uf-50v-cap</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439822/tronix365_products/pmvgds8jwndrgn1uqgjc.jpg</image:loc>
+      <image:title>22UF 50V CAP</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/10uf-100v-cap</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439818/tronix365_products/edyggwhveyptit23sbry.png</image:loc>
+      <image:title>10UF 100V CAP</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/47-uf-50v-cap</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439894/tronix365_products/gn5zlvizso5uhprdr1qs.webp</image:loc>
+      <image:title>4.7 UF 50V CAP</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/22-uf-50v-cap</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439725/tronix365_products/a1weaufa1zpt7urihvwu.webp</image:loc>
+      <image:title>2.2 UF 50V CAP</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/1-uf-50v-cap</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439807/tronix365_products/w5qnwvyixnypgpmhksmu.jpg</image:loc>
+      <image:title>1 UF 50V CAP</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/22-pf-50v</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439702/tronix365_products/bf0ar5qodrqkn4zxxcx7.jpg</image:loc>
+      <image:title>22 PF 50V</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/01-uf-50v-cap</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439919/tronix365_products/hfmwlrjry9f744ubnuo0.jpg</image:loc>
+      <image:title>0.1 UF 50V CAP</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/001uf-50v-cap</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439918/tronix365_products/gntwucs5gdbalcxwuevk.jpg</image:loc>
+      <image:title>0.01UF 50V CAP</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/0001-uf-50v-cap</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439917/tronix365_products/xuuyyadhfkkrqr0kg02m.jpg</image:loc>
+      <image:title>0.001 UF 50V CAP</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/33pf-50v-capacotior</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439809/tronix365_products/ycbixaqzqmqjjmw15lrx.png</image:loc>
+      <image:title>33PF 50V CAPACOTIOR</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/1x-18650-cell-box</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439690/tronix365_products/fxky0u2jfisnxsthf5s9.jpg</image:loc>
+      <image:title>1x 18650 Cell Box</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/2-x-18650-cell-box</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439916/tronix365_products/rgktevrhgqwfxnkxsysp.webp</image:loc>
+      <image:title>2 x 18650 Cell Box</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/3-x-18650-cell-box</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439915/tronix365_products/ddcbofc6jpwgovt3xi0d.jpg</image:loc>
+      <image:title>3 x 18650 Cell Box</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/18650-li-ion-2600mah-cell</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439899/tronix365_products/nxerqqurfsrkuyciu5xc.webp</image:loc>
+      <image:title>18650-li-ion-2600mah-cell</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/esp32-cable</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439687/tronix365_products/k0ys5dvg2pitosydnvje.jpg</image:loc>
+      <image:title>ESP32 CABLE</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/nano-cable</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439678/tronix365_products/f04sp1hnts3ro0ioavtf.jpg</image:loc>
+      <image:title>NANO CABLE</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/arduino-uno-cable</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439816/tronix365_products/womv9puhadd48rcjjfdr.webp</image:loc>
+      <image:title>Arduino UNO CABLE</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/esp8266-nodemcu-cp2102-board</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439815/tronix365_products/psal5rvqmgdwcnue6yys.jpg</image:loc>
+      <image:title>ESP8266 NodeMCU CP2102 Board</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/enc28j60-ethernate-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439798/tronix365_products/y49zczkg2zhnpwnqwpff.jpg</image:loc>
+      <image:title>ENC28J60 ethernate module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/esp-cam-module-without-base</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439814/tronix365_products/mwhrnu238fudwebr6grp.jpg</image:loc>
+      <image:title>ESP CAM MODULE WITHOUT BASE</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/30pin-ch9102x-esp-32-wifibluetooth-development-board-with-type-c-usb-interface</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439914/tronix365_products/b5dijtz78ts5jon32sri.webp</image:loc>
+      <image:title>30Pin CH9102X ESP-32 Wifi+Bluetooth Development Board with Type-C USB Interface</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/arduino-mega</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439716/tronix365_products/l2zhmcfx4okkv8qu33ux.jpg</image:loc>
+      <image:title>ARDUINO MEGA</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/arduino-nano</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439813/tronix365_products/ouswtc9yxlcka6vo99qe.jpg</image:loc>
+      <image:title>ARDUINO NANO</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/arduino-uno-dip-without-cable</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439808/tronix365_products/egg6ggpkgyetlfbj5cm5.jpg</image:loc>
+      <image:title>ARDUINO UNO DIP Without Cable</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/arduino-uno-r3-atmega328p-development-board</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439680/tronix365_products/fxcyjz7ebmemxnf2bgw0.jpg</image:loc>
+      <image:title>Arduino Uno R3 ATmega328p Development Board </image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/the-mg90s-9g-servo-motor-180-degree</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439807/tronix365_products/nf2jqf6rz3ygx5uzadn7.jpg</image:loc>
+      <image:title>The MG90S 9g Servo Motor - 180 Degree</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/towerpro-mg995-metal-gear-servo-motor-180-rotation</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439806/tronix365_products/oz9jl9zl5qjlf0kdq8za.jpg</image:loc>
+      <image:title>TowerPro MG995 Metal Gear Servo Motor (180° Rotation)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/5v-stepper-motor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433550/tronix365_products/ltuz9ngffdiqu1skk.jpg</image:loc>
+      <image:title>5V STEPPER MOTOR</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/500rpm-12v-dc-center-shaft-geared-motor-high-torque-metal-gear-motor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439714/tronix365_products/tp6p3drllwzpkeafsaak.jpg</image:loc>
+      <image:title>500RPM 12V DC Center Shaft Geared Motor (High Torque Metal Gear Motor)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/200rpm-12v-dc-center-shaft-geared-motor-high-torque-metal-gear-motor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439805/tronix365_products/l1fnohd34q9yxrmbru3r.jpg</image:loc>
+      <image:title>200RPM 12V DC Center Shaft Geared Motor (High Torque Metal Gear Motor)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/100rpm-12v-dc-center-shaft-geared-motor-high-torque-metal-gear-motor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439804/tronix365_products/o2fp7r74ap7frebfdfb2.jpg</image:loc>
+      <image:title>100RPM 12V DC Center Shaft Geared Motor (High Torque Metal Gear Motor)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/30-rpm-12v-centre-shaft-dc-geared-motor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439803/tronix365_products/df2pma8nuecquaoq7acd.jpg</image:loc>
+      <image:title>30 RPM 12V Centre Shaft DC Geared Motor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/10rpm-12v-dc-center-shaft-geared-motor-high-torque-metal-gear-motor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439801/tronix365_products/kwpcpjjxqqggeodw1jze.jpg</image:loc>
+      <image:title>10RPM 12V DC Center Shaft Geared Motor (High Torque Metal Gear Motor)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/16-pin-relimate</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433519/tronix365_products/pgv3osbtzy2z7fyopbbl.jpg</image:loc>
+      <image:title>16 PIN RELIMATE</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/12-pin-relimate</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433547/tronix365_products/xg1vucxyxii3llqkz2in.webp</image:loc>
+      <image:title>12 PIN RELIMATE</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/8-pin-relimate</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433546/tronix365_products/cdidncuvoobgmrjkcaz2.webp</image:loc>
+      <image:title>8 PIN RELIMATE</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/7-pin-relimate</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433565/tronix365_products/kmjtsmmfnihuewhb5eqn.png</image:loc>
+      <image:title>7 PIN RELIMATE</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/6-pin-relimate</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433544/tronix365_products/amtqbyv6ru0y8aghhrf2.webp</image:loc>
+      <image:title>6 PIN RELIMATE</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/5-pin-relimate</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433544/tronix365_products/lzx11pcrexdbw81xgrgh.webp</image:loc>
+      <image:title>5 PIN RELIMATE</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/4-pin-relimate</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433543/tronix365_products/qhpev0cwenwu0eseydbo.jpg</image:loc>
+      <image:title>4 PIN RELIMATE</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/3-pin-female-to-female-relimate-connector</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433555/tronix365_products/uhm9hokkfzeofjnjhyot.jpg</image:loc>
+      <image:title>3 Pin Female To Female Relimate Connector</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/2-pin-relimate-malefemale-set</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433542/tronix365_products/p1hsylyzyzeeusfhfldb.jpg</image:loc>
+      <image:title>2 PIN RELIMATE (Male+Female set)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/tec1-12706-peltier-cooler-heater-4040mm-6a-white</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433541/tronix365_products/um6ifgju0uhr2vsbapxe.jpg</image:loc>
+      <image:title>TEC1-12706 Peltier Cooler Heater 40×40mm 6A – White</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/inmp441-mems-high-precision-omnidirectional-microphone-module-i2s</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433541/tronix365_products/dvakyznjmwuhnxpdbppu.jpg</image:loc>
+      <image:title>INMP441 MEMS High Precision Omnidirectional Microphone Module I2S</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/electret-microphone-condenser-mic-sensitivity-9-x-7mm</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433444/tronix365_products/fj3a0yf2s5cqwqc2tqh6.jpg</image:loc>
+      <image:title>Electret Microphone Condenser Mic Sensitivity 9 x 7mm</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/isd1820-voice-recorder-module-with-speaker</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433539/tronix365_products/vbfezd9tkdlvefieupw2.jpg</image:loc>
+      <image:title>ISD1820 Voice Recorder Module with Speaker</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/raspberry-pi-usb-plug-and-play-desktop-microphone</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433537/tronix365_products/ve7fhs8dymetcj2gximd.jpg</image:loc>
+      <image:title>Raspberry Pi USB Plug and Play Desktop Microphone</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/4x3-matrix-12-keys-membrane-switch-keypad</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433535/tronix365_products/ssvleinn4pgolk1hqmzf.jpg</image:loc>
+      <image:title>4x3 Matrix 12 keys Membrane Switch Keypad</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/4x4-matrix-membrane-type-keypad-16-keys</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433533/tronix365_products/vsjibtxg2tioabkdwqh7.jpg</image:loc>
+      <image:title>4x4 Matrix Membrane Type Keypad 16 Keys</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/neo-6m-gps-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433641/tronix365_products/qq7wbqvo0szd82h4rpzk.jpg</image:loc>
+      <image:title>NEO 6M GPS Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/uln2003a-driver-module-stepper-motor-driver-board</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433461/tronix365_products/luiyypcmncyu0qtnmllh.jpg</image:loc>
+      <image:title>ULN2003A Driver Module Stepper Motor Driver Board</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/l293d-motor-driver-module-45-25v</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1788710996/tronix365_products/somg57ejcogzp8io8uqe.jpg</image:loc>
+      <image:title>L293D Motor Driver Module 4.5-25V</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/l298n-2a-based-motor-driver-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433521/tronix365_products/mkxfuxqkcmbvjnlqherv.jpg</image:loc>
+      <image:title>L298N 2A Based Motor Driver Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/433-mhz-rf-modules-tx-rx-pair</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433502/tronix365_products/rrunmen36oprsptruccb.jpg</image:loc>
+      <image:title>433 MHZ RF Modules TX &amp;amp; RX PAIR</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/20x4-green-lcd-display-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433639/tronix365_products/miv5kvii5ywxaumavheu.jpg</image:loc>
+      <image:title>20x4 Green LCD Display Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/162-character-lcd-display-with-yellow-backlight</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433495/tronix365_products/pzoa0ihfzmsldjt7z8tf.jpg</image:loc>
+      <image:title>16×2 Character LCD Display With Yellow Backlight</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/i2c-module-compatible-with-162-lcd</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433574/tronix365_products/eazshcsn7lcfiui2gh2t.jpg</image:loc>
+      <image:title>I2C Module Compatible with 16×2 LCD</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/esp-01-esp8266-serial-wifi-wireless-transceiver-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433454/tronix365_products/mrgk76rqzpc8dn4u35um.jpg</image:loc>
+      <image:title>ESP-01 ESP8266 Serial WIFI Wireless Transceiver Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/mt8870-dtmf-audiospeech-decoding-telephone-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791433421/tronix365_products/it6sqyqepxoa3q193ywc.jpg</image:loc>
+      <image:title>MT8870 DTMF Audio/Speech Decoding Telephone Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/tp4056-battery-charger-c-type-module-with-protection</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439789/tronix365_products/qmzmfrbql178bj1aheit.jpg</image:loc>
+      <image:title>TP4056 Battery Charger C Type Module with Protection</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/mpu-6050-triple-axis-accelerometer-gyroscope-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439786/tronix365_products/l5tjs7zjnhbfinwftf2p.jpg</image:loc>
+      <image:title>MPU-6050 Triple-Axis Accelerometer &amp;amp; Gyroscope Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/bmp180-digital-barometric-pressure-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439784/tronix365_products/ca1rpamos8jn1t3clth4.jpg</image:loc>
+      <image:title>BMP180 Digital Barometric Pressure Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/rs485-to-ttl-serial-port-converter-adapter-communication-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439912/tronix365_products/iutqhqlwyvhsqolui2hk.jpg</image:loc>
+      <image:title>RS485 to TTL Serial Port Converter Adapter Communication Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/rs232-to-ttl-serial-interface-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439908/tronix365_products/ye5sciimmv0el5xugwpo.jpg</image:loc>
+      <image:title>RS232 to TTL Serial Interface Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/rc522-rfid-reader-writer-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439783/tronix365_products/qmuzuj7kdwkmkqlwlala.jpg</image:loc>
+      <image:title>RC522 RFID  Reader Writer Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/ftdi-serial-adapter-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439907/tronix365_products/xau67ajfmxbuexdbexmo.jpg</image:loc>
+      <image:title>FTDI Serial Adapter Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/cp2102-usb-20-to-uart-ttl-converter-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439906/tronix365_products/xg6ytm7lvv2lfadda09k.jpg</image:loc>
+      <image:title>CP2102 USB 2.0 to UART TTL Converter Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/step-down-module-lm2596</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439676/tronix365_products/q5mxoda3ppqevqmscsiq.jpg</image:loc>
+      <image:title>Step Down Module LM2596</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/step-up-module-xl6009</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1788711023/tronix365_products/dt3kxocnz0bslhydxwag.jpg</image:loc>
+      <image:title>STEP UP MODULE XL6009</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/nrf24l01-transceiver-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439904/tronix365_products/uvfpjycnrzejf3occ7ae.jpg</image:loc>
+      <image:title>NRF24L01 Transceiver Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/ra02-lora-module-long-range-wireless-module-433mhz-iot-sx1278-lora-transceiver-rf-communication-module-iot-wireless-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439903/tronix365_products/tguvxzpeqek78twfu5sq.jpg</image:loc>
+      <image:title>RA02 LoRa Module Long Range Wireless Module 433MHz IoT (SX1278 LoRa Transceiver, RF Communication Module, IoT Wireless Module)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/rtc-cell</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439782/tronix365_products/v4kyuhq19kz4yy0hgfhe.jpg</image:loc>
+      <image:title>RTC CELL</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/ds1307-real-time-clock-rtc-i2c-module-at24c32</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439902/tronix365_products/o6j2aj3w0epnwfemhjoh.jpg</image:loc>
+      <image:title>DS1307 Real-Time Clock RTC I2C Module AT24C32</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/ds3231-rtc-module-without-coin-cell-at24c32</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439781/tronix365_products/oab85mcltnortx5n28jg.jpg</image:loc>
+      <image:title>DS3231 RTC Module Without Coin Cell (AT24C32)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/40kg-load-cell</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439817/tronix365_products/k9vm1l3tmz4k8tuk3knu.jpg</image:loc>
+      <image:title>40KG LOAD CELL</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/5kg-load-cell</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439780/tronix365_products/kml8bpnsj41zp1w5bbp9.jpg</image:loc>
+      <image:title>5KG LOAD CELL</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/micro-sd-card-reader-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439715/tronix365_products/amweaebdrwde0gsrgxhz.jpg</image:loc>
+      <image:title>Micro SD Card Reader Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/pcf8575-remote-16-bits-i2c-iic-smbus-io-expander-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439778/tronix365_products/h6bqpgcsfrcr7m1sypux.jpg</image:loc>
+      <image:title>PCF8575 Remote 16 Bits I2C IIC SMBus I/O Expander Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/ads1115-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439777/tronix365_products/y6xaumyz7oxbbkelzbde.jpg</image:loc>
+      <image:title>ADS1115 Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/hc-05-bluetooth-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439777/tronix365_products/ubbyuwxavvwxzwagq3fa.jpg</image:loc>
+      <image:title>HC-05 Bluetooth Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/laser-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439901/tronix365_products/tzaxrjtjl8ir1qkeuifh.jpg</image:loc>
+      <image:title>Laser Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/em18-rfid-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439900/tronix365_products/x0daedi12pmn5qavxyz0.jpg</image:loc>
+      <image:title>EM18 RFID Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/sim800c-gsmgprs-module-5v33v-ttl-development-board-with-ipex-antenna-interface-and-bluetooth</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439776/tronix365_products/ib6b0zshbyw8yq79ijnd.jpg</image:loc>
+      <image:title>SIM800C GSM/GPRS Module 5V/3.3V TTL Development Board with IPEX Antenna Interface and Bluetooth</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/sim800l-gsm-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439709/tronix365_products/xmvb8ybhaazystb46q1v.jpg</image:loc>
+      <image:title>SIM800L GSM Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/8-channel-5v-relay-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439775/tronix365_products/xa7hkl4pkspp20ihq8dc.jpg</image:loc>
+      <image:title>8 Channel 5v Relay Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/4-channel-5v-relay-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439771/tronix365_products/vedlno7ruksysmkrahzs.jpg</image:loc>
+      <image:title>4 Channel 5v Relay Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/2-channel-5v-relay-module-with-optocoupler</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439770/tronix365_products/cgdfzavvviggrvydtwko.jpg</image:loc>
+      <image:title>2 Channel 5V Relay Module With Optocoupler</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/1-channel-24v-relay-control-board-module-with-optocoupler</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439689/tronix365_products/aujct0ot7fzvmcqd4ftb.jpg</image:loc>
+      <image:title>1 channel 24V Relay Control Board Module with Optocoupler</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/1-channel-5v-relay-control-board-module-with-optocoupler</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439711/tronix365_products/fyvorxcimzpmbzsf3jbx.jpg</image:loc>
+      <image:title>1 channel 5V Relay Control Board Module with Optocoupler</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/tcs3200-color-recognition-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439898/tronix365_products/rycimo7he7s78dyusgz4.jpg</image:loc>
+      <image:title>TCS3200 Color Recognition Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/ac-voltage-sensor-module-zmpt101b-single-phase</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439769/tronix365_products/ozomfvxlq61o4xf2zwil.jpg</image:loc>
+      <image:title>AC Voltage Sensor Module ZMPT101B (Single Phase)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/25v-voltage-detection-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439708/tronix365_products/xrowne12wonercavcajc.jpg</image:loc>
+      <image:title>25V Voltage Detection Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/ttp223-1-channel-capacitive-touch-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439707/tronix365_products/zjwqdlvmboyrwtoksnp6.jpg</image:loc>
+      <image:title>TTP223 1 Channel Capacitive Touch Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/lm393-sound-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439800/tronix365_products/mbrncuhasjxl432am4xo.jpg</image:loc>
+      <image:title>LM393 Sound Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/capacitive-soil-moisture-sensor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439704/tronix365_products/n7gid1e02fgrq4boi5j2.jpg</image:loc>
+      <image:title>Capacitive Soil Moisture Sensor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/soil-moisture-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439703/tronix365_products/nhn64uv12uvgpfi6sp4n.jpg</image:loc>
+      <image:title>Soil Moisture Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/rain-drop-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439767/tronix365_products/bm7gpqozmfcvvznkyvlx.jpg</image:loc>
+      <image:title>Rain Drop Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/turbidity-sensor-module-for-suspended-solids-detection</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439764/tronix365_products/zmjvbzfqm3l6p11brwbp.jpg</image:loc>
+      <image:title>Turbidity Sensor Module for Suspended Solids Detection</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/turbidity-sensor-with-modules</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439763/tronix365_products/lkeiecsek6gdgdteyr4p.jpg</image:loc>
+      <image:title>Turbidity Sensor with Modules</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/analog-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1788711096/tronix365_products/pf58dtc2xl5mdwyrmu3s.jpg</image:loc>
+      <image:title>Analog  Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/pir-sensor-module-hc-sr501</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439760/tronix365_products/dzi7rlqejogprtgkxdva.jpg</image:loc>
+      <image:title>PIR Sensor Module HC-SR501</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/industrial-grade-analog-ph-sensor-kit</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439759/tronix365_products/jerv2odhpeduxdasg3lz.jpg</image:loc>
+      <image:title>Industrial Grade Analog PH Sensor Kit</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/mq-135-air-qualitygas-detector-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439790/tronix365_products/xdga0iozecraoicuepa5.jpg</image:loc>
+      <image:title>MQ 135 Air Quality/Gas Detector Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/mq-8-hydrogen-h2-gas-sensor-alarm-detection-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439758/tronix365_products/o1nmgkwzn0bpigbvcekg.jpg</image:loc>
+      <image:title>MQ-8 Hydrogen H2 Gas Sensor Alarm Detection Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/mq-7-carbon-monoxide-co-gas-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439757/tronix365_products/pdjvm9irxwej1g5tpaqa.jpg</image:loc>
+      <image:title>MQ-7 Carbon Monoxide (CO) Gas Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/mq-6-propane-isobutane-lpg-gas-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439756/tronix365_products/pqwznv3gdqgd1mhtbeqs.jpg</image:loc>
+      <image:title>MQ-6 Propane Isobutane LPG Gas Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/mq-5-methane-lpg-propane-gas-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439753/tronix365_products/zglny94bfhnt7dy3rfcw.jpg</image:loc>
+      <image:title>MQ-5 Methane LPG Propane Gas Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/mq-4-methane-cng-gas-detector-high-sensitivity-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439753/tronix365_products/p3g0rgazphw7yizgtgxp.jpg</image:loc>
+      <image:title>MQ-4 Methane CNG Gas Detector High Sensitivity Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/mq-3-alcohol-gas-detector-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439751/tronix365_products/zbyeqanwzigwkqh5j66i.jpg</image:loc>
+      <image:title>MQ-3 Alcohol Gas Detector Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/mq-2-flammable-gas-and-smoke-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439748/tronix365_products/netix51wstbf3i8e9doo.jpg</image:loc>
+      <image:title>MQ-2 Flammable Gas and Smoke Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/mlx90614-esf-non-contact-human-body-infrared-temperature-measurement-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439793/tronix365_products/g5yeyno8jitl8awihtnh.jpg</image:loc>
+      <image:title>MLX90614 ESF Non-Contact Human Body Infrared Temperature Measurement Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/max30102-heart-rate-and-pulse-oximeter-sensor-module-black</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439745/tronix365_products/dh8x0sohh3r1sbeoctgg.jpg</image:loc>
+      <image:title>MAX30102 Heart Rate and Pulse Oximeter Sensor Module (Black)</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/max30100-pulse-oximeter-heart-rate-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439742/tronix365_products/kl0e8yha5ldoaa5w4tsr.jpg</image:loc>
+      <image:title>MAX30100 Pulse Oximeter &amp;amp; Heart Rate Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/hall-effect-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439739/tronix365_products/ii4m305vats9ybhzvpfg.jpg</image:loc>
+      <image:title>Hall Effect Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/mc-38-wired-door-window-sensor-magnetic-switch</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439737/tronix365_products/o18mbsp04gkipcqntxsq.jpg</image:loc>
+      <image:title>MC-38 Wired Door Window Sensor Magnetic Switch</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/lm35-temperature-sensor-ic</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439736/tronix365_products/s2kasgkdzyp1lgz7ou1k.jpg</image:loc>
+      <image:title>LM35 Temperature Sensor IC</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/ldr-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439733/tronix365_products/uywcyc3o1gvgddmjjuqt.jpg</image:loc>
+      <image:title>LDR Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/5mm-ldr</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439792/tronix365_products/dhn8s6do7l2abe0ogkuy.jpg</image:loc>
+      <image:title>5mm LDR</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/eyeblink-sensor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439686/tronix365_products/evxc52vlfxcmqacfgrs2.jpg</image:loc>
+      <image:title>Eyeblink sensor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/5ch-ir-array-sensor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439732/tronix365_products/f9ogyosr7cczjdrkaji8.jpg</image:loc>
+      <image:title>5CH IR Array sensor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/5mm-ir-led-infrared-receiver-and-transmitter-diode</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439684/tronix365_products/pk5xivcf84o2loeglcrx.jpg</image:loc>
+      <image:title>5mm IR LED Infrared Receiver and Transmitter Diode</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/ir-sensor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439730/tronix365_products/hge3cete9usixowdsyen.jpg</image:loc>
+      <image:title>IR SENSOR</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/vibration-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439729/tronix365_products/sy9sxcabdlnxdhtnas0w.jpg</image:loc>
+      <image:title>Vibration sensor module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/pulse-sensor-heart-rate-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439683/tronix365_products/xbj9a4amqd4lwfk7pkod.jpg</image:loc>
+      <image:title>Pulse Sensor Heart Rate Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/force-sensor-resistor-147mm-round-pressure-sensor-05-inch</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439761/tronix365_products/fmnmahuqek12znmama4b.jpg</image:loc>
+      <image:title>Force Sensor Resistor 14.7mm Round Pressure Sensor 0.5 Inch</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/p35-small-float-level-control-switch-plastic-float-switch</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439728/tronix365_products/hxglh5wezlukplrqesw1.jpg</image:loc>
+      <image:title>P35 Small Float Level Control Switch Plastic Float Switch</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/as608-optical-fingerprint-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439726/tronix365_products/nlvt4umxffapaz4pbm7e.jpg</image:loc>
+      <image:title>AS608 Optical Fingerprint Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/emg-muscle-sensor-module-v30-with-cable-and-electrodes</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439719/tronix365_products/vqycunpfuopywqiiehq0.jpg</image:loc>
+      <image:title>EMG Muscle Sensor Module V3.0 with Cable And Electrodes</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/ds18b20-temp-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439718/tronix365_products/orod9fhndggqt6ohkmcu.jpg</image:loc>
+      <image:title>DS18B20 TEMP SENSOR MODULE</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/peacefair-pzem-004t-ac-multi-function-electric-energy-metering-power-monitor</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439791/tronix365_products/sbnwohbkexncz3skfx9x.jpg</image:loc>
+      <image:title>Peacefair PZEM-004T AC Multi-function Electric Energy Metering Power Monitor</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/adxl345-triple-axis-accelerometer-sensor-module</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1788710617/tronix365_products/u4ho3u7fskb948rpwyfa.jpg</image:loc>
+      <image:title>ADXL345 Triple-Axis Accelerometer Sensor Module</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/ultrasonic-sensor-module-hc-sr04</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439693/tronix365_products/fph4supca1r5a1gm8w5s.jpg</image:loc>
+      <image:title>Ultrasonic Sensor Module - HC-SR04</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/raspberry-pi-4-model-b-4gb</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439712/tronix365_products/jpmipn5qclaxcmkzxwsw.jpg</image:loc>
+      <image:title>Raspberry Pi 4 Model B 4GB</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.tronix365.in/e-commerse/product/esp32-devkit-v1</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/xn9ko6ky/image/upload/v1791439688/tronix365_products/m9s5cxkh8wckgt3pngnj.jpg</image:loc>
+      <image:title>ESP32 DevKit V1</image:title>
+    </image:image>
   </url>
 </urlset>

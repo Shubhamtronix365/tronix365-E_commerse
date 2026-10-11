@@ -98,10 +98,20 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
     - Strict XSS sanitization engine using `bleach` and regex stripping `<script>`, `<style>`, `<iframe>`, and malicious `onerror`/`onclick` event handlers.
     - Automatic SEO slug generator with duplicate collision resolution (appends counter suffix).
     - Live WebP image conversion and validation pipeline via `/upload`.
-- **Comprehensive Search Engine Optimization (SEO), Dynamic Sitemap & Multi-Channel Sharing**:
+- **Comprehensive Search Engine Optimization (SEO), GEO Targeting & AEO (Answer Engine Optimization)**:
+  - **Cloudinary CDN Image Sitemap & Acceleration**:
+    - Embedded `xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"` in automated `generate-sitemap.cjs`, linking all 360+ products and blog images to high-speed Cloudinary CDN URLs (`res.cloudinary.com`) for Google Image Search indexing.
+    - Added `<link rel="preconnect" href="https://res.cloudinary.com" crossorigin />` and DNS prefetch in `index.html` to eliminate DNS lookup latency.
+  - **GEO (Geographic Local SEO for Pune & Maharashtra)**:
+    - Injected Pune geographic meta tags in `index.html`: `geo.region="IN-MH"`, `geo.placename="Pune"`, `geo.position="18.5074;73.8077"`, and `ICBM="18.5074, 73.8077"`.
+    - Enhanced Organization Schema to `["ElectronicsStore", "Organization", "OnlineBusiness"]` with Kothrud, Pune address (`411038`), exact coordinates, customer phone (`+918830153805`), and regional service boundaries (`Pune`, `Maharashtra`, `India`).
+    - Added Pune local same-day delivery specification in `ProductSchema.jsx` for postal codes `411001-411099` (transit: 0-1 days) alongside standard national shipping.
+  - **AEO (Answer Engine Optimization for AI Search)**:
+    - Added crawler permissions in `public/robots.txt` for next-generation AI answer engines: `GPTBot` (ChatGPT Search), `PerplexityBot` (Perplexity AI), `ClaudeBot` (Anthropic Claude), and `Google-Extended` (Google Gemini / AI Overviews).
+    - Injected dynamic `FAQPage` JSON-LD schema on all product pages (`ProductFaqSchema.jsx`) addressing authenticity, Pune same-day delivery, package contents, and GST invoicing for direct AI engine citation.
+    - Added Google Sitelinks `SearchAction` schema under `WebSite` definition.
   - **Google Structured Data (`ArticleSchema.jsx`)**: Injects Schema.org `TechArticle` / `BlogPosting` JSON-LD schema with author person attributes, publisher organization metadata, publication dates, and cover images.
-  - **Dynamic Automated Sitemap Engine (`generate-sitemap.cjs` / `.js`)**: Automatically fetches live published articles (`/blogs`), category taxonomies (`/categories`), and inventory items (`/products`), compiling a 1,300+ line canonical `sitemap.xml` with priority weighting and change frequencies for search engines.
-  - **Search Crawler Directives (`public/robots.txt`)**: Allows search bots to index `/blogs`, `/blog/`, `/category/`, and `/tower-orders`, while blocking administrative workspaces (`/blog-studio`, `/blogs/studio`, `/dashboard`, `/admin`).
+  - **Dynamic Automated Sitemap Engine (`generate-sitemap.cjs`)**: Automatically fetches live published articles (`/blogs`), category taxonomies (`/categories`), and inventory items (`/products`), compiling a 1,400+ line canonical `sitemap.xml` with priority weighting, change frequencies, and image locators.
   - **Self-Healing URL Redirects & Broken Link Prevention**: Automatic client-side redirects for legacy `/products` and `/products/:slug` paths to `/shop` with full URL query preservation (`/products?search=esp32` $\to$ `/shop?search=esp32`).
   - **Interactive Multi-Channel Blog Sharing (`BlogShareModal.jsx`)**: Native Web Share API integration, 1-click canonical clipboard copy with instant feedback, direct channels (WhatsApp, Telegram, X/Twitter, LinkedIn, Facebook, Email), and QR code preview across both the main blog cards and detailed article view.
 - **Rate Limiting & Caching**: Security features with Slowapi rate limiters and Redis/InMemory backend caching.

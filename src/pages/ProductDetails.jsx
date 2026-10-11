@@ -14,6 +14,7 @@ import { getImageUrl } from '../utils/imageUtils';
 import RelatedProducts from '../components/product/RelatedProducts';
 import SEO from '../components/common/SEO';
 import ProductSchema from '../components/common/ProductSchema';
+import ProductFaqSchema from '../components/common/ProductFaqSchema';
 import Breadcrumbs from '../components/common/Breadcrumbs';
 import Image from '../components/common/Image';
 import ShareModal from '../components/common/ShareModal';
@@ -232,6 +233,7 @@ const ProductDetails = () => {
                 reviewCount={reviewStats.count}
                 productId={product.id}
             />
+            <ProductFaqSchema product={product} />
             <div className="max-w-7xl mx-auto">
                 <Breadcrumbs category={product.category} productName={product.title} />
 

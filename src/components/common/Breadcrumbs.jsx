@@ -21,7 +21,7 @@ const Breadcrumbs = ({ category, productName }) => {
   if (productName) {
     items.push({
       name: productName,
-      url: window.location.pathname,
+      url: `/product/${slugify(productName)}`,
     });
   }
 

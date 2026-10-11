@@ -72,33 +72,68 @@ const ProductSchema = ({
         'name': 'Tronix365',
         'url': 'https://www.tronix365.in/e-commerse/',
       },
-      'shippingDetails': {
-        '@type': 'OfferShippingDetails',
-        'shippingRate': {
-          '@type': 'MonetaryAmount',
-          'value': 69,
-          'currency': 'INR',
-        },
-        'shippingDestination': {
-          '@type': 'DefinedRegion',
-          'addressCountry': 'IN',
-        },
-        'deliveryTime': {
-          '@type': 'ShippingDeliveryTime',
-          'handlingTime': {
-            '@type': 'QuantitativeValue',
-            'minValue': 0,
-            'maxValue': 1,
-            'unitCode': 'DAY',
+      'shippingDetails': [
+        {
+          '@type': 'OfferShippingDetails',
+          'shippingRate': {
+            '@type': 'MonetaryAmount',
+            'value': 49,
+            'currency': 'INR',
           },
-          'transitTime': {
-            '@type': 'QuantitativeValue',
-            'minValue': 4,
-            'maxValue': 7,
-            'unitCode': 'DAY',
+          'shippingDestination': {
+            '@type': 'DefinedRegion',
+            'addressCountry': 'IN',
+            'addressRegion': 'Maharashtra',
+            'postalCodeRange': {
+              '@type': 'PostalCodeRangeSpecification',
+              'postalCodeBegin': '411001',
+              'postalCodeEnd': '411099'
+            }
+          },
+          'deliveryTime': {
+            '@type': 'ShippingDeliveryTime',
+            'handlingTime': {
+              '@type': 'QuantitativeValue',
+              'minValue': 0,
+              'maxValue': 0,
+              'unitCode': 'DAY',
+            },
+            'transitTime': {
+              '@type': 'QuantitativeValue',
+              'minValue': 0,
+              'maxValue': 1,
+              'unitCode': 'DAY',
+            },
           },
         },
-      },
+        {
+          '@type': 'OfferShippingDetails',
+          'shippingRate': {
+            '@type': 'MonetaryAmount',
+            'value': 69,
+            'currency': 'INR',
+          },
+          'shippingDestination': {
+            '@type': 'DefinedRegion',
+            'addressCountry': 'IN',
+          },
+          'deliveryTime': {
+            '@type': 'ShippingDeliveryTime',
+            'handlingTime': {
+              '@type': 'QuantitativeValue',
+              'minValue': 0,
+              'maxValue': 1,
+              'unitCode': 'DAY',
+            },
+            'transitTime': {
+              '@type': 'QuantitativeValue',
+              'minValue': 2,
+              'maxValue': 5,
+              'unitCode': 'DAY',
+            },
+          },
+        }
+      ],
       'hasMerchantReturnPolicy': {
         '@type': 'MerchantReturnPolicy',
         'applicableCountry': 'IN',

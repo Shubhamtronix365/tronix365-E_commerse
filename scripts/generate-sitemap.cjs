@@ -27,6 +27,27 @@ const slugify = (text) => {
     .replace(/-+$/, '');
 };
 
+const xmlEscape = (str) => {
+  if (!str) return '';
+  return str
+    .toString()
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+};
+
+const resolveImageUrl = (rawImg) => {
+  if (!rawImg || typeof rawImg !== 'string') return null;
+  const trimmed = rawImg.trim();
+  if (!trimmed || trimmed.startsWith('data:image')) return null;
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  return `https://www.tronix365.in${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
+};
+
 const staticRoutes = [
   '',
   '/shop',
@@ -52,29 +73,51 @@ const fallbackCategories = [
 ];
 
 async function generate() {
-  console.log('Generating Sitemap.xml...');
+  console.log('Generating Sitemap.xml with Google Image Sitemap schema...');
+
+  const routeMap = new Map();
+
+  // Static routes
+  staticRoutes.forEach(r => {
+    let priority = '0.5';
+    let changefreq = 'monthly';
+    if (r === '') {
+      priority = '1.0';
+      changefreq = 'daily';
+    } else if (['/shop', '/categories', '/blogs'].includes(r)) {
+      priority = '0.8';
+      changefreq = 'daily';
+    } else if (r === '/tower-orders') {
+      priority = '0.6';
+      changefreq = 'weekly';
+    }
+    routeMap.set(r, { route: r, priority, changefreq, lastmod: getCurrentDate() });
+  });
 
   // 1. Fetch Categories
-  let categoryRoutes = [];
   try {
     console.log(`Fetching categories from API: ${API_URL}/categories`);
     const catRes = await fetch(`${API_URL}/categories`);
     if (catRes.ok) {
       const cats = await catRes.json();
       if (Array.isArray(cats) && cats.length > 0) {
-        categoryRoutes = cats.map(c => `/category/${slugify(typeof c === 'string' ? c : c.name || c.category)}`);
-        console.log(`Mapped ${categoryRoutes.length} categories from API.`);
+        cats.forEach(c => {
+          const catSlug = slugify(typeof c === 'string' ? c : c.name || c.category);
+          const r = `/category/${catSlug}`;
+          routeMap.set(r, { route: r, priority: '0.7', changefreq: 'weekly', lastmod: getCurrentDate() });
+        });
+        console.log(`Mapped categories from API.`);
       }
     }
   } catch (err) {
     console.warn('Categories API fetch failed, using fallback category list...', err.message);
-  }
-  if (categoryRoutes.length === 0) {
-    categoryRoutes = fallbackCategories.map(c => `/category/${c}`);
+    fallbackCategories.forEach(c => {
+      const r = `/category/${c}`;
+      routeMap.set(r, { route: r, priority: '0.7', changefreq: 'weekly', lastmod: getCurrentDate() });
+    });
   }
 
   // 2. Fetch Blog Posts
-  let blogRoutes = [];
   try {
     console.log(`Fetching published blog posts from API: ${API_URL}/blogs?limit=1000`);
     const blogRes = await fetch(`${API_URL}/blogs?limit=1000`);
@@ -82,15 +125,24 @@ async function generate() {
       const blogData = await blogRes.json();
       const articles = Array.isArray(blogData) ? blogData : (blogData.posts || []);
       const published = articles.filter(p => p.is_published !== false && p.slug);
-      blogRoutes = published.map(p => `/blog/${p.slug}`);
-      console.log(`Mapped ${blogRoutes.length} published blog articles.`);
+      published.forEach(p => {
+        const r = `/blog/${p.slug}`;
+        routeMap.set(r, {
+          route: r,
+          priority: '0.8',
+          changefreq: 'weekly',
+          title: p.title,
+          image: p.cover_image || p.image || p.thumbnail,
+          lastmod: p.updated_at ? p.updated_at.split('T')[0] : getCurrentDate()
+        });
+      });
+      console.log(`Mapped ${published.length} published blog articles.`);
     }
   } catch (err) {
     console.warn('Blog API fetch failed, checking local fallback...', err.message);
   }
 
   // 3. Fetch Products
-  let productRoutes = [];
   try {
     console.log(`Fetching products from API: ${API_URL}/products`);
     const response = await fetch(`${API_URL}/products?limit=1000`);
@@ -98,7 +150,22 @@ async function generate() {
     const products = await response.json();
     console.log(`Found ${products.length} products to map.`);
     
-    productRoutes = products.map(p => `/product/${slugify(p.title)}`);
+    products.forEach(p => {
+      const slug = p.slug || slugify(p.title);
+      let img = p.image;
+      if (!img && Array.isArray(p.images) && p.images.length > 0) {
+        img = typeof p.images[0] === 'string' ? p.images[0] : p.images[0]?.url;
+      }
+      const r = `/product/${slug}`;
+      routeMap.set(r, {
+        route: r,
+        priority: '0.7',
+        changefreq: 'weekly',
+        title: p.title,
+        image: img,
+        lastmod: p.updated_at ? p.updated_at.split('T')[0] : getCurrentDate()
+      });
+    });
   } catch (err) {
     console.warn('API fetch failed during sitemap generation. Falling back to local products_metadata.json if available...', err);
     const localJsonPath = path.join(__dirname, '../public/products_metadata.json');
@@ -106,72 +173,52 @@ async function generate() {
       try {
         const localData = JSON.parse(fs.readFileSync(localJsonPath, 'utf8'));
         if (Array.isArray(localData)) {
-          productRoutes = localData.map(p => `/product/${slugify(p.title)}`);
-          console.log(`Successfully mapped ${productRoutes.length} products from local products_metadata.json.`);
+          localData.forEach(p => {
+            const slug = p.slug || slugify(p.title);
+            let img = p.image;
+            if (!img && Array.isArray(p.images) && p.images.length > 0) {
+              img = typeof p.images[0] === 'string' ? p.images[0] : p.images[0]?.url;
+            }
+            const r = `/product/${slug}`;
+            routeMap.set(r, {
+              route: r,
+              priority: '0.7',
+              changefreq: 'weekly',
+              title: p.title,
+              image: img,
+              lastmod: getCurrentDate()
+            });
+          });
+          console.log(`Successfully mapped products from local products_metadata.json.`);
         }
       } catch (jsonErr) {
         console.error('Failed to parse local products_metadata.json:', jsonErr);
       }
     }
-    
-    if (productRoutes.length === 0) {
-      // Basic fallback to seed products list to prevent failure
-      const mockTitles = [
-        "Arduino Uno R3",
-        "Raspberry Pi 4 Model B (4GB)",
-        "HC-SR04 Ultrasonic Sensor",
-        "ESP8266 NodeMCU",
-        "SG90 Micro Servo Motor",
-        "Li-Po Battery 3.7V 1000mAh",
-        "DHT11 Temperature & Humidity Sensor",
-        "OLED Display 0.96 inch"
-      ];
-      productRoutes = mockTitles.map(title => `/product/${slugify(title)}`);
-    }
   }
 
-  const allRoutes = Array.from(new Set([...staticRoutes, ...categoryRoutes, ...blogRoutes, ...productRoutes]));
-
-  const xmlEntries = allRoutes.map(route => {
-    // Determine priority
-    let priority = '0.5';
-    let changefreq = 'monthly';
-    let lastmod = getCurrentDate();
-
-    if (route === '') {
-      priority = '1.0';
-      changefreq = 'daily';
-    } else if (route === '/shop' || route === '/categories' || route === '/blogs') {
-      priority = '0.8';
-      changefreq = 'daily';
-    } else if (route.startsWith('/blog/')) {
-      priority = '0.8';
-      changefreq = 'weekly';
-    } else if (route.startsWith('/category/')) {
-      priority = '0.7';
-      changefreq = 'weekly';
-    } else if (route.startsWith('/product/')) {
-      priority = '0.7';
-      changefreq = 'weekly';
-    } else if (route === '/tower-orders') {
-      priority = '0.6';
-      changefreq = 'weekly';
-    }
-
-    // Ensure consistent URL formatting
+  const xmlEntries = Array.from(routeMap.values()).map(entry => {
+    const route = entry.route;
     const formattedRoute = route === '' ? '' : route;
     const fullUrl = `${BASE_URL_WITH_SLASH}${formattedRoute.replace(/^\//, '')}`;
-  
+    
+    let imageXml = '';
+    const imgUrl = resolveImageUrl(entry.image);
+    if (imgUrl) {
+      imageXml = `\n    <image:image>\n      <image:loc>${xmlEscape(imgUrl)}</image:loc>${entry.title ? `\n      <image:title>${xmlEscape(entry.title)}</image:title>` : ''}\n    </image:image>`;
+    }
+
     return `  <url>
     <loc>${fullUrl}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>${changefreq}</changefreq>
-    <priority>${priority}</priority>
+    <lastmod>${entry.lastmod || getCurrentDate()}</lastmod>
+    <changefreq>${entry.changefreq || 'weekly'}</changefreq>
+    <priority>${entry.priority || '0.5'}</priority>${imageXml}
   </url>`;
   }).join('\n');
 
   const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${xmlEntries}
 </urlset>`;
 
