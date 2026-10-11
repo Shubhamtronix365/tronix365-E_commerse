@@ -61,6 +61,108 @@ const parseFeature = (feat) => {
     return { key: null, value: str };
 };
 
+const parseProductSpecs = (specs, product) => {
+    let rawObj = specs;
+
+    // 1. If specs is a string, attempt JSON parse or regex matching
+    if (typeof rawObj === 'string') {
+        const cleanStr = rawObj.trim().replace(/\.$/, '');
+        try {
+            rawObj = JSON.parse(cleanStr);
+        } catch {
+            const matches = [...cleanStr.matchAll(/"([^"]+)"\s*:\s*"([^"]+)"/g)];
+            if (matches.length > 0) {
+                return matches.map(m => [
+                    m[1].replace(/^[{"'\s]+|[}"'\s:]+$/g, '').trim(),
+                    m[2].replace(/^[{"'\s]+|[}"'\s,.]+$/g, '').trim()
+                ]).filter(([k, v]) => k && v);
+            }
+        }
+    }
+
+    // 2. If object with 1 key that holds a smashed JSON string (e.g. '{"Part Number": ...}')
+    if (rawObj && typeof rawObj === 'object' && !Array.isArray(rawObj)) {
+        const keys = Object.keys(rawObj);
+        if (keys.length === 1) {
+            const onlyKey = keys[0];
+            const onlyVal = rawObj[onlyKey];
+            if (onlyKey.includes('{') || String(onlyVal).includes('}') || String(onlyVal).includes(':')) {
+                let fullStr = `${onlyKey}: ${onlyVal}`.trim().replace(/\.$/, '');
+                if (fullStr.includes('}{')) {
+                    fullStr = fullStr.split('}{')[0];
+                }
+                if (!fullStr.startsWith('{')) fullStr = '{' + fullStr;
+                if (!fullStr.endsWith('}')) fullStr = fullStr + '}';
+                try {
+                    rawObj = JSON.parse(fullStr);
+                } catch {
+                    const matches = [...fullStr.matchAll(/"([^"]+)"\s*:\s*"([^"]+)"/g)];
+                    if (matches.length > 0) {
+                        return matches.map(m => [
+                            m[1].replace(/^[{"'\s]+|[}"'\s:]+$/g, '').trim(),
+                            m[2].replace(/^[{"'\s]+|[}"'\s,.]+$/g, '').trim()
+                        ]).filter(([k, v]) => k && v);
+                    }
+                }
+            }
+        }
+    }
+
+    // 3. If array of items: [{ key, value }] or ["Key: Value"]
+    if (Array.isArray(rawObj)) {
+        const result = [];
+        for (const item of rawObj) {
+            if (Array.isArray(item) && item.length >= 2) {
+                result.push([String(item[0]).trim(), String(item[1]).trim()]);
+            } else if (item && typeof item === 'object') {
+                const k = item.key || item.name || Object.keys(item)[0];
+                const v = item.value || item.val || item[k];
+                if (k && v) result.push([String(k).trim(), String(v).trim()]);
+            } else if (typeof item === 'string') {
+                const colonIdx = item.indexOf(':');
+                if (colonIdx > 0) {
+                    result.push([item.slice(0, colonIdx).trim(), item.slice(colonIdx + 1).trim()]);
+                }
+            }
+        }
+        if (result.length > 0) return result;
+    }
+
+    // 4. Normal object: clean up any residual quotes or curly braces from keys/values
+    if (rawObj && typeof rawObj === 'object' && Object.keys(rawObj).length > 0) {
+        const entries = Object.entries(rawObj)
+            .map(([k, v]) => {
+                const cleanKey = String(k)
+                    .replace(/^[{"'\s]+|[}"'\s:]+$/g, '')
+                    .replace(/Â°/g, '°')
+                    .replace(/â€“/g, '–')
+                    .trim();
+                const cleanVal = String(v)
+                    .replace(/^[{"'\s]+|[}"'\s,.]+$/g, '')
+                    .replace(/Â°/g, '°')
+                    .replace(/â€“/g, '–')
+                    .trim();
+                return [cleanKey, cleanVal];
+            })
+            .filter(([k, v]) => k && v);
+
+        if (entries.length > 0) return entries;
+    }
+
+    // 5. Fallback rich technical specification table (so EVERY product has a pristine table)
+    const fallback = [];
+    if (product?.title) fallback.push(['Product Name', product.title]);
+    if (product?.category) fallback.push(['Category', product.category]);
+    if (product?.sku || product?.skv) fallback.push(['SKU / Part Number', product.sku || product.skv || `TRX-${product.id}`]);
+    fallback.push(['Condition', '100% Brand New Genuine Component']);
+    fallback.push(['Stock Availability', (product?.stock || 0) > 0 ? `${product.stock} Units In Stock` : 'Out of Stock']);
+    if (product?.weight) fallback.push(['Approximate Weight', `${product.weight * 1000}g`]);
+    if (product?.warranty_info) fallback.push(['Warranty', product.warranty_info]);
+    if (product?.country_of_origin) fallback.push(['Country of Origin', product.country_of_origin]);
+    fallback.push(['Procurement Mode', product?.tower_order_only ? 'Factory Tower Order' : 'Standard Delivery Stock']);
+    return fallback;
+};
+
 const ProductDetails = () => {
     const { slug } = useParams();
     const navigate = useNavigate();
@@ -666,18 +768,7 @@ const ProductDetails = () => {
 
                         {/* TAB 2: Specification Panel (TABLE FORMAT) */}
                         {activeTab === 'specs' && (() => {
-                            const specsList = (() => {
-                                if (product.specs && typeof product.specs === 'object' && Object.keys(product.specs).length > 0) {
-                                    return Object.entries(product.specs);
-                                }
-                                return [
-                                    ['Category', product.category || 'Electronic Components'],
-                                    ['SKU / Model', product.skv || `TRX-${product.id}`],
-                                    ['Stock Availability', (product.stock || 0) > 0 ? `${product.stock} Units In Stock` : 'Out of Stock'],
-                                    ['Procurement Mode', product.tower_order_only ? 'Factory Tower Order' : 'Standard Delivery Stock'],
-                                    ['Condition', '100% Brand New Genuine Component']
-                                ];
-                            })();
+                            const specsList = parseProductSpecs(product.specs, product);
 
                             return (
                                 <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">

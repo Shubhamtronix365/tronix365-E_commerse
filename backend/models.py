@@ -15,6 +15,8 @@ from database import Base
 from pydantic import BaseModel, field_validator
 from typing import List, Optional, Dict, Any
 from datetime import datetime
+import json
+import re
 from utils import sanitize_html, sanitize_description, sanitize_blog_html
 
 
@@ -187,6 +189,44 @@ class ProductBase(BaseModel):
     @classmethod
     def sanitize_desc(cls, v):
         return sanitize_description(v)
+
+    @field_validator("specs", mode="before")
+    @classmethod
+    def normalize_specs(cls, v):
+        if not v:
+            return v
+        if isinstance(v, str):
+            try:
+                v = json.loads(v.strip().rstrip('.'))
+            except Exception:
+                pass
+        if isinstance(v, dict):
+            if len(v) == 1:
+                k, val = list(v.items())[0]
+                if "{" in k or "}" in str(val) or ":" in str(val):
+                    full_str = f"{k}: {val}".strip().rstrip('.')
+                    if "}{" in full_str:
+                        full_str = full_str.split("}{")[0]
+                    if not full_str.startswith("{"):
+                        full_str = "{" + full_str
+                    if not full_str.endswith("}"):
+                        full_str = full_str + "}"
+                    try:
+                        parsed = json.loads(full_str)
+                        if isinstance(parsed, dict):
+                            v = parsed
+                    except Exception:
+                        matches = re.findall(r'"([^"\\]*(?:\\.[^"\\]*)*)"\s*:\s*"([^"\\]*(?:\\.[^"\\]*)*)"', full_str)
+                        if matches:
+                            v = {mk.strip().strip('"{}:'): mv.strip().strip('"') for mk, mv in matches}
+            cleaned = {}
+            for k, val in v.items():
+                clean_k = str(k).strip().strip('"{}:').strip()
+                clean_v = str(val).strip().strip('"').strip()
+                if clean_k and clean_v:
+                    cleaned[clean_k] = clean_v
+            return cleaned
+        return v
 
     price: float
     category: str

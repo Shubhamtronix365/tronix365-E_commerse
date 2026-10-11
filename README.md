@@ -21,7 +21,7 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
   - Description tab streamlined for optimal reading: **Key Features** → **Package Includes** (Applications and Useful Links temporarily omitted from storefront).
   - Strips malformed curly braces `{}` and raw JSON strings in product features; accurately formats attributes (e.g. `Model: PZEM-004T`, `Operating Voltage: 3.5V to 5.5V`).
   - Completely removed "Quick Start Guide & Safety Manual" boilerplate from Package Includes across all products.
-  - Formatted Specifications tab as a responsive, high-contrast HTML table with Specification and Details columns.
+  - Formatted Specifications tab as a responsive, high-contrast HTML table with Specification and Details columns across 100% of products; features automated frontend parsing and backend database normalization for smashed JSON/dict strings, ensuring every product renders a clean, professional multi-row table.
 - **Admin High-Capacity Inventory & Catalog Management**: Enterprise-grade product management designed for catalogs of any scale (300+ to 10,000+ items).
   - **Dynamic Page Size Selector**: Switch instantly between 25, 50, 100, 250, or **"All Products"** (`limit=0`), eliminating repetitive clicks on "Load More".
   - **Fast Multi-Field Server Search**: Instant debounced search querying product titles, descriptions, categories, and SKUs directly in PostgreSQL.
