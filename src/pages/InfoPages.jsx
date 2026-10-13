@@ -154,19 +154,43 @@ export const Contact = () => {
 export const Terms = () => (
     <PageLayout 
         title="Terms & Conditions | Tronix365 Electronics Store India"
-        description="Tronix365 terms and conditions for purchasing electronic components, Arduino boards, sensors, and IoT modules. Read our user agreement and shopping policies."
-        keywords="Tronix365 terms and conditions, electronics store terms, user agreement India, shopping policies, Arduino purchase terms, electronic components terms"
+        description="Tronix365 terms and conditions for purchasing electronic components, Arduino boards, sensors, and IoT modules. Read our user agreement, shipping policies, and mandatory unboxing video guidelines."
+        keywords="Tronix365 terms and conditions, electronics store terms, user agreement India, shipping policies, Arduino purchase terms, electronic components terms, unboxing video policy"
         url="https://www.tronix365.in/e-commerse/terms"
     >
-        <p className="mb-4">Last Updated: January 2026</p>
+        <p className="mb-4 text-sm text-gray-400">Last Updated: October 2026</p>
+        
         <h3 className="text-xl font-bold text-white mt-6 mb-2">1. Acceptance of Terms</h3>
-        <p className="mb-4">By accessing and using this website, you accept and agree to be bound by the terms and provision of this agreement.</p>
+        <p className="mb-4">By accessing, browsing, or purchasing products from TRONIX365, you accept and agree to be bound by the terms and provisions of this agreement and all applicable policies.</p>
 
-        <h3 className="text-xl font-bold text-white mt-6 mb-2">2. Use License</h3>
-        <p className="mb-4">Permission is granted to temporarily download one copy of the materials (information or software) on TRONIX365's website for personal, non-commercial transitory viewing only.</p>
+        <h3 className="text-xl font-bold text-white mt-6 mb-2">2. Products & Technical Handling</h3>
+        <p className="mb-4">TRONIX365 specializes in electronic components, microcontrollers, development boards, and sensors. Due to the sensitive nature of integrated circuits and electrical assemblies, customers are expected to handle items in accordance with standard ESD (electrostatic discharge) and operational parameters. Products that have been soldered, modified, or subjected to electrical overstress are not eligible for return or warranty.</p>
 
-        <h3 className="text-xl font-bold text-white mt-6 mb-2">3. Disclaimer</h3>
-        <p className="mb-4">The materials on TRONIX365's website are provided "as is". TRONIX365 makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties.</p>
+        <h3 className="text-xl font-bold text-white mt-6 mb-2">3. Shipping & Logistics</h3>
+        <p className="mb-4">Orders are fulfilled via our logistics partners (Blue Dart, Delhivery, Porter, Speed Post, etc.). Delivery timelines vary based on location and shipping method selected during checkout. Dispatch confirmations with courier tracking numbers are communicated via email.</p>
+
+        <div className="my-6 p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-violet-600/10 to-indigo-600/10 border border-amber-500/30">
+            <h4 className="text-lg font-bold text-amber-300 flex items-center gap-2 mb-2">
+                📹 4. Mandatory Delivery Parcel Unboxing Video Requirement
+            </h4>
+            <p className="text-sm text-gray-200 leading-relaxed mb-3">
+                When purchasing products from <strong>TRONIX365</strong>, customers are strictly required to record an uninterrupted, continuous unboxing video at the exact time of receiving and opening the parcel from the delivery partner.
+            </p>
+            <ul className="list-disc pl-5 space-y-1.5 text-xs text-gray-300 mb-3">
+                <li>The video must clearly capture the outer parcel, shipping label with tracking details, and all security seals intact before cutting or unsealing.</li>
+                <li>The video must be continuous and uncut (no pauses, splices, or edits) showing the complete package opening process.</li>
+                <li>Each individual module, development board, and accessory must be clearly shown and inspected in front of the camera.</li>
+            </ul>
+            <p className="text-xs text-amber-200/95 font-medium bg-black/40 p-3 rounded-xl border border-amber-500/20 leading-relaxed">
+                <strong>Important Policy Note:</strong> If any product arrives damaged, defective, broken, mismatched, or if any component is missing, this unboxing video is mandatory for our support team to verify the issue and initiate a replacement. Without an unboxing video, it becomes difficult or impossible to establish whether damage occurred during transit or post-delivery handling, and TRONIX365 will not be able to process replacement or claim requests.
+            </p>
+        </div>
+
+        <h3 className="text-xl font-bold text-white mt-6 mb-2">5. Replacements & Warranty</h3>
+        <p className="mb-4">Items are covered by warranty against manufacturing defects. As detailed in our Return & Refund Policy, returns or replacements for transit damage or dead-on-arrival (DOA) items will only be entertained when accompanied by an authentic unboxing video.</p>
+
+        <h3 className="text-xl font-bold text-white mt-6 mb-2">6. Disclaimers & Limitation of Liability</h3>
+        <p className="mb-4">The materials on TRONIX365's website are provided "as is". TRONIX365 disclaims all other warranties including without limitation fitness for a particular purpose or non-infringement. TRONIX365 shall not be liable for damages resulting from misuse, incorrect wiring, or soldering alterations.</p>
     </PageLayout>
 );
 
@@ -196,20 +220,24 @@ export const ReturnRefund = () => {
 
     const faqs = [
         {
+            q: "Why is an unboxing video mandatory when receiving a product from Tronix365?",
+            a: "Electronic modules, microcontrollers, and sensors are delicate and sensitive to transit impacts and mishandling. Recording an uninterrupted, uncut 360-degree video from the moment you receive and cut open the courier package provides authentic proof of the condition in which the items arrived. If a product arrives physically damaged, broken, missing, or mismatched, this video enables our team to immediately approve and process a swift replacement. Without an unboxing video, it is difficult to determine whether damage occurred during transit or post-delivery handling, making it difficult or impossible for us to process replacement claims."
+        },
+        {
             q: "How can I return a damaged or faulty product?",
-            a: "If you receive a damaged or faulty product, please notify us within 5 days of receiving your order. You can initiate a return by contacting our customer service team with details of the issue, and we'll guide you through the process. Remember to include the tracking number and courier details when you send the item back to us."
+            a: "If you receive a damaged or faulty product, please notify us within 5 days of receiving your order with your unboxing video. You can initiate a return by contacting our customer service team with details of the issue, and we'll guide you through the process. Remember to include the tracking number and courier details when you send the item back to us."
         },
         {
             q: "What conditions must be met for a product to be returnable?",
-            a: "Products must be in their original condition and packaging, unmodified, and not subjected to neglect or misuse. Products that have been soldered, altered, or subjected to static discharge will not be accepted for return."
+            a: "Products must be in their original condition and packaging, unmodified, and supported by a continuous delivery unboxing video. Products that have been soldered, altered, or subjected to static discharge will not be accepted for return."
         },
         {
             q: "How long does it take to receive a replacement or refund?",
-            a: "If your return is approved, we will ship a replacement within 2 working days. If a replacement cannot be provided, we will process a full refund, which can take between 5 to 7 business days to reflect in your account."
+            a: "If your return is approved (verified via unboxing video and technical inspection), we will ship a replacement within 2 working days. If a replacement cannot be provided, we will process a full refund, which can take between 5 to 7 business days to reflect in your account."
         },
         {
             q: "Are there any items that cannot be returned or refunded?",
-            a: "Due to our strict quality policy, items that are purchased without a valid reason for return are generally not eligible for a return or refund. Please ensure you review the product specifications carefully before purchasing."
+            a: "Due to our strict quality policy, items that are purchased without a valid reason for return or without an unboxing video are generally not eligible for a return or refund. Please ensure you review the product specifications carefully before purchasing."
         },
         {
             q: "Can I cancel my order after it has been placed?",
@@ -232,7 +260,7 @@ export const ReturnRefund = () => {
             keywords="Tronix365 return policy India, electronics refund policy, Arduino return policy, ESP32 return, electronic components return, order cancellation policy, refund process"
             url="https://www.tronix365.in/e-commerse/return-refund"
         >
-            <p className="text-gray-400 text-sm mb-8">Last Updated: January 2026</p>
+            <p className="text-gray-400 text-sm mb-8">Last Updated: October 2026</p>
             
             <p className="text-lg leading-relaxed mb-8">
                 At <span className="text-tronix-primary font-bold">TRONIX365</span>, we assure our customers that we provide accurate descriptions and high-quality products as mentioned on our website. Please read our comprehensive return, refund, and cancellation policy below.
@@ -246,7 +274,8 @@ export const ReturnRefund = () => {
                     <div>
                         <h3 className="text-xl font-bold text-tronix-primary mb-4">Return Conditions</h3>
                         <ul className="list-disc pl-6 space-y-2 mb-6 text-gray-300">
-                            <li>Customers must report any damaged, mismatched, or faulty products within <strong>5 days</strong> of receiving the consignment.</li>
+                            <li><strong>Mandatory Unboxing Video:</strong> At the time of receiving the final products from Tronix365, customers must record a continuous, uncut video while opening the parcel. If any product has an issue (damaged in transit, defective, or missing), this unboxing video is required so our team can solve the issue promptly. <em>Without an unboxing video, it is difficult or impossible for us to process a replacement.</em></li>
+                            <li>Customers must report any damaged, mismatched, or faulty products within <strong>5 days</strong> of receiving the consignment along with the unboxing video.</li>
                             <li>Returned products will be subject to verification by our technical team.</li>
                             <li><strong>No warranty/return will apply</strong> if the product has been subject to misuse, static discharge, neglect, accidents, modifications, or has been soldered or altered in any way.</li>
                             <li>Customers are required to return the consignment properly packaged and must provide the tracking number and courier service details within the 5-day period.</li>
@@ -254,7 +283,7 @@ export const ReturnRefund = () => {
 
                         <h3 className="text-xl font-bold text-tronix-primary mb-4">Refund and Replacement</h3>
                         <ul className="list-disc pl-6 space-y-2 text-gray-300">
-                            <li>If the returned item is verified and considered valid by our team, a replacement will be shipped within <strong>2 working days</strong>.</li>
+                            <li>If the returned item is verified (via unboxing video and technical inspection) and considered valid by our team, a replacement will be shipped within <strong>2 working days</strong>.</li>
                             <li>In cases where a replacement cannot be provided promptly (e.g., out of stock), a <strong>100% refund</strong> will be issued.</li>
                             <li>Refund processing may take up to <strong>5 - 7 business days</strong> to reflect in your account.</li>
                             <li>TRONIX365 reserves the right to take the final decision on all refund requests.</li>
@@ -280,6 +309,7 @@ export const ReturnRefund = () => {
 
                 <h3 className="text-xl font-bold text-tronix-primary mt-8 mb-4">Limitations & Disclaimers</h3>
                 <ul className="list-disc pl-6 space-y-3 text-gray-300">
+                    <li><strong>No Unboxing Video, No Replacement Claim:</strong> Due to the sensitive nature of microcontrollers, delicate sensors, and electronic parts, claims regarding missing parts, physical transit damage, or dead-on-arrival (DOA) units will not be entertained without an uninterrupted parcel unboxing video recorded at the time of delivery.</li>
                     <li><strong>No Reasons Return:</strong> Due to the nature of the electronic products we sell and our strict quality policy, order cancellations and returns without valid reasons are not allowed.</li>
                     <li><strong>Guarantee/Warranty:</strong> All items are delivered with standard warranty (unless otherwise specified on the product page) to protect customers from manufacturing defects. You agree to pay for return shipping on exchanges, and we will reimburse this cost upon verification of a defect.</li>
                     <li><strong>Third-Party Integration:</strong> We are not responsible for any damages or malfunctions caused by integrating our products with third-party hardware or software not explicitly recommended by us.</li>

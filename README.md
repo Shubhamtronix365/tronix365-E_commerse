@@ -17,6 +17,11 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
   - Interactive PIN code checker supporting all Indian postal codes with instant City/State lookup via India Post API.
   - Dynamically calculates BlueDart Air and Standard Surface shipping dates.
   - Highlights **"Next Day Delivery in Pune"** with guaranteed local dispatch for all Pune postal codes (`411xxx`), along with fast delivery badges.
+- **Mandatory Unboxing Video Policy (Terms & Conditions / Return & Refund)**:
+  - Formally integrated into the platform's legal **Terms & Conditions** (`/terms`) and **Return & Refund Policy** (`/return-refund`).
+  - Outlines the requirement that customers must record an uninterrupted, uncut unboxing video at the time of receiving and opening their parcel from the courier.
+  - Serves as required verification proof for transit damage, missing items, or defective components, ensuring swift approval and dispatch of replacements within 2 working days.
+  - Clarifies that without video proof recorded at delivery, establishing transit damage is difficult and replacement claims cannot be processed.
 - **Cleaned Product Dossier & Specifications Table**:
   - Description tab streamlined for optimal reading: **Key Features** → **Package Includes** (Applications and Useful Links temporarily omitted from storefront).
   - Strips malformed curly braces `{}` and raw JSON strings in product features; accurately formats attributes (e.g. `Model: PZEM-004T`, `Operating Voltage: 3.5V to 5.5V`).
