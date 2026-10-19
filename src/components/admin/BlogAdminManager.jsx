@@ -105,6 +105,7 @@ const BlogAdminManager = () => {
 
     const [newTagInput, setNewTagInput] = useState('');
     const [newComponent, setNewComponent] = useState({ name: '', sku: '', link: '' });
+    const [isCustomCategory, setIsCustomCategory] = useState(false);
 
     const fetchPosts = async () => {
         setLoading(true);
@@ -172,25 +173,28 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
             meta_title: '',
             meta_description: '',
         });
+        setIsCustomCategory(false);
         setEditorTab('edit');
         setIsEditorOpen(true);
     };
 
     const handleOpenEditModal = (post) => {
         setEditingPostId(post.id);
+        const postCat = post.category || 'Tutorials';
+        setIsCustomCategory(!CATEGORIES.includes(postCat));
         setForm({
             title: post.title || '',
             slug: post.slug || '',
             summary: post.summary || '',
             content: post.content || '',
-            category: post.category || 'Tutorials',
+            category: postCat,
             layout_type: post.layout_type || 'article',
             cover_image: post.cover_image || '',
             author_name: post.author_name || 'Tronix365 Engineering Team',
             author_role: post.author_role || 'Hardware Specialist',
             author_avatar: post.author_avatar || '',
             tags: Array.isArray(post.tags) ? post.tags : [],
-            reading_time_minutes: post.reading_time_minutes || 5,
+            reading_time_minutes: Math.max(2, post.reading_time_minutes || 5),
             is_published: !!post.is_published,
             featured: !!post.featured,
             components_used: Array.isArray(post.components_used) ? post.components_used : [],
@@ -210,12 +214,20 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
             return toast.error('Please provide blog content');
         }
 
+        const safeReadingTime = Math.max(2, parseInt(form.reading_time_minutes, 10) || 2);
+        const safeCategory = form.category?.trim() || 'Tutorials';
+        const payload = {
+            ...form,
+            category: safeCategory,
+            reading_time_minutes: safeReadingTime,
+        };
+
         try {
             if (editingPostId) {
-                await client.put(`/admin/blogs/${editingPostId}`, form);
+                await client.put(`/admin/blogs/${editingPostId}`, payload);
                 toast.success('Blog post updated successfully');
             } else {
-                await client.post('/admin/blogs', form);
+                await client.post('/admin/blogs', payload);
                 toast.success('Blog post published / created successfully');
             }
             setIsEditorOpen(false);
@@ -1061,20 +1073,58 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                     {/* Row 2: Category, Layout & Reading Time */}
                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                         <div>
-                                            <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
-                                                Category
-                                            </label>
-                                            <select
-                                                value={form.category}
-                                                onChange={(e) => setForm({ ...form, category: e.target.value })}
-                                                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-tronix-accent"
-                                            >
-                                                {CATEGORIES.map((c) => (
-                                                    <option key={c} value={c} className="bg-neutral-900 text-white">
-                                                        {c}
+                                            <div className="flex items-center justify-between mb-2">
+                                                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                                                    Category
+                                                </label>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const nextCustom = !isCustomCategory;
+                                                        setIsCustomCategory(nextCustom);
+                                                        if (nextCustom && CATEGORIES.includes(form.category)) {
+                                                            setForm({ ...form, category: '' });
+                                                        } else if (!nextCustom && !form.category) {
+                                                            setForm({ ...form, category: 'Tutorials' });
+                                                        }
+                                                    }}
+                                                    className="text-[11px] text-tronix-accent hover:underline font-medium focus:outline-none"
+                                                >
+                                                    {isCustomCategory ? '← Choose Preset' : '+ Type Custom'}
+                                                </button>
+                                            </div>
+                                            {isCustomCategory ? (
+                                                <input
+                                                    type="text"
+                                                    placeholder="e.g. Edge AI, PCB Design..."
+                                                    value={form.category}
+                                                    onChange={(e) => setForm({ ...form, category: e.target.value })}
+                                                    className="w-full bg-black/40 border border-tronix-accent/50 rounded-lg px-3 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-tronix-accent text-sm"
+                                                    autoFocus
+                                                />
+                                            ) : (
+                                                <select
+                                                    value={form.category}
+                                                    onChange={(e) => {
+                                                        if (e.target.value === '__custom__') {
+                                                            setIsCustomCategory(true);
+                                                            setForm({ ...form, category: '' });
+                                                        } else {
+                                                            setForm({ ...form, category: e.target.value });
+                                                        }
+                                                    }}
+                                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-tronix-accent"
+                                                >
+                                                    {CATEGORIES.map((c) => (
+                                                        <option key={c} value={c} className="bg-neutral-900 text-white">
+                                                            {c}
+                                                        </option>
+                                                    ))}
+                                                    <option value="__custom__" className="bg-neutral-900 text-tronix-accent font-medium">
+                                                        + Type Custom Category...
                                                     </option>
-                                                ))}
-                                            </select>
+                                                </select>
+                                            )}
                                         </div>
 
                                         <div>
@@ -1100,14 +1150,19 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                             </label>
                                             <input
                                                 type="number"
-                                                min="1"
-                                                max="60"
+                                                min="2"
+                                                max="120"
                                                 value={form.reading_time_minutes}
-                                                onChange={(e) =>
-                                                    setForm({ ...form, reading_time_minutes: parseInt(e.target.value) || 5 })
-                                                }
+                                                onChange={(e) => {
+                                                    const val = parseInt(e.target.value, 10);
+                                                    setForm({
+                                                        ...form,
+                                                        reading_time_minutes: isNaN(val) ? 2 : Math.max(2, val),
+                                                    });
+                                                }}
                                                 className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-tronix-accent"
                                             />
+                                            <span className="text-[11px] text-gray-400 mt-1 block">Min. 2 mins reading time</span>
                                         </div>
                                     </div>
 

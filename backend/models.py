@@ -1132,6 +1132,13 @@ class BlogPostCreate(BlogPostBase):
             return sanitize_blog_html(v)
         return v
 
+    @field_validator("reading_time_minutes")
+    @classmethod
+    def validate_reading_time(cls, v: Optional[int]) -> Optional[int]:
+        if v is not None:
+            return max(2, v)
+        return 2
+
 
 class BlogPostUpdate(BaseModel):
     title: Optional[str] = None
@@ -1161,6 +1168,13 @@ class BlogPostUpdate(BaseModel):
     def sanitize_blog_content(cls, v: Optional[str]) -> Optional[str]:
         if v:
             return sanitize_blog_html(v)
+        return v
+
+    @field_validator("reading_time_minutes")
+    @classmethod
+    def validate_reading_time(cls, v: Optional[int]) -> Optional[int]:
+        if v is not None:
+            return max(2, v)
         return v
 
 
