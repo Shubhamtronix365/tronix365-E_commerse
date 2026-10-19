@@ -113,7 +113,8 @@ const CouponTable = () => {
             toast.success("Coupon deleted successfully");
             fetchCoupons();
         } catch (err) {
-            toast.error("Failed to delete coupon");
+            toast.error(err.response?.data?.detail || "Failed to delete coupon");
+            fetchCoupons();
         } finally {
             setIsDeleteModalOpen(false);
             setCouponToDelete(null);
@@ -126,7 +127,8 @@ const CouponTable = () => {
             toast.success(`Coupon ${!coupon.is_active ? 'activated' : 'deactivated'}`);
             fetchCoupons();
         } catch (err) {
-            toast.error("Failed to update status");
+            toast.error(err.response?.data?.detail || "Failed to update status");
+            fetchCoupons();
         }
     };
 
@@ -163,62 +165,74 @@ const CouponTable = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
-                        {coupons.map((coupon, index) => (
-                            <tr key={coupon.id} className="hover:bg-white/5 transition-colors group">
-                                <td className="px-4 py-4 text-center font-bold text-violet-300 text-xs">#{index + 1}</td>
-                                <td className="px-4 py-4">
-                                    <div className="flex items-center gap-2">
-                                        <Tag size={16} className="text-tronix-primary" />
-                                        <span className="text-white font-mono font-bold tracking-wider">{coupon.code}</span>
-                                    </div>
-                                </td>
-                                <td className="px-4 py-4 text-white">
-                                    {coupon.discount_type === 'percentage' ? `${coupon.discount_value}%` : `₹${coupon.discount_value}`}
-                                </td>
-                                <td className="px-4 py-4 text-gray-400">
-                                    ₹{coupon.min_purchase}
-                                </td>
-                                <td className="px-4 py-4 text-gray-400 flex items-center gap-2">
-                                    <Calendar size={14} />
-                                    {new Date(coupon.expiry_date).toLocaleDateString()}
-                                </td>
-                                <td className="px-4 py-4 text-gray-400">
-                                    {coupon.used_count} / {coupon.usage_limit || '∞'}
-                                </td>
-                                <td className="px-4 py-4 text-center">
-                                    <button 
-                                        onClick={() => {
-                                            const status = getCouponStatus(coupon);
-                                            if (status === 'ACTIVE' || status === 'INACTIVE') {
-                                                handleToggleStatus(coupon);
-                                            }
-                                        }}
-                                        disabled={getCouponStatus(coupon) === 'EXPIRED' || getCouponStatus(coupon) === 'LIMIT EXCEEDED'}
-                                        className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${getStatusStyles(getCouponStatus(coupon))}`}
-                                    >
-                                        {getCouponStatus(coupon)}
-                                    </button>
-                                </td>
-                                <td className="px-4 py-4 text-right">
-                                    <div className="flex items-center justify-end gap-2 transition-opacity">
-                                        <button 
-                                            onClick={() => handleEdit(coupon)}
-                                            className="p-2 text-gray-400 hover:text-tronix-primary hover:bg-tronix-primary/10 rounded-lg transition-colors"
-                                            title="Edit Coupon"
-                                        >
-                                            <Edit size={16} />
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDeleteClick(coupon)}
-                                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                                            title="Delete Coupon"
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
+                        {coupons.length === 0 ? (
+                            <tr>
+                                <td colSpan="8" className="px-4 py-12 text-center text-gray-400">
+                                    <div className="flex flex-col items-center justify-center gap-2">
+                                        <Tag size={32} className="text-gray-500 mb-1" />
+                                        <p className="text-base font-semibold text-gray-300">No coupons found</p>
+                                        <p className="text-xs text-gray-500">Click &ldquo;Create Coupon&rdquo; above to add your first promotional discount.</p>
                                     </div>
                                 </td>
                             </tr>
-                        ))}
+                        ) : (
+                            coupons.map((coupon, index) => (
+                                <tr key={coupon.id} className="hover:bg-white/5 transition-colors group">
+                                    <td className="px-4 py-4 text-center font-bold text-violet-300 text-xs">#{index + 1}</td>
+                                    <td className="px-4 py-4">
+                                        <div className="flex items-center gap-2">
+                                            <Tag size={16} className="text-tronix-primary" />
+                                            <span className="text-white font-mono font-bold tracking-wider">{coupon.code}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-4 py-4 text-white">
+                                        {coupon.discount_type === 'percentage' ? `${coupon.discount_value}%` : `₹${coupon.discount_value}`}
+                                    </td>
+                                    <td className="px-4 py-4 text-gray-400">
+                                        ₹{coupon.min_purchase}
+                                    </td>
+                                    <td className="px-4 py-4 text-gray-400 flex items-center gap-2">
+                                        <Calendar size={14} />
+                                        {new Date(coupon.expiry_date).toLocaleDateString()}
+                                    </td>
+                                    <td className="px-4 py-4 text-gray-400">
+                                        {coupon.used_count} / {coupon.usage_limit || '∞'}
+                                    </td>
+                                    <td className="px-4 py-4 text-center">
+                                        <button 
+                                            onClick={() => {
+                                             const status = getCouponStatus(coupon);
+                                             if (status === 'ACTIVE' || status === 'INACTIVE') {
+                                                 handleToggleStatus(coupon);
+                                             }
+                                         }}
+                                         disabled={getCouponStatus(coupon) === 'EXPIRED' || getCouponStatus(coupon) === 'LIMIT EXCEEDED'}
+                                         className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${getStatusStyles(getCouponStatus(coupon))}`}
+                                     >
+                                         {getCouponStatus(coupon)}
+                                     </button>
+                                 </td>
+                                 <td className="px-4 py-4 text-right">
+                                     <div className="flex items-center justify-end gap-2 transition-opacity">
+                                         <button 
+                                             onClick={() => handleEdit(coupon)}
+                                             className="p-2 text-gray-400 hover:text-tronix-primary hover:bg-tronix-primary/10 rounded-lg transition-colors"
+                                             title="Edit Coupon"
+                                         >
+                                             <Edit size={16} />
+                                         </button>
+                                         <button 
+                                             onClick={() => handleDeleteClick(coupon)}
+                                             className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                                             title="Delete Coupon"
+                                         >
+                                             <Trash2 size={16} />
+                                         </button>
+                                     </div>
+                                 </td>
+                             </tr>
+                         ))
+                        )}
                     </tbody>
                 </table>
             </div>

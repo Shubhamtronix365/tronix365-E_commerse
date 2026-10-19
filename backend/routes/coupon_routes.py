@@ -37,7 +37,19 @@ async def list_coupons(
     db: Session = Depends(get_db),
     current_admin: UserDB = Depends(get_current_admin),
 ):
-    return db.query(CouponDB).all()
+    return db.query(CouponDB).order_by(CouponDB.id.asc()).all()
+
+
+@router.get("/admin/coupons/{coupon_id}", response_model=CouponResponse)
+async def get_coupon(
+    coupon_id: int,
+    db: Session = Depends(get_db),
+    current_admin: UserDB = Depends(get_current_admin),
+):
+    coupon = db.query(CouponDB).filter(CouponDB.id == coupon_id).first()
+    if not coupon:
+        raise HTTPException(status_code=404, detail=f"Coupon with ID {coupon_id} not found")
+    return coupon
 
 
 @router.put("/admin/coupons/{coupon_id}", response_model=CouponResponse)

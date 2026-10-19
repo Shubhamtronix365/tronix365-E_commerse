@@ -749,6 +749,8 @@ class CouponResponse(CouponBase):
 
 
 class CouponUpdate(BaseModel):
+    code: Optional[str] = None
+    discount_type: Optional[str] = None
     is_active: Optional[bool] = None
     discount_value: Optional[float] = None
     min_purchase: Optional[float] = None
