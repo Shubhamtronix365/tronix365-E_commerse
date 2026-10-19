@@ -21,3 +21,7 @@ jinja2
 pytest
 httpx
 openpyxl
+cloudinary
+imageio
+imageio-ffmpeg
+google-generativeai

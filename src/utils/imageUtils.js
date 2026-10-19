@@ -41,10 +41,31 @@ export const FALLBACK_BLOG_IMAGE = `data:image/svg+xml;utf8,<svg xmlns="http://w
 export const formatBlogHtml = (htmlContent) => {
     if (!htmlContent || typeof htmlContent !== 'string') return '';
     const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-    return htmlContent
-        .replace(
-            /src=["'](\/uploads\/[^"']+)["']/g,
-            (match, path) => `src="${backendUrl}${path}" onerror="this.onerror=null; this.src='${FALLBACK_BLOG_IMAGE}';"`
-        )
-        .replace(/poster=["'](\/uploads\/[^"']+)["']/g, (match, path) => `poster="${backendUrl}${path}"`);
+
+    // 1. Separate img tags with fallback image onerror
+    let formatted = htmlContent.replace(
+        /<img\b([^>]*?)\bsrc=["'](\/uploads\/[^"']+)["']([^>]*>)/gi,
+        (match, before, path, after) => {
+            const hasOnError = /onerror=/i.test(match);
+            const fullUrl = `${backendUrl}${path}`;
+            if (hasOnError) {
+                return `<img${before}src="${fullUrl}"${after}`;
+            }
+            return `<img${before}src="${fullUrl}" onerror="this.onerror=null; this.src='${FALLBACK_BLOG_IMAGE}';"${after}`;
+        }
+    );
+
+    // 2. Video and audio source tags (do not attach image onerror)
+    formatted = formatted.replace(
+        /<(video|source|audio)\b([^>]*?)\bsrc=["'](\/uploads\/[^"']+)["']([^>]*>)/gi,
+        (match, tag, before, path, after) => `<${tag}${before}src="${backendUrl}${path}"${after}`
+    );
+
+    // 3. Video poster attribute
+    formatted = formatted.replace(
+        /poster=["'](\/uploads\/[^"']+)["']/gi,
+        (match, path) => `poster="${backendUrl}${path}"`
+    );
+
+    return formatted;
 };

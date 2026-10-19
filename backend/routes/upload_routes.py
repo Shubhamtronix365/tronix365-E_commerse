@@ -18,6 +18,7 @@ if not os.path.exists(UPLOAD_DIR):
 @router.post("/upload")
 async def upload_image(
     file: UploadFile = File(...),
+    folder: str = "tronix365_products",
     current_user: UserDB = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -61,7 +62,8 @@ async def upload_image(
         final_filename = os.path.basename(optimized_path)
 
         # 1. Cloudinary CDN Upload (if CLOUDINARY_URL is configured)
-        cloud_url = upload_to_cloudinary(optimized_path, folder="tronix365_products", resource_type="image")
+        target_folder = "tronix365_blogs" if "blog" in folder.lower() else "tronix365_products"
+        cloud_url = upload_to_cloudinary(optimized_path, folder=target_folder, resource_type="image")
 
         # 2. Persist bytes in database for lifetime persistence across Render container restarts
         try:

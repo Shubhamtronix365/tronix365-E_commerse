@@ -405,7 +405,7 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
         setUploadingImage(true);
 
         try {
-            const res = await client.post('/upload', formData, {
+            const res = await client.post('/upload?folder=tronix365_blogs', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
             const imageUrl = res.data.url;

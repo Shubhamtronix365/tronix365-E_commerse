@@ -9,19 +9,42 @@ logger = logging.getLogger(__name__)
 # High-availability CDN fallback that responds in < 20ms and never times out in Gmail/Outlook
 DEFAULT_CDN_LOGO_URL = "https://www.tronix365.in/logo.png"
 _CACHED_LOGO_URL: Optional[str] = None
+_CLOUDINARY_INITIALIZED: bool = False
 
 
 def is_cloudinary_enabled() -> bool:
-    """Check if Cloudinary environment credentials are configured."""
-    has_env = bool(os.getenv("CLOUDINARY_URL") or os.getenv("CLOUDINARY_CLOUD_NAME"))
-    if not has_env:
+    """Check if Cloudinary environment credentials are configured and initialize SDK."""
+    global _CLOUDINARY_INITIALIZED
+    has_url = bool(os.getenv("CLOUDINARY_URL"))
+    has_keys = bool(
+        os.getenv("CLOUDINARY_CLOUD_NAME")
+        and os.getenv("CLOUDINARY_API_KEY")
+        and os.getenv("CLOUDINARY_API_SECRET")
+    )
+    if not (has_url or has_keys):
         return False
+
     try:
         import cloudinary
         import cloudinary.uploader
+
+        if not _CLOUDINARY_INITIALIZED:
+            if has_url:
+                cloudinary.config(cloudinary_url=os.getenv("CLOUDINARY_URL"), secure=True)
+            else:
+                cloudinary.config(
+                    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+                    api_key=os.getenv("CLOUDINARY_API_KEY"),
+                    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+                    secure=True,
+                )
+            _CLOUDINARY_INITIALIZED = True
         return True
     except ImportError:
         logger.warning("Cloudinary library not installed. Using database fallback.")
+        return False
+    except Exception as e:
+        logger.warning(f"Failed to configure Cloudinary SDK: {e}")
         return False
 
 
@@ -33,29 +56,36 @@ def upload_to_cloudinary(
     overwrite: bool = True,
 ) -> Optional[str]:
     """
-    Upload an image or video to Cloudinary.
-    Returns the secure HTTPS CDN URL, or None if Cloudinary is not configured/failed.
+    Upload an image or video to Cloudinary CDN.
+    Returns the secure HTTPS CDN URL, or None if Cloudinary is not configured or fails.
     """
     if not is_cloudinary_enabled():
         return None
 
     import time
+    import cloudinary.uploader
+
+    upload_params = {
+        "folder": folder,
+        "resource_type": resource_type,
+        "overwrite": overwrite,
+    }
+    if public_id:
+        upload_params["public_id"] = public_id
+
     for attempt in range(1, 4):
         try:
-            import cloudinary.uploader
+            # Use upload_large for video files when given a local file path
+            if resource_type == "video" and isinstance(file_path_or_bytes, str) and hasattr(cloudinary.uploader, "upload_large"):
+                res = cloudinary.uploader.upload_large(file_path_or_bytes, **upload_params)
+            else:
+                res = cloudinary.uploader.upload(file_path_or_bytes, **upload_params)
 
-            upload_params = {
-                "folder": folder,
-                "resource_type": resource_type,
-                "overwrite": overwrite,
-            }
-            if public_id:
-                upload_params["public_id"] = public_id
-
-            res = cloudinary.uploader.upload(file_path_or_bytes, **upload_params)
             secure_url = res.get("secure_url")
             if secure_url:
-                logger.info(f"Cloudinary upload successful: {secure_url}")
+                if secure_url.startswith("http://"):
+                    secure_url = "https://" + secure_url[len("http://"):]
+                logger.info(f"Cloudinary {resource_type} upload successful: {secure_url}")
                 return secure_url
         except Exception as e:
             err_str = str(e).lower()
@@ -63,7 +93,7 @@ def upload_to_cloudinary(
                 logger.warning(f"Cloudinary rate limit hit, backing off for {attempt * 2}s (attempt {attempt}/3)...")
                 time.sleep(attempt * 2)
             else:
-                logger.error(f"Cloudinary upload failed: {e}")
+                logger.error(f"Cloudinary {resource_type} upload failed: {e}")
                 break
 
     return None
