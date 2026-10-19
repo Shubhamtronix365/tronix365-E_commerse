@@ -33,6 +33,8 @@ import {
     Mail,
     UserPlus,
     ShieldCheck,
+    Image as ImageIcon,
+    Video,
 } from 'lucide-react';
 import client from '../../api/client';
 import { getImageUrl } from '../../utils/imageUtils';
@@ -83,6 +85,22 @@ const BlogAdminManager = () => {
     const [rejectionReason, setRejectionReason] = useState('');
     const [submittingRejection, setSubmittingRejection] = useState(false);
     const [approvingPostId, setApprovingPostId] = useState(null);
+
+    // Media Insert State (Images & Videos anywhere in content)
+    const [isImageInsertModalOpen, setIsImageInsertModalOpen] = useState(false);
+    const [insertImageFile, setInsertImageFile] = useState(null);
+    const [insertImageCaption, setInsertImageCaption] = useState('');
+    const [insertImageWidth, setInsertImageWidth] = useState('100%');
+
+    const [isVideoInsertModalOpen, setIsVideoInsertModalOpen] = useState(false);
+    const [videoMode, setVideoMode] = useState('url'); // 'url' or 'upload'
+    const [videoUrlInput, setVideoUrlInput] = useState('');
+    const [insertVideoFile, setInsertVideoFile] = useState(null);
+    const [videoCaption, setVideoCaption] = useState('');
+    const [insertingMedia, setInsertingMedia] = useState(false);
+
+    const contentImageInputRef = useRef(null);
+    const contentVideoInputRef = useRef(null);
 
     // Form State
     const [form, setForm] = useState({
@@ -458,6 +476,125 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
             ...prev,
             content: prev.content ? `${prev.content}\n\n${snippet}` : snippet,
         }));
+    };
+
+    const getYouTubeEmbedUrl = (url) => {
+        try {
+            if (url.includes('youtu.be/')) {
+                const id = url.split('youtu.be/')[1]?.split('?')[0];
+                return `https://www.youtube-nocookie.com/embed/${id}`;
+            }
+            if (url.includes('watch?v=')) {
+                const id = url.split('watch?v=')[1]?.split('&')[0];
+                return `https://www.youtube-nocookie.com/embed/${id}`;
+            }
+            if (url.includes('/embed/')) {
+                return url;
+            }
+            return url;
+        } catch {
+            return url;
+        }
+    };
+
+    const handleInsertImageSubmit = async (e) => {
+        e.preventDefault();
+        if (!insertImageFile) {
+            toast.error('Please select an image file to upload');
+            return;
+        }
+        if (insertImageFile.size > 10 * 1024 * 1024) {
+            toast.error('Image size must be under 10MB');
+            return;
+        }
+
+        setInsertingMedia(true);
+        const formData = new FormData();
+        formData.append('file', insertImageFile);
+        try {
+            const res = await client.post('/upload/media', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            const imgUrl = getImageUrl(res.data.url) || res.data.url;
+            const caption = insertImageCaption.trim();
+            const widthClass =
+                insertImageWidth === '50%'
+                    ? 'max-w-md mx-auto'
+                    : insertImageWidth === '75%'
+                    ? 'max-w-2xl mx-auto'
+                    : 'w-full';
+
+            const figureHtml = `<figure class="my-8 ${widthClass} text-center flex flex-col items-center">
+  <img src="${imgUrl}" alt="${caption || 'Hardware Guide Step'}" class="rounded-xl border border-white/10 shadow-xl max-w-full h-auto max-h-[650px] object-contain mx-auto" />
+  ${caption ? `<figcaption class="text-xs text-gray-400 mt-2.5 italic">${caption}</figcaption>` : ''}
+</figure>`;
+
+            insertSnippet(figureHtml);
+            toast.success('Image uploaded to CDN and inserted into article!');
+            setIsImageInsertModalOpen(false);
+            setInsertImageFile(null);
+            setInsertImageCaption('');
+        } catch (err) {
+            console.error('Error inserting content image:', err);
+            toast.error('Failed to upload and insert image');
+        } finally {
+            setInsertingMedia(false);
+        }
+    };
+
+    const handleInsertVideoSubmit = async (e) => {
+        e.preventDefault();
+        if (videoMode === 'url') {
+            const url = videoUrlInput.trim();
+            if (!url) {
+                toast.error('Please enter a video URL');
+                return;
+            }
+            const embedUrl = getYouTubeEmbedUrl(url);
+            const videoHtml = `<div class="my-8 aspect-video rounded-xl overflow-hidden border border-white/10 shadow-2xl">
+  <iframe src="${embedUrl}" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>`;
+            insertSnippet(videoHtml);
+            toast.success('Video player embedded into article!');
+            setIsVideoInsertModalOpen(false);
+            setVideoUrlInput('');
+        } else {
+            if (!insertVideoFile) {
+                toast.error('Please choose an MP4/WebM video file');
+                return;
+            }
+            if (insertVideoFile.size > 50 * 1024 * 1024) {
+                toast.error('Video file must be under 50MB');
+                return;
+            }
+
+            setInsertingMedia(true);
+            const formData = new FormData();
+            formData.append('file', insertVideoFile);
+            try {
+                const res = await client.post('/upload/media', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                });
+                const videoUrl = getImageUrl(res.data.url) || res.data.url;
+                const caption = videoCaption.trim();
+
+                const videoHtml = `<figure class="my-8 w-full max-w-3xl mx-auto text-center flex flex-col items-center">
+  <video src="${videoUrl}" controls class="rounded-xl border border-white/10 shadow-xl w-full max-h-[500px]"></video>
+  ${caption ? `<figcaption class="text-xs text-gray-400 mt-2.5 italic">${caption}</figcaption>` : ''}
+</figure>`;
+
+                insertSnippet(videoHtml);
+                toast.success('Video uploaded to CDN and inserted into article!');
+                setIsVideoInsertModalOpen(false);
+                setInsertVideoFile(null);
+                setVideoCaption('');
+            } catch (err) {
+                console.error('Error uploading video:', err);
+                toast.error('Failed to upload video');
+            } finally {
+                setInsertingMedia(false);
+            }
+        }
     };
 
     // Calculate quick stats
@@ -1269,6 +1406,32 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                             >
                                                 P
                                             </button>
+
+                                            <div className="h-4 w-px bg-white/15 mx-1" />
+
+                                            {/* In-Between Image Upload Button */}
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsImageInsertModalOpen(true)}
+                                                className="px-2.5 py-1 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-semibold rounded flex items-center gap-1.5 cursor-pointer transition-colors shadow-sm"
+                                                title="Upload and insert an image with caption anywhere in article"
+                                            >
+                                                <ImageIcon size={13} />
+                                                Insert Image
+                                            </button>
+
+                                            {/* In-Between Video Embed Button */}
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsVideoInsertModalOpen(true)}
+                                                className="px-2.5 py-1 bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30 text-xs font-semibold rounded flex items-center gap-1.5 cursor-pointer transition-colors shadow-sm"
+                                                title="Embed YouTube or upload MP4/WebM video anywhere in article"
+                                            >
+                                                <Video size={13} />
+                                                Insert Video
+                                            </button>
+
+                                            <div className="h-4 w-px bg-white/15 mx-1" />
                                             <button
                                                 type="button"
                                                 onClick={() =>
@@ -1897,6 +2060,229 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                 Close
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Insert Image Modal */}
+            {isImageInsertModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+                    <div className="w-full max-w-md bg-neutral-900 border border-white/15 rounded-2xl p-6 space-y-4 shadow-2xl relative">
+                        <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                            <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                                    <ImageIcon size={18} />
+                                </div>
+                                <h3 className="text-base font-bold text-white">Insert Image into Article</h3>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setIsImageInsertModalOpen(false)}
+                                className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5"
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleInsertImageSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
+                                    Select Image File * (Max 10MB)
+                                </label>
+                                <input
+                                    type="file"
+                                    ref={contentImageInputRef}
+                                    accept="image/*"
+                                    onChange={(e) => setInsertImageFile(e.target.files?.[0] || null)}
+                                    className="w-full text-xs text-gray-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/15 file:text-emerald-300 hover:file:bg-emerald-500/25 cursor-pointer bg-black/40 border border-white/10 rounded-xl p-2"
+                                />
+                                <span className="text-[11px] text-gray-500 mt-1 block">
+                                    Uploaded to high-speed CDN and auto-converted to WebP.
+                                </span>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
+                                    Caption / Figure Note (Optional)
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. ESP32 Pinout Diagram & Breadboard Connections"
+                                    value={insertImageCaption}
+                                    onChange={(e) => setInsertImageCaption(e.target.value)}
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-tronix-accent"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
+                                    Layout & Size
+                                </label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {['100%', '75%', '50%'].map((w) => (
+                                        <button
+                                            key={w}
+                                            type="button"
+                                            onClick={() => setInsertImageWidth(w)}
+                                            className={`py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                                                insertImageWidth === w
+                                                    ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold'
+                                                    : 'bg-black/30 border-white/10 text-gray-400 hover:text-white'
+                                            }`}
+                                        >
+                                            {w === '100%' ? 'Full Width' : w === '75%' ? 'Medium (75%)' : 'Compact (50%)'}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="pt-3 flex items-center justify-end gap-3 border-t border-white/10">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsImageInsertModalOpen(false)}
+                                    className="px-4 py-2 rounded-xl text-xs text-gray-400 hover:text-white hover:bg-white/5 cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={insertingMedia || !insertImageFile}
+                                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold text-xs hover:brightness-110 shadow-lg shadow-emerald-500/20 disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                                >
+                                    {insertingMedia ? (
+                                        <>
+                                            <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            Uploading to CDN...
+                                        </>
+                                    ) : (
+                                        'Upload & Insert Image'
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Insert Video Modal */}
+            {isVideoInsertModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+                    <div className="w-full max-w-md bg-neutral-900 border border-white/15 rounded-2xl p-6 space-y-4 shadow-2xl relative">
+                        <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                            <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                                    <Video size={18} />
+                                </div>
+                                <h3 className="text-base font-bold text-white">Insert Video Player</h3>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setIsVideoInsertModalOpen(false)}
+                                className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5"
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        {/* Mode Switcher */}
+                        <div className="flex rounded-xl bg-black/40 p-1 border border-white/10">
+                            <button
+                                type="button"
+                                onClick={() => setVideoMode('url')}
+                                className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                                    videoMode === 'url'
+                                        ? 'bg-blue-500/20 border border-blue-500/40 text-blue-300 font-bold'
+                                        : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                YouTube / Web Link
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setVideoMode('upload')}
+                                className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                                    videoMode === 'upload'
+                                        ? 'bg-blue-500/20 border border-blue-500/40 text-blue-300 font-bold'
+                                        : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                Upload MP4 / WebM
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleInsertVideoSubmit} className="space-y-4">
+                            {videoMode === 'url' ? (
+                                <div>
+                                    <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
+                                        Video URL *
+                                    </label>
+                                    <input
+                                        type="url"
+                                        required
+                                        placeholder="https://www.youtube.com/watch?v=..."
+                                        value={videoUrlInput}
+                                        onChange={(e) => setVideoUrlInput(e.target.value)}
+                                        className="w-full bg-black/40 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-tronix-accent font-mono"
+                                    />
+                                    <span className="text-[11px] text-gray-500 mt-1.5 block">
+                                        Supports YouTube, YouTube Shorts, Vimeo, and direct video links.
+                                    </span>
+                                </div>
+                            ) : (
+                                <div>
+                                    <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
+                                        Select Video File * (Max 50MB)
+                                    </label>
+                                    <input
+                                        type="file"
+                                        ref={contentVideoInputRef}
+                                        accept="video/mp4,video/webm"
+                                        onChange={(e) => setInsertVideoFile(e.target.files?.[0] || null)}
+                                        className="w-full text-xs text-gray-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-500/15 file:text-blue-300 hover:file:bg-blue-500/25 cursor-pointer bg-black/40 border border-white/10 rounded-xl p-2"
+                                    />
+                                    <span className="text-[11px] text-gray-500 mt-1.5 block">
+                                        Permitted formats: MP4, WebM. Uploads to Cloudinary CDN with local fallback.
+                                    </span>
+                                </div>
+                            )}
+
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
+                                    Video Caption (Optional)
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Demonstration of Robot Steering & Speed Control"
+                                    value={videoCaption}
+                                    onChange={(e) => setVideoCaption(e.target.value)}
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-tronix-accent"
+                                />
+                            </div>
+
+                            <div className="pt-3 flex items-center justify-end gap-3 border-t border-white/10">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsVideoInsertModalOpen(false)}
+                                    className="px-4 py-2 rounded-xl text-xs text-gray-400 hover:text-white hover:bg-white/5 cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={insertingMedia || (videoMode === 'url' ? !videoUrlInput.trim() : !insertVideoFile)}
+                                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold text-xs hover:brightness-110 shadow-lg shadow-blue-500/20 disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                                >
+                                    {insertingMedia ? (
+                                        <>
+                                            <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            Uploading to CDN...
+                                        </>
+                                    ) : (
+                                        'Embed Video Player'
+                                    )}
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}
