@@ -752,3 +752,34 @@ async def admin_generate_author(
         "full_name": name,
         "role": "blog_author",
     }
+
+
+@router.delete("/admin/authors/{author_id}")
+async def admin_delete_author(
+    author_id: int,
+    db: Session = Depends(get_db),
+    admin: UserDB = Depends(get_current_admin),
+):
+    """Admin-only endpoint to permanently delete a blog author account."""
+    author = db.query(UserDB).filter(UserDB.id == author_id).first()
+    if not author:
+        raise HTTPException(status_code=404, detail="Author account not found.")
+
+    if author.role == "admin":
+        raise HTTPException(status_code=400, detail="Cannot delete an administrator account.")
+
+    author_name = author.full_name or author.email
+    author_email = author.email
+
+    # Disassociate author ID from blog posts so posts remain intact without broken author references
+    db.query(BlogPostDB).filter(
+        (BlogPostDB.author_id == str(author.id)) | (BlogPostDB.author_id == author_email)
+    ).update({"author_id": None}, synchronize_session=False)
+
+    db.delete(author)
+    db.commit()
+
+    return {
+        "message": f"Author account '{author_name}' ({author_email}) deleted successfully.",
+        "deleted_id": author_id,
+    }

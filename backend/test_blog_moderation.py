@@ -225,3 +225,19 @@ def test_admin_generate_author_account():
     assert res_list.status_code == 200
     emails = [a["email"] for a in res_list.json()]
     assert "generated_author_test@tronix365.in" in emails
+
+    # Admin deletes author
+    author_obj = next(a for a in res_list.json() if a["email"] == "generated_author_test@tronix365.in")
+    author_id = author_obj["id"]
+
+    # Non-admin cannot delete author
+    res_del_unauth = client.delete(f"/admin/authors/{author_id}", headers=author_headers)
+    assert res_del_unauth.status_code == 403
+
+    # Admin deletes author
+    res_del = client.delete(f"/admin/authors/{author_id}", headers=admin_headers)
+    assert res_del.status_code == 200
+
+    # Verify author is gone
+    res_list_after = client.get("/admin/authors", headers=admin_headers)
+    assert "generated_author_test@tronix365.in" not in [a["email"] for a in res_list_after.json()]

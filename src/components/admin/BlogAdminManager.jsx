@@ -75,6 +75,8 @@ const BlogAdminManager = () => {
     const [generatingAuthor, setGeneratingAuthor] = useState(false);
     const [generatedCredentials, setGeneratedCredentials] = useState(null);
     const [copiedCredentials, setCopiedCredentials] = useState(false);
+    const [authorToDelete, setAuthorToDelete] = useState(null);
+    const [deletingAuthor, setDeletingAuthor] = useState(false);
 
     // Rejection / Moderation Modal State
     const [rejectingPost, setRejectingPost] = useState(null);
@@ -284,6 +286,22 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
         setCopiedCredentials(true);
         toast.success('Credentials copied to clipboard!');
         setTimeout(() => setCopiedCredentials(false), 3000);
+    };
+
+    const handleConfirmDeleteAuthor = async () => {
+        if (!authorToDelete) return;
+        setDeletingAuthor(true);
+        try {
+            const res = await client.delete(`/admin/authors/${authorToDelete.id}`);
+            toast.success(res.data?.message || 'Author account deleted successfully');
+            setAuthorToDelete(null);
+            fetchAuthors();
+        } catch (err) {
+            console.error('Failed to delete author:', err);
+            toast.error(err.response?.data?.detail || 'Failed to delete author account');
+        } finally {
+            setDeletingAuthor(false);
+        }
     };
 
     const handleApprovePost = async (post) => {
@@ -1765,26 +1783,27 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                                     <th className="px-4 py-2.5">Name</th>
                                                     <th className="px-4 py-2.5">Email / Login ID</th>
                                                     <th className="px-4 py-2.5">Role</th>
-                                                    <th className="px-4 py-2.5 text-right">Status</th>
+                                                    <th className="px-4 py-2.5 text-center">Status</th>
+                                                    <th className="px-4 py-2.5 text-right">Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-white/5">
                                                 {loadingAuthors ? (
                                                     <tr>
-                                                        <td colSpan="4" className="text-center py-6 text-gray-500">
+                                                        <td colSpan="5" className="text-center py-6 text-gray-500">
                                                             <RefreshCw className="animate-spin inline mr-2 text-tronix-accent" size={14} />
                                                             Loading authors...
                                                         </td>
                                                     </tr>
                                                 ) : authors.length === 0 ? (
                                                     <tr>
-                                                        <td colSpan="4" className="text-center py-6 text-gray-500">
+                                                        <td colSpan="5" className="text-center py-6 text-gray-500">
                                                             No authors registered yet. Use the generator above to create one.
                                                         </td>
                                                     </tr>
                                                 ) : (
                                                     authors.map((author) => (
-                                                        <tr key={author.id} className="hover:bg-white/[0.02]">
+                                                        <tr key={author.id} className="hover:bg-white/[0.02] transition-colors">
                                                             <td className="px-4 py-2.5 font-medium text-white">
                                                                 {author.full_name || 'Blog Author'}
                                                             </td>
@@ -1796,11 +1815,21 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                                                     {author.role}
                                                                 </span>
                                                             </td>
-                                                            <td className="px-4 py-2.5 text-right">
+                                                            <td className="px-4 py-2.5 text-center">
                                                                 <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400">
                                                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                                                                     Active
                                                                 </span>
+                                                            </td>
+                                                            <td className="px-4 py-2.5 text-right">
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => setAuthorToDelete(author)}
+                                                                    title="Delete Author Account"
+                                                                    className="p-1.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all cursor-pointer"
+                                                                >
+                                                                    <Trash2 size={14} />
+                                                                </button>
                                                             </td>
                                                         </tr>
                                                     ))
@@ -1827,10 +1856,20 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                                         <span className="font-semibold text-xs text-white">
                                                             {author.full_name || 'Blog Author'}
                                                         </span>
-                                                        <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400">
-                                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                                                            Active
-                                                        </span>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400">
+                                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                                                Active
+                                                            </span>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setAuthorToDelete(author)}
+                                                                title="Delete Author"
+                                                                className="p-1 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors cursor-pointer"
+                                                            >
+                                                                <Trash2 size={13} />
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                     <div className="flex items-center justify-between text-[11px]">
                                                         <span className="font-mono text-gray-400 truncate max-w-[200px]">
@@ -1870,6 +1909,17 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                 title="Delete Blog Article?"
                 message={`Are you sure you want to delete "${postToDelete?.title}"? This will permanently remove the article and its SEO URL.`}
                 confirmText="Delete Article"
+                type="danger"
+            />
+
+            {/* Confirm Delete Author Modal */}
+            <ConfirmModal
+                isOpen={!!authorToDelete}
+                onClose={() => setAuthorToDelete(null)}
+                onConfirm={handleConfirmDeleteAuthor}
+                title="Delete Author Account?"
+                message={`Are you sure you want to delete author "${authorToDelete?.full_name || authorToDelete?.email}" (${authorToDelete?.email})? Their author access will be permanently revoked.`}
+                confirmText={deletingAuthor ? 'Deleting...' : 'Delete Author'}
                 type="danger"
             />
         </div>
