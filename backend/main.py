@@ -39,6 +39,7 @@ from routes import (
     upload_routes,
     blog_routes,
     shiprocket_routes,
+    cron_routes,
 )
 
 # Ensure upload directory exists
@@ -171,13 +172,13 @@ async def serve_uploaded_media(filename: str, db: Session = Depends(get_db)):
 
 app.mount("/email-assets", StaticFiles(directory="email_assets"), name="email_assets")
 
-# Base endpoints
-@app.get("/")
+# Base endpoints (Supporting both GET and HEAD for uptime monitors like Cron-Job.org / UptimeRobot)
+@app.api_route("/", methods=["GET", "HEAD"])
 async def read_root():
     return {"message": "Welcome to Tronix365 API", "status": "running"}
 
 
-@app.get("/health", status_code=200)
+@app.api_route("/health", methods=["GET", "HEAD"], status_code=200)
 async def health_check():
     return {"status": "ok"}
 
@@ -199,4 +200,5 @@ app.include_router(admin_routes.router)
 app.include_router(upload_routes.router)
 app.include_router(blog_routes.router)
 app.include_router(shiprocket_routes.router)
+app.include_router(cron_routes.router)
 

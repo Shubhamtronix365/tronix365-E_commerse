@@ -54,10 +54,19 @@ This guide describes the steps required to deploy the **Tronix365 E-commerce Pla
    | `GOOGLE_CLIENT_SECRET` | Google OAuth Client Secret |
    | `GEMINI_API_KEY` | Gemini API Key for chatbot integrations |
 
-4. **Health Check & Render Keep-Alive (Prevent Spin-Down for SEO)**:
-   * The backend includes a lightweight `/health` route (`GET /health`) returning `{"status": "ok"}` with HTTP `200 OK` instantly.
-   * **Preventing Free-Tier Spin-Down**: Render's free tier automatically spins down web services after 15 minutes of inactivity. When the backend spins down, incoming requests—including search engine crawlers (such as Googlebot) fetching dynamic metadata or sitemaps—experience 30+ second cold-start delays or timeouts, negatively affecting SEO crawling and user experience.
-   * **Recommended Setup**: Configure a free uptime monitoring service (e.g., [UptimeRobot](https://uptimerobot.com), [Cron-Job.org](https://cron-job.org), or [Better Stack](https://betterstack.com)) to ping `https://<your-render-app>.onrender.com/health` every **10 minutes**. This keeps the backend warm and ensures instant responses for SEO crawlers and live traffic.
+4. **Automated Cron Jobs & Render Keep-Alive Configuration**:
+   * **Preventing Free-Tier Spin-Down & DB Cold Starts**: Render's free tier automatically spins down web services after 15 minutes of inactivity. When the backend spins down, incoming requests—including search engine crawlers (Googlebot) and live visitors—experience 30+ second cold-start delays or timeouts.
+   * **Configure in [Cron-Job.org](https://cron-job.org) or [UptimeRobot](https://uptimerobot.com)**:
+     - **Job 1: Backend & Database Keep-Alive (Ping every 10 minutes)**:
+       * **URL**: `https://tronix365-e-commerse-xhlw.onrender.com/cron/keep-alive` (or `/health`)
+       * **HTTP Method**: `GET` or `HEAD` (both are supported with HTTP `200 OK`)
+       * **Execution Schedule**: `*/10 * * * *` (Every 10 minutes)
+       * **Purpose**: Pings both the FastAPI app and executes `SELECT 1` on the Neon PostgreSQL database to keep the connection pool warmed up and responsive.
+     - **Job 2: Automated Abandoned Cart Recovery & Stale Bundle Sweep (Every 1–2 hours)**:
+       * **URL**: `https://tronix365-e-commerse-xhlw.onrender.com/cron/abandoned-carts?key=tronix365_cron_secret`
+       * **HTTP Method**: `GET`
+       * **Execution Schedule**: `0 * * * *` (Every 1 hour)
+       * **Purpose**: Automatically self-heals expired or deleted promotional bundles in inactive carts and dispatches recovery emails to shoppers who left items in their cart without placing an order.
 
 ---
 
