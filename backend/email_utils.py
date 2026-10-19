@@ -153,7 +153,7 @@ def send_email_via_brevo(
 
 
 # Public URL base for hosted email assets (logo, icons)
-EMAIL_ASSETS_BASE_URL = os.getenv("BACKEND_URL", "https://tronix365-e-commerse.onrender.com") + "/email-assets"
+EMAIL_ASSETS_BASE_URL = os.getenv("BACKEND_URL", "https://tronix365-e-commerse-xhlw.onrender.com") + "/email-assets"
 
 
 def get_logo_url() -> str:
@@ -197,7 +197,7 @@ def resolve_email_image_url(raw_img_url: Optional[str], frontend_url: str) -> st
     Encodes spaces and special characters so Gmail proxy never fails to render.
     """
     import urllib.parse
-    backend_base = os.getenv("BACKEND_URL", "https://tronix365-e-commerse.onrender.com").rstrip("/")
+    backend_base = os.getenv("BACKEND_URL", "https://tronix365-e-commerse-xhlw.onrender.com").rstrip("/")
     logo_cdn = LOGO_PUBLIC_URL
 
     if not raw_img_url or not isinstance(raw_img_url, str):
@@ -1341,8 +1341,9 @@ def generate_tower_order_email_base(
     details_html: str,
     action_button_text: Optional[str] = None,
     action_button_url: Optional[str] = None,
-    frontend_url: str = "https://tronix365-e-commerse.onrender.com"
+    frontend_url: Optional[str] = None
 ) -> str:
+    frontend_url = get_canonical_frontend_url(frontend_url)
     logo_url = LOGO_PUBLIC_URL
     tracking_link = f"{frontend_url}/tower-orders?ref={order.order_number}"
     action_btn = ""
@@ -1680,7 +1681,7 @@ def send_abandoned_cart_email(
         if not img_url:
             img_url = get_logo_url()
         elif not img_url.startswith("http"):
-            backend_base = os.getenv("BACKEND_URL", "https://tronix365-e-commerse.onrender.com")
+            backend_base = os.getenv("BACKEND_URL", "https://tronix365-e-commerse-xhlw.onrender.com")
             img_url = f"{backend_base}/{img_url.lstrip('/')}"
 
         rows_html.append(f"""

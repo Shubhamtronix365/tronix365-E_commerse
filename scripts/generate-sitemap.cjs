@@ -3,7 +3,7 @@ const path = require('path');
 
 // Configuration
 const BASE_URL = 'https://www.tronix365.in/e-commerse';
-const API_URL = process.env.VITE_API_URL || 'https://tronix365-e-commerse.onrender.com';
+const API_URL = process.env.VITE_API_URL || 'https://tronix365-e-commerse-xhlw.onrender.com';
 
 // Ensure BASE_URL has trailing slash for consistency
 const BASE_URL_WITH_SLASH = BASE_URL.endsWith('/') ? BASE_URL : `${BASE_URL}/`;

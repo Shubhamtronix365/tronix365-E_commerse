@@ -2,7 +2,7 @@ const fs = require('fs');
 const axios = require('axios');
 
 // API Configuration
-const API_URL = 'https://tronix365-e-commerse.onrender.com';
+const API_URL = 'https://tronix365-e-commerse-xhlw.onrender.com';
 
 // Category-specific keyword templates
 const categoryKeywords = {

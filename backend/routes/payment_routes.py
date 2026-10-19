@@ -291,7 +291,10 @@ async def mock_payment_process(
         "127.0.0.1:8000",
         "localhost:5173",
         "127.0.0.1:5173",
+        "www.tronix365.in",
+        "tronix365.in",
         "tronix365-e-commerse.onrender.com",
+        "tronix365-e-commerse-xhlw.onrender.com",
     }
     
     if parsed_surl.netloc and parsed_surl.netloc not in allowed_hosts:

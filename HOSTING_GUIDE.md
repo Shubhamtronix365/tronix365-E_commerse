@@ -68,7 +68,7 @@ Vite uses compile-time environment variables. The repository is pre-configured w
 1. **Compile the Production Build**:
    * Make sure `.env.production` exists in the root folder with:
      ```env
-     VITE_API_URL=https://tronix365-e-commerse.onrender.com
+     VITE_API_URL=https://tronix365-e-commerse-xhlw.onrender.com
      VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
      ```
    * Run the compile script in the project root:

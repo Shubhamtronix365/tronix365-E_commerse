@@ -3,7 +3,7 @@
 // Intercepts search engines and injects SEO meta tags & structured data.
 
 $baseUrl = "https://www.tronix365.in/e-commerse";
-$apiUrl = "https://tronix365-e-commerse.onrender.com";
+$apiUrl = "https://tronix365-e-commerse-xhlw.onrender.com";
 
 // Helper to load DATABASE_URL from environment or local .env files
 function getDatabaseUrl() {
