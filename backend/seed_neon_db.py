@@ -149,7 +149,7 @@ try:
     else:
         # Create standard Default Admin
         print(f"🔐 Generating System Admin Account...")
-        hashed_password = get_password_hash("admin123")
+        hashed_password = get_password_hash("Bhavesh@411041")
         admin_user = UserDB(
             full_name="System Administrator",
             email=admin_email,
@@ -163,7 +163,7 @@ try:
         print(f"   SYSTEM ADMIN LOGIN CREDENTIALS     ")
         print(f"======================================")
         print(f"Email:    {admin_email}")
-        print(f"Password: admin123")
+        print(f"Password: Bhavesh@411041")
         print(f"======================================\n")
 
 except Exception as e:

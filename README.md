@@ -526,6 +526,12 @@ FastAPI generates interactive documentation at [http://127.0.0.1:8000/docs](http
     python scripts/generate_blog_author.py --name "Robotics Team Lead" --email "robotics@tronix365.in"
     ```
     *Generates cryptographically secure 16-character high-entropy passwords, registers the author in `UserDB` with role `blog_author`, and displays ready-to-use login credentials.*
+  - **Admin Password Verification & Reset Script**:
+    ```bash
+    cd backend
+    python scripts/reset_admin_password.py --email "admin@tronix365.in" --password "Bhavesh@411041"
+    ```
+    *Verifies and securely resets the primary system admin account password in the PostgreSQL database if it ever changes or drifts.*
 
 ---
 

@@ -180,7 +180,7 @@ def seed_data():
         # Check if exists (though we dropped tables so likely not)
         if not db.query(UserDB).filter(UserDB.email == admin_email).first():
             print("Seeding Admin User...")
-            hashed_password = get_password_hash("adminpassword123")
+            hashed_password = get_password_hash("Bhavesh@411041")
             admin_user = UserDB(
                 email=admin_email,
                 hashed_password=hashed_password,
