@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
@@ -7,6 +7,168 @@ import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, Truck, Zap, Store } from 
 import { motion } from 'framer-motion';
 import { getImageUrl } from '../utils/imageUtils';
 import { calculateTaxAndTotals, formatCurrency, formatPrice } from '../utils/priceUtils';
+
+/**
+ * Resilient Cart Quantity Stepper:
+ * - Allows full backspacing and clearing without snapping back to 1.
+ * - Supports typing multi-digit numbers (e.g. 22, 55).
+ * - Enforces minimum 1 and maximum stock limit.
+ * - Debounces rapid typing commits to avoid unnecessary API round-trips.
+ * - Sanitizes on blur, Enter key, and button clicks.
+ */
+const CartQuantityStepper = ({
+    value,
+    min = 1,
+    max = 9999,
+    onCommit,
+    disabled = false,
+    label = 'quantity'
+}) => {
+    const [localVal, setLocalVal] = useState(String(value ?? 1));
+    const debounceTimerRef = useRef(null);
+
+    // Keep local string in sync if external value changes (e.g. initial load, cart refresh)
+    useEffect(() => {
+        setLocalVal(String(value ?? 1));
+    }, [value]);
+
+    useEffect(() => {
+        return () => {
+            if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+        };
+    }, []);
+
+    const commit = (num) => {
+        if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+        const safeMin = Math.max(1, min);
+        const safeMax = Math.max(safeMin, max);
+        const clamped = Math.min(safeMax, Math.max(safeMin, num));
+        setLocalVal(String(clamped));
+        if (clamped !== value) {
+            onCommit(clamped);
+        }
+    };
+
+    const handleInputChange = (e) => {
+        const raw = e.target.value;
+        // 1. Allow full backspace to empty string so user can type new numbers cleanly
+        if (raw === '') {
+            if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+            setLocalVal('');
+            return;
+        }
+
+        // 2. Reject non-digits (+, -, e, ., symbols)
+        if (!/^\d+$/.test(raw)) return;
+
+        // 3. Normalize leading zero (e.g. "05" -> "5")
+        const normalized = raw.length > 1 && raw.startsWith('0')
+            ? String(parseInt(raw, 10))
+            : raw;
+
+        setLocalVal(normalized);
+
+        const parsed = parseInt(normalized, 10);
+        if (isNaN(parsed)) return;
+
+        const safeMax = Math.max(min, max);
+        if (parsed > safeMax) {
+            toast.error(`Only ${safeMax} items available in stock`, { id: `stock-limit-${label}` });
+            setLocalVal(String(safeMax));
+            if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+            onCommit(safeMax);
+            return;
+        }
+
+        if (parsed >= min) {
+            if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+            debounceTimerRef.current = setTimeout(() => {
+                onCommit(parsed);
+            }, 350);
+        }
+    };
+
+    const handleBlur = () => {
+        if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+        const parsed = parseInt(localVal, 10);
+        if (localVal === '' || isNaN(parsed) || parsed < min) {
+            commit(min);
+        } else {
+            commit(parsed);
+        }
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.currentTarget.blur();
+        }
+    };
+
+    const handleDecrement = () => {
+        const current = parseInt(localVal, 10) || value || min;
+        if (current > min) {
+            commit(current - 1);
+        }
+    };
+
+    const handleIncrement = () => {
+        const current = parseInt(localVal, 10) || value || min;
+        const safeMax = Math.max(min, max);
+        if (current < safeMax) {
+            commit(current + 1);
+        } else {
+            toast.error(`Only ${safeMax} items available in stock`, { id: `stock-limit-${label}` });
+        }
+    };
+
+    const currentNum = parseInt(localVal, 10) || value || min;
+    const safeMax = Math.max(min, max);
+    const isAtMin = currentNum <= min;
+    const isAtMax = currentNum >= safeMax;
+
+    return (
+        <div className="flex items-center gap-1.5 bg-white/[0.03] sm:bg-white/5 rounded-xl p-1 border border-white/5">
+            <button
+                type="button"
+                onClick={handleDecrement}
+                disabled={disabled || isAtMin}
+                className={`w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center transition-colors active:scale-95 ${
+                    disabled || isAtMin
+                        ? 'text-gray-600 cursor-not-allowed'
+                        : 'text-gray-400 hover:text-white hover:bg-white/10'
+                }`}
+                aria-label={`Decrease ${label}`}
+            >
+                <Minus size={14} />
+            </button>
+            <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                disabled={disabled}
+                value={localVal}
+                onChange={handleInputChange}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+                className="w-12 sm:w-14 py-1 text-center text-white font-bold text-sm bg-transparent border-x border-white/10 focus:outline-none focus:bg-white/5"
+                aria-label={`Cart ${label}`}
+            />
+            <button
+                type="button"
+                onClick={handleIncrement}
+                disabled={disabled || isAtMax}
+                className={`w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center transition-colors active:scale-95 ${
+                    disabled || isAtMax
+                        ? 'text-gray-600 cursor-not-allowed'
+                        : 'text-gray-400 hover:text-white hover:bg-white/10'
+                }`}
+                aria-label={`Increase ${label}`}
+            >
+                <Plus size={14} />
+            </button>
+        </div>
+    );
+};
 
 const Cart = () => {
     const {
@@ -204,36 +366,13 @@ const Cart = () => {
                                     </div>
 
                                         <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
-                                        <div className="flex items-center gap-1.5 bg-white/[0.03] sm:bg-white/5 rounded-xl p-1 border border-white/5">
-                                            <button
-                                                onClick={() => updateQuantity(item.cart_item_id || item.id, item.quantity - 1)}
-                                                className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors active:scale-95"
-                                                aria-label="Decrease quantity"
-                                            >
-                                                <Minus size={14} />
-                                            </button>
-                                            <input
-                                                type="number"
-                                                min="1"
-                                                value={item.quantity}
-                                                onChange={(e) => {
-                                                    const val = parseInt(e.target.value, 10);
-                                                    if (!isNaN(val) && val >= 1) {
-                                                        updateQuantity(item.cart_item_id || item.id, Math.min(item.stock || 9999, val));
-                                                    }
-                                                }}
-                                                className="w-12 sm:w-14 py-1 text-center text-white font-bold text-sm bg-transparent border-x border-white/10 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                                aria-label="Cart item quantity"
-                                            />
-                                            <button
-                                                onClick={() => updateQuantity(item.cart_item_id || item.id, item.quantity + 1)}
-                                                disabled={item.quantity >= item.stock}
-                                                className={`w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center transition-colors active:scale-95 ${item.quantity >= item.stock ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}
-                                                aria-label="Increase quantity"
-                                            >
-                                                <Plus size={14} />
-                                            </button>
-                                        </div>
+                                        <CartQuantityStepper
+                                            value={item.quantity}
+                                            min={1}
+                                            max={typeof item.stock === 'number' && item.stock > 0 ? item.stock : 9999}
+                                            onCommit={(newQty) => updateQuantity(item.cart_item_id || item.id, newQty)}
+                                            label="item quantity"
+                                        />
 
                                         <button
                                             onClick={() => removeFromCart(item.cart_item_id || item.id)}
@@ -299,35 +438,20 @@ const Cart = () => {
 
                                         <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-2">
                                             <div className="flex items-center gap-4">
-                                                <div className="flex items-center gap-1.5 bg-white/[0.03] sm:bg-white/5 rounded-xl p-1 border border-white/5">
-                                                    <button
-                                                        onClick={() => updateBundleQuantity(group.id, group.quantity - 1)}
-                                                        className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors active:scale-95"
-                                                        aria-label="Decrease bundle quantity"
-                                                    >
-                                                        <Minus size={14} />
-                                                    </button>
-                                                    <input
-                                                        type="number"
-                                                        min="1"
-                                                        value={group.quantity}
-                                                        onChange={(e) => {
-                                                            const val = parseInt(e.target.value, 10);
-                                                            if (!isNaN(val) && val >= 1) {
-                                                                updateBundleQuantity(group.id, val);
-                                                            }
-                                                        }}
-                                                        className="w-12 sm:w-14 py-1 text-center text-white font-bold text-sm bg-transparent border-x border-white/10 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                                        aria-label="Bundle quantity"
-                                                    />
-                                                    <button
-                                                        onClick={() => updateBundleQuantity(group.id, group.quantity + 1)}
-                                                        className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center transition-colors active:scale-95 text-gray-400 hover:text-white hover:bg-white/10"
-                                                        aria-label="Increase bundle quantity"
-                                                    >
-                                                        <Plus size={14} />
-                                                    </button>
-                                                </div>
+                                                {(() => {
+                                                    const maxBundleStock = group.items.length > 0
+                                                        ? Math.min(...group.items.map(bi => (typeof bi.stock === 'number' && bi.stock >= 0 ? bi.stock : 9999)))
+                                                        : 9999;
+                                                    return (
+                                                        <CartQuantityStepper
+                                                            value={group.quantity}
+                                                            min={1}
+                                                            max={maxBundleStock}
+                                                            onCommit={(newQty) => updateBundleQuantity(group.id, newQty)}
+                                                            label="bundle quantity"
+                                                        />
+                                                    );
+                                                })()}
                                                 <span className="hidden sm:inline text-xs text-gray-500">Applies to all bundle items</span>
                                             </div>
 

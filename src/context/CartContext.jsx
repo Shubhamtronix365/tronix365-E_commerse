@@ -128,11 +128,21 @@ export const CartProvider = ({ children }) => {
     }, [cartItems, isAuthenticated]);
 
     const addToCart = async (product, quantity = 1) => {
+        const numQty = Math.max(1, parseInt(quantity, 10) || 1);
+        const existingItem = cartItems.find(item => item.id === product.id && !item.bundle_id);
+        const currentQty = existingItem ? existingItem.quantity : 0;
+        const maxAllowed = product.stock || 0;
+
+        if (maxAllowed > 0 && (currentQty + numQty) > maxAllowed) {
+            toast.error(`Only ${maxAllowed} items available in stock (${currentQty} already in your cart)`);
+            return false;
+        }
+
         if (isAuthenticated) {
             try {
                 const response = await client.post('/cart', {
                     product_id: product.id,
-                    quantity,
+                    quantity: numQty,
                     selected: true
                 });
                 const newItem = {
@@ -158,25 +168,16 @@ export const CartProvider = ({ children }) => {
         }
 
         // Guest logic
-        const existingItem = cartItems.find(item => item.id === product.id && !item.bundle_id);
-        const currentQty = existingItem ? existingItem.quantity : 0;
-        const maxAllowed = product.stock || 0;
-
-        if (currentQty + quantity > maxAllowed) {
-            toast.error(`Only ${maxAllowed} items available in stock`);
-            return false;
-        }
-
         setCartItems(prevItems => {
             const itemInCart = prevItems.find(item => item.id === product.id && !item.bundle_id);
             if (itemInCart) {
                 return prevItems.map(item =>
                     item.id === product.id && !item.bundle_id
-                        ? { ...item, quantity: item.quantity + quantity }
+                        ? { ...item, quantity: item.quantity + numQty }
                         : item
                 );
             } else {
-                return [...prevItems, { ...product, quantity, selected: true }];
+                return [...prevItems, { ...product, quantity: numQty, selected: true }];
             }
         });
         toast.success("Added to cart");
@@ -223,23 +224,21 @@ export const CartProvider = ({ children }) => {
     };
 
     const updateQuantity = async (identifier, newQuantity) => {
-        if (newQuantity <= 0) {
-            await removeFromCart(identifier);
-            return;
-        }
+        const numQty = parseInt(newQuantity, 10);
+        if (isNaN(numQty) || numQty < 1) return;
         
         const item = cartItems.find(i => i.cart_item_id === identifier || i.id === identifier);
         if (!item) return;
 
         const maxAllowed = item.stock || 0;
-        if (newQuantity > maxAllowed) {
+        if (maxAllowed > 0 && numQty > maxAllowed) {
             toast.error(`Only ${maxAllowed} items available in stock`);
             return;
         }
 
         if (isAuthenticated && item.cart_item_id) {
             try {
-                await client.put(`/cart/${item.cart_item_id}`, { quantity: newQuantity });
+                await client.put(`/cart/${item.cart_item_id}`, { quantity: numQty });
             } catch (error) {
                 toast.error("Failed to update quantity");
                 return;
@@ -248,7 +247,7 @@ export const CartProvider = ({ children }) => {
 
         setCartItems(prevItems =>
             prevItems.map(i =>
-                (i.cart_item_id === identifier || i.id === identifier) ? { ...i, quantity: newQuantity } : i
+                (i.cart_item_id === identifier || i.id === identifier) ? { ...i, quantity: numQty } : i
             )
         );
     };
@@ -291,22 +290,23 @@ export const CartProvider = ({ children }) => {
     };
 
     const updateBundleQuantity = async (bundleId, newQuantity) => {
-        if (!isAuthenticated || newQuantity < 1) return;
+        const numQty = parseInt(newQuantity, 10);
+        if (!isAuthenticated || isNaN(numQty) || numQty < 1) return;
         
         const bundleItems = cartItems.filter(i => i.bundle_id === bundleId);
         if (bundleItems.length === 0) return;
 
         // Check stock for all items
-        const outOfStockItem = bundleItems.find(i => newQuantity > (i.stock || 0));
+        const outOfStockItem = bundleItems.find(i => numQty > (i.stock || 0));
         if (outOfStockItem) {
-            toast.error(`Not enough stock for ${outOfStockItem.title}`);
+            toast.error(`Not enough stock for ${outOfStockItem.title} (Max: ${outOfStockItem.stock || 0})`);
             return;
         }
 
         try {
             await Promise.all(
                 bundleItems.map(item =>
-                    item.cart_item_id ? client.put(`/cart/${item.cart_item_id}`, { quantity: newQuantity }) : Promise.resolve()
+                    item.cart_item_id ? client.put(`/cart/${item.cart_item_id}`, { quantity: numQty }) : Promise.resolve()
                 )
             );
         } catch (error) {
@@ -316,7 +316,7 @@ export const CartProvider = ({ children }) => {
 
         setCartItems(prevItems =>
             prevItems.map(i =>
-                i.bundle_id === bundleId ? { ...i, quantity: newQuantity } : i
+                i.bundle_id === bundleId ? { ...i, quantity: numQty } : i
             )
         );
     };

@@ -338,8 +338,9 @@ const ProductModal = ({
                                                         type="number"
                                                         min="1"
                                                         placeholder="7"
-                                                        value={newProduct.factory_lead_days ?? 7}
-                                                        onChange={(e) => setNewProduct({ ...newProduct, factory_lead_days: parseInt(e.target.value) || 7 })}
+                                                        value={newProduct.factory_lead_days ?? ''}
+                                                        onChange={(e) => setNewProduct({ ...newProduct, factory_lead_days: e.target.value === '' ? '' : parseInt(e.target.value, 10) || '' })}
+                                                        onBlur={() => setNewProduct({ ...newProduct, factory_lead_days: Math.max(1, parseInt(newProduct.factory_lead_days, 10) || 7) })}
                                                         className="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-violet-500"
                                                     />
                                                 </div>
@@ -349,8 +350,9 @@ const ProductModal = ({
                                                         type="number"
                                                         min="1"
                                                         placeholder="3"
-                                                        value={newProduct.shipping_lead_days ?? 3}
-                                                        onChange={(e) => setNewProduct({ ...newProduct, shipping_lead_days: parseInt(e.target.value) || 3 })}
+                                                        value={newProduct.shipping_lead_days ?? ''}
+                                                        onChange={(e) => setNewProduct({ ...newProduct, shipping_lead_days: e.target.value === '' ? '' : parseInt(e.target.value, 10) || '' })}
+                                                        onBlur={() => setNewProduct({ ...newProduct, shipping_lead_days: Math.max(1, parseInt(newProduct.shipping_lead_days, 10) || 3) })}
                                                         className="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-violet-500"
                                                     />
                                                 </div>
@@ -362,8 +364,9 @@ const ProductModal = ({
                                                     type="number"
                                                     min="1"
                                                     placeholder="1"
-                                                    value={newProduct.moq ?? 1}
-                                                    onChange={(e) => setNewProduct({ ...newProduct, moq: parseInt(e.target.value) || 1 })}
+                                                    value={newProduct.moq ?? ''}
+                                                    onChange={(e) => setNewProduct({ ...newProduct, moq: e.target.value === '' ? '' : parseInt(e.target.value, 10) || '' })}
+                                                    onBlur={() => setNewProduct({ ...newProduct, moq: Math.max(1, parseInt(newProduct.moq, 10) || 1) })}
                                                     className="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-violet-500"
                                                 />
                                             </div>

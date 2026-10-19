@@ -312,10 +312,17 @@ const ProductDetails = () => {
     };
 
     const handleAddToCart = (e) => {
-        const success = addToCart(product, quantity);
+        if (product.stock === 0) {
+            toast.error('This product is currently out of stock');
+            return;
+        }
+        const safeQty = Math.max(1, parseInt(quantity, 10) || 1);
+        if (String(quantity) !== String(safeQty)) {
+            setQuantity(safeQty);
+        }
+        const success = addToCart(product, safeQty);
         if (success) {
             animateToCart(e.currentTarget.getBoundingClientRect());
-            toast.success(`Added ${quantity} ${product.title} to cart!`);
         }
     };
 
@@ -482,37 +489,88 @@ const ProductDetails = () => {
                                     <div className="flex items-center border border-white/10 rounded-lg bg-black/20">
                                         <button
                                             type="button"
-                                            onClick={() => setQuantity(Math.max(1, (parseInt(quantity, 10) || 1) - 1))}
-                                            className="px-3.5 py-2 text-white hover:bg-white/10 transition-colors"
+                                            onClick={() => {
+                                                const current = parseInt(quantity, 10) || 1;
+                                                if (current > 1) {
+                                                    setQuantity(current - 1);
+                                                }
+                                            }}
+                                            disabled={product.stock === 0 || (parseInt(quantity, 10) || 1) <= 1}
+                                            className={`px-3.5 py-2 transition-colors ${
+                                                product.stock === 0 || (parseInt(quantity, 10) || 1) <= 1
+                                                    ? 'text-gray-600 cursor-not-allowed'
+                                                    : 'text-white hover:bg-white/10'
+                                            }`}
                                             aria-label="Decrease quantity"
                                         >
                                             -
                                         </button>
                                         <input
-                                            type="number"
-                                            min="1"
+                                            type="text"
+                                            inputMode="numeric"
+                                            pattern="[0-9]*"
                                             value={quantity}
+                                            disabled={product.stock === 0}
                                             onChange={(e) => {
                                                 const val = e.target.value;
                                                 if (val === '') {
                                                     setQuantity('');
+                                                    return;
+                                                }
+                                                if (!/^\d+$/.test(val)) return;
+
+                                                const normalized = val.length > 1 && val.startsWith('0')
+                                                    ? String(parseInt(val, 10))
+                                                    : val;
+
+                                                const parsed = parseInt(normalized, 10);
+                                                if (isNaN(parsed)) return;
+
+                                                const maxStock = product.stock || 0;
+                                                if (maxStock > 0 && parsed > maxStock) {
+                                                    toast.error(`Only ${maxStock} items available in stock. For bulk orders, use Tower Order below!`, { id: 'pd-stock-limit' });
+                                                    setQuantity(maxStock);
                                                 } else {
-                                                    const parsed = parseInt(val, 10);
-                                                    if (!isNaN(parsed)) setQuantity(Math.max(1, parsed));
+                                                    setQuantity(normalized);
                                                 }
                                             }}
                                             onBlur={() => {
-                                                if (!quantity || parseInt(quantity, 10) < 1) {
+                                                const maxStock = product.stock || 0;
+                                                const parsed = parseInt(quantity, 10);
+                                                if (!quantity || isNaN(parsed) || parsed < 1) {
                                                     setQuantity(1);
+                                                } else if (maxStock > 0 && parsed > maxStock) {
+                                                    toast.error(`Only ${maxStock} items available in stock.`, { id: 'pd-stock-limit' });
+                                                    setQuantity(maxStock);
+                                                } else {
+                                                    setQuantity(parsed);
                                                 }
                                             }}
-                                            className="w-16 sm:w-20 py-2 text-center text-white font-bold bg-transparent border-x border-white/10 focus:outline-none focus:bg-white/5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-base"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    e.currentTarget.blur();
+                                                }
+                                            }}
+                                            className="w-16 sm:w-20 py-2 text-center text-white font-bold bg-transparent border-x border-white/10 focus:outline-none focus:bg-white/5 text-base"
                                             aria-label="Quantity"
                                         />
                                         <button
                                             type="button"
-                                            onClick={() => setQuantity((parseInt(quantity, 10) || 0) + 1)}
-                                            className="px-3.5 py-2 text-white hover:bg-white/10 transition-colors"
+                                            onClick={() => {
+                                                const current = parseInt(quantity, 10) || 0;
+                                                const maxStock = product.stock || 0;
+                                                if (maxStock > 0 && current >= maxStock) {
+                                                    toast.error(`Only ${maxStock} items available in stock`, { id: 'pd-stock-limit' });
+                                                } else {
+                                                    setQuantity(current + 1);
+                                                }
+                                            }}
+                                            disabled={product.stock === 0 || (product.stock > 0 && (parseInt(quantity, 10) || 1) >= product.stock)}
+                                            className={`px-3.5 py-2 transition-colors ${
+                                                product.stock === 0 || (product.stock > 0 && (parseInt(quantity, 10) || 1) >= product.stock)
+                                                    ? 'text-gray-600 cursor-not-allowed'
+                                                    : 'text-white hover:bg-white/10'
+                                            }`}
                                             aria-label="Increase quantity"
                                         >
                                             +
@@ -550,7 +608,14 @@ const ProductDetails = () => {
 
                                 <button
                                     onClick={() => {
+                                        if (product.stock === 0) {
+                                            toast.error('This product is currently out of stock');
+                                            return;
+                                        }
                                         const currentQty = Math.max(1, parseInt(quantity, 10) || 1);
+                                        if (String(quantity) !== String(currentQty)) {
+                                            setQuantity(currentQty);
+                                        }
                                         const success = addToCart(product, currentQty);
                                         if (success) {
                                             navigate('/cart');
@@ -946,7 +1011,14 @@ const ProductDetails = () => {
 
                                 <button
                                     onClick={() => {
+                                        if (product.stock === 0) {
+                                            toast.error('This product is currently out of stock');
+                                            return;
+                                        }
                                         const currentQty = Math.max(1, parseInt(quantity, 10) || 1);
+                                        if (String(quantity) !== String(currentQty)) {
+                                            setQuantity(currentQty);
+                                        }
                                         const success = addToCart(product, currentQty);
                                         if (success) {
                                             navigate('/cart');

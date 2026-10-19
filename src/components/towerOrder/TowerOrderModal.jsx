@@ -152,10 +152,11 @@ const TowerOrderModal = ({
     if (!isOpen) return null;
 
     // Calculate split numbers
-    const canSplit = !isSourcingOnly && availableStock > 0 && qty > availableStock;
+    const numericQty = parseInt(qty, 10) || 0;
+    const canSplit = !isSourcingOnly && availableStock > 0 && numericQty > availableStock;
     const immediateQty = (canSplit && splitMode === 'split') ? availableStock : 0;
-    const backorderQty = (canSplit && splitMode === 'split') ? (qty - availableStock) : qty;
-    const targetTotal = Math.round(qty * Number(targetPrice || 0));
+    const backorderQty = (canSplit && splitMode === 'split') ? (numericQty - availableStock) : numericQty;
+    const targetTotal = Math.round(numericQty * Number(targetPrice || 0));
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -164,7 +165,8 @@ const TowerOrderModal = ({
             return;
         }
 
-        if (!qty || qty <= 0) {
+        const finalQty = Math.max(1, parseInt(qty, 10) || 0);
+        if (!finalQty || finalQty <= 0) {
             toast.error('Please enter a valid requested quantity');
             return;
         }
@@ -190,7 +192,7 @@ const TowerOrderModal = ({
                 delivery_city: deliveryCity || null,
                 delivery_state: deliveryState || null,
                 delivery_pincode: deliveryPincode || null,
-                requested_qty: Number(qty),
+                requested_qty: finalQty,
                 immediate_qty: immediateQty,
                 backorder_qty: backorderQty,
                 target_price: Number(targetPrice),
@@ -199,7 +201,7 @@ const TowerOrderModal = ({
                 required_by_date: requiredByDate || null,
                 splitMode,
                 customProductName,
-                qty,
+                qty: finalQty,
                 targetPrice
             };
             try {
@@ -247,7 +249,7 @@ const TowerOrderModal = ({
                 delivery_city: deliveryCity || null,
                 delivery_state: deliveryState || null,
                 delivery_pincode: deliveryPincode || null,
-                requested_qty: Number(qty),
+                requested_qty: finalQty,
                 immediate_qty: immediateQty,
                 backorder_qty: backorderQty,
                 target_price: Number(targetPrice),
@@ -525,13 +527,34 @@ const TowerOrderModal = ({
                                         )}
                                     </label>
                                     <input
-                                        type="number"
-                                        min="1"
-                                        required
+                                        type="text"
                                         inputMode="numeric"
                                         pattern="[0-9]*"
+                                        required
                                         value={qty}
-                                        onChange={(e) => setQty(Math.max(1, parseInt(e.target.value) || 1))}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            if (val === '') {
+                                                setQty('');
+                                                return;
+                                            }
+                                            if (!/^\d+$/.test(val)) return;
+                                            const normalized = val.length > 1 && val.startsWith('0')
+                                                ? String(parseInt(val, 10))
+                                                : val;
+                                            setQty(normalized);
+                                        }}
+                                        onBlur={() => {
+                                            const parsed = parseInt(qty, 10);
+                                            if (!qty || isNaN(parsed) || parsed < 1) {
+                                                setQty(1);
+                                            } else {
+                                                setQty(parsed);
+                                            }
+                                        }}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') e.currentTarget.blur();
+                                        }}
                                         className="w-full px-3.5 py-2.5 bg-black/40 border border-white/10 rounded-lg text-white focus:outline-none focus:border-amber-400 text-base sm:text-sm font-semibold"
                                         placeholder="e.g. 100"
                                     />
