@@ -9,8 +9,8 @@ def add_custom_product():
     try:
         new_product = ProductDB(
             id=100,
-            title="Bhavesh Edition Kit",
-            description="Limited edition developer kit specially curated for Bhavesh. Includes premium components and exclusive access.",
+            title="Founder Edition Kit",
+            description="Limited edition developer kit specially curated for innovation leaders. Includes premium components and exclusive access.",
             price=9999.0,
             category="Special Edition",
             image="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1000",

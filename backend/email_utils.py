@@ -162,7 +162,7 @@ def get_logo_url() -> str:
         from services.media_service import get_email_logo_url
         return get_email_logo_url()
     except Exception:
-        return os.getenv("EMAIL_LOGO_URL", "https://cdn.jsdelivr.net/gh/bhaveshburad729/tronix365-E_commerse@main/public/logo.png")
+        return os.getenv("EMAIL_LOGO_URL", "https://www.tronix365.in/logo.png")
 
 
 LOGO_PUBLIC_URL = get_logo_url()

@@ -9,8 +9,8 @@ def create_admin():
     db = SessionLocal()
     try:
         # Check for existing admin
-        email = os.getenv("ADMIN_EMAIL", "bhavesh729@gmail.com")
-        password = os.getenv("ADMIN_PASSWORD", "bhavesh729")
+        email = os.getenv("ADMIN_EMAIL", "admin@tronix365.in")
+        password = os.getenv("ADMIN_PASSWORD", "Admin@Tronix365Secure")
         hashed_password = get_password_hash(password)
 
         admin = db.query(UserDB).filter(UserDB.email == email).first()

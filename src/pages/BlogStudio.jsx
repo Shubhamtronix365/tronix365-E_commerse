@@ -1644,7 +1644,7 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                                     </label>
                                                     <input
                                                         type="text"
-                                                        placeholder="e.g. Vedhathiri"
+                                                        placeholder="e.g. Technical Editor"
                                                         value={form.author_name}
                                                         onChange={(e) => setForm({ ...form, author_name: e.target.value })}
                                                         className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-tronix-accent"
@@ -2177,7 +2177,7 @@ Serial.println("Sensor Initialized Successfully");</code></pre>`,
                                                 type="email"
                                                 value={settingsForm.new_email}
                                                 onChange={(e) => setSettingsForm({ ...settingsForm, new_email: e.target.value })}
-                                                placeholder="new_author@tronix365.in"
+                                                placeholder="author@example.com"
                                                 className="w-full bg-neutral-950/80 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-tronix-accent"
                                             />
                                             <span className="text-[10px] text-gray-500">

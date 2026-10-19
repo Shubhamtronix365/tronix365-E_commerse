@@ -224,7 +224,7 @@ const SavedAddressesSection = ({
                                         autoComplete="name"
                                         value={addressForm.full_name}
                                         onChange={(e) => setAddressForm({ ...addressForm, full_name: e.target.value })}
-                                        placeholder="e.g. Rahul Sharma"
+                                        placeholder="Full Name"
                                         className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 sm:px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-tronix-primary text-base sm:text-sm"
                                     />
                                 </div>
@@ -272,7 +272,7 @@ const SavedAddressesSection = ({
                                         required
                                         value={addressForm.city}
                                         onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
-                                        placeholder="Pune"
+                                        placeholder="City"
                                         className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 sm:px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-tronix-primary text-base sm:text-sm"
                                     />
                                 </div>
@@ -283,7 +283,7 @@ const SavedAddressesSection = ({
                                         required
                                         value={addressForm.state}
                                         onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
-                                        placeholder="Maharashtra"
+                                        placeholder="State"
                                         className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 sm:px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-tronix-primary text-base sm:text-sm"
                                     />
                                 </div>
@@ -297,7 +297,7 @@ const SavedAddressesSection = ({
                                     rows={2}
                                     value={addressForm.address_line}
                                     onChange={(e) => setAddressForm({ ...addressForm, address_line: e.target.value })}
-                                    placeholder="e.g. Flat 402, Surya Heights, Near Tech Park, Wakad"
+                                    placeholder="Flat, House no., Building, Company, Apartment"
                                     className="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 sm:px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-tronix-primary text-base sm:text-sm resize-none"
                                 />
                             </div>
@@ -336,7 +336,7 @@ const SavedAddressesSection = ({
                                                 type="text"
                                                 value={addressForm.company_name}
                                                 onChange={(e) => setAddressForm({ ...addressForm, company_name: e.target.value })}
-                                                placeholder="e.g. Tronix Automation Pvt Ltd"
+                                                placeholder="e.g. Acme Enterprises Pvt Ltd"
                                                 className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-tronix-primary"
                                             />
                                         </div>

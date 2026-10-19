@@ -207,7 +207,7 @@ export const ContactSection = () => {
                                                 onChange={handleChange}
                                                 required
                                                 className="w-full bg-black/40 border border-white/10 rounded-xl pl-11 pr-4 py-3.5 text-white placeholder-gray-600 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 focus:bg-violet-500/5 outline-none transition-all shadow-inner"
-                                                placeholder="Tronix"
+                                                placeholder="Full Name"
                                             />
                                         </div>
                                     </div>

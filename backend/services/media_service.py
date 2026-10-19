@@ -7,7 +7,7 @@ from models import UploadedMediaDB
 logger = logging.getLogger(__name__)
 
 # High-availability CDN fallback that responds in < 20ms and never times out in Gmail/Outlook
-DEFAULT_CDN_LOGO_URL = "https://cdn.jsdelivr.net/gh/bhaveshburad729/tronix365-E_commerse@main/public/logo.png"
+DEFAULT_CDN_LOGO_URL = "https://www.tronix365.in/logo.png"
 _CACHED_LOGO_URL: Optional[str] = None
 
 

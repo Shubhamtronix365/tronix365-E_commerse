@@ -568,7 +568,7 @@ const Checkout = () => {
                                         type="text" name="fullName" value={address.fullName} onChange={handleInputChange}
                                         autoComplete="name"
                                         className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 sm:px-4 py-2.5 sm:py-3 text-base sm:text-sm text-white focus:border-tronix-primary outline-none transition-colors"
-                                        placeholder="tronix"
+                                        placeholder="Full Name"
                                     />
                                 </div>
                                 <div className="md:col-span-2">

@@ -50,6 +50,15 @@ const Blogs = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [loggingIn, setLoggingIn] = useState(false);
 
+    // Prevent browser credential caching/autofilling in modal
+    useEffect(() => {
+        if (isAuthorModalOpen) {
+            setAuthorId('');
+            setAuthorPassword('');
+            setShowPassword(false);
+        }
+    }, [isAuthorModalOpen]);
+
     const currentUser = (() => {
         try {
             return JSON.parse(localStorage.getItem('tronix_user') || '{}');
@@ -592,7 +601,11 @@ const Blogs = () => {
                                 Enter your system-generated author credentials to access the standalone publication dashboard, create hardware guides, pinout diagrams, and manage BOMs.
                             </p>
 
-                            <form onSubmit={handleAuthorLogin} className="mt-5 space-y-4">
+                            <form onSubmit={handleAuthorLogin} autoComplete="off" className="mt-5 space-y-4">
+                                {/* Decoy fields to trap browser autofill */}
+                                <input type="text" name="decoy_user_field" style={{ position: 'absolute', opacity: 0, height: 0, width: 0, pointerEvents: 'none' }} tabIndex={-1} autoComplete="off" readOnly />
+                                <input type="password" name="decoy_pass_field" style={{ position: 'absolute', opacity: 0, height: 0, width: 0, pointerEvents: 'none' }} tabIndex={-1} autoComplete="off" readOnly />
+
                                 <div>
                                     <label className="block text-xs font-medium text-gray-300 mb-1.5">
                                         Author ID / System Email
@@ -601,9 +614,12 @@ const Blogs = () => {
                                         <KeyRound size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" />
                                         <input
                                             type="text"
+                                            name="author_studio_identity_code"
+                                            id="author_studio_identity_code"
+                                            autoComplete="new-password"
                                             value={authorId}
                                             onChange={(e) => setAuthorId(e.target.value)}
-                                            placeholder="author_team@tronix365.in"
+                                            placeholder="author@example.com"
                                             required
                                             className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/40 border border-white/10 focus:border-tronix-accent focus:ring-1 focus:ring-tronix-accent text-sm text-white placeholder-gray-500 transition-all outline-none"
                                         />
@@ -618,9 +634,12 @@ const Blogs = () => {
                                         <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" />
                                         <input
                                             type={showPassword ? 'text' : 'password'}
+                                            name="author_studio_secret_token"
+                                            id="author_studio_secret_token"
+                                            autoComplete="new-password"
                                             value={authorPassword}
                                             onChange={(e) => setAuthorPassword(e.target.value)}
-                                            placeholder="••••••••••••••••"
+                                            placeholder="Enter access key"
                                             required
                                             className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-black/40 border border-white/10 focus:border-tronix-accent focus:ring-1 focus:ring-tronix-accent text-sm text-white placeholder-gray-500 transition-all outline-none font-mono"
                                         />

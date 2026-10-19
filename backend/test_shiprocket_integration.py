@@ -49,8 +49,8 @@ def test_customer_address_validation():
     print("[TEST 2] Testing customer address & phone validation...")
     order = OrderDB(
         id=9999,
-        full_name="Bhavesh Burad",
-        customer_email="bhavesh@example.com",
+        full_name="Aarav Sharma",
+        customer_email="aarav@example.com",
         phone="9876543210",
         address_line="123 Tech Park, Phase 1",
         city="Pune",
@@ -62,8 +62,8 @@ def test_customer_address_validation():
     validated = shiprocket_shipment.validate_customer_details(order)
     assert validated["phone"] == "9876543210"
     assert validated["pincode"] == "411001"
-    assert validated["first_name"] == "Bhavesh"
-    assert validated["last_name"] == "Burad"
+    assert validated["first_name"] == "Aarav"
+    assert validated["last_name"] == "Sharma"
     print("  [OK] Valid address successfully normalized.")
 
     # Test invalid phone rejection

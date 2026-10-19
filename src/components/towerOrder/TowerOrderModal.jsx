@@ -587,7 +587,7 @@ const TowerOrderModal = ({
                                             required
                                             value={customerName}
                                             onChange={(e) => setCustomerName(e.target.value)}
-                                            placeholder="e.g. Rahul Sharma"
+                                            placeholder="Full Name"
                                             className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-violet-500"
                                         />
                                     </div>
@@ -598,7 +598,7 @@ const TowerOrderModal = ({
                                             required
                                             value={customerEmail}
                                             onChange={(e) => setCustomerEmail(e.target.value)}
-                                            placeholder="e.g. rahul@company.com"
+                                            placeholder="name@company.com"
                                             className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-violet-500"
                                         />
                                     </div>

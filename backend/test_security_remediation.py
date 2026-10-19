@@ -303,7 +303,7 @@ def test_admin_search_products_and_orders(client):
         customer_email="customer_spec@example.com",
         total_amount=150.0,
         status="confirmed",
-        full_name="Bhavesh Spec",
+        full_name="Sample Customer",
         phone="9999988888",
         city="Mumbai",
         state="Maharashtra",
@@ -336,7 +336,7 @@ def test_admin_search_products_and_orders(client):
     assert any(o["id"] == 8888 for o in orders)
     
     # Test Order Search by Full Name
-    res = client.get("/orders?search=Bhavesh", headers=admin_headers)
+    res = client.get("/orders?search=Sample", headers=admin_headers)
     assert res.status_code == 200
     assert any(o["id"] == 8888 for o in res.json())
     

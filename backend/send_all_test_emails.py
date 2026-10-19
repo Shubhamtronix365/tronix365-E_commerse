@@ -15,9 +15,9 @@ from email_utils import (
     send_abandoned_cart_email,
 )
 
-TARGET_EMAIL = "bhaveshburad729@gmail.com"
+TARGET_EMAIL = os.getenv("TEST_TARGET_EMAIL", "customer@example.com")
 
-LOGO_CDN = "https://cdn.jsdelivr.net/gh/bhaveshburad729/tronix365-E_commerse@main/src/assets/logo.png"
+LOGO_CDN = "https://www.tronix365.in/logo.png"
 
 class DummyProduct:
     def __init__(self, id, title, image):
@@ -34,10 +34,10 @@ class DummyItem:
 class DummyOrder:
     def __init__(self):
         self.id = 365
-        self.customer_name = "Bhavesh Burad"
+        self.customer_name = "Aditya Sharma"
         self.customer_email = TARGET_EMAIL
-        self.phone = "+91 88301 53805"
-        self.address_line = "Sinhgad College Campus, Vadgaon Budruk"
+        self.phone = "+91 98765 43210"
+        self.address_line = "Tech Park, MG Road"
         self.city = "Pune"
         self.state = "Maharashtra"
         self.pincode = "411041"
@@ -70,7 +70,7 @@ def run_test_email_dispatch():
     # 2. Contact Form Notification
     print("\n[2/12] Sending Contact Form Inquiry Notification Email...")
     res_contact = send_contact_form_notification(
-        name="Bhavesh Burad",
+        name="Aditya Sharma",
         email=TARGET_EMAIL,
         message="Hello Tronix365, I am inquiring about bulk orders of ESP32 boards for a robotics workshop."
     )
@@ -83,7 +83,7 @@ def run_test_email_dispatch():
         {"id": 2, "title": "Raspberry Pi 4 Model B (4GB)", "price": 4500.0, "quantity": 1, "image": "/uploads/Raspberry Pi 4 Model B (4GB).jpg"},
         {"id": 8, "title": "OLED-Display", "price": 250.0, "quantity": 2, "image": "/uploads/OLED-Display.jpg"}
     ]
-    res_cart = send_abandoned_cart_email(TARGET_EMAIL, "Bhavesh Burad", cart_items, frontend_url)
+    res_cart = send_abandoned_cart_email(TARGET_EMAIL, "Aditya Sharma", cart_items, frontend_url)
     results["Abandoned Cart Reminder"] = res_cart
     time.sleep(1)
 
