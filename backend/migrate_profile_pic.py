@@ -4,13 +4,16 @@ import sqlite3
 import psycopg2
 from urllib.parse import urlparse
 
-# Get DB URL
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://neondb_owner:npg_4NqP1yOdlbkw@ep-jolly-hat-a52iknke-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require",
-)
+from dotenv import load_dotenv
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 
-print(f"Applying migration to: {DATABASE_URL}")
+# Get DB URL
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    print("Error: DATABASE_URL environment variable is required to run migrations.")
+    sys.exit(1)
+
+print(f"Applying migration to configured database...")
 
 try:
     if DATABASE_URL.startswith("sqlite"):

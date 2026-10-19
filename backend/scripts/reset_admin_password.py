@@ -1,8 +1,8 @@
 """
 Script to verify and reset admin password for Tronix365 platform.
 Usage:
-    python scripts/reset_admin_password.py
-    python scripts/reset_admin_password.py --email admin@tronix365.in --password "Bhavesh@411041"
+    python scripts/reset_admin_password.py --password "YourAdminPassword"
+    python scripts/reset_admin_password.py --email admin@tronix365.in --password "YourAdminPassword"
 """
 
 import os
@@ -20,7 +20,12 @@ from models import UserDB
 from auth import get_password_hash, verify_password
 
 
-def ensure_admin_password(target_email="admin@tronix365.in", target_password="Bhavesh@411041"):
+def ensure_admin_password(target_email="admin@tronix365.in", target_password=None):
+    if not target_password:
+        target_password = os.getenv("ADMIN_PASSWORD")
+    if not target_password:
+        print("[ERROR] Please specify a password via --password or set ADMIN_PASSWORD in environment.")
+        sys.exit(1)
     email = target_email.lower().strip()
     db = SessionLocal()
     try:
@@ -68,7 +73,7 @@ def ensure_admin_password(target_email="admin@tronix365.in", target_password="Bh
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Verify and reset Tronix365 admin password")
     parser.add_argument("--email", default="admin@tronix365.in", help="Admin email address")
-    parser.add_argument("--password", default="Bhavesh@411041", help="Target admin password")
+    parser.add_argument("--password", default=os.getenv("ADMIN_PASSWORD"), help="Target admin password (or ADMIN_PASSWORD env var)")
     args = parser.parse_args()
 
     ensure_admin_password(args.email, args.password)

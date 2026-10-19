@@ -293,13 +293,16 @@ async def mock_payment_process(
         "127.0.0.1:5173",
         "www.tronix365.in",
         "tronix365.in",
-        "tronix365-e-commerse.onrender.com",
-        "tronix365-e-commerse-xhlw.onrender.com",
     }
     
-    if parsed_surl.netloc and parsed_surl.netloc not in allowed_hosts:
+    def is_allowed_host(host: str) -> bool:
+        if not host:
+            return True
+        return host in allowed_hosts or host.endswith(".onrender.com")
+    
+    if parsed_surl.netloc and not is_allowed_host(parsed_surl.netloc):
         raise HTTPException(status_code=400, detail="Invalid success redirect URL (Open Redirect prohibited)")
-    if parsed_furl.netloc and parsed_furl.netloc not in allowed_hosts:
+    if parsed_furl.netloc and not is_allowed_host(parsed_furl.netloc):
         raise HTTPException(status_code=400, detail="Invalid failure redirect URL (Open Redirect prohibited)")
 
     fn_lower = (firstname or "").lower().strip()

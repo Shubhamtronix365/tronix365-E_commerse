@@ -1,11 +1,36 @@
 const fs = require('fs');
+const path = require('path');
 const { Pool } = require('pg');
 
-// Your NeonDB connection string
-const DATABASE_URL = "postgresql://neondb_owner:npg_UJQ35NbKrBsp@ep-weathered-fog-azkkq7jz-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+// Native zero-dependency environment loader
+function loadEnv(filePath) {
+  if (fs.existsSync(filePath)) {
+    const lines = fs.readFileSync(filePath, 'utf8').split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const eqIdx = trimmed.indexOf('=');
+      if (eqIdx !== -1) {
+        const key = trimmed.slice(0, eqIdx).trim();
+        const val = trimmed.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, '');
+        if (!process.env[key]) process.env[key] = val;
+      }
+    }
+  }
+}
+
+loadEnv(path.resolve(__dirname, '../backend/.env'));
+loadEnv(path.resolve(__dirname, '../.env'));
+
+const DATABASE_URL = process.env.DATABASE_URL;
 
 async function safeUpdateNeonDB() {
     console.log('🔧 Starting safe NeonDB product updates...');
+
+    if (!DATABASE_URL) {
+        console.error('❌ Error: DATABASE_URL is not set in environment or .env file.');
+        process.exit(1);
+    }
     
     // Load enhanced product data
     const enhancedData = JSON.parse(fs.readFileSync('enhanced_products_data.json', 'utf8'));

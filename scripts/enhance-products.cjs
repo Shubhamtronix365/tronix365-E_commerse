@@ -1,8 +1,29 @@
 const fs = require('fs');
+const path = require('path');
 const axios = require('axios');
 
+// Native zero-dependency environment loader
+function loadEnv(filePath) {
+  if (fs.existsSync(filePath)) {
+    const lines = fs.readFileSync(filePath, 'utf8').split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const eqIdx = trimmed.indexOf('=');
+      if (eqIdx !== -1) {
+        const key = trimmed.slice(0, eqIdx).trim();
+        const val = trimmed.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, '');
+        if (!process.env[key]) process.env[key] = val;
+      }
+    }
+  }
+}
+
+loadEnv(path.resolve(__dirname, '../.env.production'));
+loadEnv(path.resolve(__dirname, '../.env'));
+
 // API Configuration
-const API_URL = 'https://tronix365-e-commerse-xhlw.onrender.com';
+const API_URL = process.env.VITE_API_URL || process.env.API_URL || 'http://localhost:8000';
 
 // Category-specific keyword templates
 const categoryKeywords = {

@@ -165,8 +165,8 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
 
 For a full step-by-step tutorial on hosting this project in production:
 
-- **Database**: Serverless PostgreSQL via **NeonDB**
-- **Backend API**: Python FastAPI via **Render** (`https://tronix365-e-commerse-xhlw.onrender.com`)
+- **Database**: Serverless PostgreSQL via **NeonDB** (Configured via private `DATABASE_URL`)
+- **Backend API**: Python FastAPI via **Render** (Configured via private `VITE_API_URL`)
 - **Frontend Client**: React Single Page Application via **Hostinger** (`https://www.tronix365.in`)
 - **Health Check & SEO Protection**: Instant `GET /health` endpoint returning `200 OK`. Set up a 10-minute ping schedule (e.g. via UptimeRobot) to prevent Render free-tier spin-down from affecting search engine crawlers (Googlebot) and user response times.
 
@@ -249,10 +249,10 @@ First, make sure you have the following installed on your machine:
    BREVO_API_KEY=your_brevo_api_key_here
    CONTACT_EMAIL=your_email@gmail.com
 
-   # PayU payment credentials (for test environments)
+   # PayU payment credentials (for test/production environments)
    PAYU_ENV=TEST
-   PAYU_KEY=xFdsL0
-   PAYU_SALT=VOo7u1I9JuewBQQwyA1X9PvonouDaDex
+   PAYU_KEY=your_payu_key_here
+   PAYU_SALT=your_payu_salt_here
 
    # Shiprocket Logistics Integration
    SHIPROCKET_API_EMAIL=your_shiprocket_email@example.com
@@ -529,7 +529,7 @@ FastAPI generates interactive documentation at [http://127.0.0.1:8000/docs](http
   - **Admin Password Verification & Reset Script**:
     ```bash
     cd backend
-    python scripts/reset_admin_password.py --email "admin@tronix365.in" --password "Bhavesh@411041"
+    python scripts/reset_admin_password.py --email "admin@tronix365.in" --password "YourAdminPassword"
     ```
     *Verifies and securely resets the primary system admin account password in the PostgreSQL database if it ever changes or drifts.*
 

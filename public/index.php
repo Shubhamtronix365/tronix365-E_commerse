@@ -3,7 +3,37 @@
 // Intercepts search engines and injects SEO meta tags & structured data.
 
 $baseUrl = "https://www.tronix365.in/e-commerse";
-$apiUrl = "https://tronix365-e-commerse-xhlw.onrender.com";
+
+// Helper to load API_URL from environment or local .env files
+function getApiUrl() {
+    $url = getenv('VITE_API_URL') ?: getenv('API_URL');
+    if ($url) return $url;
+    
+    $paths = [
+        __DIR__ . '/.env',
+        __DIR__ . '/.env.production',
+        __DIR__ . '/../.env',
+        __DIR__ . '/../.env.production',
+        __DIR__ . '/../backend/.env',
+        __DIR__ . '/backend/.env',
+    ];
+    
+    foreach ($paths as $path) {
+        if (file_exists($path)) {
+            $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ($lines as $line) {
+                if (strpos(trim($line), '#') === 0) continue;
+                $parts = explode('=', $line, 2);
+                if (count($parts) === 2 && in_array(trim($parts[0]), ['VITE_API_URL', 'API_URL'])) {
+                    return trim($parts[1], " \t\n\r\0\x0B\"'");
+                }
+            }
+        }
+    }
+    return "http://localhost:8000";
+}
+
+$apiUrl = getApiUrl();
 
 // Helper to load DATABASE_URL from environment or local .env files
 function getDatabaseUrl() {

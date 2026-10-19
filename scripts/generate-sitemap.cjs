@@ -1,9 +1,29 @@
 const fs = require('fs');
 const path = require('path');
 
+// Native zero-dependency environment loader
+function loadEnv(filePath) {
+  if (fs.existsSync(filePath)) {
+    const lines = fs.readFileSync(filePath, 'utf8').split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const eqIdx = trimmed.indexOf('=');
+      if (eqIdx !== -1) {
+        const key = trimmed.slice(0, eqIdx).trim();
+        const val = trimmed.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, '');
+        if (!process.env[key]) process.env[key] = val;
+      }
+    }
+  }
+}
+
+loadEnv(path.resolve(__dirname, '../.env.production'));
+loadEnv(path.resolve(__dirname, '../.env'));
+
 // Configuration
 const BASE_URL = 'https://www.tronix365.in/e-commerse';
-const API_URL = process.env.VITE_API_URL || 'https://tronix365-e-commerse-xhlw.onrender.com';
+const API_URL = process.env.VITE_API_URL || process.env.API_URL || 'http://localhost:8000';
 
 // Ensure BASE_URL has trailing slash for consistency
 const BASE_URL_WITH_SLASH = BASE_URL.endsWith('/') ? BASE_URL : `${BASE_URL}/`;

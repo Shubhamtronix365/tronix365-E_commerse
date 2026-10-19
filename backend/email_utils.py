@@ -153,7 +153,7 @@ def send_email_via_brevo(
 
 
 # Public URL base for hosted email assets (logo, icons)
-EMAIL_ASSETS_BASE_URL = os.getenv("BACKEND_URL", "https://tronix365-e-commerse-xhlw.onrender.com") + "/email-assets"
+EMAIL_ASSETS_BASE_URL = os.getenv("BACKEND_URL", "http://localhost:8000") + "/email-assets"
 
 
 def get_logo_url() -> str:
@@ -197,7 +197,7 @@ def resolve_email_image_url(raw_img_url: Optional[str], frontend_url: str) -> st
     Encodes spaces and special characters so Gmail proxy never fails to render.
     """
     import urllib.parse
-    backend_base = os.getenv("BACKEND_URL", "https://tronix365-e-commerse-xhlw.onrender.com").rstrip("/")
+    backend_base = os.getenv("BACKEND_URL", "http://localhost:8000").rstrip("/")
     logo_cdn = LOGO_PUBLIC_URL
 
     if not raw_img_url or not isinstance(raw_img_url, str):
@@ -1681,7 +1681,7 @@ def send_abandoned_cart_email(
         if not img_url:
             img_url = get_logo_url()
         elif not img_url.startswith("http"):
-            backend_base = os.getenv("BACKEND_URL", "https://tronix365-e-commerse-xhlw.onrender.com")
+            backend_base = os.getenv("BACKEND_URL", "http://localhost:8000")
             img_url = f"{backend_base}/{img_url.lstrip('/')}"
 
         rows_html.append(f"""
