@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Check, X as XIcon, ArrowLeft, ArrowRight, Star, ShieldCheck, Truck, Heart, Share2, FileText, Globe, Download, ExternalLink, Shield, HelpCircle, PackageCheck, Tag, Factory, Clock, Split } from 'lucide-react';
+import { ShoppingCart, Check, X as XIcon, ArrowLeft, ArrowRight, Star, ShieldCheck, Truck, Heart, Share2, FileText, Globe, Download, ExternalLink, Shield, HelpCircle, PackageCheck, Tag, Factory, Clock, Split, Zap } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useCartAnimation } from '../context/CartAnimationContext';
@@ -485,147 +485,180 @@ const ProductDetails = () => {
                                     </div>
                                 )}
 
-                                <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                                    <div className="flex items-center border border-white/10 rounded-lg bg-black/20">
+                                <div className="space-y-3">
+                                    {/* Controls & Utilities Row */}
+                                    <div className="flex items-center justify-between gap-3">
+                                        {/* Quantity Stepper */}
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 select-none">Qty:</span>
+                                            <div className="flex items-center bg-white/[0.04] sm:bg-white/5 border border-white/10 rounded-xl p-0.5 sm:p-1">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const current = parseInt(quantity, 10) || 1;
+                                                        if (current > 1) {
+                                                            setQuantity(current - 1);
+                                                        }
+                                                    }}
+                                                    disabled={product.stock === 0 || (parseInt(quantity, 10) || 1) <= 1}
+                                                    className={`w-9 h-9 sm:w-10 sm:h-10 min-w-[36px] sm:min-w-[40px] rounded-lg bg-white/5 flex items-center justify-center font-bold text-base transition-all active:scale-90 ${
+                                                        product.stock === 0 || (parseInt(quantity, 10) || 1) <= 1
+                                                            ? 'text-gray-600 cursor-not-allowed opacity-50'
+                                                            : 'text-gray-300 hover:text-white hover:bg-white/10 active:bg-white/20'
+                                                    }`}
+                                                    aria-label="Decrease quantity"
+                                                >
+                                                    -
+                                                </button>
+                                                <input
+                                                    type="text"
+                                                    inputMode="numeric"
+                                                    pattern="[0-9]*"
+                                                    value={quantity}
+                                                    disabled={product.stock === 0}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        if (val === '') {
+                                                            setQuantity('');
+                                                            return;
+                                                        }
+                                                        if (!/^\d+$/.test(val)) return;
+
+                                                        const normalized = val.length > 1 && val.startsWith('0')
+                                                            ? String(parseInt(val, 10))
+                                                            : val;
+
+                                                        const parsed = parseInt(normalized, 10);
+                                                        if (isNaN(parsed)) return;
+
+                                                        const maxStock = product.stock || 0;
+                                                        if (maxStock > 0 && parsed > maxStock) {
+                                                            toast.error(`Only ${maxStock} items available in stock. For bulk orders, use Tower Order below!`, { id: 'pd-stock-limit' });
+                                                            setQuantity(maxStock);
+                                                        } else {
+                                                            setQuantity(normalized);
+                                                        }
+                                                    }}
+                                                    onBlur={() => {
+                                                        const maxStock = product.stock || 0;
+                                                        const parsed = parseInt(quantity, 10);
+                                                        if (!quantity || isNaN(parsed) || parsed < 1) {
+                                                            setQuantity(1);
+                                                        } else if (maxStock > 0 && parsed > maxStock) {
+                                                            toast.error(`Only ${maxStock} items available in stock.`, { id: 'pd-stock-limit' });
+                                                            setQuantity(maxStock);
+                                                        } else {
+                                                            setQuantity(parsed);
+                                                        }
+                                                    }}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            e.currentTarget.blur();
+                                                        }
+                                                    }}
+                                                    className="w-14 sm:w-16 py-1 sm:py-1.5 text-center text-white font-bold text-base bg-transparent border-x border-white/10 focus:outline-none focus:bg-white/5"
+                                                    aria-label="Quantity"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const current = parseInt(quantity, 10) || 0;
+                                                        const maxStock = product.stock || 0;
+                                                        if (maxStock > 0 && current >= maxStock) {
+                                                            toast.error(`Only ${maxStock} items available in stock`, { id: 'pd-stock-limit' });
+                                                        } else {
+                                                            setQuantity(current + 1);
+                                                        }
+                                                    }}
+                                                    disabled={product.stock === 0 || (product.stock > 0 && (parseInt(quantity, 10) || 1) >= product.stock)}
+                                                    className={`w-9 h-9 sm:w-10 sm:h-10 min-w-[36px] sm:min-w-[40px] rounded-lg bg-white/5 flex items-center justify-center font-bold text-base transition-all active:scale-90 ${
+                                                        product.stock === 0 || (product.stock > 0 && (parseInt(quantity, 10) || 1) >= product.stock)
+                                                            ? 'text-gray-600 cursor-not-allowed opacity-50'
+                                                            : 'text-gray-300 hover:text-white hover:bg-white/10 active:bg-white/20'
+                                                    }`}
+                                                    aria-label="Increase quantity"
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {/* Wishlist & Share Action Buttons */}
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    toggleWishlist(product);
+                                                    if (isInWishlist(product.id)) {
+                                                        toast.error('Removed from Wishlist');
+                                                    } else {
+                                                        toast.success('Added to Wishlist');
+                                                    }
+                                                }}
+                                                className={`w-11 h-11 sm:w-12 sm:h-12 min-w-[44px] min-h-[44px] rounded-xl border flex items-center justify-center transition-all active:scale-95 ${
+                                                    isInWishlist(product.id)
+                                                        ? 'bg-red-500/10 border-red-500 text-red-500 shadow-sm shadow-red-500/20'
+                                                        : 'border-white/10 bg-white/5 hover:bg-white/10 text-white'
+                                                }`}
+                                                title={isInWishlist(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                                                aria-label={isInWishlist(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                                            >
+                                                <Heart size={20} className="sm:w-[22px] sm:h-[22px]" fill={isInWishlist(product.id) ? "currentColor" : "none"} />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsShareOpen(true)}
+                                                className="w-11 h-11 sm:w-12 sm:h-12 min-w-[44px] min-h-[44px] rounded-xl border border-white/10 bg-white/5 hover:bg-violet-600/30 hover:border-violet-500/50 text-white flex items-center justify-center transition-all active:scale-95 cursor-pointer"
+                                                title="Share Product"
+                                                aria-label="Share Product"
+                                            >
+                                                <Share2 size={20} className="sm:w-[22px] sm:h-[22px]" />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Primary CTA Action Buttons (Dual Column on Desktop/Tablet, Clean Responsive Stack/Grid on Mobile) */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                                         <button
-                                            type="button"
-                                            onClick={() => {
-                                                const current = parseInt(quantity, 10) || 1;
-                                                if (current > 1) {
-                                                    setQuantity(current - 1);
-                                                }
-                                            }}
-                                            disabled={product.stock === 0 || (parseInt(quantity, 10) || 1) <= 1}
-                                            className={`px-3.5 py-2 transition-colors ${
-                                                product.stock === 0 || (parseInt(quantity, 10) || 1) <= 1
-                                                    ? 'text-gray-600 cursor-not-allowed'
-                                                    : 'text-white hover:bg-white/10'
-                                            }`}
-                                            aria-label="Decrease quantity"
-                                        >
-                                            -
-                                        </button>
-                                        <input
-                                            type="text"
-                                            inputMode="numeric"
-                                            pattern="[0-9]*"
-                                            value={quantity}
+                                            onClick={handleAddToCart}
                                             disabled={product.stock === 0}
-                                            onChange={(e) => {
-                                                const val = e.target.value;
-                                                if (val === '') {
-                                                    setQuantity('');
+                                            className={`w-full min-h-[48px] sm:min-h-[50px] font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] ${
+                                                product.stock > 0
+                                                    ? 'bg-tronix-primary text-white hover:bg-violet-600 shadow-violet-500/20 active:bg-violet-700'
+                                                    : 'bg-gray-800 text-gray-500 cursor-not-allowed border border-white/5'
+                                            }`}
+                                        >
+                                            <ShoppingCart size={19} />
+                                            <span>{product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}</span>
+                                        </button>
+
+                                        <button
+                                            onClick={() => {
+                                                if (product.stock === 0) {
+                                                    toast.error('This product is currently out of stock');
                                                     return;
                                                 }
-                                                if (!/^\d+$/.test(val)) return;
-
-                                                const normalized = val.length > 1 && val.startsWith('0')
-                                                    ? String(parseInt(val, 10))
-                                                    : val;
-
-                                                const parsed = parseInt(normalized, 10);
-                                                if (isNaN(parsed)) return;
-
-                                                const maxStock = product.stock || 0;
-                                                if (maxStock > 0 && parsed > maxStock) {
-                                                    toast.error(`Only ${maxStock} items available in stock. For bulk orders, use Tower Order below!`, { id: 'pd-stock-limit' });
-                                                    setQuantity(maxStock);
-                                                } else {
-                                                    setQuantity(normalized);
+                                                const currentQty = Math.max(1, parseInt(quantity, 10) || 1);
+                                                if (String(quantity) !== String(currentQty)) {
+                                                    setQuantity(currentQty);
+                                                }
+                                                const success = addToCart(product, currentQty);
+                                                if (success) {
+                                                    navigate('/cart');
                                                 }
                                             }}
-                                            onBlur={() => {
-                                                const maxStock = product.stock || 0;
-                                                const parsed = parseInt(quantity, 10);
-                                                if (!quantity || isNaN(parsed) || parsed < 1) {
-                                                    setQuantity(1);
-                                                } else if (maxStock > 0 && parsed > maxStock) {
-                                                    toast.error(`Only ${maxStock} items available in stock.`, { id: 'pd-stock-limit' });
-                                                    setQuantity(maxStock);
-                                                } else {
-                                                    setQuantity(parsed);
-                                                }
-                                            }}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter') {
-                                                    e.currentTarget.blur();
-                                                }
-                                            }}
-                                            className="w-16 sm:w-20 py-2 text-center text-white font-bold bg-transparent border-x border-white/10 focus:outline-none focus:bg-white/5 text-base"
-                                            aria-label="Quantity"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                const current = parseInt(quantity, 10) || 0;
-                                                const maxStock = product.stock || 0;
-                                                if (maxStock > 0 && current >= maxStock) {
-                                                    toast.error(`Only ${maxStock} items available in stock`, { id: 'pd-stock-limit' });
-                                                } else {
-                                                    setQuantity(current + 1);
-                                                }
-                                            }}
-                                            disabled={product.stock === 0 || (product.stock > 0 && (parseInt(quantity, 10) || 1) >= product.stock)}
-                                            className={`px-3.5 py-2 transition-colors ${
-                                                product.stock === 0 || (product.stock > 0 && (parseInt(quantity, 10) || 1) >= product.stock)
-                                                    ? 'text-gray-600 cursor-not-allowed'
-                                                    : 'text-white hover:bg-white/10'
+                                            disabled={product.stock === 0}
+                                            className={`w-full min-h-[48px] sm:min-h-[50px] font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] ${
+                                                product.stock > 0
+                                                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/30 active:bg-emerald-700'
+                                                    : 'bg-gray-800 text-gray-500 cursor-not-allowed border border-white/5'
                                             }`}
-                                            aria-label="Increase quantity"
                                         >
-                                            +
+                                            <Zap size={19} className="fill-current" />
+                                            <span>{product.stock > 0 ? 'Buy Now • Checkout' : 'Out of Stock'}</span>
                                         </button>
                                     </div>
-                                    <button
-                                        onClick={handleAddToCart}
-                                        disabled={product.stock === 0}
-                                        className={`flex-1 font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg ${product.stock > 0 ? 'bg-tronix-primary text-white hover:bg-violet-600 shadow-violet-500/20' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}`}
-                                    >
-                                        <ShoppingCart size={20} /> {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            toggleWishlist(product);
-                                            if (isInWishlist(product.id)) {
-                                                toast.error('Removed from Wishlist');
-                                            } else {
-                                                toast.success('Added to Wishlist');
-                                            }
-                                        }}
-                                        className={`p-3 rounded-lg border border-white/10 transition-colors ${isInWishlist(product.id) ? 'bg-red-500/10 border-red-500 text-red-500' : 'bg-white/5 hover:bg-white/10 text-white'}`}
-                                        title={isInWishlist(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                                    >
-                                        <Heart size={24} fill={isInWishlist(product.id) ? "currentColor" : "none"} />
-                                    </button>
-                                    <button
-                                        onClick={() => setIsShareOpen(true)}
-                                        className="p-3 rounded-lg border border-white/10 bg-white/5 hover:bg-violet-600/30 hover:border-violet-500/50 text-white transition-colors cursor-pointer"
-                                        title="Share Product"
-                                    >
-                                        <Share2 size={24} />
-                                    </button>
                                 </div>
-
-                                <button
-                                    onClick={() => {
-                                        if (product.stock === 0) {
-                                            toast.error('This product is currently out of stock');
-                                            return;
-                                        }
-                                        const currentQty = Math.max(1, parseInt(quantity, 10) || 1);
-                                        if (String(quantity) !== String(currentQty)) {
-                                            setQuantity(currentQty);
-                                        }
-                                        const success = addToCart(product, currentQty);
-                                        if (success) {
-                                            navigate('/cart');
-                                        }
-                                    }}
-                                    disabled={product.stock === 0}
-                                    className={`w-full font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg ${product.stock > 0 ? 'bg-green-600 hover:bg-green-700 text-white shadow-green-900/20' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}`}
-                                >
-                                    {product.stock > 0 ? 'Proceed to Checkout' : 'Out of Stock'}
-                                </button>
 
                                 {/* High-Converting Human-Designed Tower Order / B2B Sourcing Banner Card */}
                                 <div className="relative group overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-purple-900/20 to-violet-900/30 p-4 transition-all duration-300 hover:border-amber-400/60 hover:shadow-xl hover:shadow-amber-500/10">
@@ -988,7 +1021,7 @@ const ProductDetails = () => {
                                     setRequestedTowerQty(Math.max(1, parseInt(quantity, 10) || 1));
                                     setIsTowerModalOpen(true);
                                 }}
-                                className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold py-3 px-4 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/20 active:scale-95"
+                                className="w-full min-h-[44px] bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold py-2.5 px-4 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/20 active:scale-95 transition-all"
                             >
                                 <Factory size={16} />
                                 <span>Tower Order</span>
@@ -998,7 +1031,7 @@ const ProductDetails = () => {
                                 <button
                                     onClick={handleAddToCart}
                                     disabled={product.stock === 0}
-                                    className={`py-3 px-3.5 rounded-xl border border-white/10 font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-colors active:scale-95 ${
+                                    className={`min-h-[44px] py-2.5 px-3.5 rounded-xl border border-white/10 font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all active:scale-95 ${
                                         product.stock > 0
                                             ? 'bg-white/10 text-white hover:bg-white/15'
                                             : 'bg-gray-800 text-gray-500 cursor-not-allowed'
@@ -1006,7 +1039,7 @@ const ProductDetails = () => {
                                     aria-label="Add to cart"
                                 >
                                     <ShoppingCart size={16} />
-                                    <span className="hidden xs:inline">Add</span>
+                                    <span>Add{quantity && Number(quantity) > 1 ? ` (${quantity})` : ''}</span>
                                 </button>
 
                                 <button
@@ -1025,12 +1058,13 @@ const ProductDetails = () => {
                                         }
                                     }}
                                     disabled={product.stock === 0}
-                                    className={`flex-1 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-lg active:scale-95 ${
+                                    className={`flex-1 min-h-[44px] py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all ${
                                         product.stock > 0
                                             ? 'bg-tronix-primary text-white hover:bg-violet-600 shadow-violet-500/25'
                                             : 'bg-gray-800 text-gray-500 cursor-not-allowed'
                                     }`}
                                 >
+                                    <Zap size={15} className="fill-current" />
                                     <span>{product.stock > 0 ? 'Buy Now' : 'Out of Stock'}</span>
                                 </button>
                             </>

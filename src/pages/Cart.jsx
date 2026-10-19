@@ -127,19 +127,19 @@ const CartQuantityStepper = ({
     const isAtMax = currentNum >= safeMax;
 
     return (
-        <div className="flex items-center gap-1.5 bg-white/[0.03] sm:bg-white/5 rounded-xl p-1 border border-white/5">
+        <div className="flex items-center gap-1 sm:gap-1.5 bg-white/[0.04] sm:bg-white/5 rounded-xl p-0.5 sm:p-1 border border-white/10 sm:border-white/5">
             <button
                 type="button"
                 onClick={handleDecrement}
                 disabled={disabled || isAtMin}
-                className={`w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center transition-colors active:scale-95 ${
+                className={`w-9 h-9 sm:w-8 sm:h-8 min-w-[36px] sm:min-w-[32px] rounded-lg bg-white/5 flex items-center justify-center transition-all active:scale-90 ${
                     disabled || isAtMin
-                        ? 'text-gray-600 cursor-not-allowed'
-                        : 'text-gray-400 hover:text-white hover:bg-white/10'
+                        ? 'text-gray-600 cursor-not-allowed opacity-50'
+                        : 'text-gray-300 hover:text-white hover:bg-white/10 active:bg-white/20'
                 }`}
                 aria-label={`Decrease ${label}`}
             >
-                <Minus size={14} />
+                <Minus size={15} />
             </button>
             <input
                 type="text"
@@ -150,21 +150,21 @@ const CartQuantityStepper = ({
                 onChange={handleInputChange}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
-                className="w-12 sm:w-14 py-1 text-center text-white font-bold text-sm bg-transparent border-x border-white/10 focus:outline-none focus:bg-white/5"
+                className="w-14 sm:w-12 py-1 sm:py-0.5 text-center text-white font-bold text-base sm:text-sm bg-transparent border-x border-white/10 focus:outline-none focus:bg-white/5"
                 aria-label={`Cart ${label}`}
             />
             <button
                 type="button"
                 onClick={handleIncrement}
                 disabled={disabled || isAtMax}
-                className={`w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center transition-colors active:scale-95 ${
+                className={`w-9 h-9 sm:w-8 sm:h-8 min-w-[36px] sm:min-w-[32px] rounded-lg bg-white/5 flex items-center justify-center transition-all active:scale-90 ${
                     disabled || isAtMax
-                        ? 'text-gray-600 cursor-not-allowed'
-                        : 'text-gray-400 hover:text-white hover:bg-white/10'
+                        ? 'text-gray-600 cursor-not-allowed opacity-50'
+                        : 'text-gray-300 hover:text-white hover:bg-white/10 active:bg-white/20'
                 }`}
                 aria-label={`Increase ${label}`}
             >
-                <Plus size={14} />
+                <Plus size={15} />
             </button>
         </div>
     );
@@ -343,13 +343,13 @@ const Cart = () => {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
-                                className={`bg-tronix-card/50 border ${item.selected !== false ? 'border-tronix-primary/50' : 'border-white/5'} rounded-xl p-3 sm:p-4 flex gap-2.5 sm:gap-4 items-center transition-colors`}
+                                className={`bg-tronix-card/50 border ${item.selected !== false ? 'border-tronix-primary/50' : 'border-white/5'} rounded-xl p-3 sm:p-4 flex gap-2.5 sm:gap-4 items-start sm:items-center transition-colors`}
                             >
                                 <input
                                     type="checkbox"
                                     checked={item.selected !== false}
                                     onChange={() => toggleSelection(item.cart_item_id || item.id)}
-                                    className="w-5 h-5 accent-tronix-primary bg-white/10 border-white/20 rounded cursor-pointer shrink-0"
+                                    className="w-5 h-5 accent-tronix-primary bg-white/10 border-white/20 rounded cursor-pointer shrink-0 mt-1 sm:mt-0"
                                 />
 
                                 <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/5 rounded-lg flex items-center justify-center p-2 shrink-0">
@@ -365,7 +365,7 @@ const Cart = () => {
                                         <div className={`mt-1 sm:mt-2 text-base sm:text-lg font-bold ${item.selected === false ? 'text-gray-600' : 'text-tronix-accent'}`}>₹{formatPrice(item.price)}</div>
                                     </div>
 
-                                        <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
+                                        <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-6 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-white/5 w-full sm:w-auto">
                                         <CartQuantityStepper
                                             value={item.quantity}
                                             min={1}
@@ -376,7 +376,7 @@ const Cart = () => {
 
                                         <button
                                             onClick={() => removeFromCart(item.cart_item_id || item.id)}
-                                            className="p-2 text-gray-500 hover:text-red-500 transition-colors active:scale-95"
+                                            className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 active:scale-90 transition-all shrink-0"
                                             aria-label="Remove item"
                                         >
                                             <Trash2 size={18} />
@@ -436,8 +436,8 @@ const Cart = () => {
                                             ))}
                                         </div>
 
-                                        <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-2">
-                                            <div className="flex items-center gap-4">
+                                        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-3.5 mt-2">
+                                            <div className="flex items-center gap-3">
                                                 {(() => {
                                                     const maxBundleStock = group.items.length > 0
                                                         ? Math.min(...group.items.map(bi => (typeof bi.stock === 'number' && bi.stock >= 0 ? bi.stock : 9999)))
@@ -452,14 +452,16 @@ const Cart = () => {
                                                         />
                                                     );
                                                 })()}
-                                                <span className="hidden sm:inline text-xs text-gray-500">Applies to all bundle items</span>
+                                                <span className="text-[11px] sm:text-xs text-gray-500">Applies to all bundle items</span>
                                             </div>
 
                                             <button
                                                 onClick={() => removeBundle(group.id)}
-                                                className="p-2 text-gray-500 hover:text-red-500 transition-colors flex items-center gap-1 text-sm font-medium"
+                                                className="px-2.5 py-1.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 active:scale-95 transition-all flex items-center gap-1.5 text-xs font-semibold"
+                                                aria-label="Remove bundle"
                                             >
-                                                <Trash2 size={16} /> <span className="hidden sm:inline">Remove Bundle</span>
+                                                <Trash2 size={15} />
+                                                <span>Remove Bundle</span>
                                             </button>
                                         </div>
                                     </div>
