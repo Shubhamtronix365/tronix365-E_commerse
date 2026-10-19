@@ -19,14 +19,64 @@ router = APIRouter(tags=["Cart"])
 
 @router.get("/cart", response_model=List[CartItemResponse])
 async def get_cart(
-    current_user: UserDB = Depends(get_current_user), db: Session = Depends(get_db)
+    response: Response,
+    current_user: UserDB = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
-    return (
+    items = (
         db.query(CartItemDB)
         .options(joinedload(CartItemDB.product), joinedload(CartItemDB.bundle))
         .filter(CartItemDB.user_id == current_user.id)
         .all()
     )
+
+    warnings = []
+    has_changes = False
+
+    for item in items:
+        if item.bundle_id:
+            bundle = item.bundle
+            is_invalid = False
+            reason = ""
+
+            if not bundle:
+                is_invalid = True
+                reason = "is no longer available"
+            elif not bundle.is_active:
+                is_invalid = True
+                reason = "is inactive"
+            elif bundle.expiry_date:
+                now = (
+                    datetime.now(bundle.expiry_date.tzinfo)
+                    if bundle.expiry_date.tzinfo
+                    else datetime.utcnow()
+                )
+                if now > bundle.expiry_date:
+                    is_invalid = True
+                    reason = "has expired"
+            elif bundle.usage_limit and (bundle.used_count or 0) >= bundle.usage_limit:
+                is_invalid = True
+                reason = "has reached its usage limit"
+
+            if is_invalid:
+                bundle_name = bundle.name if bundle else "Promo Bundle"
+                item.bundle_id = None
+                item.bundle = None
+                has_changes = True
+                warning_msg = f"Bundle '{bundle_name}' {reason}. Items remain in your cart at regular price."
+                item.bundle_warning = warning_msg
+                if warning_msg not in warnings:
+                    warnings.append(warning_msg)
+
+    if has_changes:
+        db.commit()
+
+    if warnings:
+        import urllib.parse
+        response.headers["X-Cart-Warnings"] = urllib.parse.quote("; ".join(warnings))
+        response.headers["Access-Control-Expose-Headers"] = "X-Cart-Warnings"
+
+    return items
 
 
 @router.post("/cart", response_model=CartItemResponse)
@@ -143,13 +193,23 @@ async def merge_cart(
     current_user: UserDB = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Merge guest cart items into the user's permanent cart."""
+    """Merge guest cart items into the user's permanent cart, validating any bundles."""
     for item in merge_request.items:
+        valid_bundle_id = None
+        if item.bundle_id:
+            bundle = db.query(BundleDB).filter(BundleDB.id == item.bundle_id).first()
+            if bundle and bundle.is_active:
+                now = datetime.now(bundle.expiry_date.tzinfo) if bundle.expiry_date and bundle.expiry_date.tzinfo else datetime.utcnow()
+                if not (bundle.expiry_date and now > bundle.expiry_date):
+                    if not (bundle.usage_limit and (bundle.used_count or 0) >= bundle.usage_limit):
+                        valid_bundle_id = bundle.id
+
         existing = (
             db.query(CartItemDB)
             .filter(
                 CartItemDB.user_id == current_user.id,
                 CartItemDB.product_id == item.product_id,
+                CartItemDB.bundle_id == valid_bundle_id,
             )
             .first()
         )
@@ -161,6 +221,7 @@ async def merge_cart(
             new_item = CartItemDB(
                 user_id=current_user.id,
                 product_id=item.product_id,
+                bundle_id=valid_bundle_id,
                 quantity=item.quantity,
                 selected=item.selected,
             )

@@ -646,6 +646,7 @@ class CartItemCreate(BaseModel):
     product_id: int
     quantity: int = 1
     selected: bool = True
+    bundle_id: Optional[int] = None
 
 
 class CartItemUpdate(BaseModel):
@@ -661,6 +662,7 @@ class CartItemResponse(BaseModel):
     selected: bool
     product: Optional[Product] = None
     bundle: Optional[BundleResponse] = None
+    bundle_warning: Optional[str] = None
 
     class Config:
         from_attributes = True

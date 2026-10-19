@@ -18,43 +18,105 @@ export const CartProvider = ({ children }) => {
     });
     const isMerging = useRef(false);
 
-    // Sync with backend on login
-    useEffect(() => {
-        const syncCart = async () => {
-            if (isAuthenticated && !isMerging.current) {
-                isMerging.current = true;
-                try {
-                    // 1. Merge local cart with backend
-                    if (cartItems.length > 0) {
-                        const guestItems = cartItems.map(item => ({
-                            product_id: item.id,
-                            quantity: item.quantity,
-                            selected: item.selected !== false
-                        }));
-                        await client.post('/cart/merge', { items: guestItems });
-                    }
-                    
-                    // 2. Fetch fresh cart from backend
-                    const response = await client.get('/cart');
-                    const mergedItems = response.data.map(item => ({
-                        ...item.product,
-                        cart_item_id: item.id, // Store backend ID for updates
-                        quantity: item.quantity,
-                        selected: item.selected,
-                        bundle_id: item.bundle_id,
-                        bundle: item.bundle
-                    }));
-                    setCartItems(mergedItems);
-                } catch (error) {
-                    if (error.response?.status !== 401) {
-                        console.error("Failed to sync cart:", error);
-                    }
-                } finally {
-                    isMerging.current = false;
-                }
-            }
-        };
+    const [cartWarnings, setCartWarnings] = useState([]);
 
+    const syncCart = async () => {
+        if (isAuthenticated) {
+            if (isMerging.current) return;
+            isMerging.current = true;
+            try {
+                // 1. Merge local cart with backend if items exist
+                const savedCart = localStorage.getItem('tronix365_cart');
+                const localItems = savedCart ? JSON.parse(savedCart) : [];
+                if (localItems.length > 0) {
+                    const guestItems = localItems.map(item => ({
+                        product_id: item.id,
+                        quantity: item.quantity,
+                        selected: item.selected !== false,
+                        bundle_id: item.bundle_id || null
+                    }));
+                    await client.post('/cart/merge', { items: guestItems });
+                    localStorage.removeItem('tronix365_cart');
+                }
+                
+                // 2. Fetch fresh cart from backend
+                const response = await client.get('/cart');
+                
+                // Check for backend warnings header
+                const warningsHeader = response.headers && (response.headers['x-cart-warnings'] || response.headers['X-Cart-Warnings']);
+                if (warningsHeader) {
+                    try {
+                        const decoded = decodeURIComponent(warningsHeader);
+                        setCartWarnings(decoded.split('; '));
+                        toast(decoded, {
+                            icon: '⚠️',
+                            duration: 6000,
+                            style: {
+                                background: '#1e293b',
+                                color: '#f8fafc',
+                                border: '1px solid #f59e0b'
+                            }
+                        });
+                    } catch (e) {}
+                }
+
+                const mergedItems = response.data.map(item => ({
+                    ...item.product,
+                    cart_item_id: item.id, // Store backend ID for updates
+                    quantity: item.quantity,
+                    selected: item.selected,
+                    bundle_id: item.bundle_id,
+                    bundle: item.bundle
+                }));
+                setCartItems(mergedItems);
+            } catch (error) {
+                if (error.response?.status !== 401) {
+                    console.error("Failed to sync cart:", error);
+                }
+            } finally {
+                isMerging.current = false;
+            }
+        } else {
+            // Guest user: validate any bundles against active bundles
+            try {
+                const hasBundles = cartItems.some(i => i.bundle_id);
+                if (hasBundles) {
+                    const bundlesRes = await client.get('/bundles');
+                    const activeBundleMap = new Map((bundlesRes.data || []).map(b => [b.id, b]));
+                    let hadInvalidBundle = false;
+                    const validated = cartItems.map(item => {
+                        if (item.bundle_id) {
+                            const activeBundle = activeBundleMap.get(item.bundle_id);
+                            if (!activeBundle) {
+                                hadInvalidBundle = true;
+                                return { ...item, bundle_id: null, bundle: null };
+                            }
+                            return { ...item, bundle: activeBundle };
+                        }
+                        return item;
+                    });
+                    if (hadInvalidBundle) {
+                        setCartItems(validated);
+                        localStorage.setItem('tronix365_cart', JSON.stringify(validated));
+                        const warning = "A promotional bundle in your cart has expired or ended. The items remain in your cart at regular price.";
+                        setCartWarnings(prev => [...prev, warning]);
+                        toast(warning, {
+                            icon: '⚠️',
+                            duration: 6000,
+                            style: {
+                                background: '#1e293b',
+                                color: '#f8fafc',
+                                border: '1px solid #f59e0b'
+                            }
+                        });
+                    }
+                }
+            } catch (e) {}
+        }
+    };
+
+    // Sync on auth changes
+    useEffect(() => {
         syncCart();
     }, [isAuthenticated]);
 
@@ -312,11 +374,15 @@ export const CartProvider = ({ children }) => {
             
             // If item is part of a bundle and we haven't processed this bundle yet
             if (item.bundle_id && item.bundle && !bundlesProcessed.has(item.bundle_id)) {
-                const discountPerBundle = item.bundle.original_price - item.bundle.bundle_price;
-                // We assume quantity 1 for the bundle itself for now, or match it to the item quantity
-                // Since all items in a bundle added together have same quantity in our logic
-                bundleDiscounts += discountPerBundle * item.quantity;
-                bundlesProcessed.add(item.bundle_id);
+                const isBundleExpired = item.bundle.expiry_date && new Date(item.bundle.expiry_date) < new Date();
+                const isBundleInactive = item.bundle.is_active === false;
+                if (!isBundleExpired && !isBundleInactive) {
+                    const discountPerBundle = (item.bundle.original_price || 0) - (item.bundle.bundle_price || 0);
+                    if (discountPerBundle > 0) {
+                        bundleDiscounts += discountPerBundle * item.quantity;
+                    }
+                    bundlesProcessed.add(item.bundle_id);
+                }
             }
         });
 
@@ -347,6 +413,9 @@ export const CartProvider = ({ children }) => {
             toggleSelection,
             selectAll,
             clearCart,
+            syncCart,
+            cartWarnings,
+            clearCartWarnings: () => setCartWarnings([]),
             cartTotal,
             subtotal,
             bundleDiscounts,

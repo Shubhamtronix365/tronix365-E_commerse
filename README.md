@@ -158,6 +158,11 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
 - **Flexible B2B Quantity Ordering & Float Price Formatting**:
   - Direct typed numeric quantity inputs on Product Details and Cart.
   - Uniform 2-decimal precision (`₹261.00`, `₹36.36`).
+- **Self-Healing Cart & Promotion Desynchronization Safeguards**:
+  - **Auto-Healing for Stale & Expired Bundles**: Automatically audits cart items on `GET /cart` and guest `/cart/merge`. If an admin deletes a promotional bundle or if a bundle expires/reaches its usage limit while sitting in a user's cart, the backend decouples the bundle relationship without losing the customer's items.
+  - **Option A E-Commerce Standard Flow**: Rather than deleting products and abandoning sales, items remain in the customer's cart at standard individual retail pricing.
+  - **Real-Time Notification Banner & Toasts**: Alerts customers via amber warning banners (`Cart.jsx`) and headers (`X-Cart-Warnings`) explaining that the expired promotion has been adjusted to regular pricing.
+  - **Zero-Crash Pre-Payment Gatekeeper**: Strict pre-flight checks in `POST /payment/initiate` eliminate database foreign key crashes (`500 Internal Server Error`) and block expired promotional price leaks before transaction token generation. Automatic cart resynchronization in `Checkout.jsx` allows immediate re-attempt with active valid totals.
 
 ---
 

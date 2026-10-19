@@ -75,16 +75,29 @@ async def initiate_payment(
 
         if item.bundle_id:
             bundle = db.query(BundleDB).filter(BundleDB.id == item.bundle_id).first()
-            if bundle:
-                if not bundle.is_active:
-                    raise HTTPException(status_code=400, detail=f"Bundle '{bundle.name}' is inactive")
-                if bundle.expiry_date:
-                    from datetime import datetime
-                    now = datetime.now(bundle.expiry_date.tzinfo) if bundle.expiry_date.tzinfo else datetime.utcnow()
-                    if now > bundle.expiry_date:
-                        raise HTTPException(status_code=400, detail=f"Bundle '{bundle.name}' has expired")
-                if bundle.usage_limit and (bundle.used_count or 0) >= bundle.usage_limit:
-                    raise HTTPException(status_code=400, detail=f"Bundle '{bundle.name}' has reached its usage limit")
+            if not bundle:
+                raise HTTPException(
+                    status_code=400,
+                    detail="A promotional bundle in your cart is no longer available. Your cart has been updated with individual pricing. Please review and try again."
+                )
+            if not bundle.is_active:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Bundle '{bundle.name}' is inactive. Your cart has been updated with individual pricing. Please review and try again."
+                )
+            if bundle.expiry_date:
+                from datetime import datetime
+                now = datetime.now(bundle.expiry_date.tzinfo) if bundle.expiry_date.tzinfo else datetime.utcnow()
+                if now > bundle.expiry_date:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Bundle '{bundle.name}' has expired. Your cart has been updated with individual pricing. Please review and try again."
+                    )
+            if bundle.usage_limit and (bundle.used_count or 0) >= bundle.usage_limit:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Bundle '{bundle.name}' has reached its usage limit. Your cart has been updated with individual pricing. Please review and try again."
+                )
 
         order_item = OrderItemDB(
             product_id=item.product_id,
@@ -205,16 +218,20 @@ async def retry_payment(
 
         if item.bundle_id:
             bundle = db.query(BundleDB).filter(BundleDB.id == item.bundle_id).first()
-            if bundle:
-                if not bundle.is_active:
-                    raise HTTPException(status_code=400, detail=f"Bundle '{bundle.name}' is inactive")
-                if bundle.expiry_date:
-                    from datetime import datetime
-                    now = datetime.now(bundle.expiry_date.tzinfo) if bundle.expiry_date.tzinfo else datetime.utcnow()
-                    if now > bundle.expiry_date:
-                        raise HTTPException(status_code=400, detail=f"Bundle '{bundle.name}' has expired")
-                if bundle.usage_limit and (bundle.used_count or 0) >= bundle.usage_limit:
-                    raise HTTPException(status_code=400, detail=f"Bundle '{bundle.name}' has reached its usage limit")
+            if not bundle:
+                raise HTTPException(
+                    status_code=400,
+                    detail="A promotional bundle in this order is no longer available. Please review your cart."
+                )
+            if not bundle.is_active:
+                raise HTTPException(status_code=400, detail=f"Bundle '{bundle.name}' is inactive")
+            if bundle.expiry_date:
+                from datetime import datetime
+                now = datetime.now(bundle.expiry_date.tzinfo) if bundle.expiry_date.tzinfo else datetime.utcnow()
+                if now > bundle.expiry_date:
+                    raise HTTPException(status_code=400, detail=f"Bundle '{bundle.name}' has expired")
+            if bundle.usage_limit and (bundle.used_count or 0) >= bundle.usage_limit:
+                raise HTTPException(status_code=400, detail=f"Bundle '{bundle.name}' has reached its usage limit")
 
     txnid = f"TXN{int(order.total_amount)}{os.urandom(4).hex()}"
     order.txnid = txnid

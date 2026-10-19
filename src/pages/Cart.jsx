@@ -22,7 +22,9 @@ const Cart = () => {
         clearCart,
         toggleSelection,
         selectAll,
-        selectedCount
+        selectedCount,
+        cartWarnings,
+        clearCartWarnings
     } = useCart();
     const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
@@ -132,6 +134,26 @@ const Cart = () => {
                         <button
                             onClick={() => setRecoveryBanner(false)}
                             className="text-gray-400 hover:text-white text-xs px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 cursor-pointer transition-colors"
+                        >
+                            Dismiss
+                        </button>
+                    </div>
+                )}
+
+                {cartWarnings && cartWarnings.length > 0 && (
+                    <div className="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 flex items-start justify-between gap-3 shadow-lg">
+                        <div className="flex items-start gap-3">
+                            <span className="text-xl">⚠️</span>
+                            <div>
+                                <h4 className="font-semibold text-sm text-amber-300">Cart Update Notification</h4>
+                                {cartWarnings.map((warning, idx) => (
+                                    <p key={idx} className="text-xs text-amber-200/90 mt-0.5">{warning}</p>
+                                ))}
+                            </div>
+                        </div>
+                        <button
+                            onClick={clearCartWarnings}
+                            className="text-amber-400 hover:text-white text-xs px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 cursor-pointer transition-colors"
                         >
                             Dismiss
                         </button>

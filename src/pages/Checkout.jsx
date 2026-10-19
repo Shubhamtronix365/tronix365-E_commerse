@@ -12,7 +12,7 @@ import CheckoutOrderSummary from '../components/checkout/CheckoutOrderSummary';
 import { calculateTaxAndTotals, roundToTwo, formatPrice } from '../utils/priceUtils';
 
 const Checkout = () => {
-    const { selectedItems, cartTotal, subtotal: cartSubtotal, bundleDiscounts, clearCart } = useCart();
+    const { selectedItems, cartTotal, subtotal: cartSubtotal, bundleDiscounts, clearCart, syncCart, cartWarnings } = useCart();
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [isPincodeLoading, setIsPincodeLoading] = useState(false);
@@ -416,7 +416,15 @@ const Checkout = () => {
 
         } catch (error) {
             console.error('Checkout error:', error);
-            toast.error('Payment initiation failed. Try again.');
+            const errorMsg = error.response?.data?.detail || 'Payment initiation failed. Try again.';
+            toast.error(errorMsg, { duration: 5000 });
+            if (syncCart) {
+                try {
+                    await syncCart();
+                } catch (syncErr) {
+                    console.error('Failed to re-sync cart:', syncErr);
+                }
+            }
             setLoading(false);
         }
     };
