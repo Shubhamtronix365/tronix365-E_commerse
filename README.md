@@ -520,6 +520,7 @@ FastAPI generates interactive documentation at [http://127.0.0.1:8000/docs](http
   - `PUT /blogs/author/credentials` - In-studio author credential update with mandatory 5-point strong password validation
   - `GET /admin/authors` - Admin-only listing of all registered blog authors
   - `POST /admin/authors/generate` - Admin-only endpoint to generate new author accounts with secure random 16-character passwords
+  - `DELETE /admin/authors/{author_id}` - Admin-only endpoint to permanently revoke and delete blog author accounts with confirmation modal
   - **Standalone Author Credential Generator Script**:
     ```bash
     cd backend
