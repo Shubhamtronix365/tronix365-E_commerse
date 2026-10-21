@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, ChevronRight, Award } from 'lucide-react';
-import logo from '../../assets/logo.png';
+import logo from '../../assets/logo.webp';
 
 const Footer = () => {
     return (
@@ -18,7 +18,7 @@ const Footer = () => {
                         <div>
                             <div className="flex items-center gap-2 mb-2">
                                 <div className="w-10 h-10 flex items-center justify-center">
-                                    <img src={logo} alt="Tronix365 Logo" className="w-full h-full object-contain" />
+                                    <img src={logo} alt="Tronix365 Logo" width="40" height="40" loading="lazy" decoding="async" className="w-full h-full object-contain" />
                                 </div>
                                 <span className="font-display font-bold text-2xl tracking-wider text-white">
                                     TRONIX<span className="text-transparent bg-clip-text bg-gradient-to-r from-tronix-primary to-violet-400">365</span>

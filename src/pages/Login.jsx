@@ -4,7 +4,7 @@ import { User, Lock, Mail, ShieldCheck, Eye, EyeOff, ArrowLeft, RefreshCw, UserP
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import client from '../api/client';
-import logo from '../assets/logo.png';
+import logo from '../assets/logo.webp';
 import { useAuth } from '../context/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
 
@@ -221,7 +221,7 @@ const Login = () => {
                 <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-violet-500/10 rounded-full blur-[100px]" />
                 
                 <div className="flex items-center gap-3 relative z-10">
-                    <img src={logo} alt="Tronix365 Logo" className="w-10 h-10 object-contain" />
+                    <img src={logo} alt="Tronix365 Logo" width="40" height="40" loading="lazy" decoding="async" className="w-10 h-10 object-contain" />
                     <span className="font-display font-bold text-xl text-white tracking-wider uppercase">Tronix<span className="text-tronix-primary">365</span></span>
                 </div>
 
@@ -285,7 +285,7 @@ const Login = () => {
                     className="w-full max-w-md relative z-10 glass-card p-4 sm:p-6 rounded-2xl border border-white/10"
                 >
                     <div className="text-center mb-4 md:mb-6">
-                        <img src={logo} alt="Tronix365 Logo" className="w-12 h-12 mx-auto mb-4 md:hidden" />
+                        <img src={logo} alt="Tronix365 Logo" width="48" height="48" loading="lazy" decoding="async" className="w-12 h-12 mx-auto mb-4 md:hidden" />
                         <h1 className="text-3xl font-display font-bold text-white mb-2">
                             {otpStep === 2 ? 'Two-Factor OTP' : 'Welcome Back'}
                         </h1>

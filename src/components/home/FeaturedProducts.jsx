@@ -4,7 +4,7 @@ import { ArrowRight, Zap } from 'lucide-react';
 import ProductCard from '../product/ProductCard';
 import ProductCardSkeleton from '../product/ProductCardSkeleton';
 import client from '../../api/client';
-import featuredBg from '../../assets/featured_bg.png';
+import featuredBg from '../../assets/featured_bg.webp';
 
 const FeaturedProducts = () => {
     const [featuredProducts, setFeaturedProducts] = React.useState([]);
@@ -31,6 +31,10 @@ const FeaturedProducts = () => {
                 <img 
                     src={featuredBg} 
                     alt="Featured Section Tech Background" 
+                    width="1200"
+                    height="600"
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover object-center opacity-100"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-[#070919]/40 via-transparent to-[#070919]/60" />

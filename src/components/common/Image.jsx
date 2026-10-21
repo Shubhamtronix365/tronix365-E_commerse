@@ -5,9 +5,10 @@ const Image = ({
   alt,
   title,
   className = '',
-  width,
-  height,
+  width = 300,
+  height = 300,
   loading = 'lazy',
+  decoding = 'async',
   ...props
 }) => {
   const [error, setError] = useState(false);
@@ -29,6 +30,7 @@ const Image = ({
       width={width}
       height={height}
       loading={loading}
+      decoding={decoding}
       className={`transition-all duration-300 ${className}`}
       onError={() => setError(true)}
       {...props}

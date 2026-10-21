@@ -5,7 +5,7 @@ import { Cpu, Rotate3d, Layers, Gauge } from 'lucide-react';
 // Video & Image assets
 import webmVideo from '../../assets/Tronix1_optimized.webm';
 import mp4Video from '../../assets/Tronix1_optimized.mp4';
-import previewImage from '../../assets/Tronix1_preview.png';
+import previewImage from '../../assets/Tronix1_preview.webp';
 
 const ThreeDShowcase = () => {
     const sectionRef = useRef(null);
@@ -162,8 +162,10 @@ const ThreeDShowcase = () => {
                                     loop
                                     muted
                                     playsInline
-                                    preload="auto"
+                                    preload="none"
                                     poster={previewImage}
+                                    width="800"
+                                    height="450"
                                     className="w-full h-full object-cover pointer-events-none select-none transition-transform duration-700 ease-out"
                                 >
                                     <source src={webmVideo} type="video/webm" />

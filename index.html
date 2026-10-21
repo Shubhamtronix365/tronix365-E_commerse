@@ -47,30 +47,48 @@
     <!-- DNS Prefetch for accelerated performance -->
     <link rel="dns-prefetch" href="https://res.cloudinary.com" />
     <link rel="dns-prefetch" href="https://images.unsplash.com" />
-    <!-- Google Customer Reviews Badge Widget -->
-    <script id="merchantWidgetScript" src="https://www.gstatic.com/shopping/merchant/merchantwidget.js" defer></script>
+    <!-- Preload Hero LCP Image for instant mobile First Contentful Paint -->
+    <link rel="preload" as="image" href="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=75&w=1000" fetchpriority="high" />
+
+    <!-- Google Customer Reviews Badge Widget (Deferred until browser idle to eliminate render blocking) -->
     <script>
       (function() {
-        function initGcrBadge() {
-          if (window.__gcr_badge_initialized) return;
-          if (window.merchantwidget && window.merchantwidget.start) {
-            try {
+        var loadGcr = function() {
+          if (document.getElementById('merchantWidgetScript')) return;
+          var s = document.createElement('script');
+          s.id = 'merchantWidgetScript';
+          s.src = 'https://www.gstatic.com/shopping/merchant/merchantwidget.js';
+          s.async = true;
+          s.onload = function() {
+            if (window.merchantwidget && window.merchantwidget.start && !window.__gcr_badge_initialized) {
               window.__gcr_badge_initialized = true;
-              window.merchantwidget.start({
-                merchant_id: 5820417048,
-                position: "BOTTOM_LEFT"
-              });
-            } catch (e) {
-              console.error("[GCR Badge] Error starting merchant widget:", e);
+              try {
+                window.merchantwidget.start({
+                  merchant_id: 5820417048,
+                  position: "BOTTOM_LEFT"
+                });
+              } catch (e) {
+                console.error("[GCR Badge] Error starting merchant widget:", e);
+              }
             }
+          };
+          document.body.appendChild(s);
+        };
+
+        if (document.readyState === 'complete') {
+          if ('requestIdleCallback' in window) {
+            requestIdleCallback(loadGcr);
+          } else {
+            setTimeout(loadGcr, 2000);
           }
-        }
-        var script = document.getElementById('merchantWidgetScript');
-        if (script) {
-          script.addEventListener('load', initGcrBadge);
-        }
-        if (window.merchantwidget && window.merchantwidget.start) {
-          initGcrBadge();
+        } else {
+          window.addEventListener('load', function() {
+            if ('requestIdleCallback' in window) {
+              requestIdleCallback(loadGcr);
+            } else {
+              setTimeout(loadGcr, 2000);
+            }
+          });
         }
       })();
     </script>

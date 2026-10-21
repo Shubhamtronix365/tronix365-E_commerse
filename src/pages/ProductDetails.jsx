@@ -383,6 +383,11 @@ const ProductDetails = () => {
                             src={getImageUrl(product.image)}
                             alt={product.title}
                             title={product.title}
+                            width={600}
+                            height={600}
+                            loading="eager"
+                            fetchPriority="high"
+                            decoding="sync"
                             className="max-h-full max-w-full object-contain mix-blend-multiply drop-shadow-xl"
                         />
                     </motion.div>
@@ -772,7 +777,7 @@ const ProductDetails = () => {
                                                 <div className="flex -space-x-3 overflow-hidden">
                                                     {bundle.products.map(bp => (
                                                         <div key={bp.id || bp.product_id} className="inline-block h-8 w-8 rounded-full ring-2 ring-tronix-card bg-white p-1" title={bp.product?.title}>
-                                                            <img src={getImageUrl(bp.product?.image)} alt="" className="h-full w-full object-contain" />
+                                                            <img src={getImageUrl(bp.product?.image)} alt={bp.product?.title || 'Bundle item'} width={32} height={32} loading="lazy" decoding="async" className="h-full w-full object-contain" />
                                                         </div>
                                                     ))}
                                                 </div>

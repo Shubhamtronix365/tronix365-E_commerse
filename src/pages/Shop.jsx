@@ -8,7 +8,7 @@ import ProductFilter from '../components/shop/ProductFilter';
 import client from '../api/client';
 import SEO from '../components/common/SEO';
 import { useCategories } from '../hooks/useCategories';
-import featuredBg from '../assets/featured_bg.png';
+import featuredBg from '../assets/featured_bg.webp';
 
 const categorySeoData = {
     'all': {
@@ -292,6 +292,10 @@ const Shop = () => {
                 <img 
                     src={featuredBg} 
                     alt="Shop Tech Background" 
+                    width="1200"
+                    height="600"
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover object-center opacity-100"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-[#070919]/60 via-[#070919]/40 to-[#070919]/80" />

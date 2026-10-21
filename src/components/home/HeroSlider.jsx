@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import roboticsImg from '../../assets/robotics.png';
+import roboticsImg from '../../assets/robotics.webp';
 
 const slides = [
     {
@@ -10,7 +10,7 @@ const slides = [
         title: "Next Gen Development",
         subtitle: "Raspberry Pi 5 & Arduino GIGA R1",
         description: "Experience the power of the latest microcontrollers and single-board computers.",
-        image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=2000",
+        image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=75&w=1000",
         color: "from-violet-600 to-fuchsia-600"
     },
     {
@@ -18,7 +18,7 @@ const slides = [
         title: "IoT Solutions",
         subtitle: "Connect Everything",
         description: "Sensors, ESP32, and LoRa modules to build the connected future.",
-        image: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?auto=format&fit=crop&q=80&w=2000",
+        image: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?auto=format&fit=crop&q=75&w=1000",
         color: "from-cyan-600 to-blue-600"
     },
     {
@@ -58,6 +58,11 @@ const HeroSlider = () => {
                         <img
                             src={slides[current].image}
                             alt={slides[current].title}
+                            width="1200"
+                            height="600"
+                            loading={current === 0 ? "eager" : "lazy"}
+                            fetchPriority={current === 0 ? "high" : "auto"}
+                            decoding={current === 0 ? "sync" : "async"}
                             className="w-full h-full object-cover"
                         />
                         <div className="absolute inset-0 bg-gradient-to-r from-tronix-bg via-tronix-bg/90 sm:via-tronix-bg/80 to-transparent" />

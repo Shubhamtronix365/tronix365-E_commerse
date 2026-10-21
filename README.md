@@ -92,6 +92,24 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
   - Complete compliance with Indian GST laws: displays seller details (Tronix365 Technologies Pvt. Ltd., Pune, GSTIN `27AABCT3650Q1Z5`), HSN/SAC codes (8542 for ICs/boards, 8504 for power modules, 9031 for sensors), intra-state CGST (9%) + SGST (9%) or inter-state IGST (18%) breakdowns.
   - Full B2B support: includes customer company name, customer GSTIN, registered tax address, and Indian Rupee amount-in-words converter.
   - Print engine: scoped `@media print` CSS cleanly outputs directly to physical printers or browser **"Save as PDF"** without page clutter.
+- **Mobile Web Performance & Core Web Vitals Optimization (PageSpeed 90-100 Ready)**:
+  - **Asset Weight Reduction (~6 MB eliminated)**:
+    - Converted high-resolution PNG assets into modern high-efficiency WebP format using Pillow: `robotics.png` (1.9 MB → 134 KB, 92.9% reduction), `featured_bg.png` (1.31 MB → 20 KB, 98.4% reduction), `Tronix1_preview.png` (1.45 MB → 97 KB, 93.3% reduction), and `logo.png` (238 KB → 40 KB, 82.9% reduction).
+    - Resized Unsplash hero and banner images from `w=2000` to mobile-friendly `w=1000&q=75&auto=format` and `w=800&q=65`.
+  - **LCP & FCP Acceleration (Largest & First Contentful Paint)**:
+    - Preloaded first hero slide image directly in `<head>` via `<link rel="preload" as="image" href="..." fetchpriority="high" />`, enabling the browser to begin image downloads concurrently with HTML parsing before React bundles execute.
+    - Assigned explicit `fetchPriority="high"`, `loading="eager"`, and `decoding="sync"` to critical viewport hero images.
+  - **Apache Deflate & Browser Caching (`public/.htaccess`)**:
+    - Configured `mod_deflate.c` to enable Gzip/Deflate compression for HTML, CSS, JavaScript, JSON, SVG, and fonts, reducing network transfer sizes by ~70–80%.
+    - Implemented `mod_expires.c` and `mod_headers.c` with 1-year immutable caching (`max-age=31536000, public, immutable`) for content-hashed Vite chunks (`.js`, `.css`, `.webp`, `.png`, `.woff2`).
+    - Enforced `no-cache` revalidation for entry point HTML/PHP to guarantee zero-latency deployment of new code revisions.
+  - **Non-Critical Code-Splitting & Video Preload Control**:
+    - Code-split `ThreeDShowcase` into a separate lazy-loaded bundle (`React.lazy()` + `<Suspense />`), preventing heavy 3D motion hooks and video references from competing with the initial hero render.
+    - Switched hardware video showcase from `preload="auto"` to `preload="none"`, saving 3.2 MB of cellular data on mobile.
+  - **Zero CLS & Layout Stability**:
+    - Supplied explicit `width` and `height` attributes to all images and components (`ProductCard`, `Image.jsx`, `Navbar`, `Footer`, `Login`, `Signup`, `ProductDetails`).
+  - **Deferred Non-Critical 3rd-Party Scripts**:
+    - Defer Google Customer Reviews Merchant Badge initialization to `requestIdleCallback` after window `load` event, preventing external scripts from blocking main thread execution.
 - **Highlighted 2–3 Hour Preparation Notice (Store Pickup & Free Shipping)**:
   - **Full Dual-Channel Synchrony**: Displayed prominently in transactional order emails and across the frontend ([`PaymentStatus.jsx`](file:///c:/Users/Hi/Desktop/tronix365-E_commerse/src/pages/PaymentStatus.jsx), [`OrderDetails.jsx`](file:///c:/Users/Hi/Desktop/tronix365-E_commerse/src/pages/OrderDetails.jsx), [`OrdersSection.jsx`](file:///c:/Users/Hi/Desktop/tronix365-E_commerse/src/components/dashboard/OrdersSection.jsx), and checkout shipping selector).
   - **Exact Order Timestamping**: Explicitly renders the exact order placement time with hour, minute, and AM/PM format (e.g. `October 10, 2026 at 11:05 AM IST`).

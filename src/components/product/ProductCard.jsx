@@ -82,6 +82,8 @@ const ProductCard = ({ product }) => {
                             src={getImageUrl(product.image)}
                             alt={product.title}
                             title={product.title}
+                            width={300}
+                            height={300}
                             className="max-h-full max-w-full object-contain mix-blend-multiply"
                         />
                     </Link>

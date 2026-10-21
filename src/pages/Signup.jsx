@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, User, ArrowLeft, RefreshCw, Loader, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import client from '../api/client';
-import logo from '../assets/logo.png';
+import logo from '../assets/logo.webp';
 import { useAuth } from '../context/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
 import { toast } from 'react-hot-toast';
@@ -223,7 +223,7 @@ const Signup = () => {
                     className="w-full max-w-md relative z-10 glass-card p-4 sm:p-6 rounded-2xl border border-white/10"
                 >
                     <div className="text-center">
-                        <img src={logo} alt="Tronix365 Logo" className="w-12 h-12 mx-auto mb-4 md:hidden" />
+                        <img src={logo} alt="Tronix365 Logo" width="48" height="48" loading="lazy" decoding="async" className="w-12 h-12 mx-auto mb-4 md:hidden" />
                         <h2 className="text-3xl font-display font-bold text-white mb-2">
                             {otpStep === 2 ? 'Verify Email' : 'Create Account'}
                         </h2>
@@ -435,7 +435,7 @@ const Signup = () => {
                 <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-violet-500/10 rounded-full blur-[100px]" />
                 
                 <div className="flex items-center gap-3 relative z-10">
-                    <img src={logo} alt="Tronix365 Logo" className="w-10 h-10 object-contain" />
+                    <img src={logo} alt="Tronix365 Logo" width="40" height="40" loading="lazy" decoding="async" className="w-10 h-10 object-contain" />
                     <span className="font-display font-bold text-xl text-white tracking-wider uppercase">Tronix<span className="text-tronix-primary">365</span></span>
                 </div>
 

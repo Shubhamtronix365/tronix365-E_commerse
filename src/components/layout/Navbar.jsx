@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Search, ShoppingCart, User, Menu, X, LogOut, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import logo from '../../assets/logo.png';
+import logo from '../../assets/logo.webp';
 import SearchOverlay from './SearchOverlay';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
@@ -37,7 +37,7 @@ const Navbar = () => {
                         {/* Logo */}
                         <Link to="/" className="flex-shrink-0 flex items-center gap-1.5 sm:gap-2 group">
                             <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center transition-transform group-hover:scale-110">
-                                <img src={logo} alt="Tronix365 Logo" className="w-full h-full object-contain" />
+                                <img src={logo} alt="Tronix365 Logo" width="40" height="40" className="w-full h-full object-contain" />
                             </div>
                             <span className="font-display font-bold text-lg sm:text-xl tracking-wider text-white">
                                 TRONIX<span className="text-tronix-primary">365</span>

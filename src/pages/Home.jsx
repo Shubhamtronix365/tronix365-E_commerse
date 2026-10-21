@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import HeroSlider from '../components/home/HeroSlider';
 import FeaturedProducts from '../components/home/FeaturedProducts';
 import { AboutSection, ContactSection } from '../components/home/InfoSections';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import logo from '../assets/logo.png';
+import logo from '../assets/logo.webp';
 import SEO from '../components/common/SEO';
-import ThreeDShowcase from '../components/home/ThreeDShowcase';
+
+const ThreeDShowcase = React.lazy(() => import('../components/home/ThreeDShowcase'));
 
 const Home = () => {
     return (
@@ -28,7 +29,15 @@ const Home = () => {
                         className="flex items-center gap-6"
                     >
                         <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl p-4 glass-card border border-white/20 shadow-2xl shadow-tronix-primary/20 flex items-center justify-center">
-                            <img src={logo} alt="Tronix365 Brand Logo" className="w-full h-full object-contain" />
+                            <img 
+                                src={logo} 
+                                alt="Tronix365 Brand Logo" 
+                                width="128" 
+                                height="128" 
+                                loading="lazy" 
+                                decoding="async" 
+                                className="w-full h-full object-contain" 
+                            />
                         </div>
                         <div>
                             <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-2">
@@ -58,8 +67,10 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* 3D Product Loop Showcase Section */}
-            <ThreeDShowcase />
+            {/* 3D Product Loop Showcase Section (Lazy-loaded to accelerate initial mobile paint) */}
+            <Suspense fallback={<div className="h-48 bg-tronix-dark/40" />}>
+                <ThreeDShowcase />
+            </Suspense>
 
             {/* Featured Products Section - now a component */}
             <FeaturedProducts />
@@ -71,8 +82,12 @@ const Home = () => {
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-violet-600/15 blur-[160px]" />
                     <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem]" />
                     <img
-                        src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=2000"
+                        src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=65&w=800"
                         alt="Electronics Banner"
+                        width="800"
+                        height="400"
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover opacity-15"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-tronix-bg via-transparent to-tronix-bg" />
