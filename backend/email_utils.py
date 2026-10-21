@@ -326,9 +326,18 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
         img_url = resolve_email_image_url(raw_img, frontend_url)
 
         title = getattr(p_obj, "title", "Electronics Item") if p_obj else "Electronics Item"
+        item_sku = (
+            getattr(item, "product_sku", None)
+            or (getattr(p_obj, "sku", None) if p_obj else None)
+            or (getattr(p_obj, "skv", None) if p_obj else None)
+        )
         unit_price = getattr(item, "price_at_purchase", 0.0) or 0.0
         qty = getattr(item, "quantity", 1) or 1
         line_total = unit_price * qty
+
+        sku_html = ""
+        if item_sku:
+            sku_html = f'''<p style="margin: 3px 0 0; font-size: 11px; font-family: 'Courier New', Courier, monospace; color: #6d28d9; background: #f5f3ff; display: inline-block; padding: 2px 7px; border-radius: 4px; border: 1px solid #ddd6fe; font-weight: 700;">SKU: {item_sku}</p>'''
 
         item_rows += f"""
         <tr>
@@ -341,6 +350,7 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
                 <a href="{product_url}" style="text-decoration: none; color: #0f172a;">
                     <p style="margin: 0; font-weight: 700; color: #0f172a; font-size: 14px; line-height: 1.4;">{title}</p>
                 </a>
+                {sku_html}
                 <p style="margin: 4px 0 0; font-size: 13px; color: #64748b;">Qty: <strong style="color: #6d28d9;">{qty}</strong> &nbsp;|&nbsp; Price: ₹{unit_price:,.2f}</p>
             </td>
             <td style="padding: 14px 12px; border-bottom: 1px solid #f1f5f9; text-align: right; vertical-align: middle; width: 110px;">

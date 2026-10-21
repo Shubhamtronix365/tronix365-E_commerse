@@ -99,6 +99,7 @@ class OrderItemDB(Base):
     bundle_id = Column(Integer, ForeignKey("bundles.id"), nullable=True)
     quantity = Column(Integer)
     price_at_purchase = Column(Float)  # Lock price at time of order
+    product_sku = Column(String, nullable=True)  # Snapshot SKU at purchase
 
     order = relationship("OrderDB", back_populates="items")
     product = relationship("ProductDB")
@@ -322,6 +323,7 @@ class OrderItem(BaseModel):
     product_id: Optional[int] = None
     quantity: int
     price_at_purchase: Optional[float] = None
+    product_sku: Optional[str] = None
     product: Optional[Product] = None
 
     class Config:

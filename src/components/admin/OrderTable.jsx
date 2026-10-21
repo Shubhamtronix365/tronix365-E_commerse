@@ -205,6 +205,36 @@ const OrderTable = ({
                                             )}
                                         </div>
 
+                                        {/* Purchased Items & SKUs Preview */}
+                                        {Array.isArray(order.items) && order.items.length > 0 && (
+                                            <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                                                {order.items.slice(0, 3).map((it, idx) => {
+                                                    const itSku = it.product_sku || it.product?.sku || it.product?.skv;
+                                                    const itTitle = it.product?.title || it.title || `Item #${it.product_id}`;
+                                                    return (
+                                                        <span
+                                                            key={idx}
+                                                            className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/[0.06] border border-white/10 text-[11px] font-mono text-gray-300"
+                                                            title={`${itTitle}${itSku ? ` (SKU: ${itSku})` : ''} × ${it.quantity}`}
+                                                        >
+                                                            <span className="text-white font-sans font-medium truncate max-w-[140px]">{itTitle}</span>
+                                                            {itSku && (
+                                                                <span className="text-violet-300 font-bold bg-violet-500/20 border border-violet-500/30 px-1 rounded text-[10px]">
+                                                                    {itSku}
+                                                                </span>
+                                                            )}
+                                                            <span className="text-gray-400 font-sans font-bold">&times;{it.quantity}</span>
+                                                        </span>
+                                                    );
+                                                })}
+                                                {order.items.length > 3 && (
+                                                    <span className="text-[11px] text-gray-400 font-sans font-semibold">
+                                                        +{order.items.length - 3} more
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
+
                                         {/* Cancellation / Bounce / Failure Reason Banner */}
                                         {order.cancellation_reason && (
                                             <div className="text-[11px] text-red-300 bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-lg inline-flex items-center gap-1.5 font-medium">

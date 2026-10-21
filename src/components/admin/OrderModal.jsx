@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { 
     X, Check, Truck, AlertTriangle, Package, Calendar, Mail, Phone, 
-    MapPin, Building, CreditCard, ShieldCheck, Tag, ChevronRight, Eye, ExternalLink, Clock
+    MapPin, Building, CreditCard, ShieldCheck, Tag, ChevronRight, Eye, ExternalLink, Clock, Copy
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getImageUrl } from '../../utils/imageUtils';
@@ -521,9 +522,28 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                                                                 {productObj.title || 'Electronics Product'}
                                                                 <Eye size={14} className="text-violet-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                                                             </p>
-                                                            <p className="text-xs text-gray-400">
-                                                                Qty: <span className="text-violet-300 font-bold">{item.quantity}</span> &times; ₹{Number(item.price_at_purchase || 0).toLocaleString()}
-                                                            </p>
+                                                            <div className="flex flex-wrap items-center gap-2 mt-1">
+                                                                <p className="text-xs text-gray-400">
+                                                                    Qty: <span className="text-violet-300 font-bold">{item.quantity}</span> &times; ₹{Number(item.price_at_purchase || 0).toLocaleString()}
+                                                                </p>
+                                                                {(item.product_sku || productObj.sku || productObj.skv) && (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            const skuText = item.product_sku || productObj.sku || productObj.skv;
+                                                                            navigator.clipboard.writeText(skuText);
+                                                                            toast.success(`Copied SKU: ${skuText}`);
+                                                                        }}
+                                                                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-violet-500/15 hover:bg-violet-500/25 border border-violet-500/30 text-violet-300 text-[11px] font-mono transition-colors"
+                                                                        title="Click to copy SKU"
+                                                                    >
+                                                                        <Tag size={10} className="text-violet-400" />
+                                                                        <span>SKU: <strong className="text-violet-100">{item.product_sku || productObj.sku || productObj.skv}</strong></span>
+                                                                        <Copy size={10} className="opacity-60 hover:opacity-100" />
+                                                                    </button>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div className="text-right">
@@ -635,8 +655,8 @@ const OrderModal = ({ isOpen, onClose, order, onUpdateOrderStatus }) => {
                                         <h4 className="text-lg font-extrabold text-white mt-1 leading-snug">
                                             {selectedProductPreview.title || 'Electronics Product'}
                                         </h4>
-                                        {selectedProductPreview.sku && (
-                                            <p className="text-gray-400 text-[11px] mt-0.5">SKU / Code: <span className="font-mono text-gray-200 font-bold">{selectedProductPreview.sku}</span></p>
+                                        {(selectedProductPreview.sku || selectedProductPreview.skv) && (
+                                            <p className="text-gray-400 text-[11px] mt-0.5">SKU / Code: <span className="font-mono text-gray-200 font-bold">{selectedProductPreview.sku || selectedProductPreview.skv}</span></p>
                                         )}
                                     </div>
 

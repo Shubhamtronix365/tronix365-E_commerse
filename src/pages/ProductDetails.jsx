@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Check, X as XIcon, ArrowLeft, ArrowRight, Star, ShieldCheck, Truck, Heart, Share2, FileText, Globe, Download, ExternalLink, Shield, HelpCircle, PackageCheck, Tag, Factory, Clock, Split, Zap } from 'lucide-react';
+import { ShoppingCart, Check, X as XIcon, ArrowLeft, ArrowRight, Star, ShieldCheck, Truck, Heart, Share2, FileText, Globe, Download, ExternalLink, Shield, HelpCircle, PackageCheck, Tag, Factory, Clock, Split, Zap, Copy } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useCartAnimation } from '../context/CartAnimationContext';
@@ -177,6 +177,17 @@ const ProductDetails = () => {
     const [isShareOpen, setIsShareOpen] = useState(false);
     const [isTowerModalOpen, setIsTowerModalOpen] = useState(false);
     const [requestedTowerQty, setRequestedTowerQty] = useState(10);
+    const [copiedSku, setCopiedSku] = useState(false);
+
+    const handleCopySku = (e) => {
+        if (e) e.preventDefault();
+        const skuCode = product?.sku || product?.skv;
+        if (!skuCode) return;
+        navigator.clipboard.writeText(skuCode);
+        setCopiedSku(true);
+        toast.success(`Copied SKU: ${skuCode}`, { duration: 2000 });
+        setTimeout(() => setCopiedSku(false), 2000);
+    };
 
 
     useEffect(() => {
@@ -349,7 +360,7 @@ const ProductDetails = () => {
                 description={product.description}
                 image={realProductImage}
                 price={product.price}
-                sku={product.skv}
+                sku={product.sku || product.skv}
                 category={product.category}
                 inStock={product.stock > 0}
                 url={canonicalProductUrl}
@@ -381,8 +392,27 @@ const ProductDetails = () => {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                     >
-                        <div className="mb-2 text-tronix-primary font-medium tracking-wide uppercase text-sm">
-                            {product.category}
+                        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                            <div className="text-tronix-primary font-medium tracking-wide uppercase text-sm">
+                                {product.category}
+                            </div>
+                            {(product.sku || product.skv) && (
+                                <button
+                                    type="button"
+                                    onClick={handleCopySku}
+                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono text-gray-300 hover:text-white transition-colors cursor-pointer group/sku shadow-sm"
+                                    title="Click to copy SKU / Part Number"
+                                >
+                                    <Tag size={13} className="text-violet-400" />
+                                    <span className="text-gray-400 font-sans text-[11px] font-medium">SKU:</span>
+                                    <span className="text-violet-200 font-bold">{product.sku || product.skv}</span>
+                                    {copiedSku ? (
+                                        <Check size={12} className="text-emerald-400 ml-0.5" />
+                                    ) : (
+                                        <Copy size={12} className="opacity-50 group-hover/sku:opacity-100 transition-opacity ml-0.5" />
+                                    )}
+                                </button>
+                            )}
                         </div>
                         <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-white mb-4 break-words">
                             {product.title}

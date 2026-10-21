@@ -33,6 +33,12 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
   - **Comprehensive Multi-Dimensional Filters**: Filter by Category dropdown, Stock status pills (*All*, *In Stock*, *Low Stock $\le 10$*, *Out of Stock*), and Sort options (*Newest*, *Oldest*, *Name A–Z*, *Name Z–A*, *Price Low–High*, *Price High–Low*, *Stock Low–High*, *Stock High–Low*).
   - **Interactive Numbered Pagination & Jump Controls**: First (`«`), Previous (`‹`), dynamic numbered window (`1, 2, 3 ...`), Next (`›`), and Last (`»`) controls with accurate item range indicators (`Showing 1–50 of 366 products`).
   - **Product Productivity Enhancements**: Dedicated SKU input in add/edit product modal, 1-click SKU copying to clipboard, direct storefront product link (`ExternalLink`), real-time stock badges, and synchronized dual-tier image storage.
+- **Omnichannel SKU & Part Number Synchronization System**:
+  - **Real-Time Catalog & Admin Sync**: Unifies product `sku` and `skv` across PostgreSQL, ensuring changes made in the Admin Edit Modal immediately reflect across the product catalog table, search filters, and store APIs without drift.
+  - **Storefront Product Page Visibility**: Prominent SKU / Part Number badge with 1-click clipboard copy directly on every product page and shop catalog card, providing instant access for engineers, makers, and store managers.
+  - **Instant Order SKU Visibility (No Login Required)**: Every order notification email sent to the store admin (`shubham.tronix365@gmail.com`) and customer clearly displays item SKUs under product titles for instant warehouse picking.
+  - **Admin Orders Feed & Modal Integration**: Order cards on the admin feed display purchased item summaries with SKU tags (`[BHavesh] × 1`), and the Order Modal features 1-click SKU copy buttons on every line item.
+  - **Database Order Item Snapshots**: Permanently captures `product_sku` in `order_items` at checkout time, preserving historical part numbers regardless of future catalog edits.
 - **Automated Order Lifecycle Email System**: Branded, responsive HTML email templates for all order statuses (Order Placed, Confirmed, Shipped, Out for Delivery, Delivered, Cancelled, Refunds, Returns, Exchanges).
 - **Mandatory Dual Recipients**: Every order notification email is automatically sent to both the registered customer and `shubham.tronix365@gmail.com`.
 - **Database Email Audit Logging**: Records every sent/failed email with recipient details, subject, order ID, status trigger, and timestamp.

@@ -262,9 +262,11 @@ const AdminDashboard = () => {
     const handleSaveProduct = async (e) => {
         e.preventDefault();
         try {
+            const skuVal = newProduct.sku ? newProduct.sku.trim() : null;
             const payload = { 
                 ...newProduct,
-                sku: newProduct.sku ? newProduct.sku.trim() : null,
+                sku: skuVal,
+                skv: skuVal,
                 price: newProduct.price === '' ? 0 : Number(newProduct.price),
                 mrp: newProduct.mrp === '' ? null : Number(newProduct.mrp),
                 stock: newProduct.stock === '' ? 0 : Number(newProduct.stock)

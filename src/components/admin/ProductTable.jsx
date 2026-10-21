@@ -381,14 +381,14 @@ const ProductTable = ({
 
                                     {/* SKU / SKV */}
                                     <td className="px-6 py-3.5 font-mono text-xs">
-                                        {item.skv ? (
+                                        {(item.sku || item.skv) ? (
                                             <button
-                                                onClick={() => handleCopySku(item.skv)}
+                                                onClick={() => handleCopySku(item.sku || item.skv)}
                                                 className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white transition-colors"
                                                 title="Click to copy SKU"
                                             >
-                                                <span>{item.skv}</span>
-                                                {copiedSku === item.skv ? (
+                                                <span>{item.sku || item.skv}</span>
+                                                {copiedSku === (item.sku || item.skv) ? (
                                                     <Check size={12} className="text-emerald-400" />
                                                 ) : (
                                                     <Copy size={12} className="opacity-60" />

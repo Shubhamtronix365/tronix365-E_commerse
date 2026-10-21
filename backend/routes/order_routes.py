@@ -79,8 +79,12 @@ async def create_order(
             else (product.sale_price if product.sale_price else 0.0)
         )
 
+        item_sku = getattr(product, "sku", None) or getattr(product, "skv", None)
         order_item = OrderItemDB(
-            product_id=item.product_id, quantity=item.quantity, price_at_purchase=price
+            product_id=item.product_id,
+            quantity=item.quantity,
+            price_at_purchase=price,
+            product_sku=item_sku,
         )
         new_order.items.append(order_item)
 
@@ -258,11 +262,15 @@ async def get_orders(
         ]
         
         product_filter = OrderDB.items.any(
-            OrderItemDB.product.has(
-                or_(
-                    ProductDB.title.ilike(search_term),
-                    ProductDB.skv.ilike(search_term),
-                )
+            or_(
+                OrderItemDB.product_sku.ilike(search_term),
+                OrderItemDB.product.has(
+                    or_(
+                        ProductDB.title.ilike(search_term),
+                        ProductDB.skv.ilike(search_term),
+                        ProductDB.sku.ilike(search_term),
+                    )
+                ),
             )
         )
         filters.append(product_filter)

@@ -106,8 +106,13 @@ const ProductCard = ({ product }) => {
                 {/* Content Details */}
                 <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between space-y-2 sm:space-y-3">
                     <div>
-                        <div className="text-[11px] sm:text-xs text-purple-400 font-medium mb-1 truncate">
-                            {product.category || 'Development Boards'}
+                        <div className="flex items-center justify-between text-[11px] sm:text-xs text-purple-400 font-medium mb-1">
+                            <span className="truncate">{product.category || 'Development Boards'}</span>
+                            {(product.sku || product.skv) && (
+                                <span className="font-mono text-[10px] text-gray-400 bg-white/5 px-1.5 py-0.5 rounded border border-white/5 shrink-0 ml-1">
+                                    {product.sku || product.skv}
+                                </span>
+                            )}
                         </div>
                         <Link to={`/product/${slugify(product.title)}`} className="block">
                             <h3 className="text-white font-medium text-xs sm:text-sm md:text-base leading-snug line-clamp-2 group-hover:text-purple-300 transition-colors min-h-[2.5rem]">
