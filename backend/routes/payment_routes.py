@@ -1,8 +1,8 @@
 import os
 import hashlib
 from typing import List, Optional
-from urllib.parse import urlparse
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Form
+from urllib.parse import urlparse, quote
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Form, Request
 from fastapi.responses import RedirectResponse, HTMLResponse
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session, joinedload
@@ -22,6 +22,135 @@ from services.shiprocket import shiprocket_automation
 from email_utils import send_order_status_email
 
 router = APIRouter(tags=["Payments"])
+
+SUSPENDED_RENDER_HOST = "tronix365-e-commerse.onrender.com"
+ACTIVE_RENDER_HOST = "tronix365-e-commerse-xhlw.onrender.com"
+
+
+def _resolve_backend_url(request: Request) -> str:
+    """
+    Resolves the canonical backend URL for payment gateway callbacks (surl/furl).
+    Safely bypasses any legacy or suspended Render host configuration.
+    """
+    env_backend = (os.getenv("BACKEND_URL") or "").strip().rstrip("/")
+    if env_backend and SUSPENDED_RENDER_HOST not in env_backend:
+        return env_backend
+
+    proto = request.headers.get("x-forwarded-proto", request.url.scheme or "https")
+    host = request.headers.get("x-forwarded-host", request.headers.get("host", "")).strip()
+    if host and SUSPENDED_RENDER_HOST not in host:
+        return f"{proto}://{host}".rstrip("/")
+
+    return f"https://{ACTIVE_RENDER_HOST}"
+
+
+def _resolve_frontend_url(request: Request) -> str:
+    """
+    Resolves the frontend URL ensuring redirection to the live store.
+    """
+    env_frontend = (os.getenv("FRONTEND_URL") or "").strip().rstrip("/")
+    host = request.headers.get("x-forwarded-host", request.headers.get("host", ""))
+    is_cloud = "onrender.com" in host or "tronix365.in" in host or "tronix.in" in host
+
+    if is_cloud and (not env_frontend or "localhost" in env_frontend or "127.0.0.1" in env_frontend):
+        return "https://www.tronix365.in/e-commerse"
+
+    if env_frontend:
+        if ("tronix365.in" in env_frontend or "tronix.in" in env_frontend) and "/e-commerse" not in env_frontend:
+            return f"{env_frontend}/e-commerse"
+        return env_frontend
+
+    return "http://localhost:5173"
+
+
+def _render_redirect_page(target_url: str) -> HTMLResponse:
+    """
+    Renders an instant client-side auto-redirect HTML response.
+    Guarantees seamless cross-origin navigation after gateway POST callback.
+    """
+    html_content = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="refresh" content="0; url={target_url}">
+    <title>Redirecting to Tronix365...</title>
+    <style>
+        body {{
+            background: #0F172A;
+            color: #FFFFFF;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 16px;
+            box-sizing: border-box;
+        }}
+        .card {{
+            text-align: center;
+            padding: 32px 24px;
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+        }}
+        h2 {{
+            margin: 0 0 8px 0;
+            font-size: 22px;
+            font-weight: 700;
+        }}
+        p {{
+            color: #94A3B8;
+            font-size: 14px;
+            margin: 0 0 24px 0;
+            line-height: 1.5;
+        }}
+        .btn {{
+            display: inline-block;
+            padding: 12px 24px;
+            background: #8B5CF6;
+            color: #FFFFFF;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background 0.2s;
+        }}
+        .btn:hover {{
+            background: #7C3AED;
+        }}
+        .spinner {{
+            width: 36px;
+            height: 36px;
+            border: 3px solid rgba(139, 92, 246, 0.2);
+            border-top-color: #8B5CF6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px auto;
+        }}
+        @keyframes spin {{
+            to {{ transform: rotate(360deg); }}
+        }}
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="spinner"></div>
+        <h2>Redirecting to Tronix365</h2>
+        <p>Taking you back to review your order details...</p>
+        <a class="btn" href="{target_url}">Click here if not redirected automatically</a>
+    </div>
+    <script>
+        window.location.replace("{target_url}");
+    </script>
+</body>
+</html>"""
+    return HTMLResponse(content=html_content, status_code=200)
+
 
 
 class PaymentItem(BaseModel):
@@ -56,6 +185,7 @@ class PaymentInitiate(BaseModel):
 
 @router.post("/payment/initiate")
 async def initiate_payment(
+    request: Request,
     payment: PaymentInitiate,
     db: Session = Depends(get_db),
     current_user: UserDB = Depends(get_current_user),
@@ -148,15 +278,14 @@ async def initiate_payment(
     db.commit()
     db.refresh(new_order)
 
+    backend_base = _resolve_backend_url(request)
     payu_env = os.getenv("PAYU_ENV", "MOCK").upper()
     if payu_env == "PROD":
         action_url = "https://secure.payu.in/_payment"
     elif payu_env == "TEST":
         action_url = "https://test.payu.in/_payment"
     else:
-        action_url = (
-            f"{os.getenv('BACKEND_URL', 'http://localhost:8000')}/payment/mock-process"
-        )
+        action_url = f"{backend_base}/payment/mock-process"
 
     amount_str = f"{payment.amount:.2f}"
 
@@ -178,8 +307,8 @@ async def initiate_payment(
         "firstname": payment.firstname,
         "email": current_user.email,
         "phone": payment.phone,
-        "surl": f"{os.getenv('BACKEND_URL', 'http://localhost:8000')}/payment/callback",
-        "furl": f"{os.getenv('BACKEND_URL', 'http://localhost:8000')}/payment/callback",
+        "surl": f"{backend_base}/payment/callback",
+        "furl": f"{backend_base}/payment/callback",
         "hash": hash_value,
         "action": action_url,
     }
@@ -188,6 +317,7 @@ async def initiate_payment(
 @router.post("/payment/retry/{order_id}")
 async def retry_payment(
     order_id: int,
+    request: Request,
     current_user: UserDB = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -242,15 +372,14 @@ async def retry_payment(
     key = os.getenv("PAYU_KEY")
     salt = os.getenv("PAYU_SALT")
 
+    backend_base = _resolve_backend_url(request)
     payu_env = os.getenv("PAYU_ENV", "MOCK").upper()
     if payu_env == "PROD":
         action_url = "https://secure.payu.in/_payment"
     elif payu_env == "TEST":
         action_url = "https://test.payu.in/_payment"
     else:
-        action_url = (
-            f"{os.getenv('BACKEND_URL', 'http://localhost:8000')}/payment/mock-process"
-        )
+        action_url = f"{backend_base}/payment/mock-process"
 
     amount_str = f"{order.total_amount:.2f}"
     productinfo = f"Order for {len(order.items)} items"
@@ -273,8 +402,8 @@ async def retry_payment(
         "firstname": order.full_name or "Customer",
         "email": order.customer_email,
         "phone": order.phone or "",
-        "surl": f"{os.getenv('BACKEND_URL', 'http://localhost:8000')}/payment/callback",
-        "furl": f"{os.getenv('BACKEND_URL', 'http://localhost:8000')}/payment/callback",
+        "surl": f"{backend_base}/payment/callback",
+        "furl": f"{backend_base}/payment/callback",
         "hash": hash_value,
         "action": action_url,
     }
@@ -282,6 +411,7 @@ async def retry_payment(
 
 @router.post("/payment/mock-process")
 async def mock_payment_process(
+    request: Request,
     key: str = Form(...),
     txnid: str = Form(...),
     amount: str = Form(...),
@@ -293,8 +423,8 @@ async def mock_payment_process(
     furl: str = Form(...),
     hash: str = Form(...),
 ):
-    backend_url = os.getenv("BACKEND_URL", "http://localhost:8000")
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    backend_url = _resolve_backend_url(request)
+    frontend_url = _resolve_frontend_url(request)
     
     parsed_backend = urlparse(backend_url)
     parsed_frontend = urlparse(frontend_url)
@@ -373,6 +503,7 @@ async def mock_payment_process(
 
 @router.post("/payment/callback")
 async def payment_callback(
+    request: Request,
     background_tasks: BackgroundTasks,
     status: str = Form(...),
     firstname: str = Form(...),
@@ -388,7 +519,7 @@ async def payment_callback(
 ):
     key = os.getenv("PAYU_KEY")
     salt = os.getenv("PAYU_SALT")
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+    frontend_url = _resolve_frontend_url(request)
 
     if not verify_payu_hash(
         salt, status, "", email, firstname, productinfo, amount, txnid, key, hash
@@ -398,13 +529,8 @@ async def payment_callback(
         if order:
             order.status = "tampered"
             db.commit()
-        if ("tronix365.in" in frontend_url or "tronix.in" in frontend_url) and "/e-commerse" not in frontend_url:
-            frontend_url = f"{frontend_url}/e-commerse"
 
-        return RedirectResponse(
-            url=f"{frontend_url}/payment/failure?txnid={txnid}&reason=tampered",
-            status_code=303,
-        )
+        return _render_redirect_page(f"{frontend_url}/payment/failure?txnid={txnid}&status=tampered&reason=tampered")
 
     print(f"Payment Callback: {status} (unmapped: {unmappedstatus}, error: {error}) for {txnid}")
 
@@ -444,18 +570,14 @@ async def payment_callback(
             order.cancellation_date = datetime.utcnow()
             db.commit()
 
-    if ("tronix365.in" in frontend_url or "tronix.in" in frontend_url) and "/e-commerse" not in frontend_url:
-        frontend_url = f"{frontend_url}/e-commerse"
-
     if status == "success":
-        return RedirectResponse(
-            url=f"{frontend_url}/payment/success?txnid={txnid}", status_code=303
-        )
+        target_url = f"{frontend_url}/payment/success?txnid={txnid}"
     else:
         order_st = order.status if order else "payment_failed"
-        return RedirectResponse(
-            url=f"{frontend_url}/payment/failure?txnid={txnid}&status={order_st}", status_code=303
-        )
+        err_msg = error or error_Message or unmappedstatus or "Payment was not completed"
+        target_url = f"{frontend_url}/payment/failure?txnid={txnid}&status={order_st}&reason={quote(str(err_msg))}"
+
+    return _render_redirect_page(target_url)
 
 
 @router.post("/payment/cancel/{txnid}")

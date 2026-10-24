@@ -262,7 +262,9 @@ const AdminDashboard = () => {
     const handleSaveProduct = async (e) => {
         e.preventDefault();
         try {
-            const skuVal = newProduct.sku ? newProduct.sku.trim() : null;
+            const skuVal = (newProduct.sku && typeof newProduct.sku === 'string' && newProduct.sku.trim())
+                ? newProduct.sku.trim()
+                : null;
             const payload = { 
                 ...newProduct,
                 sku: skuVal,
@@ -319,7 +321,11 @@ const AdminDashboard = () => {
             });
         } catch (error) {
             console.error("DEBUG: Save product error:", error);
-            toast.error('Failed to save product');
+            const errorDetail = error.response?.data?.detail 
+                || (typeof error.response?.data === 'string' ? error.response.data : null)
+                || error.message 
+                || 'Failed to save product';
+            toast.error(errorDetail, { duration: 5000 });
         }
     };
 

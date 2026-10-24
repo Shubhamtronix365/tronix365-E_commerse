@@ -35,6 +35,8 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
   - **Product Productivity Enhancements**: Dedicated SKU input in add/edit product modal, 1-click SKU copying to clipboard, direct storefront product link (`ExternalLink`), real-time stock badges, and synchronized dual-tier image storage.
 - **Omnichannel SKU & Part Number Synchronization System**:
   - **Real-Time Catalog & Admin Sync**: Unifies product `sku` and `skv` across PostgreSQL, ensuring changes made in the Admin Edit Modal immediately reflect across the product catalog table, search filters, and store APIs without drift.
+  - **Proactive Duplicate SKU Conflict Prevention**: Validates SKU uniqueness prior to database commit; if an existing product already holds that SKU, returns an explicit, friendly error pinpointing the conflicting product ID and title (e.g. `SKU 'XYZ' is already in use by product #452 ('ULN2803')`).
+  - **Transparent Frontend Error Feedback**: Captures and renders detailed backend validation messages directly in toast notifications and logs, eliminating opaque 400 Bad Request failures.
   - **Storefront Product Page Visibility**: Prominent SKU / Part Number badge with 1-click clipboard copy directly on every product page and shop catalog card, providing instant access for engineers, makers, and store managers.
   - **Instant Order SKU Visibility (No Login Required)**: Every order notification email sent to the store admin (`shubham.tronix365@gmail.com`) and customer clearly displays item SKUs under product titles for instant warehouse picking.
   - **Admin Orders Feed & Modal Integration**: Order cards on the admin feed display purchased item summaries with SKU tags (`[BHavesh] × 1`), and the Order Modal features 1-click SKU copy buttons on every line item.
@@ -54,6 +56,10 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
     5. *Payment verification & factory production initiation* — Auto-calculates dispatch and delivery windows with payment confirmation email.
     6. *Consignment shipment & live logistics tracker* — (Factory Lead Time + Shipping Transit Time tracked on customer portal with dispatch tracking email).
   - **Zero-Delay Real-Time Status Synchronization**: Instantaneous UI updates on the customer dashboard upon admin status changes via `BroadcastChannel`, `localStorage` cross-tab events, window focus listener, and smart background polling with visual milestone card pulse animations.
+- **Resilient Payment Gateway Callback & Failure Recovery Routing**:
+  - **Dynamic Callback Host Resolution**: Automatically bypasses legacy or suspended Render hosting endpoints (`tronix365-e-commerse.onrender.com`), ensuring PayU success and failure callbacks (`surl` / `furl`) resolve to the active backend service (`tronix365-e-commerse-xhlw.onrender.com`).
+  - **Seamless Failure Redirect Bridge**: Translates gateway POST callbacks into client-side auto-redirects (`<meta http-equiv="refresh">` + `window.location.replace`) directing customers straight to `/payment/failure?txnid=...&status=...&reason=...`.
+  - **Interactive 1-Click Retry Experience**: The failure page (`PaymentStatus.jsx`) displays transaction details, bank decline reasons, an immediate "Retry Secure Payment" button (which generates a new payment attempt for the same order), and quick links to review cart or continue browsing.
 - **Google Customer Reviews Opt-In Integration**: Official Google Merchant Center post-checkout survey integration (Merchant ID: `5820417048`) on the order confirmation screen.
 - **Saved Address Book & 1-Click Fast Checkout**: Complete multi-address book for registered customers (Home, Office, Factory, Warehouse, Other) with default address flags, automatic PIN code postal lookup (India Post API), and B2B GSTIN tax invoicing support.
   - **User Dashboard Address Book**: Add, edit, delete, and switch default shipping destinations with an intuitive dark bento UI.

@@ -49,7 +49,7 @@ This guide describes the steps required to deploy the **Tronix365 E-commerce Pla
    | `SECRET_KEY` | A secure, random string for signing JWT tokens |
    | `CORS_ORIGINS` | `https://www.tronix365.in,https://tronix365.in` |
    | `FRONTEND_URL` | `https://www.tronix365.in/e-commerse` |
-   | `BACKEND_URL` | Your live Render service URL (e.g., `https://your-app.onrender.com`) |
+   | `BACKEND_URL` | `https://tronix365-e-commerse-xhlw.onrender.com` (Ensure you use this active service URL, NOT the old suspended service) |
    | `GOOGLE_CLIENT_ID` | Google OAuth Client ID |
    | `GOOGLE_CLIENT_SECRET` | Google OAuth Client Secret |
    | `GEMINI_API_KEY` | Gemini API Key for chatbot integrations |

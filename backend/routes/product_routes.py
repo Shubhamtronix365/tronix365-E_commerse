@@ -348,19 +348,39 @@ async def create_product(
     if product_dict.get("image"):
         product_dict["image"] = _normalize_product_image(product_dict["image"])
 
-    # Ensure sku and skv are synchronized
-    if product_dict.get("sku") and not product_dict.get("skv"):
-        product_dict["skv"] = product_dict["sku"]
-    elif product_dict.get("skv") and not product_dict.get("sku"):
-        product_dict["sku"] = product_dict["skv"]
+    # Clean & normalize SKU / SKV
+    sku_val = product_dict.get("sku")
+    skv_val = product_dict.get("skv")
+    if isinstance(sku_val, str):
+        sku_val = sku_val.strip() or None
+    if isinstance(skv_val, str):
+        skv_val = skv_val.strip() or None
+
+    target_sku = sku_val or skv_val
+    product_dict["sku"] = target_sku
+    product_dict["skv"] = target_sku
+
+    # Check for SKU conflict before saving
+    if target_sku:
+        existing = db.query(ProductDB).filter(
+            (ProductDB.skv == target_sku) | (ProductDB.sku == target_sku)
+        ).first()
+        if existing:
+            raise HTTPException(
+                status_code=400,
+                detail=f"SKU/SKV '{target_sku}' is already in use by product #{existing.id} ('{existing.title}'). Please enter a unique SKU."
+            )
 
     new_product = ProductDB(**product_dict)
     db.add(new_product)
     try:
         db.commit()
-    except IntegrityError:
+    except IntegrityError as e:
         db.rollback()
-        raise HTTPException(status_code=400, detail="Product SKU/SKV is already in use by another product.")
+        err_info = str(e.orig) if hasattr(e, "orig") else str(e)
+        if "unique" in err_info.lower() or "skv" in err_info.lower():
+            raise HTTPException(status_code=400, detail="Product SKU/SKV is already in use by another product.")
+        raise HTTPException(status_code=400, detail=f"Database constraint error: {err_info}")
 
     db.refresh(new_product)
     await FastAPICache.clear(namespace="products")
@@ -382,14 +402,32 @@ async def update_product(
     if "image" in product_data and product_data["image"]:
         product_data["image"] = _normalize_product_image(product_data["image"])
 
-    # Synchronize sku and skv across the product record
-    if "sku" in product_data:
-        new_sku = product_data["sku"]
-        if "skv" not in product_data or not product_data["skv"] or product_data.get("skv") == db_product.skv:
-            product_data["skv"] = new_sku
-    elif "skv" in product_data:
-        if "sku" not in product_data or not product_data["sku"]:
-            product_data["sku"] = product_data["skv"]
+    # Clean & normalize SKU / SKV across the product record
+    has_sku = "sku" in product_data
+    has_skv = "skv" in product_data
+    if has_sku or has_skv:
+        sku_val = product_data.get("sku")
+        skv_val = product_data.get("skv")
+        if isinstance(sku_val, str):
+            sku_val = sku_val.strip() or None
+        if isinstance(skv_val, str):
+            skv_val = skv_val.strip() or None
+
+        target_sku = sku_val if has_sku else skv_val
+        product_data["sku"] = target_sku
+        product_data["skv"] = target_sku
+
+        # Check for SKU conflict with another product
+        if target_sku:
+            existing = db.query(ProductDB).filter(
+                (ProductDB.skv == target_sku) | (ProductDB.sku == target_sku),
+                ProductDB.id != product_id
+            ).first()
+            if existing:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"SKU/SKV '{target_sku}' is already in use by product #{existing.id} ('{existing.title}'). Please enter a unique SKU."
+                )
 
     for key, value in product_data.items():
         setattr(db_product, key, value)
@@ -399,9 +437,12 @@ async def update_product(
 
     try:
         db.commit()
-    except IntegrityError:
+    except IntegrityError as e:
         db.rollback()
-        raise HTTPException(status_code=400, detail="Product SKU/SKV is already in use by another product.")
+        err_info = str(e.orig) if hasattr(e, "orig") else str(e)
+        if "unique" in err_info.lower() or "skv" in err_info.lower():
+            raise HTTPException(status_code=400, detail="Product SKU/SKV is already in use by another product.")
+        raise HTTPException(status_code=400, detail=f"Database constraint error: {err_info}")
 
     db.refresh(db_product)
     await FastAPICache.clear(namespace="products")

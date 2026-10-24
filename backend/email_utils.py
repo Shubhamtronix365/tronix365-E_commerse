@@ -152,8 +152,20 @@ def send_email_via_brevo(
         return False
 
 
+SUSPENDED_RENDER_HOST = "tronix365-e-commerse.onrender.com"
+ACTIVE_RENDER_HOST = "tronix365-e-commerse-xhlw.onrender.com"
+
+
+def get_canonical_backend_url() -> str:
+    """Returns the canonical backend URL, filtering out any suspended Render URL."""
+    backend = os.getenv("BACKEND_URL", "http://localhost:8000").strip().rstrip("/")
+    if SUSPENDED_RENDER_HOST in backend:
+        return f"https://{ACTIVE_RENDER_HOST}"
+    return backend
+
+
 # Public URL base for hosted email assets (logo, icons)
-EMAIL_ASSETS_BASE_URL = os.getenv("BACKEND_URL", "http://localhost:8000") + "/email-assets"
+EMAIL_ASSETS_BASE_URL = get_canonical_backend_url() + "/email-assets"
 
 
 def get_logo_url() -> str:
@@ -197,7 +209,7 @@ def resolve_email_image_url(raw_img_url: Optional[str], frontend_url: str) -> st
     Encodes spaces and special characters so Gmail proxy never fails to render.
     """
     import urllib.parse
-    backend_base = os.getenv("BACKEND_URL", "http://localhost:8000").rstrip("/")
+    backend_base = get_canonical_backend_url()
     logo_cdn = LOGO_PUBLIC_URL
 
     if not raw_img_url or not isinstance(raw_img_url, str):
@@ -1691,7 +1703,7 @@ def send_abandoned_cart_email(
         if not img_url:
             img_url = get_logo_url()
         elif not img_url.startswith("http"):
-            backend_base = os.getenv("BACKEND_URL", "http://localhost:8000")
+            backend_base = get_canonical_backend_url()
             img_url = f"{backend_base}/{img_url.lstrip('/')}"
 
         rows_html.append(f"""
