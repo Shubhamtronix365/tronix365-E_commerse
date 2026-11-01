@@ -9,6 +9,7 @@ import { getImageUrl } from '../../utils/imageUtils';
 import { slugify } from '../../utils/slugify';
 
 import { useCategories } from '../../hooks/useCategories';
+import { parseSpecsText, formatSpecsToText } from '../../utils/specUtils';
 
 const ProductModal = ({
     isOpen,
@@ -22,75 +23,66 @@ const ProductModal = ({
     fileInputRef
 }) => {
     const { categories } = useCategories();
-    const [specPasteMode, setSpecPasteMode] = useState(false);
-    const [bulkSpecsText, setBulkSpecsText] = useState('');
+    const [specViewMode, setSpecViewMode] = useState('table'); // 'table' or 'textarea'
+
+    const handleSpecsTextChange = (e) => {
+        const text = e.target.value;
+        const parsed = parseSpecsText(text);
+        setNewProduct(prev => ({
+            ...prev,
+            specsText: text,
+            specs: parsed
+        }));
+    };
 
     const handleAddSpecRow = () => {
         const currentSpecs = Array.isArray(newProduct.specs) ? newProduct.specs : [];
-        setNewProduct({
-            ...newProduct,
-            specs: [...currentSpecs, { key: '', value: '' }]
-        });
+        const updated = [...currentSpecs, { key: '', value: '' }];
+        setNewProduct(prev => ({
+            ...prev,
+            specs: updated,
+            specsText: formatSpecsToText(updated)
+        }));
     };
 
     const handleAddSpecPreset = (presetKey) => {
         const currentSpecs = Array.isArray(newProduct.specs) ? newProduct.specs : [];
         if (currentSpecs.some(s => s.key?.toLowerCase() === presetKey.toLowerCase())) return;
-        setNewProduct({
-            ...newProduct,
-            specs: [...currentSpecs, { key: presetKey, value: '' }]
-        });
+        const updated = [...currentSpecs, { key: presetKey, value: '' }];
+        setNewProduct(prev => ({
+            ...prev,
+            specs: updated,
+            specsText: formatSpecsToText(updated)
+        }));
     };
 
     const handleUpdateSpecRow = (index, field, val) => {
         const currentSpecs = Array.isArray(newProduct.specs) ? [...newProduct.specs] : [];
         if (!currentSpecs[index]) return;
         currentSpecs[index] = { ...currentSpecs[index], [field]: val };
-        setNewProduct({
-            ...newProduct,
-            specs: currentSpecs
-        });
+        setNewProduct(prev => ({
+            ...prev,
+            specs: currentSpecs,
+            specsText: formatSpecsToText(currentSpecs)
+        }));
     };
 
     const handleDeleteSpecRow = (index) => {
         const currentSpecs = Array.isArray(newProduct.specs) ? [...newProduct.specs] : [];
         currentSpecs.splice(index, 1);
-        setNewProduct({
-            ...newProduct,
-            specs: currentSpecs
-        });
+        setNewProduct(prev => ({
+            ...prev,
+            specs: currentSpecs,
+            specsText: formatSpecsToText(currentSpecs)
+        }));
     };
 
-    const handleApplyBulkSpecs = () => {
-        if (!bulkSpecsText.trim()) return;
-        const lines = bulkSpecsText.split('\n');
-        const newSpecs = [];
-        lines.forEach(line => {
-            const clean = line.trim();
-            if (!clean) return;
-            let delimiter = ':';
-            if (clean.includes('|')) delimiter = '|';
-            else if (clean.includes('\t')) delimiter = '\t';
-            else if (clean.includes(':')) delimiter = ':';
-
-            const idx = clean.indexOf(delimiter);
-            if (idx > 0) {
-                const k = clean.slice(0, idx).trim().replace(/^[-*•\s]+/, '');
-                const v = clean.slice(idx + 1).trim();
-                if (k && v) newSpecs.push({ key: k, value: v });
-            } else {
-                newSpecs.push({ key: clean.replace(/^[-*•\s]+/, ''), value: '-' });
-            }
-        });
-        if (newSpecs.length > 0) {
-            const existing = Array.isArray(newProduct.specs) ? newProduct.specs : [];
-            setNewProduct({
-                ...newProduct,
-                specs: [...existing, ...newSpecs]
-            });
-            setBulkSpecsText('');
-            setSpecPasteMode(false);
-        }
+    const handleClearAllSpecs = () => {
+        setNewProduct(prev => ({
+            ...prev,
+            specs: [],
+            specsText: ''
+        }));
     };
     return (
         <AnimatePresence>
@@ -258,20 +250,43 @@ const ProductModal = ({
                                             />
                                         </div>
 
+                                        {/* Specifications (One per line) & Features (One per line) - Option shown like in Image 2 */}
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-300 mb-1.5 pl-1 flex items-center justify-between">
+                                                    <span className="flex items-center gap-1.5 text-violet-300 font-semibold">
+                                                        <Sliders size={14} className="text-violet-400" /> Specifications
+                                                    </span>
+                                                    <span className="text-xs text-gray-400 font-normal">One per line (Key: Value)</span>
+                                                </label>
+                                                <textarea
+                                                    rows="4"
+                                                    placeholder="Operating Voltage: 3.3V to 5V DC&#10;Clock Speed: 16 MHz&#10;Microcontroller: ATmega328P&#10;Dimensions: 68.6 x 53.4 mm"
+                                                    value={newProduct.specsText || ''}
+                                                    onChange={handleSpecsTextChange}
+                                                    className="w-full bg-black/20 border border-violet-500/25 focus:border-tronix-primary rounded-xl px-3 py-2 text-white placeholder-gray-600 focus:ring-1 focus:ring-tronix-primary outline-none resize-none font-mono text-xs custom-scrollbar"
+                                                />
+                                                <div className="flex items-center justify-between text-[11px] text-gray-400 mt-1 px-1">
+                                                    <span className="text-violet-300">{(newProduct.specs || []).length} specs parsed</span>
+                                                    <span className="text-gray-400">Synced with Table Editor below ↓</span>
+                                                </div>
+                                            </div>
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-300 mb-1.5 pl-1 flex items-center justify-between">
                                                     <span>Features</span>
                                                     <span className="text-xs text-gray-500 font-normal">One per line</span>
                                                 </label>
                                                 <textarea
-                                                    rows="3"
+                                                    rows="4"
                                                     placeholder="e.g. ESP32-based Wi-Fi/Bluetooth&#10;16M Flash, 8M PSRAM"
                                                     value={newProduct.features || ''}
                                                     onChange={(e) => setNewProduct({ ...newProduct, features: e.target.value })}
                                                     className="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-gray-600 focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary outline-none resize-none font-mono text-xs"
                                                 />
                                             </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-300 mb-1.5 pl-1 flex items-center justify-between">
                                                     <span>Applications</span>
@@ -285,9 +300,6 @@ const ProductModal = ({
                                                     className="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-gray-600 focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary outline-none resize-none font-mono text-xs"
                                                 />
                                             </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-300 mb-1.5 pl-1 flex items-center justify-between">
                                                     <span>Package Includes</span>
@@ -301,6 +313,9 @@ const ProductModal = ({
                                                     className="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-gray-600 focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary outline-none resize-none font-mono text-xs"
                                                 />
                                             </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-300 mb-1.5 pl-1 flex items-center justify-between">
                                                     <span>Useful Links</span>
@@ -314,9 +329,6 @@ const ProductModal = ({
                                                     className="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-gray-600 focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary outline-none resize-none font-mono text-xs"
                                                 />
                                             </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-300 mb-1.5 pl-1 flex items-center justify-between">
                                                     <span>Attachments / PDF Datasheets</span>
@@ -355,7 +367,7 @@ const ProductModal = ({
                                         </div>
                                     </div>
 
-                                    {/* Technical Specifications Panel */}
+                                    {/* Technical Specifications Panel - Providing BOTH Table View & Textarea View */}
                                     <div className="bg-white/5 border border-white/5 rounded-2xl p-5 space-y-4">
                                         <div className="flex items-center justify-between flex-wrap gap-2">
                                             <div className="flex items-center gap-2">
@@ -367,22 +379,35 @@ const ProductModal = ({
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setSpecPasteMode(!specPasteMode)}
-                                                    className={`text-xs px-2.5 py-1 rounded-lg border transition-all flex items-center gap-1.5 ${
-                                                        specPasteMode 
-                                                            ? 'bg-violet-600 text-white border-violet-500 shadow-md shadow-violet-500/20 font-medium' 
-                                                            : 'bg-white/5 text-gray-300 border-white/10 hover:bg-white/10'
-                                                    }`}
-                                                >
-                                                    <ClipboardList size={13} />
-                                                    {specPasteMode ? 'Switch to Table View' : 'Bulk Paste Specs'}
-                                                </button>
+                                                {/* View Mode Toggle: Table View (Image 1) vs Textarea View (Image 2) */}
+                                                <div className="flex bg-black/40 p-0.5 rounded-lg border border-white/10">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setSpecViewMode('table')}
+                                                        className={`text-xs px-2.5 py-1 rounded-md transition-all flex items-center gap-1.5 ${
+                                                            specViewMode === 'table'
+                                                                ? 'bg-violet-600 text-white font-medium shadow-sm'
+                                                                : 'text-gray-400 hover:text-white'
+                                                        }`}
+                                                    >
+                                                        <Sliders size={12} /> Table View (Row Editor)
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setSpecViewMode('textarea')}
+                                                        className={`text-xs px-2.5 py-1 rounded-md transition-all flex items-center gap-1.5 ${
+                                                            specViewMode === 'textarea'
+                                                                ? 'bg-violet-600 text-white font-medium shadow-sm'
+                                                                : 'text-gray-400 hover:text-white'
+                                                        }`}
+                                                    >
+                                                        <ClipboardList size={12} /> Textarea View (One per line)
+                                                    </button>
+                                                </div>
                                                 {(newProduct.specs || []).length > 0 && (
                                                     <button
                                                         type="button"
-                                                        onClick={() => setNewProduct({ ...newProduct, specs: [] })}
+                                                        onClick={handleClearAllSpecs}
                                                         className="text-xs text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 px-2.5 py-1 rounded-lg border border-red-500/20 transition-colors"
                                                     >
                                                         Clear All
@@ -391,34 +416,45 @@ const ProductModal = ({
                                             </div>
                                         </div>
 
-                                        {specPasteMode ? (
-                                            /* Bulk Paste Mode */
+                                        {specViewMode === 'textarea' ? (
+                                            /* Option 2: Textarea / Quick Multiline Editor (Image 2 Style) */
                                             <div className="space-y-3 bg-black/30 p-4 rounded-xl border border-white/10">
                                                 <div className="flex items-center justify-between text-xs text-gray-400">
-                                                    <span>Paste multiple specifications (one per line, e.g. <strong className="text-white">Key: Value</strong> or <strong className="text-white">Key | Value</strong>)</span>
+                                                    <span>Paste or edit specifications (one per line, e.g. <strong className="text-white">Key: Value</strong>, <strong className="text-white">Key | Value</strong>, or alternating lines):</span>
                                                 </div>
                                                 <textarea
-                                                    rows="6"
-                                                    placeholder="Operating Voltage: 3.3V to 5V&#10;Clock Speed: 16 MHz&#10;Microcontroller: ATmega328P&#10;Flash Memory: 32 KB&#10;Digital I/O Pins: 14&#10;Dimensions: 68.6 x 53.4 mm"
-                                                    value={bulkSpecsText}
-                                                    onChange={(e) => setBulkSpecsText(e.target.value)}
+                                                    rows="7"
+                                                    placeholder="Operating Voltage: 3.3V to 5V DC&#10;Clock Speed: 16 MHz&#10;Microcontroller: ATmega328P&#10;Flash Memory: 32 KB&#10;Digital I/O Pins: 14&#10;Dimensions: 68.6 x 53.4 mm"
+                                                    value={newProduct.specsText || ''}
+                                                    onChange={handleSpecsTextChange}
                                                     className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white placeholder-gray-600 focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary outline-none font-mono text-xs leading-relaxed custom-scrollbar"
                                                 />
-                                                <div className="flex items-center justify-between gap-3 pt-1">
-                                                    <span className="text-[11px] text-gray-500">
-                                                        Lines with ":" or "|" will be split into Key and Value columns.
+                                                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-gray-400">
+                                                    <span>{(newProduct.specs || []).length} specifications parsed in real time into database format.</span>
+                                                    <span className="text-violet-400">Automatically syncs with Table View!</span>
+                                                </div>
+                                                {/* Preset chips for fast entry */}
+                                                <div className="pt-2 border-t border-white/5 space-y-1.5">
+                                                    <span className="text-[11px] text-gray-400 flex items-center gap-1">
+                                                        <Sparkles size={11} className="text-amber-400" /> Insert Common Specification Presets:
                                                     </span>
-                                                    <button
-                                                        type="button"
-                                                        onClick={handleApplyBulkSpecs}
-                                                        className="bg-violet-600 hover:bg-violet-500 text-white font-semibold px-4 py-1.5 rounded-lg text-xs shadow-md transition-all flex items-center gap-1.5"
-                                                    >
-                                                        <Plus size={14} /> Parse & Add to Table
-                                                    </button>
+                                                    <div className="flex flex-wrap gap-1.5">
+                                                        {['Operating Voltage', 'Current Rating', 'Microcontroller / Chip', 'Dimensions', 'Weight', 'Interface / Protocol', 'Pin Count', 'Operating Temperature'].map((preset) => (
+                                                            <button
+                                                                key={preset}
+                                                                type="button"
+                                                                onClick={() => handleAddSpecPreset(preset)}
+                                                                className="text-[10px] bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white px-2 py-0.5 rounded-md transition-colors flex items-center gap-1"
+                                                            >
+                                                                <Plus size={10} className="text-violet-400" />
+                                                                {preset}
+                                                            </button>
+                                                        ))}
+                                                    </div>
                                                 </div>
                                             </div>
                                         ) : (
-                                            /* Table / Row-by-Row Editor */
+                                            /* Option 1: Table / Row-by-Row Editor (Image 1 Style) */
                                             <div className="space-y-3">
                                                 {/* Quick Chip Suggestions */}
                                                 {(newProduct.specs || []).length === 0 && (

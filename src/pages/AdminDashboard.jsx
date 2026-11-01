@@ -21,6 +21,7 @@ import TowerOrderAdminModal from '../components/admin/TowerOrderAdminModal';
 import AbandonedCartTable from '../components/admin/AbandonedCartTable';
 import BlogAdminManager from '../components/admin/BlogAdminManager';
 import { useCategories } from '../hooks/useCategories';
+import { parseSpecsText, formatSpecsToText } from '../utils/specUtils';
 
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('products');
@@ -209,7 +210,7 @@ const AdminDashboard = () => {
     const [isAddProductOpen, setIsAddProductOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null); // Track if editing
     const [newProduct, setNewProduct] = useState({
-        title: '', category: 'Development Boards', price: '', mrp: '', specs: [], description: '', image: '', features: ''
+        title: '', category: 'Development Boards', price: '', mrp: '', specs: [], specsText: '', description: '', image: '', features: ''
     });
     const [uploading, setUploading] = useState(false);
     const fileInputRef = React.useRef(null);
@@ -227,6 +228,7 @@ const AdminDashboard = () => {
             price: '', 
             mrp: '', 
             specs: [],
+            specsText: '',
             description: '', 
             image: '', 
             features: '',
@@ -264,10 +266,13 @@ const AdminDashboard = () => {
             }
         }
 
+        const specsText = formatSpecsToText(parsedSpecs);
+
         setNewProduct({
             ...product,
             mrp: product.mrp !== undefined && product.mrp !== null ? product.mrp : '',
             specs: parsedSpecs,
+            specsText: specsText,
             sku: product.sku || product.skv || '',
             features: product.features && Array.isArray(product.features) ? product.features.join('\n') : (product.features || ''),
             applications: product.applications && Array.isArray(product.applications) ? product.applications.join('\n') : (product.applications || ''),
@@ -303,6 +308,17 @@ const AdminDashboard = () => {
                 });
                 if (Object.keys(specsObj).length > 0) {
                     finalSpecs = specsObj;
+                }
+            } else if (newProduct.specsText && typeof newProduct.specsText === 'string' && newProduct.specsText.trim()) {
+                const parsed = parseSpecsText(newProduct.specsText);
+                if (parsed.length > 0) {
+                    const specsObj = {};
+                    parsed.forEach(s => {
+                        const k = (s.key || '').trim();
+                        const v = (s.value || '').trim();
+                        if (k && v) specsObj[k] = v;
+                    });
+                    if (Object.keys(specsObj).length > 0) finalSpecs = specsObj;
                 }
             } else if (newProduct.specs && typeof newProduct.specs === 'object' && !Array.isArray(newProduct.specs)) {
                 finalSpecs = newProduct.specs;
@@ -360,7 +376,7 @@ const AdminDashboard = () => {
             }
             setIsAddProductOpen(false);
             setNewProduct({ 
-                title: '', category: 'Development Boards', sku: '', price: '', mrp: '', specs: [], description: '', image: '', features: '',
+                title: '', category: 'Development Boards', sku: '', price: '', mrp: '', specs: [], specsText: '', description: '', image: '', features: '',
                 applications: '', package_includes: '', useful_links: '', attachments: '', warranty_info: '', country_of_origin: ''
             });
         } catch (error) {
