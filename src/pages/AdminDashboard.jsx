@@ -209,7 +209,7 @@ const AdminDashboard = () => {
     const [isAddProductOpen, setIsAddProductOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null); // Track if editing
     const [newProduct, setNewProduct] = useState({
-        title: '', category: 'Development Boards', price: '', mrp: '', description: '', image: '', features: ''
+        title: '', category: 'Development Boards', price: '', mrp: '', specs: [], description: '', image: '', features: ''
     });
     const [uploading, setUploading] = useState(false);
     const fileInputRef = React.useRef(null);
@@ -226,6 +226,7 @@ const AdminDashboard = () => {
             sku: '',
             price: '', 
             mrp: '', 
+            specs: [],
             description: '', 
             image: '', 
             features: '',
@@ -241,8 +242,32 @@ const AdminDashboard = () => {
 
     const handleOpenEditModal = (product) => {
         setEditingProduct(product);
+
+        // Normalize specs into array of { key, value }
+        let parsedSpecs = [];
+        if (product.specs) {
+            if (typeof product.specs === 'object' && !Array.isArray(product.specs)) {
+                parsedSpecs = Object.entries(product.specs).map(([k, v]) => ({ key: String(k), value: String(v) }));
+            } else if (Array.isArray(product.specs)) {
+                parsedSpecs = product.specs.map(item => {
+                    if (item && typeof item === 'object') {
+                        const k = item.key || Object.keys(item)[0] || '';
+                        const v = item.value || Object.values(item)[0] || '';
+                        return { key: String(k), value: String(v) };
+                    }
+                    if (typeof item === 'string' && item.includes(':')) {
+                        const parts = item.split(':');
+                        return { key: parts[0].trim(), value: parts.slice(1).join(':').trim() };
+                    }
+                    return { key: '', value: String(item) };
+                }).filter(s => s.key || s.value);
+            }
+        }
+
         setNewProduct({
             ...product,
+            mrp: product.mrp !== undefined && product.mrp !== null ? product.mrp : '',
+            specs: parsedSpecs,
             sku: product.sku || product.skv || '',
             features: product.features && Array.isArray(product.features) ? product.features.join('\n') : (product.features || ''),
             applications: product.applications && Array.isArray(product.applications) ? product.applications.join('\n') : (product.applications || ''),
@@ -265,12 +290,31 @@ const AdminDashboard = () => {
             const skuVal = (newProduct.sku && typeof newProduct.sku === 'string' && newProduct.sku.trim())
                 ? newProduct.sku.trim()
                 : null;
+            // Format specs object: convert array of { key, value } to dictionary
+            let finalSpecs = null;
+            if (Array.isArray(newProduct.specs) && newProduct.specs.length > 0) {
+                const specsObj = {};
+                newProduct.specs.forEach(s => {
+                    const k = (s.key || '').trim();
+                    const v = (s.value || '').trim();
+                    if (k && v) {
+                        specsObj[k] = v;
+                    }
+                });
+                if (Object.keys(specsObj).length > 0) {
+                    finalSpecs = specsObj;
+                }
+            } else if (newProduct.specs && typeof newProduct.specs === 'object' && !Array.isArray(newProduct.specs)) {
+                finalSpecs = newProduct.specs;
+            }
+
             const payload = { 
                 ...newProduct,
                 sku: skuVal,
                 skv: skuVal,
                 price: newProduct.price === '' ? 0 : Number(newProduct.price),
-                mrp: newProduct.mrp === '' ? null : Number(newProduct.mrp),
+                mrp: (newProduct.mrp === '' || newProduct.mrp === null || newProduct.mrp === undefined) ? null : Number(newProduct.mrp),
+                specs: finalSpecs,
                 stock: newProduct.stock === '' ? 0 : Number(newProduct.stock)
             };
             
@@ -316,7 +360,7 @@ const AdminDashboard = () => {
             }
             setIsAddProductOpen(false);
             setNewProduct({ 
-                title: '', category: 'Development Boards', sku: '', price: '', mrp: '', description: '', image: '', features: '',
+                title: '', category: 'Development Boards', sku: '', price: '', mrp: '', specs: [], description: '', image: '', features: '',
                 applications: '', package_includes: '', useful_links: '', attachments: '', warranty_info: '', country_of_origin: ''
             });
         } catch (error) {

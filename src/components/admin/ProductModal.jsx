@@ -1,6 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Edit, Plus, Info, Tag, Boxes, Package, List, DollarSign, Image as ImageIcon, Loader, Save, Factory, Globe } from 'lucide-react';
+import { 
+    X, Edit, Plus, Info, Tag, Boxes, Package, List, DollarSign, 
+    Image as ImageIcon, Loader, Save, Factory, Globe,
+    Sliders, Trash2, ClipboardList, Sparkles
+} from 'lucide-react';
 import { getImageUrl } from '../../utils/imageUtils';
 import { slugify } from '../../utils/slugify';
 
@@ -18,6 +22,76 @@ const ProductModal = ({
     fileInputRef
 }) => {
     const { categories } = useCategories();
+    const [specPasteMode, setSpecPasteMode] = useState(false);
+    const [bulkSpecsText, setBulkSpecsText] = useState('');
+
+    const handleAddSpecRow = () => {
+        const currentSpecs = Array.isArray(newProduct.specs) ? newProduct.specs : [];
+        setNewProduct({
+            ...newProduct,
+            specs: [...currentSpecs, { key: '', value: '' }]
+        });
+    };
+
+    const handleAddSpecPreset = (presetKey) => {
+        const currentSpecs = Array.isArray(newProduct.specs) ? newProduct.specs : [];
+        if (currentSpecs.some(s => s.key?.toLowerCase() === presetKey.toLowerCase())) return;
+        setNewProduct({
+            ...newProduct,
+            specs: [...currentSpecs, { key: presetKey, value: '' }]
+        });
+    };
+
+    const handleUpdateSpecRow = (index, field, val) => {
+        const currentSpecs = Array.isArray(newProduct.specs) ? [...newProduct.specs] : [];
+        if (!currentSpecs[index]) return;
+        currentSpecs[index] = { ...currentSpecs[index], [field]: val };
+        setNewProduct({
+            ...newProduct,
+            specs: currentSpecs
+        });
+    };
+
+    const handleDeleteSpecRow = (index) => {
+        const currentSpecs = Array.isArray(newProduct.specs) ? [...newProduct.specs] : [];
+        currentSpecs.splice(index, 1);
+        setNewProduct({
+            ...newProduct,
+            specs: currentSpecs
+        });
+    };
+
+    const handleApplyBulkSpecs = () => {
+        if (!bulkSpecsText.trim()) return;
+        const lines = bulkSpecsText.split('\n');
+        const newSpecs = [];
+        lines.forEach(line => {
+            const clean = line.trim();
+            if (!clean) return;
+            let delimiter = ':';
+            if (clean.includes('|')) delimiter = '|';
+            else if (clean.includes('\t')) delimiter = '\t';
+            else if (clean.includes(':')) delimiter = ':';
+
+            const idx = clean.indexOf(delimiter);
+            if (idx > 0) {
+                const k = clean.slice(0, idx).trim().replace(/^[-*•\s]+/, '');
+                const v = clean.slice(idx + 1).trim();
+                if (k && v) newSpecs.push({ key: k, value: v });
+            } else {
+                newSpecs.push({ key: clean.replace(/^[-*•\s]+/, ''), value: '-' });
+            }
+        });
+        if (newSpecs.length > 0) {
+            const existing = Array.isArray(newProduct.specs) ? newProduct.specs : [];
+            setNewProduct({
+                ...newProduct,
+                specs: [...existing, ...newSpecs]
+            });
+            setBulkSpecsText('');
+            setSpecPasteMode(false);
+        }
+    };
     return (
         <AnimatePresence>
             {isOpen && (
@@ -280,32 +354,237 @@ const ProductModal = ({
                                             </div>
                                         </div>
                                     </div>
+
+                                    {/* Technical Specifications Panel */}
+                                    <div className="bg-white/5 border border-white/5 rounded-2xl p-5 space-y-4">
+                                        <div className="flex items-center justify-between flex-wrap gap-2">
+                                            <div className="flex items-center gap-2">
+                                                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                                                    <Sliders size={16} /> Technical Specifications
+                                                </h3>
+                                                <span className="text-xs px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30 font-mono">
+                                                    {(newProduct.specs || []).length} {(newProduct.specs || []).length === 1 ? 'spec' : 'specs'}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setSpecPasteMode(!specPasteMode)}
+                                                    className={`text-xs px-2.5 py-1 rounded-lg border transition-all flex items-center gap-1.5 ${
+                                                        specPasteMode 
+                                                            ? 'bg-violet-600 text-white border-violet-500 shadow-md shadow-violet-500/20 font-medium' 
+                                                            : 'bg-white/5 text-gray-300 border-white/10 hover:bg-white/10'
+                                                    }`}
+                                                >
+                                                    <ClipboardList size={13} />
+                                                    {specPasteMode ? 'Switch to Table View' : 'Bulk Paste Specs'}
+                                                </button>
+                                                {(newProduct.specs || []).length > 0 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setNewProduct({ ...newProduct, specs: [] })}
+                                                        className="text-xs text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 px-2.5 py-1 rounded-lg border border-red-500/20 transition-colors"
+                                                    >
+                                                        Clear All
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {specPasteMode ? (
+                                            /* Bulk Paste Mode */
+                                            <div className="space-y-3 bg-black/30 p-4 rounded-xl border border-white/10">
+                                                <div className="flex items-center justify-between text-xs text-gray-400">
+                                                    <span>Paste multiple specifications (one per line, e.g. <strong className="text-white">Key: Value</strong> or <strong className="text-white">Key | Value</strong>)</span>
+                                                </div>
+                                                <textarea
+                                                    rows="6"
+                                                    placeholder="Operating Voltage: 3.3V to 5V&#10;Clock Speed: 16 MHz&#10;Microcontroller: ATmega328P&#10;Flash Memory: 32 KB&#10;Digital I/O Pins: 14&#10;Dimensions: 68.6 x 53.4 mm"
+                                                    value={bulkSpecsText}
+                                                    onChange={(e) => setBulkSpecsText(e.target.value)}
+                                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white placeholder-gray-600 focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary outline-none font-mono text-xs leading-relaxed custom-scrollbar"
+                                                />
+                                                <div className="flex items-center justify-between gap-3 pt-1">
+                                                    <span className="text-[11px] text-gray-500">
+                                                        Lines with ":" or "|" will be split into Key and Value columns.
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleApplyBulkSpecs}
+                                                        className="bg-violet-600 hover:bg-violet-500 text-white font-semibold px-4 py-1.5 rounded-lg text-xs shadow-md transition-all flex items-center gap-1.5"
+                                                    >
+                                                        <Plus size={14} /> Parse & Add to Table
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            /* Table / Row-by-Row Editor */
+                                            <div className="space-y-3">
+                                                {/* Quick Chip Suggestions */}
+                                                {(newProduct.specs || []).length === 0 && (
+                                                    <div className="p-3 rounded-xl bg-white/[0.02] border border-dashed border-white/10 space-y-2">
+                                                        <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                                                            <Sparkles size={13} className="text-amber-400" />
+                                                            <span>Quick Add Common Electronics Specifications:</span>
+                                                        </div>
+                                                        <div className="flex flex-wrap gap-1.5">
+                                                            {['Operating Voltage', 'Current Rating', 'Microcontroller / Chip', 'Dimensions', 'Weight', 'Interface / Protocol', 'Pin Count', 'Operating Temperature'].map((preset) => (
+                                                                <button
+                                                                    key={preset}
+                                                                    type="button"
+                                                                    onClick={() => handleAddSpecPreset(preset)}
+                                                                    className="text-[11px] bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
+                                                                >
+                                                                    <Plus size={11} className="text-violet-400" />
+                                                                    {preset}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Rows */}
+                                                {(newProduct.specs || []).length > 0 && (
+                                                    <div className="space-y-2 max-h-72 overflow-y-auto pr-1 custom-scrollbar">
+                                                        <div className="grid grid-cols-12 gap-2 px-1 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                                                            <div className="col-span-5">Specification / Parameter (Key)</div>
+                                                            <div className="col-span-6">Value / Details</div>
+                                                            <div className="col-span-1 text-center">Action</div>
+                                                        </div>
+                                                        {(newProduct.specs || []).map((spec, index) => (
+                                                            <div key={index} className="grid grid-cols-12 gap-2 items-center bg-black/20 p-1.5 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
+                                                                <div className="col-span-5">
+                                                                    <input
+                                                                        type="text"
+                                                                        placeholder="e.g. Operating Voltage"
+                                                                        value={spec.key || ''}
+                                                                        onChange={(e) => handleUpdateSpecRow(index, 'key', e.target.value)}
+                                                                        className="w-full bg-black/30 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-gray-600 focus:border-tronix-primary outline-none"
+                                                                    />
+                                                                </div>
+                                                                <div className="col-span-6">
+                                                                    <input
+                                                                        type="text"
+                                                                        placeholder="e.g. 3.3V to 5V DC"
+                                                                        value={spec.value || ''}
+                                                                        onChange={(e) => handleUpdateSpecRow(index, 'value', e.target.value)}
+                                                                        className="w-full bg-black/30 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-gray-600 focus:border-tronix-primary outline-none"
+                                                                    />
+                                                                </div>
+                                                                <div className="col-span-1 flex justify-center">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleDeleteSpecRow(index)}
+                                                                        className="p-1.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                                                                        title="Delete specification"
+                                                                    >
+                                                                        <Trash2 size={14} />
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {/* Add Row Button */}
+                                                <button
+                                                    type="button"
+                                                    onClick={handleAddSpecRow}
+                                                    className="w-full py-2 border border-dashed border-white/15 hover:border-violet-500/50 rounded-xl bg-white/[0.02] hover:bg-violet-500/[0.05] text-xs font-semibold text-gray-300 hover:text-violet-300 flex items-center justify-center gap-1.5 transition-all"
+                                                >
+                                                    <Plus size={14} className="text-violet-400" />
+                                                    Add Specification Row
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {/* Right Column - Pricing & Media */}
                                 <div className="lg:col-span-4 space-y-5">
                                     <div className="bg-white/5 border border-white/5 rounded-2xl p-5 space-y-4">
-                                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                                            <DollarSign size={16} /> Pricing
-                                        </h3>
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                                                <DollarSign size={16} /> Pricing
+                                            </h3>
+                                            {newProduct.mrp && Number(newProduct.mrp) > Number(newProduct.price) && (
+                                                <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                                                    {Math.round(((Number(newProduct.mrp) - Number(newProduct.price)) / Number(newProduct.mrp)) * 100)}% OFF
+                                                </span>
+                                            )}
+                                        </div>
 
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="col-span-2">
-                                                <label className="block text-sm font-medium text-gray-300 mb-1.5 pl-1">Selling Price (₹)</label>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-300 mb-1 pl-1 flex items-center justify-between">
+                                                    <span>Selling Price (₹) <strong className="text-emerald-400">*</strong></span>
+                                                    <span className="text-[11px] text-gray-500 font-normal">Active purchase price</span>
+                                                </label>
                                                 <div className="relative">
-                                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-emerald-500">
+                                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-emerald-500 font-bold">
                                                         ₹
                                                     </div>
                                                     <input
                                                         type="number"
+                                                        step="any"
                                                         required
                                                         placeholder="0.00"
-                                                        value={newProduct.price}
-                                                        onChange={(e) => setNewProduct({ ...newProduct, price: Number(e.target.value) })}
-                                                        className="w-full bg-black/20 border border-emerald-500/30 rounded-xl pl-8 pr-4 py-3 text-emerald-400 placeholder-emerald-900/50 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:bg-emerald-500/5 transition-all outline-none text-lg font-bold"
+                                                        value={newProduct.price === '' ? '' : newProduct.price}
+                                                        onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value === '' ? '' : Number(e.target.value) })}
+                                                        className="w-full bg-black/20 border border-emerald-500/30 rounded-xl pl-8 pr-4 py-2.5 text-emerald-400 placeholder-emerald-900/50 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:bg-emerald-500/5 transition-all outline-none text-base font-bold"
                                                     />
                                                 </div>
                                             </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-300 mb-1 pl-1 flex items-center justify-between">
+                                                    <span>MRP (₹) <span className="text-gray-500 text-xs font-normal">(Optional)</span></span>
+                                                    <span className="text-[11px] text-gray-500 font-normal">Strikethrough price</span>
+                                                </label>
+                                                <div className="relative">
+                                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 font-bold">
+                                                        ₹
+                                                    </div>
+                                                    <input
+                                                        type="number"
+                                                        step="any"
+                                                        placeholder="e.g. 499.00"
+                                                        value={newProduct.mrp === '' || newProduct.mrp === null ? '' : newProduct.mrp}
+                                                        onChange={(e) => setNewProduct({ ...newProduct, mrp: e.target.value === '' ? '' : Number(e.target.value) })}
+                                                        className="w-full bg-black/20 border border-white/10 rounded-xl pl-8 pr-4 py-2.5 text-white placeholder-gray-600 focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary focus:bg-white/5 transition-all outline-none text-sm"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Live Price Strikethrough Preview */}
+                                            {newProduct.price !== '' && (
+                                                <div className="p-2.5 rounded-xl bg-black/30 border border-white/5 text-xs space-y-1">
+                                                    <div className="text-gray-400 font-medium">Storefront Display:</div>
+                                                    <div className="flex items-baseline gap-2">
+                                                        <span className="text-base font-bold text-white">
+                                                            ₹{Number(newProduct.price || 0).toFixed(2)}
+                                                        </span>
+                                                        {newProduct.mrp && Number(newProduct.mrp) > Number(newProduct.price) ? (
+                                                            <>
+                                                                <span className="text-xs text-gray-500 line-through">
+                                                                    ₹{Number(newProduct.mrp).toFixed(2)}
+                                                                </span>
+                                                                <span className="text-[10px] text-emerald-400 font-semibold">
+                                                                    (Save ₹{(Number(newProduct.mrp) - Number(newProduct.price)).toFixed(2)})
+                                                                </span>
+                                                            </>
+                                                        ) : newProduct.mrp && Number(newProduct.mrp) <= Number(newProduct.price) ? (
+                                                            <span className="text-[10px] text-amber-400">
+                                                                (MRP should be higher than Selling Price)
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-[10px] text-gray-500">
+                                                                (No strikethrough)
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 

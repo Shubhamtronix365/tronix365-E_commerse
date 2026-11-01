@@ -123,11 +123,14 @@ const ProductCard = ({ product }) => {
                         </Link>
                         
                         {/* Price Section */}
-                        <div className="flex items-center gap-2 mt-2">
+                        <div className="flex items-center flex-wrap gap-2 mt-2">
                             {product.mrp && Number(product.mrp) > Number(product.price) ? (
                                 <>
                                     <span className="text-sm sm:text-base font-bold text-cyan-400">₹{formatPrice(product.price)}</span>
                                     <span className="text-xs text-tronix-muted line-through">₹{formatPrice(product.mrp)}</span>
+                                    <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                                        {Math.round(((Number(product.mrp) - Number(product.price)) / Number(product.mrp)) * 100)}% OFF
+                                    </span>
                                 </>
                             ) : (
                                 <span className="text-sm sm:text-base font-bold text-cyan-400">₹{formatPrice(product.price)}</span>

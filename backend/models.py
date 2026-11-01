@@ -229,6 +229,38 @@ class ProductBase(BaseModel):
             return cleaned
         return v
 
+    @field_validator("features", mode="before")
+    @classmethod
+    def normalize_features(cls, v):
+        if not v:
+            return v
+        if isinstance(v, str):
+            import json
+            try:
+                v = json.loads(v)
+            except Exception:
+                pass
+        if isinstance(v, dict):
+            return [f"{str(k).strip('"{}: ')}: {str(val).strip('"{}:. ')}" for k, val in v.items()]
+        if isinstance(v, list):
+            import re
+            cleaned = []
+            for item in v:
+                s = str(item).strip()
+                s = re.sub(r'^[{\["\'\s]+|[}\]"\'\s.,;]+$', '', s).strip()
+                s = re.sub(r'["\']?\s*\}\.?$', '', s).strip()
+                m = re.match(r'^["\']?([^"\'\:]+)["\']?\s*:\s*["\']?(.*?)["\']?$', s)
+                if m:
+                    ck = m.group(1).strip('"{}: ').strip()
+                    cv = m.group(2).strip('"{}:. ').strip()
+                    cv = re.sub(r',([^\s])', r', \1', cv)
+                    if ck and cv:
+                        s = f"{ck}: {cv}"
+                if s and s not in cleaned:
+                    cleaned.append(s)
+            return cleaned
+        return v
+
     price: float
     category: str
     image: Optional[str] = None

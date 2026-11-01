@@ -32,13 +32,15 @@ const parseFeature = (feat) => {
         if (entries.length > 0) {
             const [k, v] = entries[0];
             if (!v || v === '""') return null;
-            return { key: k.trim(), value: String(v).trim() };
+            const cleanKey = String(k).replace(/^[{\["'\s]+|[}\]"'\s:,]+$/g, '').trim();
+            const cleanVal = String(v).replace(/^[{\["'\s]+|[}\]"'\s.,;]+$/g, '').trim();
+            return { key: cleanKey, value: cleanVal };
         }
     }
     let str = String(feat).trim();
-    // Strip curly braces and extraneous quotes
-    str = str.replace(/^\{+/, '').replace(/\}+$/, '').trim();
-    str = str.replace(/^"+/, '').replace(/"+$/, '').trim();
+    // Strip curly braces, brackets, quotes, trailing dots, commas, semicolons
+    str = str.replace(/^[{\["'\s]+|[}\]"'\s.,;]+$/g, '').trim();
+    str = str.replace(/["']?\s*\}\.?$/g, '').trim();
     
     // Fix common unicode mojibake
     str = str.replace(/Â°/g, '°')
@@ -52,13 +54,16 @@ const parseFeature = (feat) => {
     // Check if it's "Key": "Value" or Key: Value
     const kvMatch = str.match(/^["']?([^"':]+)["']?\s*:\s*["']?(.*?)["']?$/);
     if (kvMatch) {
-        const key = kvMatch[1].trim();
-        const value = kvMatch[2].trim().replace(/^"+/, '').replace(/"+$/, '').replace(/\}$/, '').trim();
+        const key = kvMatch[1].replace(/^[{\["'\s]+|[}\]"'\s:,]+$/g, '').trim();
+        let value = kvMatch[2].replace(/^[{\["'\s]+|[}\]"'\s.,;]+$/g, '').trim();
+        value = value.replace(/["']?\s*\}\.?$/g, '').trim();
         if (!value || value === '""') return null;
         return { key, value };
     }
 
-    return { key: null, value: str };
+    let cleanVal = str.replace(/^[{\["'\s]+|[}\]"'\s.,;]+$/g, '').trim();
+    cleanVal = cleanVal.replace(/["']?\s*\}\.?$/g, '').trim();
+    return { key: null, value: cleanVal };
 };
 
 const parseProductSpecs = (specs, product) => {
@@ -459,12 +464,20 @@ const ProductDetails = () => {
                             onSelectVariant={handleSelectVariant}
                         />
 
-                        <div className="flex items-end gap-3 mb-6">
-                            <div className="flex flex-col">
-                                <span className="text-4xl font-bold text-white">
-                                    ₹{formatPrice(product.price)}
-                                </span>
-                            </div>
+                        <div className="flex items-baseline flex-wrap gap-3 mb-6">
+                            <span className="text-4xl font-bold text-white">
+                                ₹{formatPrice(product.price)}
+                            </span>
+                            {product.mrp && Number(product.mrp) > Number(product.price) && (
+                                <>
+                                    <span className="text-xl text-gray-400 line-through">
+                                        ₹{formatPrice(product.mrp)}
+                                    </span>
+                                    <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                        {Math.round(((Number(product.mrp) - Number(product.price)) / Number(product.mrp)) * 100)}% OFF
+                                    </span>
+                                </>
+                            )}
                         </div>
 
                         <p className="text-gray-300 leading-relaxed mb-6 border-b border-white/10 pb-6">
@@ -1039,7 +1052,14 @@ const ProductDetails = () => {
                 <div className="max-w-md mx-auto flex items-center justify-between gap-3">
                     <div className="min-w-0">
                         <span className="text-[10px] uppercase font-bold text-gray-400 block tracking-wider">Price</span>
-                        <div className="text-xl font-black text-white leading-tight">₹{formatPrice(product.price)}</div>
+                        <div className="text-xl font-black text-white leading-tight flex items-baseline gap-2">
+                            <span>₹{formatPrice(product.price)}</span>
+                            {product.mrp && Number(product.mrp) > Number(product.price) && (
+                                <span className="text-xs text-gray-400 line-through font-normal">
+                                    ₹{formatPrice(product.mrp)}
+                                </span>
+                            )}
+                        </div>
                         {product.stock > 0 && !product.tower_order_only ? (
                             <span className="text-[10px] text-emerald-400 font-medium">In Stock</span>
                         ) : product.tower_order_only ? (
