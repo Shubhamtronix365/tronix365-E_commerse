@@ -49,7 +49,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import PageTransition from './components/common/PageTransition';
 import { AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { MaintenanceModal } from './components/common/MaintenanceNotice';
+// import { MaintenanceModal } from './components/common/MaintenanceNotice'; // Commented out for live ordering
 import GoogleCustomerReviewsBadge from './components/GoogleCustomerReviewsBadge';
 // import { Agentation } from 'agentation';
 
@@ -112,7 +112,8 @@ function App() {
 
 const AppContent = () => {
   const location = useLocation();
-  // Maintenance Notice Modal - persistent per session
+  // Maintenance Notice Modal - persistent per session (Commented out for live ordering)
+  /*
   const [showMaintenanceModal, setShowMaintenanceModal] = useState(() => {
     try {
       return sessionStorage.getItem('tronix_maintenance_dismissed') !== 'true';
@@ -129,17 +130,18 @@ const AppContent = () => {
       // ignore storage errors
     }
   };
+  */
 
   const isExcludedPage = location.pathname === '/login' || location.pathname === '/signup';
 
   return (
     <>
       <ScrollToTop />
-      {/* Maintenance Notice Modal */}
-      <MaintenanceModal 
+      {/* Maintenance Notice Modal (Commented out for live ordering; re-enable when maintenance is required) */}
+      {/* <MaintenanceModal 
         isOpen={showMaintenanceModal} 
         onClose={handleCloseMaintenanceModal} 
-      />
+      /> */}
       <div className="min-h-screen bg-tronix-bg text-tronix-text font-sans selection:bg-tronix-primary selection:text-white flex flex-col">
         {!isExcludedPage && <Navbar />}
         <main className="flex-grow overflow-hidden">

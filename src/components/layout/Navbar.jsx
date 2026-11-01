@@ -6,7 +6,7 @@ import logo from '../../assets/logo.webp';
 import SearchOverlay from './SearchOverlay';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
-import { MaintenanceTicker } from '../common/MaintenanceNotice';
+// import { MaintenanceTicker } from '../common/MaintenanceNotice'; // Commented out for live ordering
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -29,8 +29,8 @@ const Navbar = () => {
                 animate={{ y: 0 }}
                 className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5"
             >
-                {/* News Ticker Maintenance Banner */}
-                <MaintenanceTicker activePreset="MAINTENANCE" />
+                {/* News Ticker Maintenance Banner (Commented out for live ordering; re-enable when maintenance is required) */}
+                {/* <MaintenanceTicker activePreset="MAINTENANCE" /> */}
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
