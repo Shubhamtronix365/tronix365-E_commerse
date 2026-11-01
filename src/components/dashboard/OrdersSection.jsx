@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Package, Calendar, Eye, FileText, Clock, Store, Zap } from 'lucide-react';
+import { Package, Calendar, Eye, FileText, Clock, Zap } from 'lucide-react';
 import TaxInvoiceModal from '../invoice/TaxInvoiceModal';
 import { formatOrderDateTime, isPickupOrFreeShipping } from '../../utils/orderUtils';
 
@@ -88,12 +88,6 @@ const OrdersSection = ({
                                         </span>
                                     </h3>
                                     <div className="flex flex-wrap items-center gap-2 mt-1">
-                                        {isPickupOrFreeShipping(order).isPickup && (
-                                            <span className="text-[11px] font-bold text-violet-300 bg-violet-500/20 px-2 py-0.5 rounded-md border border-violet-500/30 flex items-center gap-1">
-                                                <Store size={11} className="text-violet-400" />
-                                                Store Pickup (Ready in 2–3 hrs)
-                                            </span>
-                                        )}
                                         {isPickupOrFreeShipping(order).isFreeShipping && (
                                             <span className="text-[11px] font-bold text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-md border border-emerald-500/30 flex items-center gap-1">
                                                 <Zap size={11} className="text-emerald-400" />

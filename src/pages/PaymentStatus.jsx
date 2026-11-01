@@ -21,7 +21,6 @@ import { useCart } from '../context/CartContext';
 import client from '../api/client';
 import { getImageUrl } from '../utils/imageUtils';
 import GoogleCustomerReviewsOptIn from '../components/GoogleCustomerReviewsOptIn';
-import OrderReadyNotice from '../components/common/OrderReadyNotice';
 import { formatOrderDateTime } from '../utils/orderUtils';
 
 const PaymentStatus = () => {
@@ -115,7 +114,7 @@ const PaymentStatus = () => {
     };
 
     return (
-        <div className="min-h-screen pt-24 pb-16 px-4 bg-[#0F172A] flex items-center justify-center">
+        <div className="min-h-screen pt-20 sm:pt-24 pb-12 sm:pb-16 px-3 sm:px-6 bg-[#0F172A] flex items-center justify-center">
             {isSuccess && order && <GoogleCustomerReviewsOptIn order={order} />}
             <div className="max-w-3xl w-full space-y-6">
                 
@@ -123,18 +122,18 @@ const PaymentStatus = () => {
                 <motion.div 
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-tronix-card border border-white/10 rounded-2xl p-8 text-center relative overflow-hidden shadow-2xl"
+                    className="bg-tronix-card border border-white/10 rounded-2xl p-5 sm:p-8 text-center relative overflow-hidden shadow-2xl"
                 >
                     <div className="absolute top-0 right-0 w-64 h-64 bg-tronix-primary/5 rounded-full blur-[80px] -mr-32 -mt-32 pointer-events-none" />
                     
-                    <div className="flex justify-center mb-6">
+                    <div className="flex justify-center mb-5 sm:mb-6">
                         {isSuccess ? (
                             <motion.div
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1, rotate: 360 }}
                                 transition={{ type: 'spring', stiffness: 200, damping: 15 }}
                             >
-                                <CheckCircle className="text-emerald-500 w-24 h-24 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]" />
+                                <CheckCircle className="text-emerald-500 w-20 h-20 sm:w-24 sm:h-24 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]" />
                             </motion.div>
                         ) : isBounced ? (
                             <motion.div
@@ -142,7 +141,7 @@ const PaymentStatus = () => {
                                 animate={{ scale: 1 }}
                                 transition={{ type: 'spring', stiffness: 200, damping: 15 }}
                             >
-                                <AlertTriangle className="text-amber-400 w-24 h-24 drop-shadow-[0_0_15px_rgba(251,191,36,0.35)]" />
+                                <AlertTriangle className="text-amber-400 w-20 h-20 sm:w-24 sm:h-24 drop-shadow-[0_0_15px_rgba(251,191,36,0.35)]" />
                             </motion.div>
                         ) : isCancelled ? (
                             <motion.div
@@ -150,7 +149,7 @@ const PaymentStatus = () => {
                                 animate={{ scale: 1 }}
                                 transition={{ type: 'spring', stiffness: 200, damping: 15 }}
                             >
-                                <Ban className="text-rose-400 w-24 h-24 drop-shadow-[0_0_15px_rgba(251,113,133,0.35)]" />
+                                <Ban className="text-rose-400 w-20 h-20 sm:w-24 sm:h-24 drop-shadow-[0_0_15px_rgba(251,113,133,0.35)]" />
                             </motion.div>
                         ) : (
                             <motion.div
@@ -158,12 +157,12 @@ const PaymentStatus = () => {
                                 animate={{ scale: 1 }}
                                 transition={{ type: 'spring', stiffness: 200, damping: 15 }}
                             >
-                                <XCircle className="text-red-500 w-24 h-24 drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]" />
+                                <XCircle className="text-red-500 w-20 h-20 sm:w-24 sm:h-24 drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]" />
                             </motion.div>
                         )}
                     </div>
 
-                    <h1 className="text-3xl sm:text-4xl font-display font-bold text-white mb-3">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-white mb-3">
                         {isSuccess 
                             ? 'Payment Successful!' 
                             : isBounced 
@@ -173,7 +172,7 @@ const PaymentStatus = () => {
                             : 'Payment Failed'}
                     </h1>
 
-                    <p className="text-gray-400 max-w-md mx-auto mb-6 text-sm sm:text-base">
+                    <p className="text-gray-400 max-w-md mx-auto mb-6 text-sm sm:text-base leading-relaxed">
                         {isSuccess
                             ? "Thank you! Your transaction completed successfully. Your order is placed and pending fulfillment."
                             : isBounced
@@ -184,9 +183,9 @@ const PaymentStatus = () => {
                     </p>
 
                     {txnid && (
-                        <div className="inline-flex items-center gap-2 bg-white/5 border border-white/5 px-4 py-1.5 rounded-full text-xs text-gray-300">
+                        <div className="inline-flex max-w-full flex-wrap items-center justify-center gap-1.5 sm:gap-2 bg-white/5 border border-white/5 px-3 sm:px-4 py-1.5 rounded-full text-xs text-gray-300">
                             <span className="font-semibold text-gray-500 uppercase">Transaction ID:</span>
-                            <span className="font-mono text-tronix-accent">{txnid}</span>
+                            <span className="font-mono text-tronix-accent break-all">{txnid}</span>
                         </div>
                     )}
                 </motion.div>
@@ -200,14 +199,14 @@ const PaymentStatus = () => {
                         className="bg-tronix-card border border-white/10 rounded-2xl overflow-hidden shadow-2xl"
                     >
                         {loadingOrder ? (
-                            <div className="p-12 text-center text-gray-400 flex flex-col items-center justify-center gap-3">
+                            <div className="p-8 sm:p-12 text-center text-gray-400 flex flex-col items-center justify-center gap-3">
                                 <Loader size={32} className="animate-spin text-tronix-primary" />
-                                <p>Loading purchase details...</p>
+                                <p className="text-sm sm:text-base">Loading purchase details...</p>
                             </div>
                         ) : order ? (
                             <div>
                                 {/* Summary Header */}
-                                <div className="p-6 border-b border-white/10 bg-white/[0.02] flex flex-wrap justify-between items-center gap-4">
+                                <div className="p-4 sm:p-6 border-b border-white/10 bg-white/[0.02] flex flex-wrap justify-between items-center gap-3 sm:gap-4">
                                     <div className="flex items-center gap-3">
                                         <Package className="text-tronix-primary" size={22} />
                                         <div>
@@ -249,26 +248,21 @@ const PaymentStatus = () => {
                                     </div>
                                 </div>
 
-                                {/* Highlighted Order Ready / Pickup Notice */}
-                                <div className="px-6 pt-6">
-                                    <OrderReadyNotice order={order} />
-                                </div>
-
                                 {/* Items list */}
-                                <div className="p-6 border-b border-white/10 space-y-4">
+                                <div className="p-4 sm:p-6 border-b border-white/10 space-y-4">
                                     <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Items Purchased</h3>
                                     {order.items && order.items.map((item) => (
-                                        <div key={item.id} className="flex gap-4 items-center justify-between">
-                                            <div className="flex gap-3 items-center min-w-0">
-                                                <div className="w-12 h-12 bg-white/5 rounded-lg flex-shrink-0 flex items-center justify-center p-1 border border-white/5">
+                                        <div key={item.id} className="flex gap-3 sm:gap-4 items-center justify-between">
+                                            <div className="flex gap-2.5 sm:gap-3 items-center min-w-0 flex-1">
+                                                <div className="w-11 h-11 sm:w-12 sm:h-12 bg-white/5 rounded-lg flex-shrink-0 flex items-center justify-center p-1 border border-white/5">
                                                     <img src={getImageUrl(item.product?.image)} className="max-w-full max-h-full object-contain" alt="Product" />
                                                 </div>
-                                                <div className="min-w-0">
-                                                    <p className="text-sm font-semibold text-white truncate">{item.product?.title || 'Product Item'}</p>
-                                                    <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-xs sm:text-sm font-semibold text-white truncate">{item.product?.title || 'Product Item'}</p>
+                                                    <p className="text-[11px] sm:text-xs text-gray-500">Qty: {item.quantity}</p>
                                                 </div>
                                             </div>
-                                            <p className="text-sm font-bold text-white">₹{item.price_at_purchase * item.quantity}</p>
+                                            <p className="text-xs sm:text-sm font-bold text-white shrink-0">₹{item.price_at_purchase * item.quantity}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -276,18 +270,18 @@ const PaymentStatus = () => {
                                 {/* Address & Bill Details */}
                                 <div className="grid grid-cols-1 md:grid-cols-2">
                                     {/* Shipping Address */}
-                                    <div className="p-6 border-b md:border-b-0 md:border-r border-white/10 space-y-2">
+                                    <div className="p-4 sm:p-6 border-b md:border-b-0 md:border-r border-white/10 space-y-2">
                                         <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 mb-3">
                                             <MapPin size={14} className="text-tronix-primary" /> Shipping Address
                                         </h4>
                                         <p className="text-sm font-bold text-white">{order.full_name}</p>
-                                        <p className="text-sm text-gray-400">{order.address_line}</p>
-                                        <p className="text-sm text-gray-400">{order.city}, {order.state} - {order.pincode}</p>
-                                        <p className="text-sm text-gray-400">Mobile: {order.phone}</p>
+                                        <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">{order.address_line}</p>
+                                        <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">{order.city}, {order.state} - {order.pincode}</p>
+                                        <p className="text-xs sm:text-sm text-gray-400">Mobile: {order.phone}</p>
                                     </div>
 
                                     {/* Bill Breakdown */}
-                                    <div className="p-6 space-y-3 bg-white/[0.01]">
+                                    <div className="p-4 sm:p-6 space-y-3 bg-white/[0.01]">
                                         <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 mb-3">
                                             <CreditCard size={14} className="text-tronix-accent" /> Payment Summary
                                         </h4>

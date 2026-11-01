@@ -6,7 +6,6 @@ import client from '../api/client';
 import { getImageUrl } from '../utils/imageUtils';
 import TaxInvoiceModal from '../components/invoice/TaxInvoiceModal';
 import { slugify } from '../utils/slugify';
-import OrderReadyNotice from '../components/common/OrderReadyNotice';
 import { formatOrderDateTime } from '../utils/orderUtils';
 import { formatPrice } from '../utils/priceUtils';
 
@@ -141,24 +140,24 @@ const OrderDetails = () => {
                                         const isActive = pipelineStatus === step || (stepIndex !== -1 && stepIndex >= idx);
                                         const isCurrent = pipelineStatus === step;
                                         return (
-                                            <div key={step} className="flex flex-col items-center flex-1 relative">
+                                            <div key={step} className="flex flex-col items-center flex-1 relative px-0.5">
                                                 {/* Connecting Line */}
                                                 {idx !== arr.length - 1 && (
-                                                    <div className={`absolute top-5 left-[50%] right-[-50%] h-[2px] ${isActive && stepIndex > idx ? 'bg-violet-500' : 'bg-white/10'}`} />
+                                                    <div className={`absolute top-4 sm:top-5 left-[50%] right-[-50%] h-[2px] ${isActive && stepIndex > idx ? 'bg-violet-500' : 'bg-white/10'}`} />
                                                 )}
 
                                                 {/* Step Circle */}
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center relative z-10 transition-colors duration-500 ${isActive ? 'bg-violet-500 text-white shadow-[0_0_15px_rgba(139,92,246,0.5)]' : 'bg-white/5 text-gray-500 border border-white/10'
+                                                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center relative z-10 transition-colors duration-500 ${isActive ? 'bg-violet-500 text-white shadow-[0_0_15px_rgba(139,92,246,0.5)]' : 'bg-white/5 text-gray-500 border border-white/10'
                                                     }`}>
-                                                    {isActive && !isCurrent ? <Check size={20} /> :
-                                                        step === 'pending' ? <Clock size={20} /> :
-                                                            step === 'confirmed' ? <Package size={20} /> :
-                                                                step === 'shipped' ? <Truck size={20} /> : <Check size={20} />}
+                                                    {isActive && !isCurrent ? <Check className="w-4 h-4 sm:w-5 sm:h-5" /> :
+                                                        step === 'pending' ? <Clock className="w-4 h-4 sm:w-5 sm:h-5" /> :
+                                                            step === 'confirmed' ? <Package className="w-4 h-4 sm:w-5 sm:h-5" /> :
+                                                                step === 'shipped' ? <Truck className="w-4 h-4 sm:w-5 sm:h-5" /> : <Check className="w-4 h-4 sm:w-5 sm:h-5" />}
                                                 </div>
 
                                                 {/* Step Label */}
-                                                <p className={`mt-3 text-xs font-bold uppercase tracking-wider ${isActive ? 'text-white' : 'text-gray-500'}`}>
-                                                    {step === 'pending' ? 'Awaiting Payment' : step === 'confirmed' ? 'Order Confirmed' : step.replace('_', ' ')}
+                                                <p className={`mt-2 sm:mt-3 text-[10px] sm:text-xs font-bold uppercase text-center tracking-normal sm:tracking-wider leading-tight ${isActive ? 'text-white' : 'text-gray-500'}`}>
+                                                    {step === 'pending' ? 'Pending' : step === 'confirmed' ? 'Confirmed' : step.replace('_', ' ')}
                                                 </p>
                                             </div>
                                         );
@@ -166,9 +165,6 @@ const OrderDetails = () => {
                                 </div>
                             )}
                         </div>
-
-                        {/* Prominent Order Ready Notice for Store Pickup & Free Shipping */}
-                        <OrderReadyNotice order={order} className="mb-8" />
 
                         {/* Active Shipping Details Box (Synchronized with Admin Input) */}
                         {(order.courier || order.tracking_number || order.estimated_delivery_date || order.estimated_arrival_time) && (
@@ -283,7 +279,6 @@ const OrderDetails = () => {
                                             Selected Shipping Option ({
                                                 order.shipping_method === 'express' ? 'Express Air Shipping' :
                                                 order.shipping_method === 'surface' ? 'Surface Shipping' :
-                                                order.shipping_method === 'pickup' ? 'Store Pickup (Pune Office)' :
                                                 order.shipping_method ? order.shipping_method.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') :
                                                 'Standard Logistics'
                                             }):

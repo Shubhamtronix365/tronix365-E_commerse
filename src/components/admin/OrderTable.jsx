@@ -10,8 +10,7 @@ import {
     AlertCircle, 
     Truck, 
     Building2, 
-    Zap,
-    Store
+    Zap
 } from 'lucide-react';
 
 const ORDER_STATUS_TABS = [
@@ -168,13 +167,6 @@ const OrderTable = ({
                                                 </span>
                                             )}
 
-                                            {/* Store Pickup / Free Shipping Indicator */}
-                                            {isPickup && (
-                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-violet-500/20 text-violet-300 border border-violet-500/30 text-[10px] font-bold">
-                                                    <Store size={11} className="text-violet-400" />
-                                                    Store Pickup (Ready in 2–3h)
-                                                </span>
-                                            )}
                                             {isFreeShipping && (
                                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
                                                     <Zap size={11} className="text-emerald-400" />

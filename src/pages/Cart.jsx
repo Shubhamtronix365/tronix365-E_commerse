@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, Truck, Zap, Store } from 'lucide-react';
+import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, Truck, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getImageUrl } from '../utils/imageUtils';
 import { calculateTaxAndTotals, formatCurrency, formatPrice } from '../utils/priceUtils';
@@ -220,19 +220,13 @@ const Cart = () => {
             cost: 69,
             icon: Truck,
         },
-        {
-            id: 'pickup',
-            label: 'Store Pickup (Pune Office)',
-            desc: '9:30 AM to 6:00 PM',
-            cost: 0,
-            icon: Store,
-        },
     ];
 
     // Default to surface; restore from session if user navigated back
     const [selectedShipping, setSelectedShipping] = useState(() => {
         try {
-            return sessionStorage.getItem('tronix_shipping') || 'surface';
+            const saved = sessionStorage.getItem('tronix_shipping');
+            return (saved && saved !== 'pickup') ? saved : 'surface';
         } catch { return 'surface'; }
     });
 

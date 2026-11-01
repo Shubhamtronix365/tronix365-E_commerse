@@ -45,6 +45,17 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
   - **Instant Order SKU Visibility (No Login Required)**: Every order notification email sent to the store admin (`shubham.tronix365@gmail.com`) and customer clearly displays item SKUs under product titles for instant warehouse picking.
   - **Admin Orders Feed & Modal Integration**: Order cards on the admin feed display purchased item summaries with SKU tags (`[BHavesh] × 1`), and the Order Modal features 1-click SKU copy buttons on every line item.
   - **Database Order Item Snapshots**: Permanently captures `product_sku` in `order_items` at checkout time, preserving historical part numbers regardless of future catalog edits.
+- **Discontinued Store Pickup Option & Courier-First Fulfillment**:
+  - Completely removed the "Store / Office Pickup (Pune)" option from Checkout and Cart. All orders are now channeled exclusively through direct courier shipping (Express Air / Standard Surface Logistics).
+  - Permanently removed Store / Office Pickup notification cards from customer order confirmation screens (`PaymentStatus.jsx`) and order tracking pages (`OrderDetails.jsx`).
+  - Removed Store / Office Pickup notice cards from automated order confirmation emails in `backend/email_utils.py`.
+- **Ultra-Fast Email Logo Optimization (97.2% Payload Reduction)**:
+  - Replaced legacy 3264x3264 uncompressed 238 KB email logo with a lightweight, retina-ready 128x128 brand logo (`logo-email.png`, 6.6 KB).
+  - Configured multi-CDN delivery via high-availability jsDelivr CDN (`https://cdn.jsdelivr.net/gh/bhaveshburad729/tronix365-E_commerse@main/public/logo-email.png`) and local backend mount (`/email-assets/logo-email.png`), reducing email client logo fetch latency from seconds to < 20ms and eliminating SPA router fallback stalls.
+- **Enhanced Mobile & Cross-Device Responsiveness**:
+  - Overhauled container padding (`p-4 sm:p-6 sm:p-8`), typography scaling, and button hit targets on `PaymentStatus.jsx` and `OrderDetails.jsx`.
+  - Streamlined order status pipeline stepper with responsive status circles (`w-8 h-8 sm:w-10 sm:h-10`) and compact labels (`Pending`, `Confirmed`) to prevent text wrapping or horizontal overflow on 320px–375px compact smartphones.
+  - Formatted long payment transaction IDs with word-breaking (`break-all`) to guarantee clean layout stability across all viewports.
 - **Automated Order Lifecycle Email System**: Branded, responsive HTML email templates for all order statuses (Order Placed, Confirmed, Shipped, Out for Delivery, Delivered, Cancelled, Refunds, Returns, Exchanges).
 - **Mandatory Dual Recipients**: Every order notification email is automatically sent to both the registered customer and `shubham.tronix365@gmail.com`.
 - **Database Email Audit Logging**: Records every sent/failed email with recipient details, subject, order ID, status trigger, and timestamp.

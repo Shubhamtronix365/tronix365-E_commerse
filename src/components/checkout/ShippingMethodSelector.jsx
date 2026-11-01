@@ -66,21 +66,15 @@ const ShippingMethodSelector = ({
                                 </span>
                             </label>
 
-                            {isActive && (opt.id === 'pickup' || opt.cost === 0) && (
-                                <div className={`text-xs p-3 rounded-xl border flex items-center gap-2.5 shadow-md ${
-                                    opt.id === 'pickup'
-                                        ? 'bg-violet-950/60 text-violet-200 border-violet-500/50'
-                                        : 'bg-emerald-950/60 text-emerald-200 border-emerald-500/50'
-                                }`}>
-                                    <span className="text-lg shrink-0">{opt.id === 'pickup' ? '🏬' : '⚡'}</span>
+                            {isActive && opt.cost === 0 && (
+                                <div className="text-xs p-3 rounded-xl border flex items-center gap-2.5 shadow-md bg-emerald-950/60 text-emerald-200 border-emerald-500/50">
+                                    <span className="text-lg shrink-0">⚡</span>
                                     <div>
                                         <p className="font-extrabold uppercase tracking-wide text-[11px] mb-0.5 text-white">
                                             ⏱️ Ready in 2–3 Hours Guaranteed
                                         </p>
                                         <p className="text-gray-300 text-[11px] leading-relaxed">
-                                            {opt.id === 'pickup'
-                                                ? 'Your order will be tested and ready for pickup at our Pune office within 2–3 hours from order placement time.'
-                                                : 'Your free shipping order will be packed and dispatched from our facility within 2–3 hours from order placement time.'}
+                                            Your free shipping order will be packed and dispatched from our facility within 2–3 hours from order placement time.
                                         </p>
                                     </div>
                                 </div>

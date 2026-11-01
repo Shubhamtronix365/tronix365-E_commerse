@@ -174,7 +174,7 @@ def get_logo_url() -> str:
         from services.media_service import get_email_logo_url
         return get_email_logo_url()
     except Exception:
-        return os.getenv("EMAIL_LOGO_URL", "https://www.tronix365.in/logo.png")
+        return os.getenv("EMAIL_LOGO_URL", "https://cdn.jsdelivr.net/gh/bhaveshburad729/tronix365-E_commerse@main/public/logo-email.png")
 
 
 LOGO_PUBLIC_URL = get_logo_url()
@@ -722,63 +722,17 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
         </tr>
         """
 
-    # Prominent Store Pickup & Free Shipping Ready Notice (2-3 Hours Window)
+    # Free Shipping Ready Notice (2-3 Hours Window)
     shipping_m = str(getattr(order, "shipping_method", "") or "").lower().strip()
     shipping_c = float(getattr(order, "shipping_cost", -1) or -1)
-    is_pickup = "pickup" in shipping_m or "store" in shipping_m
-    is_free_shipping = (not is_pickup) and (
-        "free" in shipping_m or shipping_c == 0
+    is_free_shipping = (
+        "pickup" not in shipping_m
+        and "store" not in shipping_m
+        and ("free" in shipping_m or shipping_c == 0)
     )
 
     pickup_or_free_card_html = ""
-    if is_pickup:
-        pickup_or_free_card_html = f"""
-        <tr>
-            <td style="padding: 0 28px 20px;">
-                <div style="background-color: #f5f3ff; border: 2px solid #7c3aed; border-radius: 12px; padding: 18px 20px; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.12);">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                        <tr>
-                            <td style="vertical-align: top; width: 38px; padding-right: 14px;">
-                                <div style="width: 38px; height: 38px; border-radius: 50%; background-color: #7c3aed; color: #ffffff; text-align: center; line-height: 38px; font-size: 20px;">🏬</div>
-                            </td>
-                            <td style="vertical-align: top;">
-                                <div style="margin-bottom: 6px;">
-                                    <span style="display: inline-block; background-color: #7c3aed; color: #ffffff; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
-                                        Store / Office Pickup
-                                    </span>
-                                    <span style="display: inline-block; background-color: #fef3c7; color: #92400e; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #fde68a; margin-left: 6px;">
-                                        ⏱️ Ready in 2–3 Hours
-                                    </span>
-                                </div>
-                                <h3 style="margin: 0 0 6px; font-size: 17px; font-weight: 900; color: #4c1d95; line-height: 1.3;">
-                                    Your order will be ready for pickup in 2–3 hours from placing time!
-                                </h3>
-                                <p style="margin: 0 0 12px; font-size: 13px; color: #5b21b6; line-height: 1.5;">
-                                    Our Pune team has received your order and is currently testing, assembling, and packaging your hardware components.
-                                </p>
-                                <div style="background-color: #ffffff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;">
-                                    <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 13px; color: #374151;">
-                                        <tr>
-                                            <td style="padding: 4px 0; color: #6b7280;"><strong>Ordered At:</strong></td>
-                                            <td style="padding: 4px 0; text-align: right; color: #111827; font-weight: 700;">{ordered_time_str}</td>
-                                        </tr>
-                                        <tr>
-                                            <td style="padding: 4px 0; color: #6b7280;"><strong>Estimated Ready Window:</strong></td>
-                                            <td style="padding: 4px 0; text-align: right; color: #7c3aed; font-weight: 900; font-size: 14px;">Within 2–3 Hours ({ready_window_str})</td>
-                                        </tr>
-                                    </table>
-                                </div>
-                                <p style="margin: 0; font-size: 12px; color: #6d28d9; line-height: 1.4;">
-                                    📍 <strong>Pickup Desk:</strong> Tronix365 Pune Office &nbsp;|&nbsp; 🕒 <strong>Hours:</strong> 9:30 AM – 6:00 PM
-                                </p>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </td>
-        </tr>
-        """
-    elif is_free_shipping:
+    if is_free_shipping:
         pickup_or_free_card_html = f"""
         <tr>
             <td style="padding: 0 28px 20px;">

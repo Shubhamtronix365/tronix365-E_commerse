@@ -6,8 +6,8 @@ from models import UploadedMediaDB
 
 logger = logging.getLogger(__name__)
 
-# High-availability CDN fallback that responds in < 20ms and never times out in Gmail/Outlook
-DEFAULT_CDN_LOGO_URL = "https://www.tronix365.in/logo.png"
+# High-availability CDN fallback (lightweight 6.6KB email-optimized logo, loads in < 20ms in Gmail/Outlook)
+DEFAULT_CDN_LOGO_URL = "https://cdn.jsdelivr.net/gh/bhaveshburad729/tronix365-E_commerse@main/public/logo-email.png"
 _CACHED_LOGO_URL: Optional[str] = None
 _CLOUDINARY_INITIALIZED: bool = False
 
@@ -121,9 +121,13 @@ def get_email_logo_url() -> str:
     # 2. Cloudinary CDN if active
     if is_cloudinary_enabled():
         try:
-            # Check local file
+            # Check local email-optimized file first
             backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            local_logo = os.path.join(backend_dir, "email_assets", "logo.png")
+            local_logo = os.path.join(backend_dir, "email_assets", "logo-email.png")
+            if not os.path.exists(local_logo):
+                local_logo = os.path.join(backend_dir, "email_assets", "logo.png")
+            if not os.path.exists(local_logo):
+                local_logo = os.path.join(backend_dir, "public", "logo-email.png")
             if not os.path.exists(local_logo):
                 local_logo = os.path.join(backend_dir, "public", "logo.png")
 
@@ -131,7 +135,7 @@ def get_email_logo_url() -> str:
                 c_url = upload_to_cloudinary(
                     local_logo,
                     folder="tronix365_brand",
-                    public_id="logo",
+                    public_id="logo-email",
                     resource_type="image",
                     overwrite=False,
                 )
