@@ -272,12 +272,22 @@ const PaymentStatus = () => {
                                     {/* Shipping Address */}
                                     <div className="p-4 sm:p-6 border-b md:border-b-0 md:border-r border-white/10 space-y-2">
                                         <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 mb-3">
-                                            <MapPin size={14} className="text-tronix-primary" /> Shipping Address
+                                            <MapPin size={14} className="text-tronix-primary" /> {order.shipping_method === 'pickup' ? 'Store Pickup Location' : 'Shipping Address'}
                                         </h4>
-                                        <p className="text-sm font-bold text-white">{order.full_name}</p>
-                                        <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">{order.address_line}</p>
-                                        <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">{order.city}, {order.state} - {order.pincode}</p>
-                                        <p className="text-xs sm:text-sm text-gray-400">Mobile: {order.phone}</p>
+                                        {order.shipping_method === 'pickup' ? (
+                                            <>
+                                                <p className="text-sm font-bold text-white">Tronix365 Pune Office Desk</p>
+                                                <p className="text-xs sm:text-sm text-gray-300">Pickup Counter | Operating Hours: 9:30 AM – 6:00 PM</p>
+                                                <p className="text-xs sm:text-sm text-gray-400">Customer: {order.full_name} (Mobile: {order.phone})</p>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <p className="text-sm font-bold text-white">{order.full_name}</p>
+                                                <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">{order.address_line}</p>
+                                                <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">{order.city}, {order.state} - {order.pincode}</p>
+                                                <p className="text-xs sm:text-sm text-gray-400">Mobile: {order.phone}</p>
+                                            </>
+                                        )}
                                     </div>
 
                                     {/* Bill Breakdown */}
@@ -298,7 +308,7 @@ const PaymentStatus = () => {
                                             <span>+ ₹{((order.gst_amount || 0) / 2).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                                         </div>
                                         <div className="flex justify-between text-xs text-gray-400">
-                                            <span>Shipping ({order.shipping_method ? order.shipping_method.charAt(0).toUpperCase() + order.shipping_method.slice(1) : 'Standard'}):</span>
+                                            <span>Shipping ({order.shipping_method === 'pickup' ? 'Store Pickup (Pune Office)' : order.shipping_method ? order.shipping_method.charAt(0).toUpperCase() + order.shipping_method.slice(1) : 'Standard'}):</span>
                                             <span className={order.shipping_cost > 0 ? 'text-white' : 'text-emerald-400'}>
                                                 {order.shipping_cost > 0 ? `₹${Number(order.shipping_cost).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'FREE'}
                                             </span>

@@ -722,17 +722,40 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
         </tr>
         """
 
-    # Free Shipping Ready Notice (2-3 Hours Window)
+    # Fulfillment / Pickup Notice (Without artificial 2-3 hours timing)
     shipping_m = str(getattr(order, "shipping_method", "") or "").lower().strip()
     shipping_c = float(getattr(order, "shipping_cost", -1) or -1)
-    is_free_shipping = (
-        "pickup" not in shipping_m
-        and "store" not in shipping_m
-        and ("free" in shipping_m or shipping_c == 0)
+    is_pickup = "pickup" in shipping_m or "store" in shipping_m
+    is_free_shipping = (not is_pickup) and (
+        "free" in shipping_m or shipping_c == 0
     )
 
     pickup_or_free_card_html = ""
-    if is_free_shipping:
+    if is_pickup:
+        pickup_or_free_card_html = f"""
+        <tr>
+            <td style="padding: 0 28px 20px;">
+                <div style="background-color: #f5f3ff; border: 1.5px solid #a78bfa; border-radius: 12px; padding: 14px 18px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td style="vertical-align: middle; width: 34px; padding-right: 12px;">
+                                <div style="width: 34px; height: 34px; border-radius: 50%; background-color: #7c3aed; color: #ffffff; text-align: center; line-height: 34px; font-size: 18px;">🏬</div>
+                            </td>
+                            <td style="vertical-align: middle;">
+                                <h4 style="margin: 0 0 4px; font-size: 14px; font-weight: 800; color: #4c1d95;">
+                                    Store / Office Pickup (Pune)
+                                </h4>
+                                <p style="margin: 0; font-size: 12px; color: #5b21b6; line-height: 1.4;">
+                                    📍 <strong>Pickup Desk:</strong> Tronix365 Pune Office &nbsp;|&nbsp; 🕒 <strong>Hours:</strong> 9:30 AM – 6:00 PM
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+        """
+    elif is_free_shipping:
         pickup_or_free_card_html = f"""
         <tr>
             <td style="padding: 0 28px 20px;">
@@ -888,8 +911,8 @@ def generate_order_status_email_html(order, status: str, frontend_url: str = Non
                                             <td style="padding: 4px 0; font-size: 14px; color: #d97706; text-align: right; font-weight: 700;">₹{explicit_gst:,.2f}</td>
                                         </tr>
                                         <tr>
-                                            <td style="padding: 4px 0; font-size: 14px; color: #4b5563;">Shipping Fee</td>
-                                            <td style="padding: 4px 0; font-size: 14px; color: #16a34a; text-align: right; font-weight: 700;">FREE</td>
+                                            <td style="padding: 4px 0; font-size: 14px; color: #4b5563;">Shipping ({'Store Pickup' if is_pickup else 'Standard Delivery'})</td>
+                                            <td style="padding: 4px 0; font-size: 14px; color: #16a34a; text-align: right; font-weight: 700;">{'FREE' if shipping_c <= 0 else f'₹{shipping_c:,.2f}'}</td>
                                         </tr>
                                         <tr>
                                             <td style="padding-top: 10px; border-top: 2px solid #e5e7eb; font-size: 16px; color: #111827; font-weight: 800;">Total Amount (Incl. GST)</td>

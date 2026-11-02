@@ -66,7 +66,21 @@ const ShippingMethodSelector = ({
                                 </span>
                             </label>
 
-                            {isActive && opt.cost === 0 && (
+                            {isActive && opt.id === 'pickup' && (
+                                <div className="text-xs p-3 rounded-xl border flex items-center gap-2.5 shadow-md bg-violet-950/40 text-violet-200 border-violet-500/40">
+                                    <span className="text-lg shrink-0">🏬</span>
+                                    <div>
+                                        <p className="font-extrabold uppercase tracking-wide text-[11px] mb-0.5 text-white">
+                                            Pickup Location: Tronix365 Pune Office
+                                        </p>
+                                        <p className="text-gray-300 text-[11px] leading-relaxed">
+                                            Collect directly from our Pune office desk during business hours (9:30 AM – 6:00 PM).
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {isActive && opt.cost === 0 && opt.id !== 'pickup' && (
                                 <div className="text-xs p-3 rounded-xl border flex items-center gap-2.5 shadow-md bg-emerald-950/60 text-emerald-200 border-emerald-500/50">
                                     <span className="text-lg shrink-0">⚡</span>
                                     <div>

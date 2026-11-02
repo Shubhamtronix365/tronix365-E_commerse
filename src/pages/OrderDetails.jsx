@@ -166,6 +166,18 @@ const OrderDetails = () => {
                             )}
                         </div>
 
+                        {/* Store Pickup Desk Info (without artificial 2-3 hour timing) */}
+                        {order.shipping_method === 'pickup' && (
+                            <div className="bg-violet-500/10 border border-violet-500/20 rounded-2xl p-5 mb-8">
+                                <h3 className="text-sm font-bold text-violet-300 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                    🏬 Store / Office Pickup
+                                </h3>
+                                <p className="text-sm text-gray-300">
+                                    <strong>Pickup Desk:</strong> Tronix365 Pune Office &nbsp;|&nbsp; <strong>Operating Hours:</strong> 9:30 AM – 6:00 PM
+                                </p>
+                            </div>
+                        )}
+
                         {/* Active Shipping Details Box (Synchronized with Admin Input) */}
                         {(order.courier || order.tracking_number || order.estimated_delivery_date || order.estimated_arrival_time) && (
                             <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-5 mb-8">
@@ -279,6 +291,7 @@ const OrderDetails = () => {
                                             Selected Shipping Option ({
                                                 order.shipping_method === 'express' ? 'Express Air Shipping' :
                                                 order.shipping_method === 'surface' ? 'Surface Shipping' :
+                                                order.shipping_method === 'pickup' ? 'Store Pickup (Pune Office)' :
                                                 order.shipping_method ? order.shipping_method.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') :
                                                 'Standard Logistics'
                                             }):

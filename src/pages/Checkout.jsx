@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { MapPin, CreditCard, ShieldCheck, Truck, ChevronRight, Loader, AlertCircle, Trash2, Zap, Check, Plus, Home, Building, Warehouse, Edit2, Lock } from 'lucide-react';
+import { MapPin, CreditCard, ShieldCheck, Truck, ChevronRight, Loader, AlertCircle, Trash2, Zap, Store, Check, Plus, Home, Building, Warehouse, Edit2, Lock } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import client from '../api/client';
 import { getImageUrl } from '../utils/imageUtils';
@@ -26,12 +26,12 @@ const Checkout = () => {
     const SHIPPING_OPTIONS = [
         { id: 'express', label: 'Express Shipping',        desc: '2 to 5 Working Days (Below 2Kg)', cost: 149, icon: Zap },
         { id: 'surface', label: 'Surface Shipping',        desc: '4 to 7 Working Days',            cost: 69,  icon: Truck },
+        { id: 'pickup',  label: 'Store Pickup (Pune Office)', desc: 'Collect directly from our Pune office', cost: 0,   icon: Store },
     ];
 
     const [selectedShipping, setSelectedShipping] = useState(() => {
         try {
-            const saved = sessionStorage.getItem('tronix_shipping');
-            return (saved && saved !== 'pickup') ? saved : 'surface';
+            return sessionStorage.getItem('tronix_shipping') || 'surface';
         } catch {
             return 'surface';
         }

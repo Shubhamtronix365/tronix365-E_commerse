@@ -45,10 +45,9 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
   - **Instant Order SKU Visibility (No Login Required)**: Every order notification email sent to the store admin (`shubham.tronix365@gmail.com`) and customer clearly displays item SKUs under product titles for instant warehouse picking.
   - **Admin Orders Feed & Modal Integration**: Order cards on the admin feed display purchased item summaries with SKU tags (`[BHavesh] × 1`), and the Order Modal features 1-click SKU copy buttons on every line item.
   - **Database Order Item Snapshots**: Permanently captures `product_sku` in `order_items` at checkout time, preserving historical part numbers regardless of future catalog edits.
-- **Discontinued Store Pickup Option & Courier-First Fulfillment**:
-  - Completely removed the "Store / Office Pickup (Pune)" option from Checkout and Cart. All orders are now channeled exclusively through direct courier shipping (Express Air / Standard Surface Logistics).
-  - Permanently removed Store / Office Pickup notification cards from customer order confirmation screens (`PaymentStatus.jsx`) and order tracking pages (`OrderDetails.jsx`).
-  - Removed Store / Office Pickup notice cards from automated order confirmation emails in `backend/email_utils.py`.
+- **Offline & Store Pickup (Pune Office) Fulfillment**:
+  - Restored the "Store Pickup (Pune Office)" option across Checkout and Cart as a ₹0 FREE collection option for Pune local customers.
+  - Removed all artificial 2–3 hours ready-window countdowns and timing banners from the website (`ShippingMethodSelector.jsx`, `PaymentStatus.jsx`, `OrderDetails.jsx`) and transactional emails (`backend/email_utils.py`), presenting clean and accurate office desk details (Tronix365 Pune Office, 9:30 AM – 6:00 PM) without false time commitments.
 - **Ultra-Fast Email Logo Optimization (97.2% Payload Reduction)**:
   - Replaced legacy 3264x3264 uncompressed 238 KB email logo with a lightweight, retina-ready 128x128 brand logo (`logo-email.png`, 6.6 KB).
   - Configured multi-CDN delivery via high-availability jsDelivr CDN (`https://cdn.jsdelivr.net/gh/bhaveshburad729/tronix365-E_commerse@main/public/logo-email.png`) and local backend mount (`/email-assets/logo-email.png`), reducing email client logo fetch latency from seconds to < 20ms and eliminating SPA router fallback stalls.

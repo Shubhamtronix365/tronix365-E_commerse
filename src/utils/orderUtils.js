@@ -55,17 +55,16 @@ export function isPickupOrFreeShipping(order) {
     const method = String(order.shipping_method || '').toLowerCase().trim();
     const cost = Number(order.shipping_cost ?? -1);
 
-    // Store pickup option has been completely removed per request
-    const isPickup = false;
-    const isFreeShipping = (
-        !method.includes('pickup') &&
-        !method.includes('store') &&
-        (method === 'free' || method.includes('free') || cost === 0)
+    const isPickup = method === 'pickup' || method.includes('pickup') || method.includes('store');
+    const isFreeShipping = (!isPickup) && (
+        method === 'free' ||
+        method.includes('free') ||
+        cost === 0
     );
 
     return {
-        isPickup: false,
+        isPickup,
         isFreeShipping,
-        isEligible: isFreeShipping
+        isEligible: isFreeShipping // Pickup orders do NOT show timing notices
     };
 }
