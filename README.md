@@ -7,6 +7,21 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
 ## ✨ Features
 
 - **Modern Bento UI**: Beautiful, responsive layout with glassmorphic cards and dynamic animations.
+- **1-to-N Multi-Image Product Gallery & Showcase (Amazon, Ajio, Myntra Style)**:
+  - **Dynamic Multi-Image Storefront Gallery (`ProductImageGallery.jsx`)**:
+    - High-performance, fully responsive gallery supporting 1 to N images per product with automatic backward-compatibility for single-image inventory.
+    - **Desktop Showcase**: Vertical thumbnail strip on the left with instant active image switching on thumbnail hover/click, fluid cross-fade transitions, and an interactive 2.1x lens zoom that tracks the mouse cursor across every component detail.
+    - **Mobile & Tablet Experience**: Smooth horizontal thumbnail rail below the main stage, native touch swipe gestures (left/right) to switch views, and a floating index counter badge (`1 / N`).
+    - **Fullscreen High-Resolution Lightbox**: Click-to-enlarge modal with deep zoom controls (`Zoom In`, `Zoom Out`, `Reset`), thumbnail quick-jump rail, and complete keyboard navigation (`Esc` to close, `ArrowLeft` / `ArrowRight` to navigate).
+  - **Admin Multi-Image Management (`ProductModal.jsx` & `AdminDashboard.jsx`)**:
+    - Multi-file selector (`<input type="file" multiple />`) allowing admins to upload multiple images concurrently to Cloudinary CDN and local storage.
+    - Direct image URL input field to paste and attach external CDN links.
+    - Interactive gallery grid with `#1 Cover Image` badge, 1-click **"Set as Cover"** button, move left/right sequence reordering, and individual trash/deletion controls.
+  - **Robust Backend & Database Architecture**:
+    - Added `images` (`JSONB`) column to `ProductDB` with automated non-destructive database auto-migration.
+    - Dual-sync between `product.image` (catalog primary cover) and `product.images` (multi-view array).
+    - Auto-hydration helper (`_hydrate_product_images`) guaranteeing that all catalog, search, slug, and recommendation endpoints always return a clean, populated list of image URLs.
+    - Batch upload endpoint `POST /upload/multiple` supporting concurrent file processing.
 - **Fuzzy Search & Filters**: High-performance backend search, pagination, category sorting, and price range filters.
 - **Smart Shopping Cart**: Persistent cart state, client-side validation, and instant coupon/discount application.
 - **Smart Catalog Sorting & Price Pending Prioritization**: Automatically identifies products imported from supplier catalogs without established retail prices (flagged `is_price_pending`), placing them gracefully at the very end of all shop catalog and category listings so active, priced inventory is always prioritized.

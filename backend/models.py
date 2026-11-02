@@ -29,6 +29,7 @@ class ProductDB(Base):
     price = Column(Float)
     category = Column(String)
     image = Column(String)
+    images = Column(JSON, nullable=True, default=list)  # Gallery images (1 to n)
     specs = Column(JSON)  # Store specs as JSON
     skv = Column(String, unique=True, nullable=True)  # Seller Known Value
     mrp = Column(Float, nullable=True)  # Maximum Retail Price
@@ -264,6 +265,7 @@ class ProductBase(BaseModel):
     price: float
     category: str
     image: Optional[str] = None
+    images: Optional[List[str]] = []
     specs: Optional[Dict[str, str]] = None
     skv: Optional[str] = None
     mrp: Optional[float] = None
@@ -291,7 +293,7 @@ class ProductBase(BaseModel):
     height: Optional[float] = 5.0
     is_price_pending: Optional[bool] = False
 
-    @field_validator("specs", "features", "applications", "useful_links", "package_includes", "attachments", mode="before")
+    @field_validator("specs", "features", "applications", "useful_links", "package_includes", "attachments", "images", mode="before")
     @classmethod
     def parse_json_fields(cls, v):
         if isinstance(v, str):
@@ -313,6 +315,7 @@ class ProductUpdate(BaseModel):
     price: Optional[float] = None
     category: Optional[str] = None
     image: Optional[str] = None
+    images: Optional[List[str]] = None
     specs: Optional[Dict[str, str]] = None
     skv: Optional[str] = None
     mrp: Optional[float] = None

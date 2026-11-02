@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from typing import List
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from sqlalchemy.orm import Session
 from database import get_db
@@ -169,4 +170,73 @@ async def upload_media_file(
         if os.path.exists(file_path):
             os.remove(file_path)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/upload/multiple")
+async def upload_multiple_images(
+    files: List[UploadFile] = File(...),
+    folder: str = "tronix365_products",
+    current_user: UserDB = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Upload multiple product images concurrently and return list of URLs."""
+    if not files:
+        raise HTTPException(status_code=400, detail="No files provided.")
+
+    if len(files) > 12:
+        raise HTTPException(status_code=400, detail="Cannot upload more than 12 images at once.")
+
+    uploaded_urls = []
+    ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp", "gif"}
+
+    for file in files:
+        filename = file.filename or ""
+        file_extension = filename.split(".")[-1].lower() if "." in filename else ""
+        if file_extension not in ALLOWED_EXTENSIONS:
+            continue
+
+        contents = await file.read()
+        if len(contents) > 5 * 1024 * 1024:
+            continue
+
+        unique_filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{os.urandom(4).hex()}.{file_extension}"
+        file_path = os.path.join(UPLOAD_DIR, unique_filename)
+
+        try:
+            with open(file_path, "wb") as buffer:
+                buffer.write(contents)
+
+            from PIL import Image
+            try:
+                with Image.open(file_path) as img:
+                    img.verify()
+            except Exception:
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                continue
+
+            optimized_path = process_image(file_path)
+            final_filename = os.path.basename(optimized_path)
+
+            target_folder = "tronix365_blogs" if "blog" in folder.lower() else "tronix365_products"
+            cloud_url = upload_to_cloudinary(optimized_path, folder=target_folder, resource_type="image")
+
+            try:
+                with open(optimized_path, "rb") as f:
+                    img_data = f.read()
+                save_media_to_db(db, final_filename, img_data, "image/webp")
+            except Exception as err:
+                print(f"Warning: Failed to save image for database backup: {err}")
+
+            if cloud_url:
+                uploaded_urls.append(cloud_url)
+            else:
+                uploaded_urls.append(f"/uploads/{final_filename}")
+        except Exception as e:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            print(f"Failed to process upload for file {filename}: {e}")
+
+    return {"urls": uploaded_urls}
+
 

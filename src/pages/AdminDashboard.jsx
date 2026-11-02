@@ -231,6 +231,7 @@ const AdminDashboard = () => {
             specsText: '',
             description: '', 
             image: '', 
+            images: [],
             features: '',
             applications: '',
             package_includes: '',
@@ -267,9 +268,14 @@ const AdminDashboard = () => {
         }
 
         const specsText = formatSpecsToText(parsedSpecs);
+        const initialImages = Array.isArray(product.images) && product.images.length > 0
+            ? product.images.filter(Boolean)
+            : (product.image ? [product.image] : []);
 
         setNewProduct({
             ...product,
+            image: initialImages[0] || product.image || '',
+            images: initialImages,
             mrp: product.mrp !== undefined && product.mrp !== null ? product.mrp : '',
             specs: parsedSpecs,
             specsText: specsText,
@@ -324,10 +330,17 @@ const AdminDashboard = () => {
                 finalSpecs = newProduct.specs;
             }
 
+            const currentImages = Array.isArray(newProduct.images) && newProduct.images.length > 0
+                ? newProduct.images.filter(img => typeof img === 'string' && img.trim().length > 0)
+                : (newProduct.image ? [newProduct.image] : []);
+            const primaryCover = currentImages[0] || newProduct.image || '';
+
             const payload = { 
                 ...newProduct,
                 sku: skuVal,
                 skv: skuVal,
+                image: primaryCover,
+                images: currentImages,
                 price: newProduct.price === '' ? 0 : Number(newProduct.price),
                 mrp: (newProduct.mrp === '' || newProduct.mrp === null || newProduct.mrp === undefined) ? null : Number(newProduct.mrp),
                 specs: finalSpecs,
@@ -376,7 +389,7 @@ const AdminDashboard = () => {
             }
             setIsAddProductOpen(false);
             setNewProduct({ 
-                title: '', category: 'Development Boards', sku: '', price: '', mrp: '', specs: [], specsText: '', description: '', image: '', features: '',
+                title: '', category: 'Development Boards', sku: '', price: '', mrp: '', specs: [], specsText: '', description: '', image: '', images: [], features: '',
                 applications: '', package_includes: '', useful_links: '', attachments: '', warranty_info: '', country_of_origin: ''
             });
         } catch (error) {
@@ -390,24 +403,43 @@ const AdminDashboard = () => {
     };
 
     const handleImageUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const formData = new FormData();
-        formData.append("file", file);
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
 
         setUploading(true);
         try {
-            const res = await client.post("/upload", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
+            const uploadPromises = files.map(async (file) => {
+                const formData = new FormData();
+                formData.append("file", file);
+                const res = await client.post("/upload", formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                });
+                return res.data.url;
             });
-            setNewProduct(prev => ({ ...prev, image: res.data.url }));
-            toast.success("Image uploaded successfully");
+
+            const uploadedUrls = await Promise.all(uploadPromises);
+            const validUrls = uploadedUrls.filter(Boolean);
+
+            if (validUrls.length > 0) {
+                setNewProduct(prev => {
+                    const existing = Array.isArray(prev.images) && prev.images.length > 0
+                        ? prev.images
+                        : (prev.image ? [prev.image] : []);
+                    const combined = [...existing, ...validUrls];
+                    return {
+                        ...prev,
+                        images: combined,
+                        image: prev.image || combined[0] || ''
+                    };
+                });
+                toast.success(validUrls.length > 1 ? `${validUrls.length} images uploaded successfully` : "Image uploaded successfully");
+            }
         } catch (error) {
             console.error("Upload error:", error);
-            toast.error("Failed to upload image");
+            toast.error("Failed to upload image(s)");
         } finally {
             setUploading(false);
+            if (e.target) e.target.value = '';
         }
     };
 

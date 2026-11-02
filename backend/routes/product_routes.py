@@ -43,6 +43,38 @@ def _normalize_product_image(img_val: Optional[str]) -> Optional[str]:
     return clean
 
 
+def _normalize_product_images(imgs_val: Optional[List[str]]) -> List[str]:
+    """Normalize and auto-upload a list of product image URLs/paths."""
+    if not imgs_val or not isinstance(imgs_val, list):
+        return []
+    result: List[str] = []
+    for item in imgs_val:
+        if isinstance(item, str) and item.strip():
+            norm = _normalize_product_image(item.strip())
+            if norm and norm not in result:
+                result.append(norm)
+    return result
+
+
+def _hydrate_product_images(product: ProductDB) -> ProductDB:
+    """Ensure product.images is a populated list, falling back to [product.image] if empty."""
+    if not product:
+        return product
+    raw_images = getattr(product, "images", None)
+    if isinstance(raw_images, list) and len(raw_images) > 0:
+        cleaned = [img.strip() for img in raw_images if isinstance(img, str) and img.strip()]
+        if cleaned:
+            product.images = cleaned
+            if not product.image:
+                product.image = cleaned[0]
+            return product
+    if product.image and isinstance(product.image, str) and product.image.strip():
+        product.images = [product.image.strip()]
+    else:
+        product.images = []
+    return product
+
+
 def get_product_variants_list(product, db: Session):
     target_parent_id = product.parent_id
     if not target_parent_id:
@@ -145,6 +177,8 @@ async def get_products(
         products = query.offset(skip).limit(limit).all()
     else:
         products = query.offset(skip).all()
+    for p in products:
+        _hydrate_product_images(p)
     return products
 
 
@@ -171,6 +205,8 @@ async def search_products(q: str = "", db: Session = Depends(get_db)):
         )
 
     products = db.query(ProductDB).filter(and_(*word_filters)).limit(15).all()
+    for p in products:
+        _hydrate_product_images(p)
     return products
 
 
@@ -202,6 +238,8 @@ async def get_recommendations(product_id: int, db: Session = Depends(get_db)):
         )
         recommendations.extend(fill)
 
+    for r in recommendations:
+        _hydrate_product_images(r)
     return recommendations
 
 
@@ -212,6 +250,7 @@ async def get_product(product_id: int, db: Session = Depends(get_db)):
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     product.variants = get_product_variants_list(product, db)
+    _hydrate_product_images(product)
     return product
 
 
@@ -257,6 +296,7 @@ async def get_product_by_slug(slug: str, db: Session = Depends(get_db)):
         p_by_id = db.query(ProductDB).filter(ProductDB.id == int(slug_raw)).first()
         if p_by_id:
             p_by_id.variants = get_product_variants_list(p_by_id, db)
+            _hydrate_product_images(p_by_id)
             return p_by_id
 
     # 2. SKV / SKU exact match
@@ -268,6 +308,7 @@ async def get_product_by_slug(slug: str, db: Session = Depends(get_db)):
     ).first()
     if p_by_skv:
         p_by_skv.variants = get_product_variants_list(p_by_skv, db)
+        _hydrate_product_images(p_by_skv)
         return p_by_skv
 
     products = db.query(ProductDB).all()
@@ -335,6 +376,7 @@ async def get_product_by_slug(slug: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Product not found")
 
     found_product.variants = get_product_variants_list(found_product, db)
+    _hydrate_product_images(found_product)
     return found_product
 
 
@@ -345,6 +387,18 @@ async def create_product(
     current_admin: UserDB = Depends(get_current_admin),
 ):
     product_dict = product.dict()
+    # Multi-image normalization & primary cover synchronization
+    raw_images = product_dict.get("images")
+    if raw_images and isinstance(raw_images, list):
+        product_dict["images"] = _normalize_product_images(raw_images)
+        if product_dict["images"] and not product_dict.get("image"):
+            product_dict["image"] = product_dict["images"][0]
+    elif product_dict.get("image"):
+        product_dict["image"] = _normalize_product_image(product_dict["image"])
+        product_dict["images"] = [product_dict["image"]]
+    else:
+        product_dict["images"] = []
+
     if product_dict.get("image"):
         product_dict["image"] = _normalize_product_image(product_dict["image"])
 
@@ -383,6 +437,7 @@ async def create_product(
         raise HTTPException(status_code=400, detail=f"Database constraint error: {err_info}")
 
     db.refresh(new_product)
+    _hydrate_product_images(new_product)
     await FastAPICache.clear(namespace="products")
     return new_product
 
@@ -399,6 +454,25 @@ async def update_product(
         raise HTTPException(status_code=404, detail="Product not found")
 
     product_data = product.dict(exclude_unset=True)
+
+    # Multi-image update & primary cover synchronization
+    if "images" in product_data:
+        raw_images = product_data.get("images")
+        if isinstance(raw_images, list):
+            product_data["images"] = _normalize_product_images(raw_images)
+            if product_data["images"]:
+                if "image" not in product_data or not product_data["image"]:
+                    product_data["image"] = product_data["images"][0]
+            elif "image" not in product_data:
+                product_data["image"] = None
+        else:
+            product_data["images"] = []
+    elif "image" in product_data and product_data.get("image"):
+        product_data["image"] = _normalize_product_image(product_data["image"])
+        current_imgs = getattr(db_product, "images", None)
+        if not current_imgs or len(current_imgs) == 0:
+            product_data["images"] = [product_data["image"]]
+
     if "image" in product_data and product_data["image"]:
         product_data["image"] = _normalize_product_image(product_data["image"])
 
@@ -445,6 +519,7 @@ async def update_product(
         raise HTTPException(status_code=400, detail=f"Database constraint error: {err_info}")
 
     db.refresh(db_product)
+    _hydrate_product_images(db_product)
     await FastAPICache.clear(namespace="products")
     return db_product
 

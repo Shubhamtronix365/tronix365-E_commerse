@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     X, Edit, Plus, Info, Tag, Boxes, Package, List, DollarSign, 
     Image as ImageIcon, Loader, Save, Factory, Globe,
-    Sliders, Trash2, ClipboardList, Sparkles
+    Sliders, Trash2, ClipboardList, Sparkles, Star, ArrowLeft, ArrowRight, UploadCloud
 } from 'lucide-react';
 import { getImageUrl } from '../../utils/imageUtils';
 import { slugify } from '../../utils/slugify';
@@ -24,6 +24,59 @@ const ProductModal = ({
 }) => {
     const { categories } = useCategories();
     const [specViewMode, setSpecViewMode] = useState('table'); // 'table' or 'textarea'
+    const [imageUrlInput, setImageUrlInput] = useState('');
+
+    const currentImages = Array.isArray(newProduct.images) && newProduct.images.length > 0
+        ? newProduct.images.filter(img => typeof img === 'string' && img.trim().length > 0)
+        : (newProduct.image ? [newProduct.image] : []);
+
+    const handleSetCover = (index) => {
+        if (index === 0) return;
+        const list = [...currentImages];
+        const [selected] = list.splice(index, 1);
+        list.unshift(selected);
+        setNewProduct(prev => ({
+            ...prev,
+            images: list,
+            image: list[0] || ''
+        }));
+    };
+
+    const handleMoveImage = (index, direction) => {
+        const newIndex = index + direction;
+        if (newIndex < 0 || newIndex >= currentImages.length) return;
+        const list = [...currentImages];
+        const temp = list[index];
+        list[index] = list[newIndex];
+        list[newIndex] = temp;
+        setNewProduct(prev => ({
+            ...prev,
+            images: list,
+            image: list[0] || ''
+        }));
+    };
+
+    const handleRemoveImage = (index) => {
+        const list = currentImages.filter((_, i) => i !== index);
+        setNewProduct(prev => ({
+            ...prev,
+            images: list,
+            image: list[0] || ''
+        }));
+    };
+
+    const handleAddUrlImage = (e) => {
+        if (e) e.preventDefault();
+        const clean = (imageUrlInput || '').trim();
+        if (!clean) return;
+        const list = [...currentImages, clean];
+        setNewProduct(prev => ({
+            ...prev,
+            images: list,
+            image: prev.image || list[0] || ''
+        }));
+        setImageUrlInput('');
+    };
 
     const handleSpecsTextChange = (e) => {
         const text = e.target.value;
@@ -689,77 +742,174 @@ const ProductModal = ({
                                     </div>
 
                                     <div className="bg-white/5 border border-white/5 rounded-2xl p-5 space-y-4">
-                                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                                                <ImageIcon size={16} className="text-violet-400" />
+                                                <span>Product Images (1 to N Gallery)</span>
+                                            </h3>
+                                            <span className="text-xs bg-violet-500/20 text-violet-300 font-semibold px-2.5 py-0.5 rounded-full border border-violet-500/30">
+                                                {currentImages.length} {currentImages.length === 1 ? 'Image' : 'Images'}
+                                            </span>
+                                        </div>
 
-                                            <ImageIcon size={16} /> Media
-                                        </h3>
+                                        <p className="text-xs text-gray-400">
+                                            Upload multiple images or paste URLs. The 1st image is automatically used as the catalog cover. Drag or reorder any image to be the primary cover.
+                                        </p>
 
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-300 mb-1.5 pl-1">Product Image</label>
-
-                                            {/* Image Preview Block */}
-                                            <div className="w-full aspect-[4/3] rounded-xl border-2 border-dashed border-white/10 mb-3 bg-black/20 flex flex-col items-center justify-center relative overflow-hidden group">
-                                                {newProduct.image ? (
-                                                    <>
-                                                        <img src={getImageUrl(newProduct.image)} alt="Preview" className="w-full h-full object-cover" />
-                                                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => fileInputRef.current?.click()}
-                                                                className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg backdrop-blur-md transition-colors flex items-center gap-2 font-medium shadow-xl"
-                                                                disabled={uploading}
-                                                            >
-                                                                <Edit size={18} /> Change Image
-                                                            </button>
-                                                        </div>
-                                                    </>
-                                                ) : (
-                                                    <div className="text-center p-4">
-                                                        <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-2">
-                                                            <ImageIcon className="text-gray-400 w-6 h-6" />
-                                                        </div>
-                                                        <p className="text-sm text-gray-400 mb-3">No image selected</p>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => fileInputRef.current?.click()}
-                                                            className="bg-tronix-primary/20 hover:bg-tronix-primary/30 text-tronix-primary border border-tronix-primary/30 px-4 py-2 rounded-lg transition-colors flex items-center gap-2 font-medium mx-auto text-sm"
-                                                            disabled={uploading}
-                                                        >
-                                                            <Plus size={16} /> Upload Image
-                                                        </button>
-                                                    </div>
-                                                )}
-
-                                                {/* Upload Overlay */}
-                                                {uploading && (
-                                                    <div className="absolute inset-0 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center z-10">
-                                                        <Loader className="w-8 h-8 text-tronix-primary animate-spin mb-2" />
-                                                        <span className="text-sm font-medium text-white">Uploading...</span>
-                                                    </div>
-                                                )}
-                                            </div>
-
+                                        {/* Upload & Add Controls */}
+                                        <div className="space-y-3">
                                             <input
                                                 type="file"
                                                 ref={fileInputRef}
                                                 className="hidden"
                                                 accept="image/*"
+                                                multiple
                                                 onChange={handleImageUpload}
                                             />
 
-                                            {/* Manual URL Input — hidden for data URI (base64 uploads) */}
-                                            {!newProduct.image?.startsWith('data:') && (
-                                                <div className="relative mt-2">
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Or paste image URL here..."
-                                                        value={newProduct.image || ''}
-                                                        onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
-                                                        className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder-gray-600 focus:border-tronix-primary focus:ring-1 focus:ring-tronix-primary focus:bg-white/5 transition-all outline-none"
-                                                    />
-                                                </div>
-                                            )}
+                                            <div className="flex flex-col sm:flex-row gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => fileInputRef.current?.click()}
+                                                    disabled={uploading}
+                                                    className="flex-1 py-2.5 px-4 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-medium text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-violet-600/20 disabled:opacity-50 cursor-pointer"
+                                                >
+                                                    {uploading ? (
+                                                        <>
+                                                            <Loader size={16} className="animate-spin" />
+                                                            <span>Uploading Images...</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <UploadCloud size={16} />
+                                                            <span>Upload Images (Select 1 or more)</span>
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </div>
+
+                                            {/* URL Add Input */}
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Or paste image URL (e.g. https://...)"
+                                                    value={imageUrlInput}
+                                                    onChange={(e) => setImageUrlInput(e.target.value)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            e.preventDefault();
+                                                            handleAddUrlImage();
+                                                        }
+                                                    }}
+                                                    className="flex-1 bg-black/20 border border-white/10 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white placeholder-gray-500 outline-none focus:border-violet-500 transition-all"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={handleAddUrlImage}
+                                                    className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-medium transition-colors flex items-center gap-1.5 cursor-pointer flex-shrink-0"
+                                                >
+                                                    <Plus size={15} /> Add URL
+                                                </button>
+                                            </div>
                                         </div>
+
+                                        {/* Image Gallery Manager Grid */}
+                                        {currentImages.length > 0 ? (
+                                            <div className="space-y-3 pt-2">
+                                                <div className="text-xs font-semibold text-gray-300 flex items-center justify-between">
+                                                    <span>Uploaded Gallery ({currentImages.length})</span>
+                                                    <span className="text-[11px] text-gray-400">#1 is the Primary Cover</span>
+                                                </div>
+
+                                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                                    {currentImages.map((imgUrl, idx) => {
+                                                        const isCover = idx === 0;
+                                                        return (
+                                                            <div
+                                                                key={`admin-img-${idx}`}
+                                                                className={`relative rounded-xl p-2 bg-black/40 border transition-all flex flex-col justify-between group ${
+                                                                    isCover
+                                                                        ? 'border-violet-500 ring-2 ring-violet-500/30'
+                                                                        : 'border-white/10 hover:border-white/25'
+                                                                }`}
+                                                            >
+                                                                {/* Image Thumbnail */}
+                                                                <div className="w-full aspect-square rounded-lg bg-white p-1.5 flex items-center justify-center overflow-hidden mb-2 relative">
+                                                                    <img
+                                                                        src={getImageUrl(imgUrl)}
+                                                                        alt={`Product view ${idx + 1}`}
+                                                                        className="w-full h-full object-contain mix-blend-multiply"
+                                                                    />
+                                                                    {isCover && (
+                                                                        <div className="absolute top-1 left-1 bg-violet-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-md">
+                                                                            <Star size={10} className="fill-current" /> Cover
+                                                                        </div>
+                                                                    )}
+                                                                    <div className="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] font-mono px-1.5 py-0.5 rounded">
+                                                                        #{idx + 1}
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Controls Toolbar */}
+                                                                <div className="flex items-center justify-between gap-1 pt-1 border-t border-white/5">
+                                                                    {!isCover ? (
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => handleSetCover(idx)}
+                                                                            className="text-[11px] text-violet-300 hover:text-white font-medium hover:underline flex items-center gap-0.5"
+                                                                            title="Make this the Cover image"
+                                                                        >
+                                                                            <Star size={12} /> Set Cover
+                                                                        </button>
+                                                                    ) : (
+                                                                        <span className="text-[11px] text-violet-400 font-semibold">
+                                                                            Primary
+                                                                        </span>
+                                                                    )}
+
+                                                                    <div className="flex items-center gap-1 ml-auto">
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => handleMoveImage(idx, -1)}
+                                                                            disabled={idx === 0}
+                                                                            className="p-1 rounded bg-white/5 hover:bg-white/15 text-gray-300 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                                                                            title="Move backward"
+                                                                        >
+                                                                            <ArrowLeft size={12} />
+                                                                        </button>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => handleMoveImage(idx, 1)}
+                                                                            disabled={idx === currentImages.length - 1}
+                                                                            className="p-1 rounded bg-white/5 hover:bg-white/15 text-gray-300 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                                                                            title="Move forward"
+                                                                        >
+                                                                            <ArrowRight size={12} />
+                                                                        </button>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => handleRemoveImage(idx)}
+                                                                            className="p-1 rounded bg-rose-500/10 hover:bg-rose-500 text-rose-300 hover:text-white transition-colors ml-1"
+                                                                            title="Remove this image"
+                                                                        >
+                                                                            <Trash2 size={12} />
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="border-2 border-dashed border-white/10 rounded-xl p-6 text-center bg-black/20">
+                                                <ImageIcon className="w-10 h-10 text-gray-500 mx-auto mb-2 opacity-50" />
+                                                <p className="text-xs text-gray-400 mb-1">No images uploaded yet</p>
+                                                <p className="text-[11px] text-gray-500">
+                                                    Click "Upload Images" above to add 1 to N high-resolution pictures for your customers.
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </form>

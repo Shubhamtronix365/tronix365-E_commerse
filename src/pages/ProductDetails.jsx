@@ -21,6 +21,7 @@ import ShareModal from '../components/common/ShareModal';
 import VariantSelector from '../components/product/VariantSelector';
 import TowerOrderModal from '../components/towerOrder/TowerOrderModal';
 import ProductDetailSkeleton from '../components/product/ProductDetailSkeleton';
+import ProductImageGallery from '../components/product/ProductImageGallery';
 import EstimatedDelivery from '../components/product/EstimatedDelivery';
 import { slugify } from '../utils/slugify';
 import { formatPrice } from '../utils/priceUtils';
@@ -377,24 +378,14 @@ const ProductDetails = () => {
             <div className="max-w-7xl mx-auto">
                 <Breadcrumbs category={product.category} productName={product.title} />
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-4">
-                    {/* Image Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-4 items-start">
+                    {/* Interactive Multi-Image Gallery Showcase */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="bg-white rounded-3xl p-4 sm:p-8 flex items-center justify-center h-[280px] xs:h-[340px] sm:h-[450px] lg:h-[500px] shadow-2xl shadow-violet-500/10 border border-white/20 overflow-hidden"
+                        className="w-full"
                     >
-                        <Image
-                            src={getImageUrl(product.image)}
-                            alt={product.title}
-                            title={product.title}
-                            width={600}
-                            height={600}
-                            loading="eager"
-                            fetchPriority="high"
-                            decoding="sync"
-                            className="max-h-full max-w-full object-contain mix-blend-multiply drop-shadow-xl"
-                        />
+                        <ProductImageGallery product={product} />
                     </motion.div>
 
                     {/* Product Info */}
