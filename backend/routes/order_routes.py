@@ -23,8 +23,9 @@ from models import (
 from deps import get_current_user, get_current_admin
 from email_utils import send_order_status_email
 from services.shiprocket import shiprocket_automation
+from logging_config import get_logger
 
-logger = logging.getLogger("order_routes")
+logger = get_logger("orders")
 router = APIRouter(tags=["Orders"])
 
 
@@ -63,11 +64,29 @@ async def create_order(
     for item in order.items:
         product = db.query(ProductDB).filter(ProductDB.id == item.product_id).first()
         if not product:
+            logger.warning_event(
+                module="ORDERS",
+                event="ORDER_ITEM_INVALID",
+                message=f"Product ID #{item.product_id} not found in catalog during order placement",
+                action="Rejecting order placement",
+                result="PRODUCT_NOT_FOUND",
+                product_id=item.product_id,
+            )
             raise HTTPException(
                 status_code=400, detail=f"Product ID {item.product_id} is invalid."
             )
 
         if product.stock < item.quantity:
+            logger.warning_event(
+                module="ORDERS",
+                event="ORDER_STOCK_INSUFFICIENT",
+                message=f"Insufficient inventory for '{product.title}' (#{product.id}). Available: {product.stock}, requested: {item.quantity}",
+                action="Rejecting order placement",
+                result="STOCK_INSUFFICIENT",
+                product_id=product.id,
+                available_stock=product.stock,
+                requested_quantity=item.quantity,
+            )
             raise HTTPException(
                 status_code=400,
                 detail=f"Insufficient stock for {product.title}. Only {product.stock} available.",
@@ -91,6 +110,20 @@ async def create_order(
     db.add(new_order)
     db.commit()
     db.refresh(new_order)
+
+    logger.info_event(
+        module="ORDERS",
+        event="ORDER_CREATED",
+        message=f"New order #{new_order.id} placed successfully by customer ({new_order.customer_email}) for INR {new_order.total_amount}",
+        action="Created order in database, queued order status email and automated courier shipment creation",
+        result="SUCCESS",
+        order_id=new_order.id,
+        customer_email=new_order.customer_email,
+        total_amount=new_order.total_amount,
+        items_count=len(new_order.items),
+        shipping_method=new_order.shipping_method,
+        is_gst_invoice=new_order.is_gst_invoice,
+    )
 
     background_tasks.add_task(send_order_status_email, new_order.id, "pending")
     if shiprocket_automation.is_shiprocket_eligible(new_order.shipping_method):
@@ -184,9 +217,32 @@ async def update_order_status(
         order.status = new_status
         db.commit()
         db.refresh(order)
+
+        logger.info_event(
+            module="ORDERS",
+            event="ORDER_STATUS_CHANGED",
+            message=f"Order #{order.id} status transitioned from '{previous_status}' to '{new_status}' by admin ({current_admin.email})",
+            action="Updated order record in database, adjusted stock/courier info, and triggered email/shipment workflows",
+            result="UPDATED",
+            order_id=order.id,
+            previous_status=previous_status,
+            new_status=new_status,
+            courier=order.courier,
+            tracking_number=order.tracking_number,
+            cancellation_reason=order.cancellation_reason,
+            admin_email=current_admin.email,
+        )
     except Exception as e:
         db.rollback()
-        logger.error(f"Failed to commit order #{order_id} status update: {e}")
+        logger.error_event(
+            module="ORDERS",
+            event="ORDER_STATUS_UPDATE_FAILED",
+            message=f"Failed to update status for order #{order_id}: {str(e)}",
+            action="Rolled back database transaction",
+            result="FAILURE",
+            order_id=order_id,
+            error=str(e),
+        )
         raise HTTPException(status_code=500, detail=f"Failed to update order status: {str(e)}")
 
     try:
@@ -205,7 +261,15 @@ async def update_order_status(
                 background_tasks.add_task(shiprocket_automation.auto_create_shiprocket_shipment, order.id)
 
     except Exception as e:
-        logger.error(f"Error queueing background tasks for order #{order.id}: {e}")
+        logger.error_event(
+            module="ORDERS",
+            event="ORDER_BACKGROUND_TASK_FAILED",
+            message=f"Error queueing background fulfillment tasks for order #{order.id}: {str(e)}",
+            action="Background queue failed",
+            result="ERROR",
+            order_id=order.id,
+            error=str(e),
+        )
 
     return {
         "message": f"Order status updated to '{new_status}' successfully",
@@ -224,7 +288,25 @@ async def admin_send_order_email(
 ):
     order = db.query(OrderDB).filter(OrderDB.id == order_id).first()
     if not order:
+        logger.warning_event(
+            module="ORDERS",
+            event="ORDER_NOT_FOUND_FOR_EMAIL",
+            message=f"Cannot dispatch email: Order #{order_id} does not exist",
+            action="Rejected manual email dispatch",
+            result="NOT_FOUND",
+            order_id=order_id,
+        )
         raise HTTPException(status_code=404, detail="Order not found")
+
+    logger.info_event(
+        module="ORDERS",
+        event="ORDER_EMAIL_MANUALLY_TRIGGERED",
+        message=f"Admin {current_admin.email} manually queued email dispatch for order #{order.id} (status: {order.status})",
+        action="Queued background email dispatch task",
+        result="QUEUED",
+        order_id=order.id,
+        status=order.status,
+    )
     background_tasks.add_task(send_order_status_email, order.id, order.status, True)
     return {"message": f"Email dispatch queued for order #{order_id}"}
 

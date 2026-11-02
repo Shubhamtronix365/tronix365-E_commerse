@@ -23,7 +23,9 @@ from models import (
 )
 from deps import get_current_admin
 from services.media_service import is_cloudinary_enabled, upload_to_cloudinary
+from logging_config import get_logger
 
+logger = get_logger("product")
 router = APIRouter(tags=["Products"])
 
 
@@ -213,6 +215,16 @@ async def search_products(q: str = "", db: Session = Depends(get_db)):
     products = db.query(ProductDB).filter(and_(*word_filters)).limit(15).all()
     for p in products:
         _hydrate_product_images(p)
+
+    logger.info_event(
+        module="PRODUCT",
+        event="PRODUCT_SEARCH_COMPLETED",
+        message=f"Product catalog search for query '{q}' returned {len(products)} match(es)",
+        action="Filtered ProductDB records by keyword and hydrated CDN URLs",
+        result="SUCCESS",
+        query=q,
+        matches_count=len(products),
+    )
     return products
 
 
@@ -254,9 +266,29 @@ async def get_recommendations(product_id: int, db: Session = Depends(get_db)):
 async def get_product(product_id: int, db: Session = Depends(get_db)):
     product = db.query(ProductDB).filter(ProductDB.id == product_id).first()
     if not product:
+        logger.warning_event(
+            module="PRODUCT",
+            event="PRODUCT_NOT_FOUND_BY_ID",
+            message=f"Product details request for ID #{product_id} returned not found",
+            action="Returning 404 response",
+            result="NOT_FOUND",
+            product_id=product_id,
+        )
         raise HTTPException(status_code=404, detail="Product not found")
     product.variants = get_product_variants_list(product, db)
     _hydrate_product_images(product)
+
+    logger.info_event(
+        module="PRODUCT",
+        event="PRODUCT_DETAILS_VIEWED",
+        message=f"Product #{product.id} ('{product.title}') details retrieved (stock: {product.stock}, price: {product.price})",
+        action="Loaded product details and variants",
+        result="SUCCESS",
+        product_id=product.id,
+        title=product.title,
+        price=product.price,
+        stock=product.stock,
+    )
     return product
 
 
@@ -426,6 +458,15 @@ async def create_product(
             (ProductDB.skv == target_sku) | (ProductDB.sku == target_sku)
         ).first()
         if existing:
+            logger.warning_event(
+                module="PRODUCT",
+                event="PRODUCT_CREATION_SKU_CONFLICT",
+                message=f"Product creation rejected: SKU '{target_sku}' already assigned to product #{existing.id} ('{existing.title}')",
+                action="Rejected product creation to prevent duplicate identifier",
+                result="SKU_COLLISION",
+                sku=target_sku,
+                existing_product_id=existing.id,
+            )
             raise HTTPException(
                 status_code=400,
                 detail=f"SKU/SKV '{target_sku}' is already in use by product #{existing.id} ('{existing.title}'). Please enter a unique SKU."
@@ -438,6 +479,14 @@ async def create_product(
     except IntegrityError as e:
         db.rollback()
         err_info = str(e.orig) if hasattr(e, "orig") else str(e)
+        logger.error_event(
+            module="PRODUCT",
+            event="PRODUCT_CREATION_DB_ERROR",
+            message=f"Database constraint error during product creation: {err_info}",
+            action="Rolled back transaction",
+            result="DB_ERROR",
+            error=err_info,
+        )
         if "unique" in err_info.lower() or "skv" in err_info.lower():
             raise HTTPException(status_code=400, detail="Product SKU/SKV is already in use by another product.")
         raise HTTPException(status_code=400, detail=f"Database constraint error: {err_info}")
@@ -445,6 +494,20 @@ async def create_product(
     db.refresh(new_product)
     _hydrate_product_images(new_product)
     await FastAPICache.clear(namespace="products")
+
+    logger.info_event(
+        module="PRODUCT",
+        event="PRODUCT_CREATED_BY_ADMIN",
+        message=f"Admin {current_admin.email} created new product #{new_product.id} ('{new_product.title}') for INR {new_product.price} (stock: {new_product.stock})",
+        action="Created ProductDB record and cleared products cache",
+        result="SUCCESS",
+        product_id=new_product.id,
+        title=new_product.title,
+        price=new_product.price,
+        stock=new_product.stock,
+        sku=new_product.sku,
+        admin_email=current_admin.email,
+    )
     return new_product
 
 
@@ -457,6 +520,14 @@ async def update_product(
 ):
     db_product = db.query(ProductDB).filter(ProductDB.id == product_id).first()
     if not db_product:
+        logger.warning_event(
+            module="PRODUCT",
+            event="PRODUCT_UPDATE_NOT_FOUND",
+            message=f"Admin {current_admin.email} attempted to update non-existent product #{product_id}",
+            action="Rejected product update",
+            result="NOT_FOUND",
+            product_id=product_id,
+        )
         raise HTTPException(status_code=404, detail="Product not found")
 
     product_data = product.dict(exclude_unset=True)
@@ -504,6 +575,16 @@ async def update_product(
                 ProductDB.id != product_id
             ).first()
             if existing:
+                logger.warning_event(
+                    module="PRODUCT",
+                    event="PRODUCT_UPDATE_SKU_CONFLICT",
+                    message=f"Product update rejected: SKU '{target_sku}' is already in use by product #{existing.id}",
+                    action="Aborted product update",
+                    result="SKU_COLLISION",
+                    product_id=product_id,
+                    sku=target_sku,
+                    existing_id=existing.id,
+                )
                 raise HTTPException(
                     status_code=400,
                     detail=f"SKU/SKV '{target_sku}' is already in use by product #{existing.id} ('{existing.title}'). Please enter a unique SKU."
@@ -520,6 +601,15 @@ async def update_product(
     except IntegrityError as e:
         db.rollback()
         err_info = str(e.orig) if hasattr(e, "orig") else str(e)
+        logger.error_event(
+            module="PRODUCT",
+            event="PRODUCT_UPDATE_DB_ERROR",
+            message=f"Database constraint error during product update #{product_id}: {err_info}",
+            action="Rolled back transaction",
+            result="DB_ERROR",
+            product_id=product_id,
+            error=err_info,
+        )
         if "unique" in err_info.lower() or "skv" in err_info.lower():
             raise HTTPException(status_code=400, detail="Product SKU/SKV is already in use by another product.")
         raise HTTPException(status_code=400, detail=f"Database constraint error: {err_info}")
@@ -527,6 +617,18 @@ async def update_product(
     db.refresh(db_product)
     _hydrate_product_images(db_product)
     await FastAPICache.clear(namespace="products")
+
+    logger.info_event(
+        module="PRODUCT",
+        event="PRODUCT_UPDATED_BY_ADMIN",
+        message=f"Admin {current_admin.email} updated product #{db_product.id} ('{db_product.title}'). Fields changed: {list(product_data.keys())}",
+        action="Updated ProductDB record and cleared cache",
+        result="SUCCESS",
+        product_id=db_product.id,
+        updated_fields=list(product_data.keys()),
+        price=db_product.price,
+        stock=db_product.stock,
+    )
     return db_product
 
 
@@ -538,8 +640,17 @@ async def delete_product(
 ):
     db_product = db.query(ProductDB).filter(ProductDB.id == product_id).first()
     if not db_product:
+        logger.warning_event(
+            module="PRODUCT",
+            event="PRODUCT_DELETE_NOT_FOUND",
+            message=f"Admin {current_admin.email} attempted to delete non-existent product #{product_id}",
+            action="Rejected deletion",
+            result="NOT_FOUND",
+            product_id=product_id,
+        )
         raise HTTPException(status_code=404, detail="Product not found")
 
+    title = db_product.title
     db.query(WishlistItemDB).filter(WishlistItemDB.product_id == product_id).delete()
     db.query(CartItemDB).filter(CartItemDB.product_id == product_id).delete()
     db.query(ReviewDB).filter(ReviewDB.product_id == product_id).delete()
@@ -549,4 +660,15 @@ async def delete_product(
     db.delete(db_product)
     db.commit()
     await FastAPICache.clear(namespace="products")
+
+    logger.info_event(
+        module="PRODUCT",
+        event="PRODUCT_DELETED_BY_ADMIN",
+        message=f"Admin {current_admin.email} deleted product #{product_id} ('{title}')",
+        action="Cascade deleted product references and removed record from ProductDB",
+        result="SUCCESS",
+        product_id=product_id,
+        title=title,
+        admin_email=current_admin.email,
+    )
     return None

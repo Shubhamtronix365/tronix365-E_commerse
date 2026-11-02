@@ -8,6 +8,8 @@ from jose import JWTError, jwt
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
+from logging_config import user_id_ctx
+
 limiter = Limiter(key_func=get_remote_address)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
@@ -34,6 +36,7 @@ async def get_current_user(
     user = db.query(UserDB).filter(UserDB.email == token_data.email).first()
     if user is None:
         raise credentials_exception
+    user_id_ctx.set(f"user_{user.id}")
     return user
 
 

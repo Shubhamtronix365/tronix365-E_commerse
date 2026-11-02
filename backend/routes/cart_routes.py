@@ -13,7 +13,9 @@ from models import (
     UserDB,
 )
 from deps import get_current_user
+from logging_config import get_logger
 
+logger = get_logger("cart")
 router = APIRouter(tags=["Cart"])
 
 
@@ -70,11 +72,29 @@ async def get_cart(
 
     if has_changes:
         db.commit()
+        logger.warning_event(
+            module="CART",
+            event="CART_BUNDLE_AUTO_HEALED",
+            message=f"Cart bundle status changed for user #{current_user.id}: {'; '.join(warnings)}",
+            action="Removed invalidated promotional bundles and preserved products at base price",
+            result="HEALED",
+            user_id=current_user.id,
+        )
 
     if warnings:
         import urllib.parse
         response.headers["X-Cart-Warnings"] = urllib.parse.quote("; ".join(warnings))
         response.headers["Access-Control-Expose-Headers"] = "X-Cart-Warnings"
+
+    logger.info_event(
+        module="CART",
+        event="CART_FETCHED",
+        message=f"Customer #{current_user.id} retrieved shopping cart ({len(items)} items)",
+        action="Loaded active cart items",
+        result="SUCCESS",
+        user_id=current_user.id,
+        items_count=len(items),
+    )
 
     return items
 
@@ -100,6 +120,16 @@ async def add_to_cart(
         existing.abandoned_email_sent_at = None
         db.commit()
         db.refresh(existing)
+        logger.info_event(
+            module="CART",
+            event="PRODUCT_QUANTITY_INCREMENTED",
+            message=f"Customer #{current_user.id} increased quantity for product #{cart_item.product_id} by {cart_item.quantity} (Total: {existing.quantity})",
+            action="Updated existing CartItemDB record",
+            result="UPDATED",
+            user_id=current_user.id,
+            product_id=cart_item.product_id,
+            new_quantity=existing.quantity,
+        )
         return (
             db.query(CartItemDB)
             .options(joinedload(CartItemDB.product))
@@ -116,6 +146,18 @@ async def add_to_cart(
     db.add(new_item)
     db.commit()
     db.refresh(new_item)
+
+    logger.info_event(
+        module="CART",
+        event="PRODUCT_ADDED_TO_CART",
+        message=f"Customer #{current_user.id} added product #{cart_item.product_id} (qty: {cart_item.quantity}) to shopping cart",
+        action="Created new CartItemDB record",
+        result="CREATED",
+        user_id=current_user.id,
+        product_id=cart_item.product_id,
+        quantity=cart_item.quantity,
+    )
+
     return (
         db.query(CartItemDB)
         .options(joinedload(CartItemDB.product))
@@ -137,12 +179,32 @@ async def update_cart_item(
         .first()
     )
     if not db_item:
+        logger.warning_event(
+            module="CART",
+            event="CART_ITEM_NOT_FOUND",
+            message=f"Cart item #{item_id} not found for customer #{current_user.id}",
+            action="Rejected cart item update",
+            result="NOT_FOUND",
+            user_id=current_user.id,
+            item_id=item_id,
+        )
         raise HTTPException(status_code=404, detail="Cart item not found")
 
     if item_update.quantity is not None:
         if item_update.quantity <= 0:
+            pid = db_item.product_id
             db.delete(db_item)
             db.commit()
+            logger.info_event(
+                module="CART",
+                event="PRODUCT_REMOVED_VIA_ZERO_QUANTITY",
+                message=f"Customer #{current_user.id} set quantity <= 0 on cart item #{item_id} (Product #{pid}); item removed",
+                action="Deleted CartItemDB record",
+                result="REMOVED",
+                user_id=current_user.id,
+                item_id=item_id,
+                product_id=pid,
+            )
             return Response(status_code=204)
         db_item.quantity = item_update.quantity
     if item_update.selected is not None:
@@ -152,6 +214,19 @@ async def update_cart_item(
     db_item.abandoned_email_sent_at = None
     db.commit()
     db.refresh(db_item)
+
+    logger.info_event(
+        module="CART",
+        event="CART_ITEM_MODIFIED",
+        message=f"Customer #{current_user.id} modified cart item #{item_id} (quantity: {db_item.quantity}, selected: {db_item.selected})",
+        action="Updated CartItemDB attributes",
+        result="MODIFIED",
+        user_id=current_user.id,
+        item_id=item_id,
+        quantity=db_item.quantity,
+        selected=db_item.selected,
+    )
+
     return db_item
 
 
@@ -167,6 +242,17 @@ async def clear_cart(
         .delete()
     )
     db.commit()
+
+    logger.info_event(
+        module="CART",
+        event="CART_CLEARED",
+        message=f"Customer #{current_user.id} cleared shopping cart ({deleted_count} items removed)",
+        action="Deleted all CartItemDB records for user",
+        result="CLEARED",
+        user_id=current_user.id,
+        deleted_count=deleted_count,
+    )
+
     return {"message": f"Cart cleared successfully ({deleted_count} items removed)"}
 
 
@@ -182,8 +268,19 @@ async def remove_from_cart(
         .first()
     )
     if item:
+        pid = item.product_id
         db.delete(item)
         db.commit()
+        logger.info_event(
+            module="CART",
+            event="CART_ITEM_DELETED",
+            message=f"Customer #{current_user.id} removed item #{item_id} (Product #{pid}) from cart",
+            action="Deleted CartItemDB record",
+            result="DELETED",
+            user_id=current_user.id,
+            item_id=item_id,
+            product_id=pid,
+        )
     return {"message": "Removed from cart"}
 
 

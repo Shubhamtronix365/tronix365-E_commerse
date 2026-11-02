@@ -20,7 +20,9 @@ from deps import get_current_user
 from payu_utils import generate_payu_hash, verify_payu_hash
 from services.shiprocket import shiprocket_automation
 from email_utils import send_order_status_email
+from logging_config import get_logger
 
+logger = get_logger("payment")
 router = APIRouter(tags=["Payments"])
 
 SUSPENDED_RENDER_HOST = "tronix365-e-commerse.onrender.com"
@@ -194,10 +196,28 @@ async def initiate_payment(
     for item in payment.items:
         product = db.query(ProductDB).filter(ProductDB.id == item.product_id).first()
         if not product:
+            logger.warning_event(
+                module="PAYMENT",
+                event="PRODUCT_NOT_FOUND_AT_CHECKOUT",
+                message=f"Product #{item.product_id} not found in database during checkout",
+                action="Rejecting payment initiation",
+                result="PRODUCT_NOT_FOUND",
+                product_id=item.product_id,
+            )
             raise HTTPException(
                 status_code=404, detail=f"Product {item.product_id} not found"
             )
         if product.stock < item.quantity:
+            logger.warning_event(
+                module="PAYMENT",
+                event="INSUFFICIENT_STOCK_AT_CHECKOUT",
+                message=f"Insufficient stock for '{product.title}' (#{product.id}). Available: {product.stock}, requested: {item.quantity}",
+                action="Rejecting payment initiation",
+                result="INSUFFICIENT_STOCK",
+                product_id=product.id,
+                available_stock=product.stock,
+                requested_quantity=item.quantity,
+            )
             raise HTTPException(
                 status_code=400,
                 detail=f"Insufficient stock for {product.title}. Only {product.stock} left.",
@@ -206,11 +226,27 @@ async def initiate_payment(
         if item.bundle_id:
             bundle = db.query(BundleDB).filter(BundleDB.id == item.bundle_id).first()
             if not bundle:
+                logger.warning_event(
+                    module="PAYMENT",
+                    event="BUNDLE_INVALID_AT_CHECKOUT",
+                    message=f"Bundle #{item.bundle_id} is missing from database",
+                    action="Rejecting payment initiation",
+                    result="BUNDLE_NOT_FOUND",
+                    bundle_id=item.bundle_id,
+                )
                 raise HTTPException(
                     status_code=400,
                     detail="A promotional bundle in your cart is no longer available. Your cart has been updated with individual pricing. Please review and try again."
                 )
             if not bundle.is_active:
+                logger.warning_event(
+                    module="PAYMENT",
+                    event="BUNDLE_INACTIVE_AT_CHECKOUT",
+                    message=f"Bundle '{bundle.name}' (#{bundle.id}) is inactive",
+                    action="Rejecting payment initiation",
+                    result="BUNDLE_INACTIVE",
+                    bundle_id=bundle.id,
+                )
                 raise HTTPException(
                     status_code=400,
                     detail=f"Bundle '{bundle.name}' is inactive. Your cart has been updated with individual pricing. Please review and try again."
@@ -219,11 +255,27 @@ async def initiate_payment(
                 from datetime import datetime
                 now = datetime.now(bundle.expiry_date.tzinfo) if bundle.expiry_date.tzinfo else datetime.utcnow()
                 if now > bundle.expiry_date:
+                    logger.warning_event(
+                        module="PAYMENT",
+                        event="BUNDLE_EXPIRED_AT_CHECKOUT",
+                        message=f"Bundle '{bundle.name}' (#{bundle.id}) has expired on {bundle.expiry_date}",
+                        action="Rejecting payment initiation",
+                        result="BUNDLE_EXPIRED",
+                        bundle_id=bundle.id,
+                    )
                     raise HTTPException(
                         status_code=400,
                         detail=f"Bundle '{bundle.name}' has expired. Your cart has been updated with individual pricing. Please review and try again."
                     )
             if bundle.usage_limit and (bundle.used_count or 0) >= bundle.usage_limit:
+                logger.warning_event(
+                    module="PAYMENT",
+                    event="BUNDLE_LIMIT_REACHED_AT_CHECKOUT",
+                    message=f"Bundle '{bundle.name}' (#{bundle.id}) usage limit ({bundle.usage_limit}) reached",
+                    action="Rejecting payment initiation",
+                    result="USAGE_LIMIT_EXCEEDED",
+                    bundle_id=bundle.id,
+                )
                 raise HTTPException(
                     status_code=400,
                     detail=f"Bundle '{bundle.name}' has reached its usage limit. Your cart has been updated with individual pricing. Please review and try again."
@@ -277,6 +329,21 @@ async def initiate_payment(
     db.add(new_order)
     db.commit()
     db.refresh(new_order)
+
+    logger.info_event(
+        module="PAYMENT",
+        event="PAYMENT_INITIATED",
+        message=f"Customer initiated checkout for order #{new_order.id} (txnid: {txnid}, total: INR {total_amount})",
+        action="Created order record in 'pending' state and prepared PayU payment gateway payload",
+        result="SUCCESS",
+        order_id=new_order.id,
+        txnid=txnid,
+        total_amount=total_amount,
+        items_count=len(items_for_order),
+        customer_email=current_user.email,
+        is_gst_invoice=new_order.is_gst_invoice,
+        shipping_method=new_order.shipping_method,
+    )
 
     backend_base = _resolve_backend_url(request)
     payu_env = os.getenv("PAYU_ENV", "MOCK").upper()
@@ -368,6 +435,18 @@ async def retry_payment(
     order.status = "pending"
     db.commit()
     db.refresh(order)
+
+    logger.info_event(
+        module="PAYMENT",
+        event="PAYMENT_RETRY_INITIATED",
+        message=f"Customer re-initiated payment for order #{order.id} with new txnid {txnid} (amount: INR {order.total_amount})",
+        action="Generated fresh PayU payment transaction hash and reset order status to 'pending'",
+        result="SUCCESS",
+        order_id=order.id,
+        txnid=txnid,
+        total_amount=order.total_amount,
+        customer_email=order.customer_email,
+    )
 
     key = os.getenv("PAYU_KEY")
     salt = os.getenv("PAYU_SALT")
@@ -521,10 +600,32 @@ async def payment_callback(
     salt = os.getenv("PAYU_SALT")
     frontend_url = _resolve_frontend_url(request)
 
+    logger.info_event(
+        module="PAYMENT",
+        event="PAYMENT_CALLBACK_RECEIVED",
+        message=f"Received payment callback from PayU gateway for txnid: {txnid}, status: {status}, amount: {amount}",
+        action="Verifying cryptographic response hash and synchronizing order status",
+        result="PROCESSING",
+        txnid=txnid,
+        status=status,
+        amount=amount,
+        unmappedstatus=unmappedstatus,
+        error=error or error_Message,
+    )
+
     if not verify_payu_hash(
         salt, status, "", email, firstname, productinfo, amount, txnid, key, hash
     ):
-        print(f"Hash verification failed for {txnid}")
+        logger.critical_event(
+            module="PAYMENT",
+            event="PAYMENT_HASH_VERIFICATION_FAILED",
+            message=f"Cryptographic hash verification failed for callback txnid: {txnid}! Received hash does not match computed signature.",
+            action="Marked order as 'tampered' and redirected customer to failure page",
+            result="SECURITY_ALERT",
+            txnid=txnid,
+            status=status,
+            customer_email=email,
+        )
         order = db.query(OrderDB).filter(OrderDB.txnid == txnid).first()
         if order:
             order.status = "tampered"
@@ -532,7 +633,14 @@ async def payment_callback(
 
         return _render_redirect_page(f"{frontend_url}/payment/failure?txnid={txnid}&status=tampered&reason=tampered")
 
-    print(f"Payment Callback: {status} (unmapped: {unmappedstatus}, error: {error}) for {txnid}")
+    logger.info_event(
+        module="PAYMENT",
+        event="PAYMENT_HASH_VERIFIED",
+        message=f"Cryptographic PayU response hash successfully verified for txnid: {txnid}",
+        action="Validated gateway authenticity",
+        result="VALID",
+        txnid=txnid,
+    )
 
     order = db.query(OrderDB).filter(OrderDB.txnid == txnid).first()
     if order:
@@ -541,6 +649,18 @@ async def payment_callback(
                 order.status = "confirmed"
             db.commit()
             db.refresh(order)
+
+            logger.info_event(
+                module="PAYMENT",
+                event="PAYMENT_CAPTURED",
+                message=f"Payment successfully captured and confirmed for order #{order.id} (txnid: {txnid}, total: INR {order.total_amount})",
+                action="Updated order status to 'confirmed', cleared purchased cart items, and triggered fulfillment jobs",
+                result="SUCCESS",
+                order_id=order.id,
+                txnid=txnid,
+                total_amount=order.total_amount,
+                customer_email=order.customer_email,
+            )
 
             user_obj = db.query(UserDB).filter(UserDB.email == order.customer_email).first()
             if user_obj:
@@ -570,6 +690,18 @@ async def payment_callback(
             order.cancellation_date = datetime.utcnow()
             db.commit()
 
+            logger.warning_event(
+                module="PAYMENT",
+                event="PAYMENT_FAILED_OR_CANCELLED",
+                message=f"Payment not completed for order #{order.id} (txnid: {txnid}). Status: {order.status}. Reason: {order.cancellation_reason}",
+                action="Recorded payment failure/cancellation on order record",
+                result=order.status.upper(),
+                order_id=order.id,
+                txnid=txnid,
+                status=order.status,
+                reason=order.cancellation_reason,
+            )
+
     if status == "success":
         target_url = f"{frontend_url}/payment/success?txnid={txnid}"
     else:
@@ -597,4 +729,14 @@ async def cancel_payment_by_txnid(
         order.cancellation_date = datetime.utcnow()
         db.commit()
         db.refresh(order)
+
+        logger.info_event(
+            module="PAYMENT",
+            event="PAYMENT_CANCELLED_BY_CUSTOMER",
+            message=f"Customer aborted checkout for order #{order.id} (txnid: {txnid})",
+            action="Updated order status to payment_cancelled",
+            result="CANCELLED",
+            order_id=order.id,
+            txnid=txnid,
+        )
     return {"message": "Payment marked as cancelled", "status": order.status}

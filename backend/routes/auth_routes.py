@@ -34,7 +34,9 @@ from auth import (
 )
 from deps import get_current_user, limiter
 from email_utils import send_otp_email
+from logging_config import get_logger
 
+logger = get_logger("auth")
 router = APIRouter(tags=["Authentication"])
 
 
@@ -51,6 +53,14 @@ def generate_and_send_otp_core(email: str, db: Session):
         if user.otp_blocked_until.replace(tzinfo=None) > datetime.utcnow():
             diff = (user.otp_blocked_until.replace(tzinfo=None) - datetime.utcnow()).total_seconds()
             mins = int(diff // 60) + 1
+            logger.warning_event(
+                module="AUTH",
+                event="OTP_REQUEST_REJECTED_BLOCKED",
+                message=f"OTP request rejected: account {email} is blocked for {mins} more minutes",
+                action="Blocked OTP generation",
+                result="ACCOUNT_BLOCKED",
+                email=email,
+            )
             raise HTTPException(
                 status_code=400,
                 detail=f"Verification temporarily blocked due to too many incorrect attempts. Please try again after {mins} minute(s)."
@@ -61,6 +71,14 @@ def generate_and_send_otp_core(email: str, db: Session):
     if latest_otp:
         time_since_creation = (datetime.utcnow() - latest_otp.created_at.replace(tzinfo=None)).total_seconds()
         if time_since_creation < 30:
+            logger.warning_event(
+                module="AUTH",
+                event="OTP_COOLDOWN_ACTIVE",
+                message=f"OTP request throttled for {email}: 30-second cooldown active ({int(30 - time_since_creation)}s left)",
+                action="Rejected OTP request",
+                result="RATE_LIMITED",
+                email=email,
+            )
             raise HTTPException(
                 status_code=400,
                 detail="Please wait 30 seconds before requesting another OTP."
@@ -70,6 +88,14 @@ def generate_and_send_otp_core(email: str, db: Session):
     time_limit = datetime.utcnow() - timedelta(minutes=15)
     otp_count = db.query(OTPDB).filter(OTPDB.email == email, OTPDB.created_at >= time_limit).count()
     if otp_count >= 4:
+        logger.warning_event(
+            module="AUTH",
+            event="OTP_WINDOW_LIMIT_EXCEEDED",
+            message=f"Maximum OTP requests ({otp_count}) reached for {email} in 15-minute window",
+            action="Rejected OTP generation",
+            result="QUOTA_EXCEEDED",
+            email=email,
+        )
         raise HTTPException(
             status_code=400,
             detail="Maximum OTP requests reached. Please try again after 15 minutes."
@@ -95,15 +121,24 @@ def generate_and_send_otp_core(email: str, db: Session):
     db.add(db_otp)
     db.commit()
 
+    logger.info_event(
+        module="AUTH",
+        event="OTP_GENERATED_AND_DISPATCHED",
+        message=f"New 6-digit verification OTP generated for customer {email} (expires in 2 minutes)",
+        action="Created secure SHA-256 hash record and triggered email dispatch",
+        result="SUCCESS",
+        email=email,
+    )
+
     # 9. Send via Brevo
     sent = send_otp_email(email, otp)
     if not sent:
-        print(f"--- [DEVELOPMENT ONLY] --- Email sending skipped. OTP for {email} is: {otp}")
+        # Never log plain OTP in production logs!
         try:
             with open("otp_debug.txt", "w") as f:
                 f.write(otp)
         except Exception as e:
-            print(f"Error writing otp to debug file: {e}")
+            pass
 
     return {"message": "OTP sent successfully"}
 
@@ -143,12 +178,28 @@ async def verify_otp(request: Request, body: OTPVerifyRequest, db: Session = Dep
     # 2. Get latest unverified OTP
     otp_record = db.query(OTPDB).filter(OTPDB.email == email, OTPDB.is_verified == False).order_by(OTPDB.id.desc()).first()
     if not otp_record:
+        logger.warning_event(
+            module="AUTH",
+            event="OTP_VERIFICATION_NO_RECORD",
+            message=f"OTP verification failed: no active OTP request found for {email}",
+            action="Rejected verification request",
+            result="NOT_FOUND",
+            email=email,
+        )
         raise HTTPException(status_code=400, detail="No active OTP request found for this email.")
 
     # 3. Check expiration
     if otp_record.expires_at.replace(tzinfo=None) < datetime.utcnow():
         otp_record.is_verified = True
         db.commit()
+        logger.warning_event(
+            module="AUTH",
+            event="OTP_VERIFICATION_EXPIRED",
+            message=f"OTP verification failed: token expired for {email}",
+            action="Invalidated expired OTP record",
+            result="EXPIRED",
+            email=email,
+        )
         raise HTTPException(status_code=400, detail="OTP has expired. Please request a new one.")
 
     # 4. Check block inside OTP
@@ -156,6 +207,14 @@ async def verify_otp(request: Request, body: OTPVerifyRequest, db: Session = Dep
         if user:
             user.otp_blocked_until = datetime.utcnow() + timedelta(minutes=15)
             db.commit()
+        logger.warning_event(
+            module="AUTH",
+            event="OTP_LOCKOUT_TRIGGERED",
+            message=f"Account {email} locked out for 15 minutes due to exceeding maximum allowed verification attempts",
+            action="Set user.otp_blocked_until to +15 minutes",
+            result="LOCKED_OUT",
+            email=email,
+        )
         raise HTTPException(
             status_code=400,
             detail="Too many incorrect attempts. Verification blocked for 15 minutes."
@@ -171,17 +230,35 @@ async def verify_otp(request: Request, body: OTPVerifyRequest, db: Session = Dep
             if user:
                 user.otp_blocked_until = datetime.utcnow() + timedelta(minutes=15)
                 db.commit()
+            logger.warning_event(
+                module="AUTH",
+                event="OTP_LOCKOUT_TRIGGERED",
+                message=f"Account {email} locked out for 15 minutes due to 5 consecutive wrong OTP attempts",
+                action="Set user.otp_blocked_until to +15 minutes",
+                result="LOCKED_OUT",
+                email=email,
+            )
             raise HTTPException(
                 status_code=400,
                 detail="Too many incorrect attempts. Verification blocked for 15 minutes."
             )
 
         remaining = 5 - otp_record.attempts
+        logger.warning_event(
+            module="AUTH",
+            event="OTP_INCORRECT_ATTEMPT",
+            message=f"Incorrect OTP submitted for {email}. Attempt {otp_record.attempts}/5. {remaining} attempt(s) remaining.",
+            action="Incremented attempts counter",
+            result="INVALID_CODE",
+            email=email,
+            attempts=otp_record.attempts,
+        )
         raise HTTPException(status_code=400, detail=f"Incorrect OTP. {remaining} attempt(s) remaining.")
 
     # 6. Success! Invalidate OTP immediately
     otp_record.is_verified = True
     
+    is_new_registration = False
     if not user:
         if not body.signup_session:
             raise HTTPException(
@@ -206,10 +283,23 @@ async def verify_otp(request: Request, body: OTPVerifyRequest, db: Session = Dep
         db.add(user)
         db.commit()
         db.refresh(user)
+        is_new_registration = True
     else:
         user.otp_blocked_until = None
         user.is_active = True
         db.commit()
+
+    logger.info_event(
+        module="AUTH",
+        event="OTP_VERIFICATION_SUCCESSFUL",
+        message=f"Customer {user.email} successfully completed 2FA authentication (New User: {is_new_registration})",
+        action="Created user record (if registration) and generated JWT session tokens",
+        result="SUCCESS",
+        user_id=user.id,
+        email=user.email,
+        role=user.role,
+        is_new_user=is_new_registration,
+    )
 
     # 7. Generate JWT access and refresh tokens
     access_token = create_access_token(data={"sub": user.email, "role": user.role})
@@ -239,6 +329,14 @@ async def signup(request: Request, user: UserCreate, db: Session = Depends(get_d
         user.email = user.email.lower().strip()
         db_user = db.query(UserDB).filter(UserDB.email == user.email).first()
         if db_user:
+            logger.warning_event(
+                module="AUTH",
+                event="SIGNUP_REJECTED_DUPLICATE_EMAIL",
+                message=f"Registration rejected: account already exists with email {user.email}",
+                action="Aborted registration",
+                result="DUPLICATE_ACCOUNT",
+                email=user.email,
+            )
             raise HTTPException(status_code=400, detail="Email already registered")
 
         hashed_password = get_password_hash(user.password)
@@ -253,6 +351,16 @@ async def signup(request: Request, user: UserCreate, db: Session = Depends(get_d
         }
         signup_session = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
+        logger.info_event(
+            module="AUTH",
+            event="SIGNUP_SESSION_INITIATED",
+            message=f"Customer registration initiated for {user.email}. Dispatching verification OTP.",
+            action="Created temporary signup token and triggered OTP",
+            result="OTP_REQUIRED",
+            email=user.email,
+            full_name=user.full_name,
+        )
+
         generate_and_send_otp_core(user.email, db)
 
         return {
@@ -265,8 +373,15 @@ async def signup(request: Request, user: UserCreate, db: Session = Depends(get_d
     except HTTPException as e:
         raise e
     except Exception as e:
-        import traceback
-        traceback.print_exc()
+        logger.error_event(
+            module="AUTH",
+            event="SIGNUP_INTERNAL_ERROR",
+            message=f"Unexpected error during signup for {user.email}: {str(e)}",
+            action="Caught unexpected exception in signup route",
+            result="ERROR",
+            email=user.email,
+            error=str(e),
+        )
         raise HTTPException(status_code=500, detail=f"Signup Error: {str(e)}")
 
 
@@ -280,18 +395,42 @@ async def login(
     username = form_data.username.lower().strip()
     user = db.query(UserDB).filter(UserDB.email == username).first()
     if not user:
+        logger.warning_event(
+            module="AUTH",
+            event="LOGIN_FAILED_NOT_FOUND",
+            message=f"Customer login failed: no user account exists for {username}",
+            action="Rejected login attempt",
+            result="USER_NOT_FOUND",
+            email=username,
+        )
         raise HTTPException(
             status_code=404,
             detail="No account found with this email. Please sign up.",
         )
 
     if user.hashed_password == "OAUTH_USER_NO_PASSWORD":
+        logger.warning_event(
+            module="AUTH",
+            event="LOGIN_FAILED_OAUTH_ACCOUNT",
+            message=f"Customer login failed: account {username} was registered with Google OAuth",
+            action="Prompted user to login via Google OAuth",
+            result="OAUTH_REQUIRED",
+            email=username,
+        )
         raise HTTPException(
             status_code=400,
             detail="This account was registered with Google. Please use 'Sign in with Google' below.",
         )
 
     if not verify_password(form_data.password, user.hashed_password):
+        logger.warning_event(
+            module="AUTH",
+            event="LOGIN_FAILED_WRONG_PASSWORD",
+            message=f"Customer login failed: invalid password entered for account {username}",
+            action="Rejected login attempt",
+            result="INVALID_CREDENTIALS",
+            email=username,
+        )
         raise HTTPException(
             status_code=401,
             detail="Incorrect password. Please try again.",
@@ -299,6 +438,14 @@ async def login(
         )
 
     if user.role == "admin":
+        logger.warning_event(
+            module="AUTH",
+            event="LOGIN_ADMIN_REDIRECT_REQUIRED",
+            message=f"Administrator credentials entered on customer portal for {username}",
+            action="Rejected customer login, instructed to use admin portal",
+            result="ROLE_RESTRICTED",
+            email=username,
+        )
         raise HTTPException(
             status_code=403,
             detail="Admin credentials not allowed here. Please use Admin Login.",
@@ -308,10 +455,28 @@ async def login(
         if user.otp_blocked_until.replace(tzinfo=None) > datetime.utcnow():
             diff = (user.otp_blocked_until.replace(tzinfo=None) - datetime.utcnow()).total_seconds()
             mins = int(diff // 60) + 1
+            logger.warning_event(
+                module="AUTH",
+                event="LOGIN_BLOCKED_ACCOUNT_LOCKOUT",
+                message=f"Login attempt rejected for {username}: account is locked for {mins} more minutes",
+                action="Blocked login",
+                result="ACCOUNT_LOCKED",
+                email=username,
+            )
             raise HTTPException(
                 status_code=400,
                 detail=f"Verification temporarily blocked due to too many incorrect attempts. Please try again after {mins} minute(s)."
             )
+
+    logger.info_event(
+        module="AUTH",
+        event="LOGIN_PASSWORD_VERIFIED",
+        message=f"Customer {user.email} password verified; dispatching 2FA OTP",
+        action="Triggered 2FA OTP email",
+        result="OTP_REQUIRED",
+        email=user.email,
+        user_id=user.id,
+    )
 
     generate_and_send_otp_core(user.email, db)
 
@@ -333,18 +498,42 @@ async def admin_login(
     admin_username = form_data.username.lower().strip()
     user = db.query(UserDB).filter(UserDB.email == admin_username).first()
     if not user:
+        logger.warning_event(
+            module="AUTH",
+            event="ADMIN_LOGIN_FAILED_NOT_FOUND",
+            message=f"Admin login failed: no account exists for {admin_username}",
+            action="Rejected admin authentication",
+            result="NOT_FOUND",
+            email=admin_username,
+        )
         raise HTTPException(
             status_code=404,
             detail="No admin account found with this email.",
         )
 
     if user.role != "admin":
+        logger.warning_event(
+            module="AUTH",
+            event="ADMIN_LOGIN_ACCESS_DENIED",
+            message=f"Admin login failed: user {admin_username} has role '{user.role}', required 'admin'",
+            action="Denied admin access",
+            result="FORBIDDEN",
+            email=admin_username,
+        )
         raise HTTPException(
             status_code=403,
             detail="Access denied. Admin credentials required.",
         )
 
     if not verify_password(form_data.password, user.hashed_password):
+        logger.warning_event(
+            module="AUTH",
+            event="ADMIN_LOGIN_FAILED_WRONG_PASSWORD",
+            message=f"Admin login failed: incorrect password for {admin_username}",
+            action="Rejected admin credentials",
+            result="INVALID_PASSWORD",
+            email=admin_username,
+        )
         raise HTTPException(
             status_code=401,
             detail="Incorrect password. Please try again.",
@@ -361,6 +550,17 @@ async def admin_login(
     )
     db.add(db_refresh_token)
     db.commit()
+
+    logger.info_event(
+        module="AUTH",
+        event="ADMIN_LOGIN_SUCCESSFUL",
+        message=f"Administrator {user.email} authenticated successfully into Admin Dashboard",
+        action="Issued admin JWT session tokens",
+        result="SUCCESS",
+        user_id=user.id,
+        email=user.email,
+        role="admin",
+    )
 
     return {
         "access_token": access_token,
@@ -386,6 +586,7 @@ async def google_auth(google_req: GoogleLoginRequest, db: Session = Depends(get_
         name = idinfo.get('name', email.split('@')[0])
         picture = idinfo.get('picture')
 
+        is_new_user = False
         user = db.query(UserDB).filter(UserDB.email == email).first()
         if not user:
             user = UserDB(
@@ -398,6 +599,7 @@ async def google_auth(google_req: GoogleLoginRequest, db: Session = Depends(get_
             db.add(user)
             db.commit()
             db.refresh(user)
+            is_new_user = True
         else:
             if picture and not user.profile_picture:
                 user.profile_picture = picture
@@ -414,6 +616,17 @@ async def google_auth(google_req: GoogleLoginRequest, db: Session = Depends(get_
         db.add(db_refresh_token)
         db.commit()
 
+        logger.info_event(
+            module="AUTH",
+            event="GOOGLE_AUTH_SUCCESSFUL",
+            message=f"Google OAuth authentication successful for {user.email} (New User: {is_new_user})",
+            action="Created/authenticated OAuth account and generated JWT tokens",
+            result="SUCCESS",
+            user_id=user.id,
+            email=user.email,
+            is_new_user=is_new_user,
+        )
+
         return {
             "access_token": access_token,
             "refresh_token": refresh_token,
@@ -424,9 +637,23 @@ async def google_auth(google_req: GoogleLoginRequest, db: Session = Depends(get_
         }
 
     except ValueError:
+        logger.warning_event(
+            module="AUTH",
+            event="GOOGLE_AUTH_TOKEN_INVALID",
+            message="Google OAuth verification failed: Invalid Google ID token",
+            action="Rejected OAuth authentication",
+            result="INVALID_TOKEN",
+        )
         raise HTTPException(status_code=401, detail="Invalid Google token")
     except Exception as e:
-        print(f"Google Auth Error: {str(e)}")
+        logger.error_event(
+            module="AUTH",
+            event="GOOGLE_AUTH_EXCEPTION",
+            message=f"Error during Google OAuth flow: {str(e)}",
+            action="Caught Google OAuth exception",
+            result="ERROR",
+            error=str(e),
+        )
         raise HTTPException(status_code=500, detail="Internal server error during Google Auth")
 
 
@@ -462,6 +689,16 @@ async def refresh_token_endpoint(refresh_token: str, db: Session = Depends(get_d
 
     new_access_token = create_access_token(data={"sub": user.email, "role": user.role})
 
+    logger.info_event(
+        module="AUTH",
+        event="ACCESS_TOKEN_REFRESHED",
+        message=f"Session access token successfully refreshed for user #{user.id} ({user.email})",
+        action="Issued fresh access token using valid refresh token",
+        result="SUCCESS",
+        user_id=user.id,
+        email=user.email,
+    )
+
     return {
         "access_token": new_access_token,
         "refresh_token": refresh_token,
@@ -477,8 +714,17 @@ async def logout(refresh_token: str, db: Session = Depends(get_db)):
         db.query(RefreshTokenDB).filter(RefreshTokenDB.token == refresh_token).first()
     )
     if db_token:
+        uid = db_token.user_id
         db.delete(db_token)
         db.commit()
+        logger.info_event(
+            module="AUTH",
+            event="USER_LOGGED_OUT",
+            message=f"User #{uid} successfully logged out and session revoked",
+            action="Deleted refresh token record from database",
+            result="LOGGED_OUT",
+            user_id=uid,
+        )
     return {"message": "Logged out successfully"}
 
 
@@ -493,8 +739,10 @@ async def update_user_profile(
     current_user: UserDB = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    changes = []
     if user_update.full_name is not None:
         current_user.full_name = user_update.full_name
+        changes.append("full_name")
 
     if user_update.email is not None and user_update.email != current_user.email:
         existing_user = (
@@ -503,13 +751,28 @@ async def update_user_profile(
         if existing_user:
             raise HTTPException(status_code=400, detail="Email already registered")
         current_user.email = user_update.email
+        changes.append("email")
 
     if user_update.password is not None and user_update.password.strip() != "":
         current_user.hashed_password = get_password_hash(user_update.password)
+        changes.append("password")
 
     if user_update.profile_picture is not None:
         current_user.profile_picture = user_update.profile_picture
+        changes.append("profile_picture")
 
     db.commit()
     db.refresh(current_user)
+
+    logger.info_event(
+        module="AUTH",
+        event="USER_PROFILE_UPDATED",
+        message=f"User #{current_user.id} ({current_user.email}) profile updated: {', '.join(changes)}",
+        action="Updated user record in database",
+        result="UPDATED",
+        user_id=current_user.id,
+        email=current_user.email,
+        updated_fields=changes,
+    )
+
     return current_user

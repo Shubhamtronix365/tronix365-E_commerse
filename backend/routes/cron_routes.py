@@ -9,7 +9,9 @@ from sqlalchemy import text
 from database import get_db
 from models import CartItemDB, BundleDB
 from scripts.abandoned_cart_check import check_abandoned_carts
+from logging_config import get_logger
 
+logger = get_logger("cron")
 router = APIRouter(prefix="/cron", tags=["Cron Jobs & Automation"])
 
 DEFAULT_CRON_SECRET = "tronix365_cron_secret"
@@ -47,6 +49,22 @@ async def cron_keep_alive(db: Session = Depends(get_db)):
         db.execute(text("SELECT 1"))
     except Exception as exc:
         db_status = f"degraded: {str(exc)}"
+        logger.warning_event(
+            module="CRON",
+            event="KEEP_ALIVE_DB_DEGRADED",
+            message=f"Keep-alive ping database check degraded: {str(exc)}",
+            action="Executed SELECT 1 query",
+            result="DEGRADED",
+            error=str(exc),
+        )
+
+    logger.debug_event(
+        module="CRON",
+        event="KEEP_ALIVE_PING",
+        message="Cron keep-alive heartbeat ping received",
+        action="Health check completed",
+        result="OK",
+    )
 
     return {
         "status": "ok",
@@ -69,7 +87,25 @@ async def cron_abandoned_carts(
     verifies user has not completed an order, and dispatches recovery emails via Brevo.
     Can be scheduled via Cron-Job.org or Render Cron every 1–2 hours.
     """
+    logger.info_event(
+        module="CRON",
+        event="ABANDONED_CART_CRON_TRIGGERED",
+        message=f"Abandoned cart recovery cron job triggered (inactivity threshold: {hours_threshold}h, force_resend: {force_resend})",
+        action="Executing check_abandoned_carts workflow",
+        result="STARTED",
+        hours_threshold=hours_threshold,
+        force_resend=force_resend,
+    )
     result = check_abandoned_carts(force_resend=force_resend, hours_threshold=hours_threshold)
+    logger.info_event(
+        module="CRON",
+        event="ABANDONED_CART_CRON_COMPLETED",
+        message=f"Abandoned cart check finished: scanned {result.get('total_abandoned_items', 0)} items, healed {result.get('bundles_healed', 0)} bundles, sent {result.get('emails_sent', 0)} emails",
+        action="Completed automated cart recovery scan",
+        result="COMPLETED",
+        emails_sent=result.get("emails_sent", 0),
+        bundles_healed=result.get("bundles_healed", 0),
+    )
     return {
         "success": True,
         "message": f"Abandoned cart check executed. Sent {result['emails_sent']} recovery emails.",

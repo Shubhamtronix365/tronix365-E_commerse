@@ -232,6 +232,14 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
   - **Real-Time Notification Banner & Toasts**: Alerts customers via amber warning banners (`Cart.jsx`) and headers (`X-Cart-Warnings`) explaining that the expired promotion has been adjusted to regular pricing.
   - **Zero-Crash Pre-Payment Gatekeeper**: Strict pre-flight checks in `POST /payment/initiate` eliminate database foreign key crashes (`500 Internal Server Error`) and block expired promotional price leaks before transaction token generation. Automatic cart resynchronization in `Checkout.jsx` allows immediate re-attempt with active valid totals.
 
+- **Production-Grade Centralized Logging & Observability System**:
+  - **Single Source of Truth (`backend/logging_config.py`)**: Centralized logging engine with zero redundant boilerplate, shared across all HTTP routes, background workers, and automation tasks.
+  - **Human-Readable & Machine-Parsable Dual Format**: Colored structured console logs for local developer debugging + high-throughput structured JSON logs for production log aggregators (Render, Datadog, AWS CloudWatch, ELK).
+  - **Six-Part Explanatory Standard**: Every event answers **WHAT** occurred, **WHO/WHAT** triggered it, **WHY** it happened, **WHAT ACTION** the system executed, and **WHAT THE FINAL RESULT** was.
+  - **End-to-End Correlation Tracking**: Seamless context propagation via Python `contextvars` (`request_id_ctx`, `user_id_ctx`, `client_ip_ctx`) and FastAPI `RequestObservabilityMiddleware`, binding unique `X-Request-ID` headers to all responses and correlating frontend Axios requests 1:1 with backend traces.
+  - **Military-Grade Sensitive Data Sanitization**: Strict `SensitiveDataFilter` scrubs passwords, JWT tokens, Brevo/PayU API keys, salts, OTPs, and card details (`[REDACTED]`), while partially masking emails (`s***5@gmail.com`) and phone numbers (`+9198****3210`) to comply with privacy laws (GDPR, DPDP Act, PCI-DSS).
+  - **Complete Business Lifecycle Instrumentation**: Full traceability across Authentication & 2FA (`AUTH`), Product Catalog & Admin CRUD (`PRODUCT`), Shopping Cart Lifecycle (`CART`), Coupons & Promotions (`COUPON`), Checkout & Orders (`ORDERS`), Payment Gateway & Callbacks (`PAYMENT`), Email Dispatch (`EMAIL`), and Automation & Heartbeats (`CRON`).
+
 ---
 
 ## 🌐 Production Hosting & Deployment
@@ -463,8 +471,11 @@ tronix365-E_commerse/
 │   └── utils/             # Frontend helper functions (imageUtils, seo, etc.)
 │
 ├── backend/               # All backend code (FastAPI + SQLAlchemy)
-│   ├── main.py            # Clean FastAPI orchestrator & route registration
-│   ├── deps.py            # Centralized dependencies (auth, admin, rate limiter, db)
+│   ├── main.py            # Clean FastAPI orchestrator & RequestObservabilityMiddleware
+│   ├── logging_config.py  # Centralized Production-Grade Logging Engine (Single Source of Truth)
+│   ├── deps.py            # Centralized dependencies (auth, admin, rate limiter, db, user context)
+│   ├── tests/             # Automated test suite
+│   │   └── test_observability.py # Automated Logging & Redaction Verification Suite
 │   ├── routes/            # Modular APIRouters:
 │   │   ├── auth_routes.py
 │   │   ├── category_routes.py
@@ -479,6 +490,7 @@ tronix365-E_commerse/
 │   │   ├── review_routes.py
 │   │   ├── address_routes.py
 │   │   ├── admin_routes.py
+│   │   ├── cron_routes.py
 │   │   └── upload_routes.py (Secure WebP image pipeline)
 │   ├── models.py          # SQLAlchemy DB models & Pydantic validation schemas
 │   ├── database.py        # Database engine & session setup
@@ -672,6 +684,87 @@ Tronix365 features a dual-layer SEO architecture engineered specifically for sin
 ### 3. Automated Sitemap Engine (`scripts/generate-sitemap.cjs`)
 * Automatically runs during `npm run build` to query the live API (or fallback `products_metadata.json`) and writes an up-to-date, valid XML sitemap directly to `public/sitemap.xml` and `dist/sitemap.xml`.
 * Synchronized homepage trailing slash (`https://www.tronix365.in/e-commerse/`) ensures 100% parity with server-side canonical declarations.
+
+---
+
+## 📊 Centralized Logging & Observability Architecture
+
+Tronix365 is equipped with an enterprise-grade, centralized logging and observability engine built to ensure complete traceability, auditability, and rapid incident resolution across the entire customer lifecycle.
+
+### 1. Core Design Principle: The 6-Part Explanatory Standard
+
+Every log emitted across the application strictly answers five fundamental questions:
+1. **WHAT Happened**: Event name and plain-English summary.
+2. **WHO/WHAT Initiated It**: Correlated customer ID, administrator email, or system worker.
+3. **WHY It Happened**: Triggering cause, validation check, or incoming gateway callback.
+4. **WHAT Action the System Took**: Database mutation, payment verification, email dispatch, or fallback switch.
+5. **WHAT the Final Result Was**: Explicit state (`SUCCESS`, `DECLINED`, `STOCK_INSUFFICIENT`, `EXPIRED`, `HEALED`).
+
+### 2. Standardized Log Format
+
+#### Human-Readable Console Format (Colorized for Local & Production Terminal)
+```text
+[2026-11-02T23:15:30.123+05:30] [INFO ] [TRONIX365] [ORDERS] [ORDER_CREATED] [req_1793642553_a81f] Customer c***r@example.com placed order #105 (INR 2499.00) | user=user_42, duration=42.1ms, action='Created order in database, queued status email and automated courier shipment', result=SUCCESS
+```
+
+#### Structured JSON Format (Single-Line for Datadog / ELK / CloudWatch / Render)
+```json
+{
+  "timestamp": "2026-11-02T23:15:30.123456+05:30",
+  "level": "INFO",
+  "app": "TRONIX365",
+  "environment": "production",
+  "module": "ORDERS",
+  "event": "ORDER_CREATED",
+  "message": "Customer c***r@example.com placed order #105 (INR 2499.00)",
+  "request_id": "req_1793642553_a81f",
+  "user_id": "user_42",
+  "client_ip": "103.21.124.50",
+  "duration_ms": 42.1,
+  "action": "Created order in database, queued status email and automated courier shipment",
+  "result": "SUCCESS",
+  "metadata": {
+    "order_id": 105,
+    "total_amount": 2499.0,
+    "items_count": 3,
+    "shipping_method": "surface",
+    "is_gst_invoice": true
+  }
+}
+```
+
+### 3. End-to-End Correlation Architecture
+
+1. **Frontend Request Interceptor (`src/api/client.js`)**:
+   - Injects a unique `X-Request-ID` (`req_<timestamp>_<rand>`) on every outgoing Axios call.
+2. **FastAPI Middleware (`RequestObservabilityMiddleware` in `backend/main.py`)**:
+   - Preserves incoming `X-Request-ID` or generates a fresh one.
+   - Sets Python `contextvars` (`request_id_ctx`, `client_ip_ctx`, `user_id_ctx`).
+   - Logs `API_REQUEST_RECEIVED` and `API_RESPONSE_COMPLETED` with latency `duration_ms`.
+   - Returns `X-Request-ID` in HTTP response headers.
+3. **Authenticated Dependency Binding (`deps.py`)**:
+   - Automatically binds `user_id_ctx.set(f"user_{user.id}")` so downstream business logic emits the correct user context with zero parameter passing.
+
+### 4. Privacy & Compliance Redaction (GDPR, DPDP Act, PCI-DSS)
+
+The `SensitiveDataFilter` strictly enforces:
+- **Redaction to `[REDACTED]`**: Passwords, password hashes, JWT access/refresh tokens, 2FA OTP codes, Brevo/PayU API keys, salts, card numbers, and CVVs.
+- **Email Masking**: `shubham.tronix365@gmail.com` $\to$ `s***5@gmail.com`.
+- **Phone Masking**: `+919876543210` $\to$ `+919****3210`.
+
+### 5. Instrumented Application Modules
+
+| Module | Event Identifiers | Key Logged Attributes |
+| :--- | :--- | :--- |
+| **HTTP** | `API_REQUEST_RECEIVED`, `API_RESPONSE_COMPLETED`, `UNHANDLED_HTTP_EXCEPTION` | Path, Method, Status Code, Duration (ms), Client IP |
+| **AUTH** | `SIGNUP_SESSION_INITIATED`, `OTP_GENERATED_AND_DISPATCHED`, `OTP_VERIFIED_SUCCESSFULLY`, `LOGIN_PASSWORD_VERIFIED`, `LOGIN_FAILED_*`, `ADMIN_LOGIN_*`, `GOOGLE_AUTH_*`, `USER_LOGGED_OUT` | User ID, Masked Email, Role, Failed Attempt Count |
+| **PRODUCT** | `PRODUCT_SEARCH_COMPLETED`, `PRODUCT_DETAILS_VIEWED`, `PRODUCT_CREATED_BY_ADMIN`, `PRODUCT_UPDATED_BY_ADMIN`, `PRODUCT_DELETED_BY_ADMIN`, `PRODUCT_CREATION_SKU_CONFLICT` | Product ID, Title, SKU, Price, Stock, Query Term |
+| **CART** | `CART_FETCHED`, `PRODUCT_ADDED_TO_CART`, `PRODUCT_QUANTITY_INCREMENTED`, `CART_ITEM_MODIFIED`, `CART_CLEARED`, `CART_ITEM_DELETED`, `CART_BUNDLE_AUTO_HEALED` | User ID, Product ID, Item ID, Quantity, Bundle Status |
+| **COUPON** | `COUPON_APPLIED_SUCCESSFULLY`, `COUPON_NOT_FOUND_OR_INACTIVE`, `COUPON_EXPIRED`, `COUPON_USAGE_LIMIT_EXCEEDED`, `COUPON_MINIMUM_PURCHASE_NOT_MET`, `COUPON_CREATED_BY_ADMIN` | Coupon Code, Discount Amount, Original Total, New Total |
+| **ORDERS** | `ORDER_CREATED`, `ORDER_STOCK_INSUFFICIENT`, `ORDER_STATUS_CHANGED`, `ORDER_STATUS_UPDATE_FAILED`, `ORDER_EMAIL_MANUALLY_TRIGGERED` | Order ID, Total Amount, Items Count, Status Transition |
+| **PAYMENT** | `PAYMENT_INITIATED`, `PAYMENT_RETRY_INITIATED`, `PAYMENT_CALLBACK_RECEIVED`, `PAYMENT_HASH_VERIFIED`, `PAYMENT_HASH_VERIFICATION_FAILED`, `PAYMENT_CAPTURED`, `PAYMENT_FAILED_OR_CANCELLED`, `PAYMENT_CANCELLED_BY_CUSTOMER` | Order ID, TxnID, Amount, Gateway Status, Rejection Reason |
+| **EMAIL** | `EMAIL_DISPATCHED_SUCCESSFULLY`, `EMAIL_DISPATCH_FAILED`, `BREVO_API_KEY_MISSING` | Subject, Status Trigger, Message ID, Recipient Count |
+| **CRON** | `KEEP_ALIVE_PING`, `KEEP_ALIVE_DB_DEGRADED`, `ABANDONED_CART_CRON_TRIGGERED`, `ABANDONED_CART_CRON_COMPLETED` | Inactivity Threshold, Items Found, Emails Sent, Bundles Healed |
 
 ---
 

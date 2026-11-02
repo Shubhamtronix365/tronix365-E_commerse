@@ -4,11 +4,11 @@ import requests
 from datetime import datetime
 from typing import List, Union, Optional
 from dotenv import load_dotenv
+from logging_config import get_logger
 
 load_dotenv()
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("email_utils")
+logger = get_logger("email")
 
 BREVO_API_KEY = os.getenv("BREVO_API_KEY")
 SENDER_EMAIL = os.getenv("SENDER_EMAIL") or os.getenv("CONTACT_EMAIL") or "shubham.tronix365@gmail.com"
@@ -105,7 +105,17 @@ def send_email_via_brevo(
     api_key = (os.getenv("BREVO_API_KEY") or BREVO_API_KEY or "").strip().strip('"').strip("'")
     if not api_key:
         msg = "BREVO_API_KEY environment variable not configured."
-        logger.warning(msg)
+        logger.warning_event(
+            module="EMAIL",
+            event="BREVO_API_KEY_MISSING",
+            message=f"Email dispatch skipped for '{subject}' (trigger: {status_trigger}): BREVO_API_KEY not configured",
+            action="Logged skipped attempt to database",
+            result="SKIPPED",
+            subject=subject,
+            status_trigger=status_trigger,
+            order_id=order_id,
+            recipients_count=len(to_list),
+        )
         log_email_to_db(order_id, recipients_str, subject, status_trigger, "failed", msg)
         return False
 
@@ -135,7 +145,18 @@ def send_email_via_brevo(
         res.raise_for_status()
         data = res.json()
         msg_id = data.get("messageId", "sent_ok")
-        logger.info(f"Email sent successfully to [{recipients_str}]. Status: {status_trigger}, Message ID: {msg_id}")
+        logger.info_event(
+            module="EMAIL",
+            event="EMAIL_DISPATCHED_SUCCESSFULLY",
+            message=f"Email '{subject}' (trigger: {status_trigger}) delivered to Brevo API (Message ID: {msg_id})",
+            action="Submitted transactional email via Brevo REST API v3",
+            result="SENT",
+            subject=subject,
+            status_trigger=status_trigger,
+            order_id=order_id,
+            message_id=msg_id,
+            recipients_count=len(to_list),
+        )
         log_email_to_db(order_id, recipients_str, subject, status_trigger, "sent")
         return True
     except requests.exceptions.RequestException as e:
@@ -143,11 +164,24 @@ def send_email_via_brevo(
         if hasattr(e, "response") and e.response is not None:
             err_msg += f" | Brevo API Response: {e.response.text}"
             if e.response.status_code == 401:
-                logger.error(
-                    "Brevo 401 Unauthorized: The BREVO_API_KEY is invalid, revoked, or you may have provided an SMTP key instead of an API Key. "
-                    "Generate a valid v3 API Key in Brevo under Settings -> API Keys (https://app.brevo.com/settings/keys/api) and set BREVO_API_KEY."
+                logger.error_event(
+                    module="EMAIL",
+                    event="BREVO_UNAUTHORIZED",
+                    message="Brevo 401 Unauthorized: The BREVO_API_KEY is invalid or revoked. Check https://app.brevo.com/settings/keys/api",
+                    action="Check Brevo API key in Render environment",
+                    result="AUTH_FAILED",
                 )
-        logger.error(f"Failed to send email via Brevo: {err_msg}")
+        logger.error_event(
+            module="EMAIL",
+            event="EMAIL_DISPATCH_FAILED",
+            message=f"Failed to dispatch email '{subject}' via Brevo: {err_msg}",
+            action="Recorded failure in database audit log",
+            result="FAILED",
+            order_id=order_id,
+            subject=subject,
+            status_trigger=status_trigger,
+            error=err_msg,
+        )
         log_email_to_db(order_id, recipients_str, subject, status_trigger, "failed", err_msg)
         return False
 
