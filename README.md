@@ -89,6 +89,15 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
   - **Dynamic Callback Host Resolution**: Automatically bypasses legacy or suspended Render hosting endpoints (`tronix365-e-commerse.onrender.com`), ensuring PayU success and failure callbacks (`surl` / `furl`) resolve to the active backend service (`tronix365-e-commerse-xhlw.onrender.com`).
   - **Seamless Failure Redirect Bridge**: Translates gateway POST callbacks into client-side auto-redirects (`<meta http-equiv="refresh">` + `window.location.replace`) directing customers straight to `/payment/failure?txnid=...&status=...&reason=...`.
   - **Interactive 1-Click Retry Experience**: The failure page (`PaymentStatus.jsx`) displays transaction details, bank decline reasons, an immediate "Retry Secure Payment" button (which generates a new payment attempt for the same order), and quick links to review cart or continue browsing.
+- **Always-Present B2B GST Tax Invoicing at Checkout**:
+  - Uncoupled the GST Tax Invoice section from the collapsible address form, ensuring that the **"🏢 I require a GST Invoice / B2B Company Billing"** toggle is visible and accessible **all the time** across all checkout states (whether selecting a saved address or entering a new one).
+  - Automatically loads and preserves registered Company Name and 15-digit GSTIN, allowing customers to easily claim 18% Input Tax Credit (ITC) without having to expand or re-enter their shipping address.
+- **Trusted Generic "Online Payment" Branding**:
+  - Replaced gateway-branded titles ("PayU Secure Payment") with industry-standard **"Online Payment (UPI, Cards, NetBanking, Wallets)"** across checkout and order summary.
+  - Highlights support for major payment modes: UPI (Google Pay, PhonePe, Paytm, BHIM), Credit/Debit Cards (Visa, Mastercard, RuPay), NetBanking, and Wallets with 100% Secure & 256-bit SSL encryption trust badges.
+- **CDN-First Product Media Architecture & Interactive Admin Add Tiles**:
+  - Product images are strictly stored and retrieved via high-speed Cloudinary CDN (`https://res.cloudinary.com/...`). Local uploads and legacy paths are automatically synchronized and upgraded to CDN URLs.
+  - Admin modal features prominent **"+ Add Image"** buttons and an interactive dotted **"+ Add Image (Upload to CDN)"** tile directly in the gallery grid for effortless multi-image additions alongside direct CDN URL inputs.
 - **Google Customer Reviews Opt-In Integration**: Official Google Merchant Center post-checkout survey integration (Merchant ID: `5820417048`) on the order confirmation screen.
 - **Saved Address Book & 1-Click Fast Checkout**: Complete multi-address book for registered customers (Home, Office, Factory, Warehouse, Other) with default address flags, automatic PIN code postal lookup (India Post API), and B2B GSTIN tax invoicing support.
   - **User Dashboard Address Book**: Add, edit, delete, and switch default shipping destinations with an intuitive dark bento UI.

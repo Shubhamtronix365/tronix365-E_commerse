@@ -137,10 +137,10 @@ const Checkout = () => {
                             addressLine: def.address_line || prev.addressLine,
                             city: def.city || prev.city,
                             state: def.state || prev.state,
-                            isGstInvoice: def.is_gst_invoice || false,
-                            companyName: def.company_name || '',
-                            gstin: def.gstin || '',
-                            companyAddress: def.address_line || ''
+                            isGstInvoice: def.is_gst_invoice ? true : prev.isGstInvoice,
+                            companyName: def.company_name || prev.companyName || '',
+                            gstin: def.gstin || prev.gstin || '',
+                            companyAddress: def.address_line || prev.companyAddress || ''
                         }));
                     } else {
                         setSelectedAddressId('new');
@@ -171,10 +171,10 @@ const Checkout = () => {
             addressLine: addr.address_line || prev.addressLine,
             city: addr.city || prev.city,
             state: addr.state || prev.state,
-            isGstInvoice: addr.is_gst_invoice || false,
-            companyName: addr.company_name || '',
-            gstin: addr.gstin || '',
-            companyAddress: addr.address_line || ''
+            isGstInvoice: addr.is_gst_invoice ? true : prev.isGstInvoice,
+            companyName: addr.company_name || prev.companyName || '',
+            gstin: addr.gstin || prev.gstin || '',
+            companyAddress: addr.address_line || prev.companyAddress || ''
         }));
         toast.success(`Delivery address set to: ${addr.label || 'Saved Address'}`);
     };
@@ -671,68 +671,85 @@ const Checkout = () => {
                                         </label>
                                     </div>
                                 )}
-
-                                {/* GST & B2B Business Billing Option */}
-                                <div className="md:col-span-2 pt-4 border-t border-white/10 mt-2">
-                                    <label className="flex items-center gap-3 cursor-pointer bg-violet-500/10 border border-violet-500/20 p-4 rounded-xl hover:bg-violet-500/15 transition-all">
-                                        <input
-                                            type="checkbox"
-                                            name="isGstInvoice"
-                                            checked={address.isGstInvoice}
-                                            onChange={(e) => setAddress({ ...address, isGstInvoice: e.target.checked })}
-                                            className="w-5 h-5 text-violet-500 accent-violet-500 rounded cursor-pointer"
-                                        />
-                                        <div>
-                                            <p className="text-sm font-bold text-white flex items-center gap-2">
-                                                🏢 I require a GST Invoice / B2B Company Billing
-                                            </p>
-                                            <p className="text-xs text-gray-400">Claim GST input tax credit for your business or corporate purchase</p>
-                                        </div>
-                                    </label>
-                                </div>
-
-                                {address.isGstInvoice && (
-                                    <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 bg-black/40 border border-violet-500/30 p-5 rounded-xl">
-                                        <div>
-                                            <label className="block text-violet-300 text-xs uppercase font-bold tracking-wider mb-1">Company / Business Name *</label>
-                                            <input
-                                                type="text"
-                                                name="companyName"
-                                                required
-                                                value={address.companyName}
-                                                onChange={handleInputChange}
-                                                placeholder="e.g. Acme Technologies Pvt Ltd"
-                                                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-violet-500 outline-none text-sm"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-violet-300 text-xs uppercase font-bold tracking-wider mb-1">GSTIN Number (15 Digits) *</label>
-                                            <input
-                                                type="text"
-                                                name="gstin"
-                                                required
-                                                maxLength={15}
-                                                value={address.gstin}
-                                                onChange={(e) => setAddress({ ...address, gstin: e.target.value.toUpperCase() })}
-                                                placeholder="e.g. 27AAAAA0000A1Z5"
-                                                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-violet-500 outline-none font-mono text-sm tracking-wider"
-                                            />
-                                        </div>
-                                        <div className="md:col-span-2">
-                                            <label className="block text-violet-300 text-xs uppercase font-bold tracking-wider mb-1">Registered Business Address</label>
-                                            <input
-                                                type="text"
-                                                name="companyAddress"
-                                                value={address.companyAddress}
-                                                onChange={handleInputChange}
-                                                placeholder="Registered Office Address (Leave blank to use delivery address)"
-                                                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-violet-500 outline-none text-sm"
-                                            />
-                                        </div>
-                                    </div>
-                                )}
                             </div>
                         )}
+
+                        {/* ALWAYS PRESENT: GST & B2B Business Invoicing Option */}
+                        <div className="pt-4 border-t border-white/10 mt-4">
+                            <label className={`flex items-start sm:items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer ${
+                                address.isGstInvoice 
+                                    ? 'bg-violet-600/15 border-violet-500/40 ring-1 ring-violet-500/30' 
+                                    : 'bg-white/[0.03] border-white/10 hover:border-white/20 hover:bg-white/[0.05]'
+                            }`}>
+                                <input
+                                    type="checkbox"
+                                    name="isGstInvoice"
+                                    checked={address.isGstInvoice}
+                                    onChange={(e) => setAddress({ ...address, isGstInvoice: e.target.checked })}
+                                    className="mt-0.5 sm:mt-0 w-5 h-5 text-violet-500 accent-violet-500 rounded cursor-pointer flex-shrink-0"
+                                />
+                                <div className="flex-1">
+                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                        <p className="text-sm font-bold text-white flex items-center gap-2">
+                                            <span>🏢 I require a GST Invoice / B2B Company Billing</span>
+                                        </p>
+                                        <span className="text-[11px] font-semibold uppercase tracking-wider bg-violet-500/20 text-violet-300 px-2.5 py-0.5 rounded-full border border-violet-500/30">
+                                            Claim 18% Input Tax Credit
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-gray-400 mt-0.5">
+                                        Enter your company details and GSTIN to receive an official B2B Tax Invoice with Input Tax Credit (ITC).
+                                    </p>
+                                </div>
+                            </label>
+
+                            {address.isGstInvoice && (
+                                <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4 bg-black/40 border border-violet-500/30 p-4 sm:p-5 rounded-xl">
+                                    <div>
+                                        <label className="block text-violet-300 text-xs uppercase font-bold tracking-wider mb-1">
+                                            Company / Business Name *
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="companyName"
+                                            required
+                                            value={address.companyName}
+                                            onChange={handleInputChange}
+                                            placeholder="e.g. Acme Technologies Pvt Ltd"
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-violet-500 outline-none text-sm transition-colors"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-violet-300 text-xs uppercase font-bold tracking-wider mb-1">
+                                            GSTIN Number (15 Digits) *
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="gstin"
+                                            required
+                                            maxLength={15}
+                                            value={address.gstin}
+                                            onChange={(e) => setAddress({ ...address, gstin: e.target.value.toUpperCase() })}
+                                            placeholder="e.g. 27AAAAA0000A1Z5"
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-violet-500 outline-none font-mono text-sm tracking-wider uppercase transition-colors"
+                                        />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-gray-400 text-xs mb-1">
+                                            Registered Business Address (Optional — defaults to delivery address)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="companyAddress"
+                                            value={address.companyAddress}
+                                            onChange={handleInputChange}
+                                            placeholder="Registered Office Address (Leave blank to use delivery address)"
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-violet-500 outline-none text-sm"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* STEP 2: SHIPPING METHOD */}
@@ -750,24 +767,30 @@ const Checkout = () => {
                         </div>
 
                         <div className="space-y-4">
-                            <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'payu' ? 'border-tronix-primary bg-tronix-primary/10' : 'border-white/10 hover:border-white/30'}`}>
+                            <label className={`flex items-start sm:items-center p-4 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'payu' ? 'border-tronix-primary bg-tronix-primary/10 ring-1 ring-tronix-primary/30' : 'border-white/10 hover:border-white/30'}`}>
                                 <input
                                     type="radio" name="payment" value="payu"
                                     checked={paymentMethod === 'payu'} onChange={() => setPaymentMethod('payu')}
-                                    className="w-5 h-5 text-tronix-primary accent-tronix-primary"
+                                    className="mt-1 sm:mt-0 w-5 h-5 text-tronix-primary accent-tronix-primary cursor-pointer flex-shrink-0"
                                 />
-                                <div className="ml-4 flex-1">
-                                    <div className="flex items-center gap-2 font-bold text-white">
-                                        PayU Secure Payment
-                                        <div className="flex gap-1 ml-2">
-                                            <span className="bg-white/10 px-1 rounded text-xs text-gray-300">UPI</span>
-                                            <span className="bg-white/10 px-1 rounded text-xs text-gray-300">Card</span>
-                                            <span className="bg-white/10 px-1 rounded text-xs text-gray-300">NetBanking</span>
+                                <div className="ml-3 sm:ml-4 flex-1">
+                                    <div className="flex flex-wrap items-center gap-2 font-bold text-white">
+                                        <span className="text-base sm:text-lg">Online Payment</span>
+                                        <div className="flex flex-wrap gap-1.5 ml-0 sm:ml-2">
+                                            <span className="bg-white/10 px-2 py-0.5 rounded text-[11px] text-gray-200 font-medium">UPI</span>
+                                            <span className="bg-white/10 px-2 py-0.5 rounded text-[11px] text-gray-200 font-medium">Cards</span>
+                                            <span className="bg-white/10 px-2 py-0.5 rounded text-[11px] text-gray-200 font-medium">NetBanking</span>
+                                            <span className="bg-white/10 px-2 py-0.5 rounded text-[11px] text-gray-200 font-medium">Wallets</span>
                                         </div>
                                     </div>
-                                    <p className="text-sm text-gray-400">Fast and secure payment via PayU Gateway</p>
+                                    <p className="text-xs sm:text-sm text-gray-400 mt-1">
+                                        Fast and secure payment via UPI (Google Pay, PhonePe, Paytm, BHIM), Cards, or NetBanking
+                                    </p>
                                 </div>
-                                <ShieldCheck className="text-green-500" />
+                                <div className="hidden sm:flex items-center gap-1.5 text-xs text-emerald-400 font-semibold bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg flex-shrink-0 ml-2">
+                                    <ShieldCheck size={16} />
+                                    <span>100% Secure</span>
+                                </div>
                             </label>
 
                             <label className={`flex items-center p-4 border rounded-xl cursor-not-allowed border-white/5 opacity-50`}>

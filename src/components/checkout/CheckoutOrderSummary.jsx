@@ -191,7 +191,7 @@ const CheckoutOrderSummary = ({
                     className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 rounded-lg shadow-lg transition-colors flex items-center justify-center gap-2"
                 >
                     {loading
-                        ? 'Redirecting to PayU...'
+                        ? 'Redirecting to Secure Payment...'
                         : user
                         ? 'Proceed to Secure Payment'
                         : 'Log In to Place Order & Pay'}

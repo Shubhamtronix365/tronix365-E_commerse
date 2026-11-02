@@ -57,19 +57,25 @@ def _normalize_product_images(imgs_val: Optional[List[str]]) -> List[str]:
 
 
 def _hydrate_product_images(product: ProductDB) -> ProductDB:
-    """Ensure product.images is a populated list, falling back to [product.image] if empty."""
+    """Ensure product.images is a populated list of CDN URLs, falling back to [product.image] if empty."""
     if not product:
         return product
     raw_images = getattr(product, "images", None)
     if isinstance(raw_images, list) and len(raw_images) > 0:
         cleaned = [img.strip() for img in raw_images if isinstance(img, str) and img.strip()]
         if cleaned:
-            product.images = cleaned
-            if not product.image:
-                product.image = cleaned[0]
+            # Normalize local image paths to Cloudinary CDN URLs
+            normalized = [_normalize_product_image(img) for img in cleaned]
+            product.images = [img for img in normalized if img]
+            if product.image:
+                product.image = _normalize_product_image(product.image)
+            elif product.images:
+                product.image = product.images[0]
             return product
     if product.image and isinstance(product.image, str) and product.image.strip():
-        product.images = [product.image.strip()]
+        norm_img = _normalize_product_image(product.image.strip())
+        product.image = norm_img
+        product.images = [norm_img] if norm_img else []
     else:
         product.images = []
     return product

@@ -753,7 +753,7 @@ const ProductModal = ({
                                         </div>
 
                                         <p className="text-xs text-gray-400">
-                                            Upload multiple images or paste URLs. The 1st image is automatically used as the catalog cover. Drag or reorder any image to be the primary cover.
+                                            Store and serve product images via high-speed CDN. The 1st image is the primary catalog cover. You can reorder images or set any image as cover.
                                         </p>
 
                                         {/* Upload & Add Controls */}
@@ -777,12 +777,12 @@ const ProductModal = ({
                                                     {uploading ? (
                                                         <>
                                                             <Loader size={16} className="animate-spin" />
-                                                            <span>Uploading Images...</span>
+                                                            <span>Uploading to CDN...</span>
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <UploadCloud size={16} />
-                                                            <span>Upload Images (Select 1 or more)</span>
+                                                            <Plus size={16} />
+                                                            <span>Add Image (Upload from Device to CDN)</span>
                                                         </>
                                                     )}
                                                 </button>
@@ -792,7 +792,7 @@ const ProductModal = ({
                                             <div className="flex gap-2">
                                                 <input
                                                     type="text"
-                                                    placeholder="Or paste image URL (e.g. https://...)"
+                                                    placeholder="Or paste direct CDN image URL (e.g. https://...)"
                                                     value={imageUrlInput}
                                                     onChange={(e) => setImageUrlInput(e.target.value)}
                                                     onKeyDown={(e) => {
@@ -817,13 +817,14 @@ const ProductModal = ({
                                         {currentImages.length > 0 ? (
                                             <div className="space-y-3 pt-2">
                                                 <div className="text-xs font-semibold text-gray-300 flex items-center justify-between">
-                                                    <span>Uploaded Gallery ({currentImages.length})</span>
+                                                    <span>Product Gallery ({currentImages.length})</span>
                                                     <span className="text-[11px] text-gray-400">#1 is the Primary Cover</span>
                                                 </div>
 
                                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                                     {currentImages.map((imgUrl, idx) => {
                                                         const isCover = idx === 0;
+                                                        const isCdn = typeof imgUrl === 'string' && (imgUrl.startsWith('http://') || imgUrl.startsWith('https://'));
                                                         return (
                                                             <div
                                                                 key={`admin-img-${idx}`}
@@ -840,11 +841,18 @@ const ProductModal = ({
                                                                         alt={`Product view ${idx + 1}`}
                                                                         className="w-full h-full object-contain mix-blend-multiply"
                                                                     />
-                                                                    {isCover && (
-                                                                        <div className="absolute top-1 left-1 bg-violet-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-md">
-                                                                            <Star size={10} className="fill-current" /> Cover
-                                                                        </div>
-                                                                    )}
+                                                                    <div className="absolute top-1 left-1 flex items-center gap-1">
+                                                                        {isCover && (
+                                                                            <div className="bg-violet-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 shadow-md">
+                                                                                <Star size={10} className="fill-current" /> Cover
+                                                                            </div>
+                                                                        )}
+                                                                        {isCdn && (
+                                                                            <div className="bg-emerald-500/30 text-emerald-300 text-[9px] font-mono font-bold px-1 py-0.5 rounded border border-emerald-500/40">
+                                                                                CDN
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
                                                                     <div className="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] font-mono px-1.5 py-0.5 rounded">
                                                                         #{idx + 1}
                                                                     </div>
@@ -899,15 +907,42 @@ const ProductModal = ({
                                                             </div>
                                                         );
                                                     })}
+
+                                                    {/* Interactive + Add Image Tile at the end of the grid */}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => fileInputRef.current?.click()}
+                                                        disabled={uploading}
+                                                        className="aspect-square rounded-xl border-2 border-dashed border-violet-500/30 hover:border-violet-400 bg-white/[0.02] hover:bg-violet-600/10 flex flex-col items-center justify-center gap-1.5 transition-all text-gray-400 hover:text-white cursor-pointer group/add p-2"
+                                                        title="Click to add another image"
+                                                    >
+                                                        <div className="w-10 h-10 rounded-full bg-violet-600/20 group-hover/add:bg-violet-600 group-hover/add:text-white flex items-center justify-center transition-all text-violet-400 shadow-sm">
+                                                            <Plus size={20} />
+                                                        </div>
+                                                        <span className="text-[11px] font-semibold text-violet-300 group-hover/add:text-white">
+                                                            + Add Image
+                                                        </span>
+                                                        <span className="text-[10px] text-gray-500">
+                                                            Upload to CDN
+                                                        </span>
+                                                    </button>
                                                 </div>
                                             </div>
                                         ) : (
                                             <div className="border-2 border-dashed border-white/10 rounded-xl p-6 text-center bg-black/20">
                                                 <ImageIcon className="w-10 h-10 text-gray-500 mx-auto mb-2 opacity-50" />
-                                                <p className="text-xs text-gray-400 mb-1">No images uploaded yet</p>
-                                                <p className="text-[11px] text-gray-500">
-                                                    Click "Upload Images" above to add 1 to N high-resolution pictures for your customers.
+                                                <p className="text-xs text-gray-300 font-medium mb-1">No images added yet</p>
+                                                <p className="text-[11px] text-gray-500 mb-3">
+                                                    Upload multiple product pictures to Cloudinary CDN for instant multi-angle showcase.
                                                 </p>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => fileInputRef.current?.click()}
+                                                    disabled={uploading}
+                                                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-medium text-xs shadow-md transition-colors cursor-pointer"
+                                                >
+                                                    <Plus size={15} /> Add First Image
+                                                </button>
                                             </div>
                                         )}
                                     </div>
