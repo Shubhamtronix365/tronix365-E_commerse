@@ -95,9 +95,12 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
 - **Trusted Generic "Online Payment" Branding**:
   - Replaced gateway-branded titles ("PayU Secure Payment") with industry-standard **"Online Payment (UPI, Cards, NetBanking, Wallets)"** across checkout and order summary.
   - Highlights support for major payment modes: UPI (Google Pay, PhonePe, Paytm, BHIM), Credit/Debit Cards (Visa, Mastercard, RuPay), NetBanking, and Wallets with 100% Secure & 256-bit SSL encryption trust badges.
-- **CDN-First Product Media Architecture & Interactive Admin Add Tiles**:
-  - Product images are strictly stored and retrieved via high-speed Cloudinary CDN (`https://res.cloudinary.com/...`). Local uploads and legacy paths are automatically synchronized and upgraded to CDN URLs.
-  - Admin modal features prominent **"+ Add Image"** buttons and an interactive dotted **"+ Add Image (Upload to CDN)"** tile directly in the gallery grid for effortless multi-image additions alongside direct CDN URL inputs.
+- **CDN-First Product Media Architecture & Professional Admin Gallery Controls**:
+  - **Full-Width Gallery Workspace**: Upgraded `ProductModal.jsx` to a spacious `max-w-5xl xl:max-w-6xl` responsive layout, moving the product gallery into a dedicated, full-width section with high-contrast borders and ergonomic margins that eliminate overlapping or clipped buttons.
+  - **Select / Promote Primary Cover**: Prominent, dedicated `[★ Set as Primary Cover]` button on all secondary images (views #2..N) to instantly promote any view to the #1 primary storefront cover, paired with an active `[★ Active Primary Cover]` indicator on view #1.
+  - **Delete Primary Image & Secondary Views**: Explicit, high-visibility `[🗑 Delete Cover]` button on the primary image and `[🗑 Delete Primary Cover]` in the gallery header. Deleting the primary cover automatically promotes the subsequent image as the new primary catalog cover, with zero data loss or broken links. Individual views have dedicated `[🗑 Delete]` buttons with red border styling, and a header `[Clear All]` action is provided for bulk management.
+  - **Reorder & Direct CDN Input**: Dedicated `[← Left]` and `[Right →]` reorder buttons with disabled edge states, alongside a full-width Direct CDN URL input and a prominent `[+ Add URL]` action button that never wraps or truncates.
+  - **Interactive Upload Tile**: Dashed `+ Add Another Image (PNG, JPG, WEBP to CDN)` card at the end of the gallery with instant file dialog trigger.
 - **Google Customer Reviews Opt-In Integration**: Official Google Merchant Center post-checkout survey integration (Merchant ID: `5820417048`) on the order confirmation screen.
 - **Saved Address Book & 1-Click Fast Checkout**: Complete multi-address book for registered customers (Home, Office, Factory, Warehouse, Other) with default address flags, automatic PIN code postal lookup (India Post API), and B2B GSTIN tax invoicing support.
   - **User Dashboard Address Book**: Add, edit, delete, and switch default shipping destinations with an intuitive dark bento UI.
