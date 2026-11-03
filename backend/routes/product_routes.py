@@ -17,6 +17,7 @@ from models import (
     WishlistItemDB,
     CartItemDB,
     ReviewDB,
+    ProductQnADB,
     BundleProductDB,
     OrderItemDB,
     UserDB,
@@ -654,6 +655,7 @@ async def delete_product(
     db.query(WishlistItemDB).filter(WishlistItemDB.product_id == product_id).delete()
     db.query(CartItemDB).filter(CartItemDB.product_id == product_id).delete()
     db.query(ReviewDB).filter(ReviewDB.product_id == product_id).delete()
+    db.query(ProductQnADB).filter(ProductQnADB.product_id == product_id).delete()
     db.query(BundleProductDB).filter(BundleProductDB.product_id == product_id).delete()
     db.query(OrderItemDB).filter(OrderItemDB.product_id == product_id).update({OrderItemDB.product_id: None})
 

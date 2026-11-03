@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { Package, Users, DollarSign, TrendingUp, Plus, Search, Edit, Trash2, Calendar } from 'lucide-react';
+import { Package, Users, DollarSign, TrendingUp, Plus, Search, Edit, Trash2, Calendar, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import client from '../api/client';
 import { getImageUrl } from '../utils/imageUtils';
@@ -20,6 +20,7 @@ import TowerOrderTable from '../components/admin/TowerOrderTable';
 import TowerOrderAdminModal from '../components/admin/TowerOrderAdminModal';
 import AbandonedCartTable from '../components/admin/AbandonedCartTable';
 import BlogAdminManager from '../components/admin/BlogAdminManager';
+import QnAManager from '../components/admin/QnAManager';
 import { useCategories } from '../hooks/useCategories';
 import { parseSpecsText, formatSpecsToText } from '../utils/specUtils';
 
@@ -684,6 +685,17 @@ const AdminDashboard = () => {
                                 <span>Blogs & Tutorials</span>
                             </button>
                             <button
+                                onClick={() => setActiveTab('qna')}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 whitespace-nowrap ${
+                                    activeTab === 'qna'
+                                        ? 'bg-violet-600/25 text-violet-300 border border-violet-500/40 font-semibold'
+                                        : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                <HelpCircle size={14} className="text-violet-400" />
+                                <span>Q&A Support</span>
+                            </button>
+                            <button
                                 onClick={() => setActiveTab('settings')}
                                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'settings' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
                             >
@@ -774,6 +786,10 @@ const AdminDashboard = () => {
 
                         {activeTab === 'blogs' && (
                             <BlogAdminManager />
+                        )}
+
+                        {activeTab === 'qna' && (
+                            <QnAManager products={products} />
                         )}
 
                         {activeTab === 'settings' && (

@@ -132,6 +132,7 @@ from routes import (
     blog_routes,
     shiprocket_routes,
     cron_routes,
+    qna_routes,
 )
 
 # Ensure upload directory exists
@@ -353,4 +354,5 @@ app.include_router(upload_routes.router)
 app.include_router(blog_routes.router)
 app.include_router(shiprocket_routes.router)
 app.include_router(cron_routes.router)
+app.include_router(qna_routes.router)
 

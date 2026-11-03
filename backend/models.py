@@ -533,6 +533,84 @@ class ReviewResponse(BaseModel):
         from_attributes = True
 
 
+class ProductQnADB(Base):
+    __tablename__ = "product_qna"
+
+    id = Column(Integer, primary_key=True, index=True)
+    product_id = Column(Integer, ForeignKey("products.id"), index=True, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    user_name = Column(String, default="Customer")
+    user_email = Column(String, nullable=True)
+    question = Column(String, nullable=False)
+    answer = Column(String, nullable=True)
+    answered_by = Column(String, nullable=True)
+    answered_at = Column(String, nullable=True)
+    is_faq = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class QnACreate(BaseModel):
+    question: str
+
+    @field_validator("question", mode="before")
+    @classmethod
+    def sanitize_question(cls, v):
+        if not v or not str(v).strip():
+            raise ValueError("Question cannot be empty")
+        return sanitize_html(str(v).strip())
+
+
+class QnAAnswer(BaseModel):
+    answer: str
+    is_faq: Optional[bool] = False
+
+    @field_validator("answer", mode="before")
+    @classmethod
+    def sanitize_answer(cls, v):
+        if not v or not str(v).strip():
+            raise ValueError("Answer cannot be empty")
+        return sanitize_html(str(v).strip())
+
+
+class QnAAdminCreate(BaseModel):
+    product_id: int
+    question: str
+    answer: Optional[str] = None
+    is_faq: Optional[bool] = True
+
+    @field_validator("question", mode="before")
+    @classmethod
+    def sanitize_question(cls, v):
+        if not v or not str(v).strip():
+            raise ValueError("Question cannot be empty")
+        return sanitize_html(str(v).strip())
+
+    @field_validator("answer", mode="before")
+    @classmethod
+    def sanitize_answer(cls, v):
+        return sanitize_html(str(v).strip()) if v else None
+
+
+class QnAResponse(BaseModel):
+    id: int
+    product_id: int
+    user_id: Optional[int] = None
+    user_name: Optional[str] = None
+    user_email: Optional[str] = None
+    question: str
+    answer: Optional[str] = None
+    answered_by: Optional[str] = None
+    answered_at: Optional[str] = None
+    is_faq: Optional[bool] = False
+    created_at: Optional[Any] = None
+    product_title: Optional[str] = None
+    product_sku: Optional[str] = None
+    product_image: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
 class ContactMessageDB(Base):
     __tablename__ = "contact_messages"
 
