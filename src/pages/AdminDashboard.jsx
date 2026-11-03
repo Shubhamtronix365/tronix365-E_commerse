@@ -235,9 +235,7 @@ const AdminDashboard = () => {
             features: '',
             applications: '',
             package_includes: '',
-            useful_links: '',
             attachments: '',
-            warranty_info: '',
             country_of_origin: ''
         });
         setIsAddProductOpen(true);
@@ -283,13 +281,9 @@ const AdminDashboard = () => {
             features: product.features && Array.isArray(product.features) ? product.features.join('\n') : (product.features || ''),
             applications: product.applications && Array.isArray(product.applications) ? product.applications.join('\n') : (product.applications || ''),
             package_includes: product.package_includes && Array.isArray(product.package_includes) ? product.package_includes.join('\n') : (product.package_includes || ''),
-            useful_links: product.useful_links && Array.isArray(product.useful_links) 
-                ? product.useful_links.map(l => typeof l === 'object' ? `${l.title || l.name || ''} | ${l.url || ''}` : l).join('\n') 
-                : (product.useful_links || ''),
             attachments: product.attachments && Array.isArray(product.attachments) 
                 ? product.attachments.map(a => typeof a === 'object' ? `${a.name || a.title || ''} | ${a.url || ''}` : a).join('\n') 
                 : (product.attachments || ''),
-            warranty_info: product.warranty_info || '',
             country_of_origin: product.country_of_origin || ''
         }); // Pre-fill form
         setIsAddProductOpen(true);
@@ -356,15 +350,8 @@ const AdminDashboard = () => {
             if (typeof payload.package_includes === 'string') {
                 payload.package_includes = payload.package_includes.split('\n').map(f => f.trim()).filter(f => f);
             }
-            if (typeof payload.useful_links === 'string') {
-                payload.useful_links = payload.useful_links.split('\n').map(line => {
-                    const parts = line.split('|');
-                    if (parts.length > 1) {
-                        return { title: parts[0].trim(), url: parts[1].trim() };
-                    }
-                    return { title: 'Documentation Link', url: line.trim() };
-                }).filter(l => l.url);
-            }
+            payload.useful_links = null;
+            payload.warranty_info = null;
             if (typeof payload.attachments === 'string') {
                 payload.attachments = payload.attachments.split('\n').map(line => {
                     const parts = line.split('|');
@@ -390,7 +377,7 @@ const AdminDashboard = () => {
             setIsAddProductOpen(false);
             setNewProduct({ 
                 title: '', category: 'Development Boards', sku: '', price: '', mrp: '', specs: [], specsText: '', description: '', image: '', images: [], features: '',
-                applications: '', package_includes: '', useful_links: '', attachments: '', warranty_info: '', country_of_origin: ''
+                applications: '', package_includes: '', attachments: '', country_of_origin: ''
             });
         } catch (error) {
             console.error("DEBUG: Save product error:", error);

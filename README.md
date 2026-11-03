@@ -95,6 +95,9 @@ Tronix365 is a state-of-the-art, full-stack e-commerce web application engineere
 - **Trusted Generic "Online Payment" Branding**:
   - Replaced gateway-branded titles ("PayU Secure Payment") with industry-standard **"Online Payment (UPI, Cards, NetBanking, Wallets)"** across checkout and order summary.
   - Highlights support for major payment modes: UPI (Google Pay, PhonePe, Paytm, BHIM), Credit/Debit Cards (Visa, Mastercard, RuPay), NetBanking, and Wallets with 100% Secure & 256-bit SSL encryption trust badges.
+- **Streamlined Product Catalog Details (Warranty & Useful Links Removal)**:
+  - **Storefront Product Page (`ProductDetails.jsx`)**: Removed the redundant "Warranty" tab from the product dossier tabs, removed the warranty fallback row from technical specifications, and replaced the "Warranty - Manufacturer Warranty" trust badge with a clean "100% Genuine - Quality Tested Component" badge.
+  - **Admin Dashboard & Product Modal (`ProductModal.jsx`, `AdminDashboard.jsx`)**: Removed "Warranty Info" and "Useful Links" input fields from Add Product and Edit Product forms. Aligned "Attachments / PDF Datasheets" and "Country Of Origin" into a clean 2-column grid. Automatically sanitizes payload to clear any legacy values upon saving.
 - **CDN-First Product Media Architecture & Professional Admin Gallery Controls**:
   - **Full-Width Gallery Workspace**: Upgraded `ProductModal.jsx` to a spacious `max-w-5xl xl:max-w-6xl` responsive layout, moving the product gallery into a dedicated, full-width section with high-contrast borders and ergonomic margins that eliminate overlapping or clipped buttons.
   - **Select / Promote Primary Cover**: Prominent, dedicated `[★ Set as Primary Cover]` button on all secondary images (views #2..N) to instantly promote any view to the #1 primary storefront cover, paired with an active `[★ Active Primary Cover]` indicator on view #1.

@@ -163,7 +163,6 @@ const parseProductSpecs = (specs, product) => {
     fallback.push(['Condition', '100% Brand New Genuine Component']);
     fallback.push(['Stock Availability', (product?.stock || 0) > 0 ? `${product.stock} Units In Stock` : 'Out of Stock']);
     if (product?.weight) fallback.push(['Approximate Weight', `${product.weight * 1000}g`]);
-    if (product?.warranty_info) fallback.push(['Warranty', product.warranty_info]);
     if (product?.country_of_origin) fallback.push(['Country of Origin', product.country_of_origin]);
     fallback.push(['Procurement Mode', product?.tower_order_only ? 'Factory Tower Order' : 'Standard Delivery Stock']);
     return fallback;
@@ -751,8 +750,8 @@ const ProductDetails = () => {
                             <div className="flex items-center gap-3 p-4 border border-white/5 rounded-xl bg-white/5">
                                 <ShieldCheck className="text-tronix-accent" size={24} />
                                 <div>
-                                    <div className="text-white font-medium text-sm">Warranty</div>
-                                    <div className="text-gray-500 text-xs">Manufacturer Warranty</div>
+                                    <div className="text-white font-medium text-sm">100% Genuine</div>
+                                    <div className="text-gray-400 text-xs">Quality Tested Component</div>
                                 </div>
                             </div>
                         </div>
@@ -800,13 +799,12 @@ const ProductDetails = () => {
                     </motion.div>
                 </div>
 
-                {/* 7 Interactive Product Dossier Tabs */}
+                {/* 6 Interactive Product Dossier Tabs */}
                 <div className="mt-16 sm:mt-20">
                     <div className="flex items-center gap-4 sm:gap-8 border-b border-white/10 mb-8 overflow-x-auto custom-scrollbar pb-1">
                         {[
                             { id: 'description', label: 'Description', icon: FileText },
                             { id: 'specs', label: 'Specification', icon: Tag },
-                            { id: 'warranty', label: 'Warranty', icon: Shield },
                             { id: 'reviews', label: 'Reviews', icon: Star },
                             { id: 'qna', label: 'QnA', icon: HelpCircle },
                             { id: 'attachments', label: 'Attachments', icon: Download },
@@ -938,25 +936,7 @@ const ProductDetails = () => {
                             );
                         })()}
 
-                        {/* TAB 3: Warranty Panel */}
-                        {activeTab === 'warranty' && (
-                            <div className="space-y-4 text-gray-300">
-                                <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
-                                    <Shield className="text-violet-400 shrink-0" size={28} />
-                                    <div>
-                                        <h4 className="text-white font-bold text-base">Manufacturer Warranty Coverage</h4>
-                                        <p className="text-xs text-gray-400 mt-0.5">
-                                            {product.warranty_info || "Standard 6 Months Replacement Warranty against manufacturing defects"}
-                                        </p>
-                                    </div>
-                                </div>
-                                <p className="text-xs text-gray-400 leading-relaxed pl-1">
-                                    All products sold on Tronix365 undergo multi-stage QA testing before dispatch. Warranty covers component failures under normal operating parameters. Physical damage, burnt components due to improper wiring, or unauthorized modifications are excluded.
-                                </p>
-                            </div>
-                        )}
-
-                        {/* TAB 4: Reviews Panel */}
+                        {/* TAB 3: Reviews Panel */}
                         {activeTab === 'reviews' && (
                             <ReviewSection productId={product.id} onStatsChange={(newStats) => setReviewStats(newStats)} />
                         )}
